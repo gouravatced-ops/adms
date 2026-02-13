@@ -43,6 +43,44 @@ class QuarterTypeController extends Controller
                     ->withInput();
             }
 
+            // Additional validation for income range
+            if ($request->min_income && $request->max_income && $request->min_income >= $request->max_income) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['max_income' => 'Maximum income must be greater than minimum income'])
+                    ->withInput();
+            }
+
+            // Check for overlapping income ranges
+            $overlapping = QuarterType::where(function ($query) use ($request) {
+                // Check if new range overlaps with existing ranges
+                $query->where(function ($q) use ($request) {
+                    // Existing min within new range
+                    if ($request->min_income && $request->max_income) {
+                        $q->whereBetween('min_income', [$request->min_income, $request->max_income])
+                            ->orWhereBetween('max_income', [$request->min_income, $request->max_income])
+                            ->orWhere(function ($q2) use ($request) {
+                                $q2->where('min_income', '<=', $request->min_income)
+                                    ->where('max_income', '>=', $request->max_income);
+                            });
+                    } elseif ($request->min_income) {
+                        // Only min specified (above certain amount)
+                        $q->where('max_income', '>', $request->min_income)
+                            ->orWhereNull('max_income');
+                    } elseif ($request->max_income) {
+                        // Only max specified (below certain amount)
+                        $q->where('min_income', '<', $request->max_income)
+                            ->orWhereNull('min_income');
+                    }
+                });
+            })->exists();
+
+            if ($overlapping) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['min_income' => 'Income range overlaps with an existing quarter type'])
+                    ->withInput();
+            }
 
             // Create quarter type
             $quarterType = QuarterType::create([
@@ -98,6 +136,41 @@ class QuarterTypeController extends Controller
                     ->withInput();
             }
 
+            // Additional validation for income range
+            if ($request->min_income && $request->max_income && $request->min_income >= $request->max_income) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['max_income' => 'Maximum income must be greater than minimum income'])
+                    ->withInput();
+            }
+
+            // Check for overlapping income ranges (excluding current record)
+            $overlapping = QuarterType::where('quarter_id', '!=', $quarterType->quarter_id)
+                ->where(function ($query) use ($request) {
+                    $query->where(function ($q) use ($request) {
+                        if ($request->min_income && $request->max_income) {
+                            $q->whereBetween('min_income', [$request->min_income, $request->max_income])
+                                ->orWhereBetween('max_income', [$request->min_income, $request->max_income])
+                                ->orWhere(function ($q2) use ($request) {
+                                    $q2->where('min_income', '<=', $request->min_income)
+                                        ->where('max_income', '>=', $request->max_income);
+                                });
+                        } elseif ($request->min_income) {
+                            $q->where('max_income', '>', $request->min_income)
+                                ->orWhereNull('max_income');
+                        } elseif ($request->max_income) {
+                            $q->where('min_income', '<', $request->max_income)
+                                ->orWhereNull('min_income');
+                        }
+                    });
+                })->exists();
+
+            if ($overlapping) {
+                return redirect()
+                    ->back()
+                    ->withErrors(['min_income' => 'Income range overlaps with another quarter type'])
+                    ->withInput();
+            }
 
             // Update quarter type
             $quarterType->update([
