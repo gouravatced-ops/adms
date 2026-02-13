@@ -1,0 +1,216 @@
+#jspc-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader-container {
+    perspective: 1000px;
+}
+
+.small-cube {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateCube 3s linear infinite;
+}
+
+.small-cube .face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 0, 140, 0.85);
+    border: 1px solid #f2f2f3;
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+/* 3D positioning */
+.small-cube .front {
+    transform: rotateY(0deg) translateZ(30px);
+}
+
+.small-cube .back {
+    transform: rotateY(180deg) translateZ(30px);
+}
+
+.small-cube .right {
+    transform: rotateY(90deg) translateZ(30px);
+}
+
+.small-cube .left {
+    transform: rotateY(-90deg) translateZ(30px);
+}
+
+.small-cube .top {
+    transform: rotateX(90deg) translateZ(30px);
+}
+
+.small-cube .bottom {
+    transform: rotateX(-90deg) translateZ(30px);
+}
+
+@keyframes rotateCube {
+    from {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    to {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}
+
+#loading-text {
+    margin-top: 30px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    animation: fadeInOut 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* body  */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+.defult-home {
+    font-family: "Open Sans", sans-serif;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(241, 205, 61, 0.37) 0%,
+            rgba(42, 46, 137, 0.15) 100%
+        ),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23f8f9fa" width="1200" height="600"/><g fill-opacity="0.05"><polygon fill="%23e4c341" points="1200 0 1200 600 0 600"/><polygon fill="%232a2e89" points="0 0 600 0 0 600"/></g></svg>');
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+.defult-home1 {
+    font-family: "Open Sans", sans-serif;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(248, 220, 106, 0.247) 0%,
+            rgba(42, 46, 137, 0.15) 100%
+        ),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23f8f9fa" width="1200" height="600"/><path d="M0 300Q300 200 600 300T1200 300V600H0Z" fill="%23e4c341" opacity="0.08"/><path d="M0 400Q300 350 600 400T1200 400V600H0Z" fill="%232a2e89" opacity="0.06"/><path d="M0 100Q300 50 600 100T1200 100" stroke="%232a2e89" stroke-width="2" fill="none" opacity="0.1"/></svg>');
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+.cardIcon {
+    position: relative;
+    overflow: hidden;
+}
+
+.cardIcon::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    right: -30px;
+
+    width: 220px;
+    height: 220px;
+
+    background-image: url("/assets/jspc.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.cardIconSmall {
+    position: relative;
+    overflow: hidden;
+}
+
+.cardIconSmall::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    right: -30px;
+
+    width: 83px;
+    height: 220px;
+
+    background-image: url("/assets/jspc.jpg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.login-link {
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+
+    font-size: 13px;
+    text-decoration: none;
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .forgot-card::after {
+        font-size: 160px;
+        bottom: -30px;
+        right: -20px;
+    }
+}
+
+
+/* Dropdown menu yellow hover effects */
+.nav-item.dropdown .dropdown-menu .dropdown-item:hover {
+    background-color: #ffc107 !important; /* Yellow color */
+    color: #000 !important;
+}
+
+.nav-item.dropdown .dropdown-menu .dropdown-item:focus {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Active dropdown item with yellow */
+.nav-item.dropdown .dropdown-menu .dropdown-item.active {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Transition for smooth hover effect */
+.nav-item.dropdown .dropdown-menu .dropdown-item {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Optional: Change the dropdown menu border or background */
+.nav-item.dropdown .dropdown-menu {
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    box-shadow: 0 2px 10px rgba(255, 193, 7, 0.1);
+}

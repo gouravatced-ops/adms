@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'KrutiDev';
+    src: url('../fonts1/KrutiDev010.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.krutidev {
+    font-family: 'KrutiDev', Arial, sans-serif;
+}

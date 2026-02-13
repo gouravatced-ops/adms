@@ -1,0 +1,385 @@
+@extends('applicant.dashboard_layouts.main')
+
+@section('title', 'Dashboard')
+
+@section('content')
+<!-- Breadcrumb Navigation -->
+{{-- <nav class="mb-6 px-2" aria-label="Breadcrumb">
+    <ol class="flex items-center space-x-2 text-sm">
+        <!-- Home -->
+        <li class="flex items-center">
+            <a href="#" class="flex items-center text-white/70 hover:text-white transition-colors duration-200 group">
+                <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                <span class="font-medium">Home</span>
+            </a>
+        </li>
+
+        <!-- Separator -->
+        <li class="flex items-center">
+            <svg class="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </li>
+
+        <!-- File Management -->
+        <li class="flex items-center">
+            <a href="#" class="flex items-center text-white/70 hover:text-white transition-colors duration-200 group">
+                <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                <span class="font-medium">File Management</span>
+            </a>
+        </li>
+
+        <!-- Separator -->
+        <li class="flex items-center">
+            <svg class="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </li>
+
+        <!-- Current Page -->
+        <li class="flex items-center">
+            <span class="flex items-center text-orange-400 font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+                <span>New File Entry</span>
+            </span>
+        </li>
+    </ol>
+</nav> --}}
+<!-- Form Card -->
+<div class="bg-white shadow-2xl overflow-hidden">
+
+    <!-- Form Header -->
+    <div class="modern-card-header px-4 py-2">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white mb-1">File Tracking System</h1>
+                <p class="text-orange-50 text-sm">Complete the form below to register a new file</p>
+            </div>
+            <div class="hidden md:flex items-center justify-center w-16 h-16 bg-white/20 rounded-full backdrop-blur-sm">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Body -->
+    <form id="fileTrackingForm" class="p-8" onsubmit="handleSubmit(event)">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- File No. (col-6 / col-md-6) -->
+            <div class="space-y-2">
+                <label for="fileNo"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    File No.
+                </label>
+                <input type="text" id="fileNo" name="fileNo" required placeholder="Enter unique file number"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200">
+                <p class="text-xs text-gray-500 mt-1">Unique identifier for the file</p>
+            </div>
+
+            <!-- File Holder Name (col-6 / col-md-6) -->
+            <div class="space-y-2">
+                <label for="fileHolderName" class="block text-sm font-semibold text-navy-900 uppercase tracking-wide">
+                    File Holder Name
+                </label>
+                <input type="text" id="fileHolderName" name="fileHolderName"
+                    placeholder="Enter file holder name (Optional)"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200">
+                <p class="text-xs text-gray-500 mt-1">Jo file holder hai (Optional if in system)</p>
+            </div>
+
+            <!-- Correct Pages (col-6 / col-md-6) -->
+            <div class="space-y-2">
+                <label for="correctPages"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Correct Pages
+                </label>
+                <input type="number" id="correctPages" name="correctPages" required min="0"
+                    placeholder="Number of intact pages" oninput="calculateTotalPages()"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200">
+                <p class="text-xs text-gray-500 mt-1">Kitne pages intact hai (Receiving check)</p>
+            </div>
+
+            <!-- Damage Pages (col-6 / col-md-6) -->
+            <div class="space-y-2">
+                <label for="damagePages"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Damaged Pages
+                </label>
+                <input type="number" id="damagePages" name="damagePages" required min="0"
+                    placeholder="Number of damaged pages" oninput="calculateTotalPages()"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200">
+                <p class="text-xs text-gray-500 mt-1">Damaged pages count</p>
+            </div>
+
+            <!-- Total Pages (col-6 / col-md-6) - Auto Calculated -->
+            <div class="space-y-2">
+                <label for="totalPages" class="block text-sm font-semibold text-navy-900 uppercase tracking-wide">
+                    Total Pages
+                </label>
+                <input type="number" id="totalPages" name="totalPages" readonly placeholder="Auto-calculated"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-semibold cursor-not-allowed">
+                <p class="text-xs text-gray-500 mt-1">= Correct Pages + Damaged Pages</p>
+            </div>
+
+            <!-- Received Date (col-6 / col-md-6) -->
+            <div class="space-y-2">
+                <label for="receivedDate"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Received Date
+                </label>
+                <input type="date" id="receivedDate" name="receivedDate" required
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200">
+                <p class="text-xs text-gray-500 mt-1">File scanner ke paas kab aayi</p>
+            </div>
+
+            <!-- Status - Radio Buttons (col-12 / full width) -->
+            <div class="md:col-span-2 space-y-3">
+                <label class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Status
+                </label>
+                <div class="flex flex-wrap gap-4">
+                    <!-- Receiver Option -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="radio" id="statusReceiver" name="status" value="Receiver" required checked
+                            class="w-4 h-4 text-orange-500 focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">Receiver</span>
+                    </label>
+
+                    {{-- <!-- Scanning Option -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="radio" id="statusScanning" name="status" value="Scanning" required
+                            class="w-4 h-4 text-orange-500 focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">Scanning</span>
+                    </label>
+
+                    <!-- Handover Option -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="radio" id="statusHandover" name="status" value="Handover" required
+                            class="w-4 h-4 text-orange-500 focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">Handover</span>
+                    </label> --}}
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Initially: Receiver (default)</p>
+            </div>
+
+            <!-- Document Type - Select Dropdown (col-6 / col-md-6) -->
+            {{-- <div class="space-y-2">
+                <label for="documentType"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Document Type
+                </label>
+                <select id="documentType" name="documentType" required
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200 bg-white">
+                    <option value="" disabled selected>Select document type</option>
+                    <option value="legal">Legal Document</option>
+                    <option value="financial">Financial Record</option>
+                    <option value="administrative">Administrative File</option>
+                    <option value="personnel">Personnel Record</option>
+                    <option value="contract">Contract</option>
+                    <option value="invoice">Invoice</option>
+                    <option value="other">Other</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Select the type of document</p>
+            </div> --}}
+
+            <!-- Priority Level - Select Dropdown (col-6 / col-md-6) -->
+            {{-- <div class="space-y-2">
+                <label for="priorityLevel"
+                    class="block text-sm font-semibold text-navy-900 uppercase tracking-wide required-indicator">
+                    Priority Level
+                </label>
+                <select id="priorityLevel" name="priorityLevel" required
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200 bg-white">
+                    <option value="" disabled selected>Select priority</option>
+                    <option value="urgent">🔴 Urgent</option>
+                    <option value="high">🟠 High</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="low">🟢 Low</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Processing priority</p>
+            </div> --}}
+
+            <!-- Special Handling - Checkboxes (col-12 / full width) -->
+            {{-- <div class="md:col-span-2 space-y-3">
+                <label class="block text-sm font-semibold text-navy-900 uppercase tracking-wide">
+                    Special Handling
+                </label>
+                <div class="flex flex-wrap gap-4">
+                    <!-- Confidential -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="checkbox" id="confidential" name="specialHandling[]" value="Confidential"
+                            class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">🔒 Confidential</span>
+                    </label>
+
+                    <!-- Fragile -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="checkbox" id="fragile" name="specialHandling[]" value="Fragile"
+                            class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">⚠️ Fragile</span>
+                    </label>
+
+                    <!-- Archive After Scan -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="checkbox" id="archiveAfterScan" name="specialHandling[]" value="ArchiveAfterScan"
+                            class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">📦 Archive After Scan</span>
+                    </label>
+
+                    <!-- Requires OCR -->
+                    <label
+                        class="flex items-center space-x-3 px-5 py-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50 has-[:checked]:ring-4 has-[:checked]:ring-orange-500/10">
+                        <input type="checkbox" id="requiresOCR" name="specialHandling[]" value="RequiresOCR"
+                            class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-700">🔍 Requires OCR</span>
+                    </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Select all that apply (Optional)</p>
+            </div> --}}
+
+            <!-- Additional Notes (col-12 / full width) -->
+            {{-- <div class="md:col-span-2 space-y-2">
+                <label for="additionalNotes" class="block text-sm font-semibold text-navy-900 uppercase tracking-wide">
+                    Additional Notes
+                </label>
+                <textarea id="additionalNotes" name="additionalNotes" rows="4"
+                    placeholder="Enter any additional information or special instructions..."
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all duration-200 resize-none"></textarea>
+                <p class="text-xs text-gray-500 mt-1">Optional field for extra details</p>
+            </div> --}}
+
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-4 pt-6 border-t-2 border-gray-100">
+            <button type="submit" id="submitButton" disabled
+                class="w-full md:w-auto px-4 py-4 modern-card-header font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center justify-center gap-3 group">
+                <span>Submit File Record</span>
+                <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6">
+                    </path>
+                </svg>
+            </button>
+            <p class="text-sm text-gray-500 mt-3 text-center md:text-left">All required fields must be filled to enable
+                submission</p>
+        </div>
+
+    </form>
+
+</div>
+@endsection
+
+@push('scripts')
+<!-- JavaScript -->
+<script>
+    // Set today's date as default
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('receivedDate').value = today;
+
+            // Initial validation check
+            validateForm();
+        });
+
+        // Calculate Total Pages
+        function calculateTotalPages() {
+            const correctPages = parseInt(document.getElementById('correctPages').value) || 0;
+            const damagePages = parseInt(document.getElementById('damagePages').value) || 0;
+            const totalPages = correctPages + damagePages;
+
+            document.getElementById('totalPages').value = totalPages;
+
+            // Validate form after calculation
+            validateForm();
+        }
+
+        // Validate Form and Enable/Disable Submit Button
+        function validateForm() {
+            const form = document.getElementById('fileTrackingForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // Get all required fields
+            const fileNo = document.getElementById('fileNo').value.trim();
+            const correctPages = document.getElementById('correctPages').value;
+            const damagePages = document.getElementById('damagePages').value;
+            const receivedDate = document.getElementById('receivedDate').value;
+            const documentType = document.getElementById('documentType').value;
+            const priorityLevel = document.getElementById('priorityLevel').value;
+            const status = document.querySelector('input[name="status"]:checked');
+
+            // Check if all required fields are filled
+            const allFieldsFilled = fileNo &&
+                correctPages &&
+                damagePages &&
+                receivedDate &&
+                documentType &&
+                priorityLevel &&
+                status;
+
+            // Enable or disable submit button
+            submitButton.disabled = !allFieldsFilled;
+        }
+
+        // Add event listeners to all required fields
+        document.getElementById('fileNo').addEventListener('input', validateForm);
+        document.getElementById('correctPages').addEventListener('input', validateForm);
+        document.getElementById('damagePages').addEventListener('input', validateForm);
+        document.getElementById('receivedDate').addEventListener('change', validateForm);
+        document.getElementById('documentType').addEventListener('change', validateForm);
+        document.getElementById('priorityLevel').addEventListener('change', validateForm);
+        document.querySelectorAll('input[name="status"]').forEach(radio => {
+            radio.addEventListener('change', validateForm);
+        });
+
+        // Handle Form Submission
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            // Get form data
+            const formData = new FormData(event.target);
+            const data = {};
+
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (key === 'specialHandling[]') {
+                    if (!data.specialHandling) {
+                        data.specialHandling = [];
+                    }
+                    data.specialHandling.push(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            // Log form data (you can replace this with actual API call)
+            console.log('Form Data:', data);
+
+            setTimeout(() => showToast('Success', 'Form submitted successfully!', 'success'), 1000);
+        }
+</script>
+@endpush
