@@ -394,13 +394,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- Area -->
-                                <div class="field">
-                                    <label class="label">Area </label>
-                                    <input type="text" name="allottees[{{ $index }}][area]" placeholder="Area"
-                                        placeholder="Enter area" value="{{ $allottee['area'] }}">
-                                </div>
-
                                 <!-- Property Category -->
                                 <div class="field">
                                     <label class="label required">Property Category</label>
@@ -484,6 +477,37 @@
                                         required>
                                 </div>
 
+                                <!-- No. of Files -->
+                                <div class="field">
+                                    <label class="label required">No. of Files</label>
+                                    <select name="allottees[{{ $index }}][no_of_files]" required>
+
+                                        @for ($i = 1; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
+                                </div>
+
+                                <!-- No. of Supplement -->
+                                <div class="field">
+                                    <label class="label">Additional Supplements Files</label>
+                                    <select name="allottees[{{ $index }}][no_of_supplement]">
+                                        <option value="">-- Select No. of Supplement --</option>
+
+                                        @for ($i = 0; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
+                                </div>
+
                                 <!-- Remarks -->
                                 <div class="field">
                                     <label class="label">Remarks</label>
@@ -565,13 +589,6 @@
                                     </select>
                                 </div>
 
-                                <!-- Area -->
-                                <div class="field">
-                                    <label class="label">Area </label>
-                                    <input type="text" name="allottees[{{ $index }}][area]"
-                                        placeholder="Enter area" value="{{ $allottee->area }}">
-                                </div>
-
                                 <!-- Property Category -->
                                 <div class="field">
                                     <label class="label required">Property Category</label>
@@ -631,6 +648,38 @@
                                     <input type="text" name="allottees[{{ $index }}][allottee_name]"
                                         placeholder="Enter allottee name" value="{{ $allottee->allottee_name }}"
                                         required>
+                                </div>
+
+
+                                <!-- No. of Files -->
+                                <div class="field">
+                                    <label class="label required">No. of Files</label>
+                                    <select name="allottees[{{ $index }}][no_of_files]" required>
+
+                                        @for ($i = 1; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
+                                </div>
+
+                                <!-- No. of Supplement -->
+                                <div class="field">
+                                    <label class="label">Additional Supplements Files</label>
+                                    <select name="allottees[{{ $index }}][no_of_supplement]">
+                                        <option value="">-- Select No. of Supplement --</option>
+
+                                        @for ($i = 0; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
                                 </div>
 
                                 <!-- Remarks -->
@@ -704,12 +753,6 @@
                                 </select>
                             </div>
 
-                            <!-- Area -->
-                            <div class="field">
-                                <label class="label">Area </label>
-                                <input type="text" name="allottees[0][area]" placeholder="Enter area">
-                            </div>
-
                             <!-- Property Category -->
                             <div class="field">
                                 <label class="label required">Property Category</label>
@@ -736,7 +779,7 @@
                                 <select name="allottees[0][quarter_type]" class="quarter-type-select" required>
                                     <option value="">Select type</option>
                                     @foreach ($getQuarterType as $quarterType)
-                                        <option value="{{ $quarterType->quarter_id }}">
+                                        <option value="{{ $quarterType->quarter_id }}" >
                                             {{ $quarterType->quarter_code }}
                                         </option>
                                     @endforeach
@@ -757,6 +800,36 @@
                                 <label class="label required">Allottee Name</label>
                                 <input type="text" name="allottees[0][allottee_name]"
                                     placeholder="Enter allottee name" required>
+                            </div>
+
+
+                            <!-- No. of Files -->
+                            <div class="field">
+                                <label class="label required">No. of Files</label>
+                                <select name="allottees[0][no_of_files]" required>
+
+                                    @for ($i = 1; $i <= 10; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
+                                            {{ $i }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <!-- No. of Supplement -->
+                            <div class="field">
+                                <label class="label">Additional Supplements Files</label>
+                                <select name="allottees[0][no_of_supplement]">
+                                    <option value="">-- Select No. of Supplement --</option>
+
+                                    @for ($i = 0; $i <= 10; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
+                                            {{ $i }}
+                                        </option>
+                                    @endfor
+                                </select>
                             </div>
 
                             <!-- Remarks -->
@@ -832,26 +905,40 @@
                 const section = propertyTypeSelect.closest('.dynamic-section');
                 if (!section) return;
 
-                const quarterField = section.querySelector('.field.quarter-type-field');
-                const propertyTypeText = propertyTypeSelect.options[propertyTypeSelect.selectedIndex]?.text
-                    .toLowerCase() || '';
+                const quarterField = section.querySelector('.quarter-type-field');
+                const quarterSelect = quarterField?.querySelector('select');
+                if (!quarterSelect) return;
 
-                // If property type contains "plot", hide quarter type
-                if (propertyTypeText.includes('plot') || propertyTypeText.includes('shop')) {
-                    if (quarterField) {
-                        quarterField.style.display = 'none';
-                        const quarterSelect = quarterField.querySelector('select');
-                        if (quarterSelect) quarterSelect.required = false;
+                const propertyTypeText =
+                    propertyTypeSelect.options[propertyTypeSelect.selectedIndex]?.text
+                    ?.toLowerCase() || '';
+
+                const isPlot = propertyTypeText.includes('plot');
+
+                // Loop through all quarter options
+                Array.from(quarterSelect.options).forEach(option => {
+                    const text = option.text.toLowerCase();
+
+                    if (!option.value) return; // skip "Select type"
+
+                    if (isPlot) {
+                        // Show only MIG & HIG
+                        if (text.includes('mig') || text.includes('hig')) {
+                            option.hidden = false;
+                        } else {
+                            option.hidden = true;
+                            if (option.selected) option.selected = false;
+                        }
+                    } else {
+                        // Show all options
+                        option.hidden = false;
                     }
-                } else {
-                    // Show quarter type for non-plot properties
-                    if (quarterField) {
-                        quarterField.style.display = 'block';
-                        const quarterSelect = quarterField.querySelector('select');
-                        if (quarterSelect) quarterSelect.required = true;
-                    }
-                }
+                });
+
+                // Make required always true (since not hiding field)
+                quarterSelect.required = true;
             }
+
 
             function initializeSections() {
                 document.querySelectorAll('.dynamic-section').forEach((section, index) => {
@@ -1181,18 +1268,8 @@
                     return;
                 }
 
-                // Validate required fields (excluding hidden quarter type if plot)
-                const propertyTypeSelect = section.querySelector('.property-type-select');
-                const isPlot = propertyTypeSelect?.options[propertyTypeSelect.selectedIndex]?.text.toLowerCase()
-                    .includes('plot');
 
                 let inputs = section.querySelectorAll('input[required], select[required]');
-                // If plot, exclude quarter type from validation
-                if (isPlot) {
-                    inputs = Array.from(inputs).filter(input => {
-                        return !input.closest('.quarter-type-field');
-                    });
-                }
 
                 let isValid = true;
                 let firstInvalidInput = null;
@@ -1236,10 +1313,6 @@
                             const fieldName = match[2];
                             // Don't include the ID field in the form data
                             if (fieldName !== 'id') {
-                                // If plot and field is quarter_type, skip it
-                                if (isPlot && fieldName === 'quarter_type') {
-                                    return;
-                                }
                                 formData.append(fieldName, el.value);
                             }
                         }
@@ -1269,64 +1342,66 @@
                         body: formData
                     })
                     .then(response => response.json())
-                        .then(data => {
+                    .then(data => {
 
-                            if (!data.success) {
-                                // Handle limit reached or validation errors
-                                showNotification(
-                                    'File Receiving',
-                                    data.message || 'Operation failed.',
-                                    'error'
-                                );
-                                return;
-                            }
-
-                            const statusBadge = document.getElementById(`status-${index}`);
-                            if (statusBadge) {
-                                statusBadge.textContent = 'Saved';
-                                statusBadge.className = 'status-badge status-saved';
-                            }
-
-                            if (data.allottee_id) {
-                                savedAllottees[index] = data.allottee_id;
-                                if (allotteeIdInput) {
-                                    allotteeIdInput.value = data.allottee_id;
-                                }
-                            }
-
-                            hasSavedAnyAllottee = true;
-
-                            if (window.beforeUnloadHandler) {
-                                window.removeEventListener('beforeunload', window.beforeUnloadHandler);
-                            }
-
-                            updateLocalStorageState();
-
-                            if (saveBtn) {
-                                const span = saveBtn.querySelector('span');
-                                if (span) span.textContent = 'Update';
-                                saveBtn.classList.add('updating');
-                            }
-
-                            enableSubmitButton();
-
+                        if (!data.success) {
+                            // Handle limit reached or validation errors
                             showNotification(
                                 'File Receiving',
-                                isUpdate
-                                    ? 'Allottee updated successfully!'
-                                    : 'Allottee saved successfully!',
-                                'success'
-                            );
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-
-                            showNotification(
-                                'File Receiving',
-                                error.message || 'Unexpected error occurred.',
+                                data.message || 'Operation failed.',
                                 'error'
                             );
-                        })
+                            return;
+                        }
+
+                        // ✅ SUCCESS FLOW
+                        const statusBadge = document.getElementById(`status-${index}`);
+                        if (statusBadge) {
+                            statusBadge.textContent = 'Saved';
+                            statusBadge.className = 'status-badge status-saved';
+                        }
+
+                        if (data.allottee_id) {
+                            savedAllottees[index] = data.allottee_id;
+                            if (allotteeIdInput) {
+                                allotteeIdInput.value = data.allottee_id;
+                            }
+                        }
+
+                        hasSavedAnyAllottee = true;
+
+                        if (window.beforeUnloadHandler) {
+                            window.removeEventListener('beforeunload', window.beforeUnloadHandler);
+                        }
+
+                        updateLocalStorageState();
+
+                        if (saveBtn) {
+                            const span = saveBtn.querySelector('span');
+                            if (span) span.textContent = 'Update';
+                            saveBtn.classList.add('updating');
+                        }
+
+                        enableSubmitButton();
+
+                        showNotification(
+                            'File Receiving',
+                            isUpdate ?
+                            'Allottee updated successfully!' :
+                            'Allottee saved successfully!',
+                            'success'
+                        );
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+
+                        showNotification(
+                            'File Receiving',
+                            error.message || 'Unexpected error occurred.',
+                            'error'
+                        );
+                    })
+
                     .finally(() => {
                         // Restore save button state
                         if (saveBtn) {
@@ -1680,11 +1755,6 @@
                         </div>
 
                         <div class="field">
-                            <label class="label">Area</label>
-                            <input type="text" name="allottees[${index}][area]" placeholder="Enter area">
-                        </div>
-
-                        <div class="field">
                             <label class="label required">Property Category</label>
                             <select name="allottees[${index}][pcategory_id]" class="property-category-select" required>
                                 <option value="">Select Category</option>
@@ -1729,7 +1799,39 @@
                                 placeholder="Enter allottee name" required>
                         </div>
 
-                        <div class="field">
+                        
+                                <!-- No. of Files -->
+                                <div class="field">
+                                    <label class="label required">No. of Files</label>
+                                    <select name="allottees[${index}][no_of_files]" required>
+
+                                        @for ($i = 1; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
+                                </div>
+
+                                <!-- No. of Supplement -->
+                                <div class="field">
+                                    <label class="label">Additional Supplements Files</label>
+                                    <select name="allottees[${index}][no_of_supplement]">
+                                        <option value="">-- Select No. of Supplement --</option>
+
+                                        @for ($i = 0; $i <= 10; $i++)
+                                            <option value="{{ $i }}"
+                                                {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+
+                                    </select>
+                                </div>
+
+                                                        <div class="field">
                             <label class="label">Remarks</label>
                                 <select name="allottees[${index}][remarks]">
                                     <option value="">-- Select Page Condition --</option>

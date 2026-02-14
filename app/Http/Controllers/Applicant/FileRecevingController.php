@@ -3,17 +3,23 @@
 namespace App\Http\Controllers\Applicant;
 
 use App\Http\Controllers\Controller;
+use App\Models\ExportedFile;
 use App\Models\Register;
 use App\Models\RegisterAllottee;
 use App\Models\RegistrationFile;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\ExportedFile;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class FileRecevingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('admin.auth');
+    }
+
     public function generateRegisterNo()
     {
         $date = now()->format('dmy'); // 090226
@@ -31,7 +37,7 @@ class FileRecevingController extends Controller
                 ->orderBy('created_at', 'desc');
 
             // Apply search filter
-            if (!empty($search)) {
+            if (! empty($search)) {
                 $query->where('register_no', 'like', '%' . $search . '%');
             }
 
@@ -51,7 +57,7 @@ class FileRecevingController extends Controller
                 return response()->json([
                     'registrations' => $registrations,
                     'pagination' => $registrations->links()->toHtml(),
-                    'search_term' => $search
+                    'search_term' => $search,
                 ]);
             }
 
@@ -67,7 +73,7 @@ class FileRecevingController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'error' => 'Failed to load registrations.',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ], 500);
             }
 
@@ -83,7 +89,7 @@ class FileRecevingController extends Controller
             // Decode register number safely
             $registerNo = base64_decode($registerId, true);
 
-            if (!$registerNo) {
+            if (! $registerNo) {
                 return redirect()
                     ->back()
                     ->with('error', 'Invalid register reference.');
@@ -112,27 +118,28 @@ class FileRecevingController extends Controller
                     'pc.name as cname',
                     'pt.name as pname',
                     'qt.quarter_code as quarter_code',
+                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files')
                 ]);
 
             // Apply search filters
-            if (!empty($searchAllottee)) {
+            if (! empty($searchAllottee)) {
                 $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%');
             }
 
-            if (!empty($searchPropertyNo)) {
+            if (! empty($searchPropertyNo)) {
                 $query->where('ra.property_number', 'like', '%' . $searchPropertyNo . '%');
             }
 
-            if (!empty($searchArea)) {
+            if (! empty($searchArea)) {
                 $query->where('ra.area', 'like', '%' . $searchArea . '%');
             }
 
-            if (!empty($searchDivision)) {
+            if (! empty($searchDivision)) {
                 $query->where('ra.division_id', $searchDivision);
             }
 
             // Get divisions for dropdown (only if needed for non-AJAX request)
-            if (!$request->ajax()) {
+            if (! $request->ajax()) {
                 $divisions = \App\Models\Division::orderBy('name')->get();
             }
 
@@ -158,7 +165,7 @@ class FileRecevingController extends Controller
                         'property_no' => $searchPropertyNo,
                         'area' => $searchArea,
                         'division' => $searchDivision,
-                    ]
+                    ],
                 ]);
             }
 
@@ -175,7 +182,7 @@ class FileRecevingController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'error' => 'Failed to load files.',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ], 500);
             }
 
@@ -240,6 +247,7 @@ class FileRecevingController extends Controller
                 $finalRegistration->total_files = $tempRegister->total_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
                 $finalRegistration->status = 'submitted';
+                $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();
 
@@ -275,10 +283,10 @@ class FileRecevingController extends Controller
             }
 
             $exists = RegistrationFile::where('register_no', $request->register_id)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 $tempRegister = Register::where('register_no', $request->register_id)->first();
 
-                if (!$tempRegister) {
+                if (! $tempRegister) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Register not found',
@@ -290,6 +298,7 @@ class FileRecevingController extends Controller
                 $finalRegistration->total_files = $tempRegister->total_files + 1;
                 $finalRegistration->remarks = $tempRegister->remarks;
                 $finalRegistration->status = 'submitted';
+                $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();
             } else {
@@ -305,7 +314,11 @@ class FileRecevingController extends Controller
                 $finalRegistration->updated_at = NOW();
                 $finalRegistration->save();
             }
-            $allottee = RegisterAllottee::create($request->all());
+
+            $data = $request->all();
+            $data['created_by'] = auth()->id();
+            $data['ip_address'] = $request->ip();
+            $allottee = RegisterAllottee::create($data);
 
             Register::where('register_no', $request->register_id)
                 ->increment('total_files');
@@ -321,7 +334,7 @@ class FileRecevingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong. Please try again.',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -419,18 +432,22 @@ class FileRecevingController extends Controller
             'allottee_id' => 'required|integer',
             'division_id' => 'required',
             'sub_division_id' => 'required',
-            'area' => 'required',
             'pcategory_id' => 'required',
             'p_type_id' => 'required',
             'property_number' => 'required|string',
             'allottee_name' => 'required|string',
+            'no_of_files' => 'required',
+            'no_of_supplement' => 'nullable|min:0|max:10',
             'remarks' => 'nullable|string',
         ]);
 
-        $allottee = RegisterAllottee::find($request->allottee_id);
+        $data = $request->all();
+        $data['updated_by'] = auth()->id();
+        $data['ip_address'] = $request->ip();
+        $allottee = RegisterAllottee::find($data['allottee_id']);
 
         if ($allottee) {
-            $allottee->update($request->all());
+            $allottee->update($data);
 
             return response()->json([
                 'success' => true,
@@ -447,11 +464,13 @@ class FileRecevingController extends Controller
             'allottee_id' => 'required',
             'division_id' => 'required',
             'sub_division_id' => 'required',
-            'area' => 'required',
             'pcategory_id' => 'required',
             'p_type_id' => 'required',
+            'quarter_type' => 'nullable',
             'property_number' => 'required|string',
             'allottee_name' => 'required|string',
+            'no_of_files' => 'required',
+            'no_of_supplement' => 'nullable|min:0|max:10',
             'remarks' => 'nullable|string',
         ]);
 
@@ -471,13 +490,16 @@ class FileRecevingController extends Controller
         $allottee->update([
             'division_id' => $validated['division_id'],
             'sub_division_id' => $validated['sub_division_id'],
-            'area' => $validated['area'],
             'pcategory_id' => $validated['pcategory_id'],
             'p_type_id' => $validated['p_type_id'],
             'property_number' => $validated['property_number'],
-            'quarter_type' => $validated['quarter_type'] ?? NULL,
+            'quarter_type' => $validated['quarter_type'] ?? null,
             'allottee_name' => $validated['allottee_name'],
             'remarks' => $validated['remarks'] ?? null,
+            'no_of_files' => $validated['no_of_files'],
+            'no_of_supplement' => $validated['no_of_supplement'] ?? '0',
+            'ip_address' => $request->ip() ?? NULL,
+            'updated_by' => auth()->id() ?? null,
         ]);
 
         return response()->json([
@@ -522,17 +544,17 @@ class FileRecevingController extends Controller
         }
 
         $data = [
-            'title'      => 'COMPUTER Ed. - Files Receiving',
-            'date'       => date('d/m/Y'),
-            'allottees'  => $allottees,
+            'title' => 'COMPUTER Ed. - Files Receiving',
+            'date' => date('d/m/Y'),
+            'allottees' => $allottees,
             'registerNo' => $registerNo,
-            'logo1'      => public_path('assets/indian-bank.png'),
-            'logo2'      => public_path('assets/insta-logo.jpg'),
-            'logo3'      => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
-            'copies'     => [
+            'logo1' => public_path('assets/indian-bank.png'),
+            'logo2' => public_path('assets/insta-logo.jpg'),
+            'logo3' => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
+            'copies' => [
                 'OFFICE COPY - COMPUTER Ed.',
                 'OFFICE COPY - JHARKHAND STATE HOUSING BOARD',
-                'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH'
+                'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH',
             ],
         ];
 
@@ -544,7 +566,7 @@ class FileRecevingController extends Controller
 
         $directory = public_path("uploads/{$registerNo}/files");
 
-        if (!File::exists($directory)) {
+        if (! File::exists($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
 
@@ -555,9 +577,9 @@ class FileRecevingController extends Controller
 
         ExportedFile::create([
             'register_no' => $registerNo,
-            'file_name'   => $filename,
-            'file_path'   => "uploads/{$registerNo}/files/{$filename}",
-            'file_size'   => $fileSize,
+            'file_name' => $filename,
+            'file_path' => "uploads/{$registerNo}/files/{$filename}",
+            'file_size' => $fileSize,
         ]);
 
         return response()->download($filePath);

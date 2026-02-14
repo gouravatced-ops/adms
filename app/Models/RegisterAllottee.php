@@ -20,5 +20,10 @@ class RegisterAllottee extends Model
         'quarter_type',
         'allottee_name',
         'remarks',
+        'no_of_files',
+        'no_of_supplement',
+        'created_by',
+        'updated_by',
+        'ip_address',
     ];
 }
