@@ -303,7 +303,7 @@
                         <select name="no_of_files" required>
                             <option value="">-- Select No. of Files --</option>
 
-                            @for ($i = 1; $i <= 10; $i++)
+                            @for ($i = 1; $i <= 6; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_files) && $allottes->no_of_files == $i ? 'selected' : '' }}>
                                     {{ $i }}
@@ -315,9 +315,9 @@
 
                     <!-- No. of Supplement -->
                     <div class="field">
-                        <label class="label">No. of Supplement {{$allottes->no_of_supplement}}</label>
+                        <label class="label">No. of Supplement</label>
                         <select name="no_of_supplement" required>
-                            @for ($i = 0; $i <= 10; $i++)
+                            @for ($i = 0; $i <= 6; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_supplement) && $allottes->no_of_supplement == $i ? 'selected' : '' }}>
                                     {{ $i }}

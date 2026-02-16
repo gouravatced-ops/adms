@@ -482,7 +482,7 @@
                                     <label class="label required">No. of Files</label>
                                     <select name="allottees[{{ $index }}][no_of_files]" required>
 
-                                        @for ($i = 1; $i <= 10; $i++)
+                                        @for ($i = 1; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
                                                 {{ $i }}
@@ -496,9 +496,8 @@
                                 <div class="field">
                                     <label class="label">Additional Supplements Files</label>
                                     <select name="allottees[{{ $index }}][no_of_supplement]">
-                                        <option value="">-- Select No. of Supplement --</option>
 
-                                        @for ($i = 0; $i <= 10; $i++)
+                                        @for ($i = 0; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
                                                 {{ $i }}
@@ -656,7 +655,7 @@
                                     <label class="label required">No. of Files</label>
                                     <select name="allottees[{{ $index }}][no_of_files]" required>
 
-                                        @for ($i = 1; $i <= 10; $i++)
+                                        @for ($i = 1; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
                                                 {{ $i }}
@@ -670,9 +669,8 @@
                                 <div class="field">
                                     <label class="label">Additional Supplements Files</label>
                                     <select name="allottees[{{ $index }}][no_of_supplement]">
-                                        <option value="">-- Select No. of Supplement --</option>
 
-                                        @for ($i = 0; $i <= 10; $i++)
+                                        @for ($i = 0; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
                                                 {{ $i }}
@@ -808,7 +806,7 @@
                                 <label class="label required">No. of Files</label>
                                 <select name="allottees[0][no_of_files]" required>
 
-                                    @for ($i = 1; $i <= 10; $i++)
+                                    @for ($i = 1; $i <= 6; $i++)
                                         <option value="{{ $i }}"
                                             {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
                                             {{ $i }}
@@ -821,9 +819,8 @@
                             <div class="field">
                                 <label class="label">Additional Supplements Files</label>
                                 <select name="allottees[0][no_of_supplement]">
-                                    <option value="">-- Select No. of Supplement --</option>
 
-                                    @for ($i = 0; $i <= 10; $i++)
+                                    @for ($i = 0; $i <= 6; $i++)
                                         <option value="{{ $i }}"
                                             {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
                                             {{ $i }}
@@ -938,7 +935,6 @@
                 // Make required always true (since not hiding field)
                 quarterSelect.required = true;
             }
-
 
             function initializeSections() {
                 document.querySelectorAll('.dynamic-section').forEach((section, index) => {
@@ -1805,7 +1801,7 @@
                                     <label class="label required">No. of Files</label>
                                     <select name="allottees[${index}][no_of_files]" required>
 
-                                        @for ($i = 1; $i <= 10; $i++)
+                                        @for ($i = 1; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
                                                 {{ $i }}
@@ -1819,9 +1815,8 @@
                                 <div class="field">
                                     <label class="label">Additional Supplements Files</label>
                                     <select name="allottees[${index}][no_of_supplement]">
-                                        <option value="">-- Select No. of Supplement --</option>
 
-                                        @for ($i = 0; $i <= 10; $i++)
+                                        @for ($i = 0; $i <= 6; $i++)
                                             <option value="{{ $i }}"
                                                 {{ (isset($allottee['no_of_supplement']) ? $allottee['no_of_supplement'] == $i : $i == 0) ? 'selected' : '' }}>
                                                 {{ $i }}
