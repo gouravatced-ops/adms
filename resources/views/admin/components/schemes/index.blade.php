@@ -29,35 +29,38 @@
                             <tr>
                                 <th width="50">#</th>
                                 <th>Scheme Details</th>
-                                <th width="150">Area & Units</th>
-                                <th width="200">Financial Details</th>
+                                <th width="150">Lease Period & Units</th>
+                                <th width="200">Financial</th>
                                 <th width="100">Status</th>
                                 <th width="150">Dates</th>
                                 <th width="120" class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php 
+                                #return getDebugIndex($schemes);  
+                            ?>
                             @forelse ($schemes as $key => $scheme)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
 
                                     <td>
                                         <div class="d-flex flex-column">
-                                            <strong class="fw-semibold">{{ $scheme->scheme_name }}</strong>
+                                            <strong class="fw-semibold">{{ $scheme->scheme_name }} (<span class="text-danger">{{ $scheme->propertyType->name }}</span>)</strong>
                                             <strong class="fw-semibold krutidev"
                                                 style="font-size:18px;">{{ $scheme->scheme_name_hindi }}</strong>
                                             @if ($scheme->scheme_code)
                                                 <small class="text-muted">Code: {{ $scheme->scheme_code }}</small>
                                             @endif
                                             <small class="text-muted">Created by:
-                                                {{ $scheme->creator->name ?? 'System' }}</small>
+                                                {{ $scheme->creator->admin_name ?? 'System' }}</small>
                                         </div>
                                     </td>
 
                                     <td>
                                         <div class="d-flex flex-column">
-                                            <span><i class="bx bx-area me-1"></i>{{ number_format($scheme->area_sqft, 2) }}
-                                                sq.ft.</span>
+                                            <span><i class="bx bx-time me-1"></i>{{ $scheme->lease_period }}
+                                                Years </span>
                                             <span><i class="bx bx-buildings me-1"></i>{{ $scheme->total_units }}
                                                 units</span>
                                         </div>
@@ -68,7 +71,8 @@
                                             <strong
                                                 class="text-primary">₹{{ number_format($scheme->scheme_value, 2) }}</strong>
                                             <small>Down: ₹{{ number_format($scheme->down_payment_amount, 2) }}
-                                                ({{ $scheme->down_payment_percentage }}%)</small>
+                                                ({{ $scheme->down_payment_percentage }}%)
+                                            </small>
                                             <small>EMI: ₹{{ number_format($scheme->emi_amount, 2) }} ×
                                                 {{ $scheme->emi_count }}</small>
                                         </div>
@@ -111,6 +115,11 @@
 
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
+
+                                            <a href="{{ route('admin.schemes.blocks.manage', ['schemeId' => $scheme->encoded_id]) }}" class="btn btn-outline-info btn-sm" title="Add Blocks Types">
+                                                <i class="bx bx-building"></i> Blocks
+                                            </a>
+                                            
                                             <a href="{{ route('admin.schemes.edit', $scheme->scheme_id) }}"
                                                 class="btn btn-outline-primary" title="Edit">
                                                 <i class="bx bx-edit"></i>
@@ -127,8 +136,7 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <form
-                                                    action="{{ route('admin.schemes.destroy', $scheme->scheme_id) }}"
+                                                <form action="{{ route('admin.schemes.destroy', $scheme->scheme_id) }}"
                                                     method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')

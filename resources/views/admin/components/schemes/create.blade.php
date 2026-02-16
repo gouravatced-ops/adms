@@ -84,9 +84,9 @@
                     </div>
 
 
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="quarter_type_div">
                         <label class="form-label">Quarter Type <small class="text-danger">*</small></label>
-                        <select name="quarter_type_id" class="form-select" required>
+                        <select name="quarter_type_id" id="quarter_type" class="form-select" required>
                             <option value="">Select Quarter Type</option>
                             @foreach ($quarterTypes as $qt)
                                 <option value="{{ $qt->quarter_id }}">
@@ -149,158 +149,6 @@
                         <small class="text-muted">Total Units</small>
                     </div>
 
-                    <!-- Area in Square Feet -->
-                    @php
-                        $subNames = ['first', 'second', 'third', 'fourth', 'fifth'];
-                    @endphp
-
-                    @foreach ($subNames as $key)
-                        <div class="col-md-3">
-                            <label class="form-label">
-                                Scheme Sub Name ({{ ucfirst($key) }})
-                                @if ($key === 'first')
-                                    <small class="text-danger">*</small>
-                                @endif
-                            </label>
-
-                            <input type="text" class="form-control @error(" subname.$key") is-invalid @enderror"
-                                name="subname[{{ $key }}]" value="{{ old(" subname.$key") }}"
-                                placeholder="Enter {{ $key }} name">
-
-                            @error("subname.$key")
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    @endforeach
-
-                    <!-- Dimensions -->
-                    <div class="col-12 mt-4">
-                        <h6 class="border-bottom pb-2 mb-3" style="color: #269809 !important;">
-                            <i class="bx bx-ruler me-1"></i> Dimensions
-                        </h6>
-                    </div>
-                    <div class="row">
-                        <!-- Area in Square Feet -->
-                        <div class="col-md-3">
-                            <label for="area_sqft" class="form-label">
-                                Area (Square Feet) <small class="text-danger">*</small>
-                            </label>
-                            <div class="input-group">
-                                <input type="number" class="form-control @error('area_sqft') is-invalid @enderror"
-                                    id="area_sqft" name="area_sqft" value="{{ old('area_sqft') }}"
-                                    placeholder="Enter Area" step="0.01" min="1" required>
-                                <span class="input-group-text">sq. ft.</span>
-                            </div>
-                            @error('area_sqft')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label for="dimensions_east" class="form-label">
-                                East Side <small class="text-danger">*</small>
-                            </label>
-                            <input type="text" class="form-control @error('dimensions.east') is-invalid @enderror"
-                                id="dimensions_east" name="dimensions[east]" value="{{ old('dimensions.east') }}"
-                                placeholder="e.g., 30 ft" required>
-                            @error('dimensions.east')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-3">
-                            <label for="dimensions_west" class="form-label">
-                                West Side <small class="text-danger">*</small>
-                            </label>
-                            <input type="text" class="form-control @error('dimensions.west') is-invalid @enderror"
-                                id="dimensions_west" name="dimensions[west]" value="{{ old('dimensions.west') }}"
-                                placeholder="e.g., 30 ft" required>
-                            @error('dimensions.west')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-3">
-                            <label for="dimensions_north" class="form-label">
-                                North Side <small class="text-danger">*</small>
-                            </label>
-                            <input type="text" class="form-control @error('dimensions.north') is-invalid @enderror"
-                                id="dimensions_north" name="dimensions[north]" value="{{ old('dimensions.north') }}"
-                                placeholder="e.g., 40 ft" required>
-                            @error('dimensions.north')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="dimensions_south" class="form-label">
-                                South Side <small class="text-danger">*</small>
-                            </label>
-                            <input type="text" class="form-control @error('dimensions.south') is-invalid @enderror"
-                                id="dimensions_south" name="dimensions[south]" value="{{ old('dimensions.south') }}"
-                                placeholder="e.g., 40 ft" required>
-                            @error('dimensions.south')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="arms_east_to_west_north_side" class="form-label">
-                                East-West (North Side) <small class="text-danger">*</small>
-                            </label>
-                            <input type="text"
-                                class="form-control @error('arms.east_to_west_north_side') is-invalid @enderror"
-                                id="arms_east_to_west_north_side" name="arms[east_to_west_north_side]"
-                                value="{{ old('arms.east_to_west_north_side', '4 ft') }}" placeholder="e.g., 4 ft"
-                                required>
-                            @error('arms.east_to_west_north_side')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="arms_east_to_west_south_side" class="form-label">
-                                East-West (South Side) <small class="text-danger">*</small>
-                            </label>
-                            <input type="text"
-                                class="form-control @error('arms.east_to_west_south_side') is-invalid @enderror"
-                                id="arms_east_to_west_south_side" name="arms[east_to_west_south_side]"
-                                value="{{ old('arms.east_to_west_south_side', '4 ft') }}" placeholder="e.g., 4 ft"
-                                required>
-                            @error('arms.east_to_west_south_side')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="arms_north_to_south_east_side" class="form-label">
-                                North-South (East Side) <small class="text-danger">*</small>
-                            </label>
-                            <input type="text"
-                                class="form-control @error('arms.north_to_south_east_side') is-invalid @enderror"
-                                id="arms_north_to_south_east_side" name="arms[north_to_south_east_side]"
-                                value="{{ old('arms.north_to_south_east_side', '4 ft') }}" placeholder="e.g., 4 ft"
-                                required>
-                            @error('arms.north_to_south_east_side')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="arms_north_to_south_west_side" class="form-label">
-                                North-South (West Side) <small class="text-danger">*</small>
-                            </label>
-                            <input type="text"
-                                class="form-control @error('arms.north_to_south_west_side') is-invalid @enderror"
-                                id="arms_north_to_south_west_side" name="arms[north_to_south_west_side]"
-                                value="{{ old('arms.north_to_south_west_side', '4 ft') }}" placeholder="e.g., 4 ft"
-                                required>
-                            @error('arms.north_to_south_west_side')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
                     <!-- Financial Details -->
                     <div class="col-12 mt-4">
                         <h6 class="border-bottom pb-2 mb-3" style="color: #aa7700 !important;">
@@ -342,19 +190,34 @@
                         @enderror
                     </div>
 
+                    <!-- Down Payment Amount -->
+                    <div class="col-md-4">
+                        <label for="down_payment_amount" class="form-label">
+                            Down Payment Amount (₹) <small class="text-danger">*</small>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control @error('down_payment_amount') is-invalid @enderror"
+                                id="down_payment_amount" name="down_payment_amount"
+                                value="{{ old('down_payment_amount') }}" placeholder="Enter Amount">
+                        </div>
+                        @error('down_payment_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <!-- Application Deposit Percentage -->
                     <div class="col-md-4">
-                        <label for="application_deposit_percentage" class="form-label">
-                            Application Deposit  <small class="text-danger">*</small>
+                        <label for="application_deposit_amount" class="form-label">
+                            Application Deposit Amount (₹) <small class="text-danger">*</small>
                         </label>
                         <div class="input-group">
                             <input type="number"
-                                class="form-control @error('application_deposit_percentage') is-invalid @enderror"
-                                id="application_deposit_percentage" name="application_deposit_percentage"
-                                value="{{ old('application_deposit_percentage') }}" placeholder="Enter Deposit Amount"
-                                 required>
+                                class="form-control @error('application_deposit_amount') is-invalid @enderror"
+                                id="application_deposit_amount" name="application_deposit_amount"
+                                value="{{ old('application_deposit_amount') }}" placeholder="Enter Deposit Amount"
+                                required>
                         </div>
-                        @error('application_deposit_percentage')
+                        @error('application_deposit_amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -402,6 +265,21 @@
                             id="emi_count" name="emi_count" value="{{ old('emi_count', 60) }}"
                             placeholder="Enter EMI Count" min="1" max="240" required>
                         @error('emi_count')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="emi_amount" class="form-label">
+                            EMI Amount (₹) <small style="color: red;">/ monthly</small> <small
+                                class="text-danger">*</small>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control @error('emi_amount') is-invalid @enderror"
+                                id="emi_amount" name="emi_amount" value="{{ old('emi_amount') }}"
+                                placeholder="Enter Amount">
+                        </div>
+                        @error('emi_amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -467,8 +345,30 @@
                     <!-- Dates -->
                     <div class="col-12 mt-4">
                         <h6 class="border-bottom pb-2 mb-3 text-info">
-                            <i class="bx bx-calendar me-1"></i> Dates
+                            <i class="bx bx-calendar me-1"></i> Lease Details & Dates
                         </h6>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="lease_period" class="form-label">
+                            Lease Period
+                        </label>
+
+                        <select class="form-select @error('lease_period') is-invalid @enderror" id="lease_period"
+                            name="lease_period" required>
+
+                            <option value="">-- Select Lease Period --</option>
+                            <option value="90" {{ old('lease_period') == '90' ? 'selected' : '' }}>
+                                90 Years
+                            </option>
+                            <option value="99" {{ old('lease_period') == '99' ? 'selected' : '' }}>
+                                99 Years
+                            </option>
+                        </select>
+
+                        @error('lease_period')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-6">
@@ -722,6 +622,46 @@
                         typeSelect.innerHTML = '<option value="">Error loading data</option>';
                     });
             });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const propertyType = document.getElementById('property_type');
+            const quarterSelect = document.getElementById('quarter_type');
+
+            function filterQuarterOptions() {
+
+                const text = propertyType.options[propertyType.selectedIndex]?.text.toLowerCase();
+
+                Array.from(quarterSelect.options).forEach(option => {
+
+                    const optionText = option.text.toLowerCase();
+
+                    if (text.includes('plot')) {
+                        // Plot select hone par sirf MIG aur HIG show
+                        if (optionText.includes('mig') || optionText.includes('hig')) {
+                            option.hidden = false;
+                        } else {
+                            option.hidden = true;
+                        }
+                    } else {
+                        // Plot nahi hai to sab option show
+                        option.hidden = false;
+                    }
+                });
+
+                // Agar current selected option hidden ho gaya to reset
+                if (quarterSelect.selectedOptions.length &&
+                    quarterSelect.selectedOptions[0].hidden) {
+                    quarterSelect.value = '';
+                }
+            }
+
+            propertyType.addEventListener('change', filterQuarterOptions);
+
+            // Page load pe bhi check kare
+            filterQuarterOptions();
         });
     </script>
 @endsection

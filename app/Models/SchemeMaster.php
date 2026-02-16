@@ -26,13 +26,12 @@ class SchemeMaster extends Model
         'scheme_name_hindi',
         'scheme_code',
         'total_units',
-        'subnames',
         'area_sqft',
         'dimensions',
         'arms',
         'scheme_value',
         'down_payment_percentage',
-        'application_deposit_percentage',
+        'application_deposit_amount',
         'extra_amount',
         'registry_time_deposit',
         'emi_count',
@@ -41,6 +40,7 @@ class SchemeMaster extends Model
         'compound_interest_rate',
         'late_compound_interest_rate',
         'administrative_charges',
+        'lease_period',
         'scheme_start_date',
         'scheme_end_date',
         'status',
@@ -48,7 +48,6 @@ class SchemeMaster extends Model
     ];
 
     protected $casts = [
-        'subnames' => 'array',
         'dimensions' => 'array',
         'arms' => 'array',
         'total_units' => 'integer',
@@ -56,13 +55,11 @@ class SchemeMaster extends Model
         'scheme_value' => 'decimal:2',
         'down_payment_percentage' => 'decimal:2',
         'down_payment_amount' => 'decimal:2',
-        'application_deposit_percentage' => 'decimal:2',
         'application_deposit_amount' => 'decimal:2',
         'extra_amount' => 'decimal:2',
         'registry_time_deposit' => 'decimal:2',
         'emi_count' => 'integer',
         'emi_amount' => 'decimal:2',
-        'down_payment_amount' => 'decimal:2',
         'compound_interest_rate' => 'decimal:2',
         'late_compound_interest_rate' => 'decimal:2',
         'administrative_charges' => 'decimal:2',
@@ -101,7 +98,6 @@ class SchemeMaster extends Model
             }
         });
     }
-
 
     public function creator()
     {
@@ -156,20 +152,6 @@ class SchemeMaster extends Model
         return '<span class="badge ' . ($badges[$this->status] ?? 'bg-secondary') . '">' . ucfirst($this->status) . '</span>';
     }
 
-    
-    public function getSubnamesArrayAttribute()
-    {
-        if (empty($this->subnames)) {
-            return [];
-        }
-
-        if (is_string($this->subnames)) {
-            return json_decode($this->subnames, true) ?? [];
-        }
-
-        return $this->subnames ?? [];
-    }
-
     // Methods
     public function isActive()
     {
@@ -199,42 +181,27 @@ class SchemeMaster extends Model
             'pcategory_id' => 'required',
             'p_type_id' => 'required',
             'p_sub_type_id' => 'nullable',
-            'quarter_type_id' => 'required',
+            'quarter_type_id' => 'nullable',
 
             'scheme_name' => 'required|string|max:255',
             'scheme_name_hindi' => 'nullable|string|max:1000',
             'scheme_code' => 'nullable|string|max:50',
 
             'total_units' => 'required|integer|min:1',
-            'area_sqft' => 'required|numeric|min:1',
-
-            'subname.first' => 'nullable|string|max:255',
-            'subname.second' => 'nullable|string|max:255',
-            'subname.third' => 'nullable|string|max:255',
-            'subname.fourth' => 'nullable|string|max:255',
-            'subname.fifth' => 'nullable|string|max:255',
-
-            'dimensions.east' => 'required|string|max:50',
-            'dimensions.west' => 'required|string|max:50',
-            'dimensions.north' => 'required|string|max:50',
-            'dimensions.south' => 'required|string|max:50',
-
-            'arms.east_to_west_north_side' => 'required|string|max:50',
-            'arms.east_to_west_south_side' => 'required|string|max:50',
-            'arms.north_to_south_east_side' => 'required|string|max:50',
-            'arms.north_to_south_west_side' => 'required|string|max:50',
 
             'scheme_value' => 'required|numeric|min:1000',
             'down_payment_percentage' => 'required|numeric|min:0|max:100',
-            'application_deposit_percentage' => 'required',
+            'down_payment_amount' => 'required',
+            'application_deposit_amount' => 'required',
             'extra_amount' => 'nullable|numeric|min:0',
             'registry_time_deposit' => 'required|numeric|min:0',
 
             'emi_count' => 'required|integer|min:1|max:240',
+            'emi_amount' => 'required',
             'compound_interest_rate' => 'required|numeric|min:0|max:100',
             'late_compound_interest_rate' => 'required|numeric|min:0|max:100',
             'administrative_charges' => 'required|numeric|min:0|max:100',
-
+            'lease_period' => 'required',
             'scheme_start_date' => 'required|date',
             'scheme_end_date' => 'nullable|date|after_or_equal:scheme_start_date',
             'is_active' => 'nullable|boolean',
@@ -259,5 +226,16 @@ class SchemeMaster extends Model
         $charges = $baseAmount * ($this->administrative_charges / 100);
 
         return $baseAmount + $charges + $this->extra_amount;
+    }
+
+    public function propertyType()
+    {
+        return $this->belongsTo(PropertyType::class, 'p_type_id');
+    }
+
+    public function blocks()
+    {
+        return $this->hasMany(SchemeBlock::class, 'scheme_id')
+            ->where('status', 1);
     }
 }

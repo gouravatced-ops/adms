@@ -64,12 +64,6 @@
                     </div>
 
                     <div class="col" style="flex: 1; min-width: 150px;">
-                        <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Area</label>
-                        <input type="text" id="searchArea" class="form-control search-input"
-                            placeholder="Search area..." style="padding: 8px 12px;" autocomplete="off">
-                    </div>
-
-                    <div class="col" style="flex: 1; min-width: 150px;">
                         <label
                             style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
                         <select id="searchDivision" class="form-control search-select" style="padding: 8px 12px;">
@@ -132,6 +126,9 @@
                                 <small class="text-muted">
                                     <strong>Property No: </strong>{{ $file->property_number }}
                                 </small>
+                                <small class="text-muted">
+                                    <strong>No.of Files: </strong>{{ $file->total_files }}
+                                </small>
                             </div>
                         </td>
 
@@ -149,9 +146,6 @@
                                 <span>
                                     <strong>{{ $file->cname }}</strong> – {{ $file->pname }}
                                 </span> <br>
-                                <small class="text-muted">
-                                    <strong> Area: </strong>{{ $file->area }} sqft
-                                </small><br>
                                 <small class="text-muted">
                                     <strong>Quarter:</strong> {{ $file->quarter_code }}
                                 </small>
@@ -242,7 +236,6 @@
             // Search elements
             const searchAllottee = document.getElementById('searchAllottee');
             const searchPropertyNo = document.getElementById('searchPropertyNo');
-            const searchArea = document.getElementById('searchArea');
             const searchDivision = document.getElementById('searchDivision');
             const searchButton = document.getElementById('searchButton');
             const clearSearch = document.getElementById('clearSearch');
@@ -259,7 +252,6 @@
             let currentSearch = {
                 allottee: '',
                 property_no: '',
-                area: '',
                 division: ''
             };
             let isSearching = false;
@@ -289,9 +281,6 @@
                 }
                 if (searchParams.property_no) {
                     url.searchParams.append('property_no', searchParams.property_no);
-                }
-                if (searchParams.area) {
-                    url.searchParams.append('area', searchParams.area);
                 }
                 if (searchParams.division) {
                     url.searchParams.append('division', searchParams.division);
@@ -325,7 +314,6 @@
                                 // Highlight search terms
                                 let allotteeName = file.allottee_name;
                                 let propertyNo = file.property_number;
-                                let area = file.area ? file.area.toString() : '';
 
                                 // Highlight allottee name if searched
                                 if (searchParams.allottee) {
@@ -361,74 +349,57 @@
                                     }
                                 }
 
-                                // Highlight area if searched
-                                if (searchParams.area && area) {
-                                    const searchLower = searchParams.area.toLowerCase();
-                                    const areaLower = area.toLowerCase();
-                                    const indexOfSearch = areaLower.indexOf(searchLower);
-
-                                    if (indexOfSearch !== -1) {
-                                        const before = area.substring(0, indexOfSearch);
-                                        const match = area.substring(indexOfSearch, indexOfSearch +
-                                            searchParams.area.length);
-                                        const after = area.substring(indexOfSearch + searchParams.area
-                                            .length);
-                                        area =
-                                            `${before}<span class="highlight">${match}</span>${after}`;
-                                    }
-                                }
-
                                 const slNo = (data.registerAllottee.current_page - 1) * data
                                     .registerAllottee.per_page + index + 1;
 
                                 row.innerHTML = `
-                        <td>${slNo}</td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                <strong class="fw-semibold">${allotteeName}</strong><br>
-                                <small class="text-muted">
-                                    <strong>Property No: </strong>${propertyNo}
-                                </small>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                <span class="text-muted"><strong>Division: </strong>${file.dname || 'N/A'}</span> <br>
-                                <small class="text-muted"><strong>Sub Division:</strong> ${file.subname || 'N/A'}</small>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                <span>
-                                    <strong>${file.cname || 'N/A'}</strong> – ${file.pname || 'N/A'}
-                                </span> <br>
-                                <small class="text-muted">
-                                    <strong> Area: </strong>${area} sqft
-                                </small><br>
-                                <small class="text-muted">
-                                    <strong>Quarter:</strong> ${file.quarter_code || 'N/A'}
-                                </small>
-                            </div>
-                        </td>
-                        <td>
-                            ${file.remarks ? file.remarks : 'N/A'}
-                        </td>
-                        <td>
-                            <div class="d-flex flex-column">
-                                ${new Date(file.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                            </div>
-                        </td>
-                        <td class="py-2">
-                            <div class="flex gap-2">
-                                <a href="/filereceving/individual/fetch/${btoa(file.id)}" class="action-btn action-btn-success" title="Edit file">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/filereceving/allotte/deleted/${btoa(file.id)}" class="action-btn action-btn-danger" title="Delete file">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    `;
+                                        <td>${slNo}</td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <strong class="fw-semibold">${allotteeName}</strong><br>
+                                                <small class="text-muted">
+                                                    <strong>Property No: </strong>${propertyNo}
+                                                </small>
+                                                <small class="text-muted">
+                                                    <strong>No of files: </strong>${file.total_files}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span class="text-muted"><strong>Division: </strong>${file.dname || 'N/A'}</span> <br>
+                                                <small class="text-muted"><strong>Sub Division:</strong> ${file.subname || 'N/A'}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <span>
+                                                    <strong>${file.cname || 'N/A'}</strong> – ${file.pname || 'N/A'}
+                                                </span> <br>
+                                                <small class="text-muted">
+                                                    <strong>Quarter:</strong> ${file.quarter_code || 'N/A'}
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            ${file.remarks ? file.remarks : 'N/A'}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                ${new Date(file.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </div>
+                                        </td>
+                                        <td class="py-2">
+                                            <div class="flex gap-2">
+                                                <a href="/filereceving/individual/fetch/${btoa(file.id)}" class="action-btn action-btn-success" title="Edit file">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/filereceving/allotte/deleted/${btoa(file.id)}" class="action-btn action-btn-danger" title="Delete file">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    `;
                                 tableBody.appendChild(row);
                             });
 
@@ -450,20 +421,19 @@
                             noDataRow.id = 'noDataRow';
 
                             let message = 'No allottee files available for this register';
-                            if (searchParams.allottee || searchParams.property_no || searchParams.area ||
-                                searchParams.division) {
+                            if (searchParams.allottee || searchParams.property_no || searchParams.division) {
                                 message = 'No files found matching your search criteria.';
                             }
 
                             noDataRow.innerHTML = `
-                    <td colspan="7" class="text-center text-muted py-4">
-                        <div class="py-3">
-                            <i class="fas fa-search bx-lg text-muted mb-3"></i>
-                            <h6>No Files Found</h6>
-                            <p class="mb-0">${message}</p>
-                        </div>
-                    </td>
-                `;
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <div class="py-3">
+                                        <i class="fas fa-search bx-lg text-muted mb-3"></i>
+                                        <h6>No Files Found</h6>
+                                        <p class="mb-0">${message}</p>
+                                    </div>
+                                </td>
+                            `;
                             tableBody.appendChild(noDataRow);
                             paginationContainer.style.display = 'none';
                         }
@@ -480,8 +450,7 @@
                         };
 
                         // Show clear button if any search is active
-                        if (searchParams.allottee || searchParams.property_no || searchParams.area ||
-                            searchParams.division) {
+                        if (searchParams.allottee || searchParams.property_no || searchParams.division) {
                             clearSearch.style.display = 'inline-block';
                         } else {
                             clearSearch.style.display = 'none';
@@ -527,7 +496,6 @@
                 return {
                     allottee: searchAllottee.value.trim(),
                     property_no: searchPropertyNo.value.trim(),
-                    area: searchArea.value.trim(),
                     division: searchDivision.value
                 };
             }
@@ -536,7 +504,6 @@
             function searchParamsChanged(newParams, oldParams) {
                 return newParams.allottee !== oldParams.allottee ||
                     newParams.property_no !== oldParams.property_no ||
-                    newParams.area !== oldParams.area ||
                     newParams.division !== oldParams.division;
             }
 
@@ -550,8 +517,7 @@
                 }
 
                 // Check if any search parameter is active
-                const hasSearch = searchParams.allottee || searchParams.property_no || searchParams.area ||
-                    searchParams.division;
+                const hasSearch = searchParams.allottee || searchParams.property_no || searchParams.division;
 
                 // If no search params and we had search before, load immediately
                 if (!hasSearch) {
@@ -582,7 +548,7 @@
             });
 
             // Keyup handlers for search inputs (real-time search)
-            [searchAllottee, searchPropertyNo, searchArea].forEach(input => {
+            [searchAllottee, searchPropertyNo].forEach(input => {
                 input.addEventListener('keyup', function(e) {
                     // Enter key triggers immediate search
                     if (e.key === 'Enter') {
@@ -607,7 +573,6 @@
             clearSearch.addEventListener('click', function() {
                 searchAllottee.value = '';
                 searchPropertyNo.value = '';
-                searchArea.value = '';
                 searchDivision.value = '';
 
                 if (Object.values(currentSearch).some(val => val)) {
@@ -620,7 +585,7 @@
             });
 
             // Input events to show/hide clear button
-            [searchAllottee, searchPropertyNo, searchArea].forEach(input => {
+            [searchAllottee, searchPropertyNo].forEach(input => {
                 input.addEventListener('input', function() {
                     const searchParams = getSearchParams();
                     if (Object.values(searchParams).some(val => val)) {

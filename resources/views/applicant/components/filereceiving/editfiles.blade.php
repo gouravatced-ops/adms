@@ -244,12 +244,6 @@
                         </select>
                     </div>
 
-                    <!-- Area -->
-                    <div class="field">
-                        <label class="label">Area </label>
-                        <input type="text" name="area" value="{{ $allottes->area }}" placeholder="Enter area">
-                    </div>
-
                     <!-- Property Category -->
                     <div class="field">
                         <label class="label required">Property Category</label>
@@ -301,6 +295,35 @@
                         <label class="label required">Allottee Name</label>
                         <input type="text" name="allottee_name" value="{{ $allottes->allottee_name }}"
                             placeholder="Enter allottee name" required>
+                    </div>
+
+                    <!-- No. of Files -->
+                    <div class="field">
+                        <label class="label">No. of Files</label>
+                        <select name="no_of_files" required>
+                            <option value="">-- Select No. of Files --</option>
+
+                            @for ($i = 1; $i <= 6; $i++)
+                                <option value="{{ $i }}"
+                                    {{ isset($allottes->no_of_files) && $allottes->no_of_files == $i ? 'selected' : '' }}>
+                                    {{ $i }}
+                                </option>
+                            @endfor
+
+                        </select>
+                    </div>
+
+                    <!-- No. of Supplement -->
+                    <div class="field">
+                        <label class="label">No. of Supplement</label>
+                        <select name="no_of_supplement" required>
+                            @for ($i = 0; $i <= 6; $i++)
+                                <option value="{{ $i }}"
+                                    {{ isset($allottes->no_of_supplement) && $allottes->no_of_supplement == $i ? 'selected' : '' }}>
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
                     </div>
 
                     <!-- Remarks -->
@@ -405,23 +428,41 @@
 
             // Function to toggle quarter type field visibility
             function toggleQuarterType(propertyTypeSelect) {
-                const quarterField = document.querySelector('.field.quarter-type-field');
-                if (!quarterField) return;
+                const section = propertyTypeSelect.closest('.dynamic-section');
+                if (!section) return;
 
-                const propertyTypeText = propertyTypeSelect.options[propertyTypeSelect.selectedIndex]?.text
-                    .toLowerCase() || '';
+                const quarterField = section.querySelector('.quarter-type-field');
+                const quarterSelect = quarterField?.querySelector('select');
+                if (!quarterSelect) return;
 
-                // If property type contains "plot", hide quarter type
-                if (propertyTypeText.includes('plot') || propertyTypeText.includes('shop')) {
-                    quarterField.style.display = 'none';
-                    const quarterSelect = quarterField.querySelector('select');
-                    if (quarterSelect) quarterSelect.required = false;
-                } else {
-                    // Show quarter type for non-plot properties
-                    quarterField.style.display = 'block';
-                    const quarterSelect = quarterField.querySelector('select');
-                    if (quarterSelect) quarterSelect.required = true;
-                }
+                const propertyTypeText =
+                    propertyTypeSelect.options[propertyTypeSelect.selectedIndex]?.text
+                    ?.toLowerCase() || '';
+
+                const isPlot = propertyTypeText.includes('plot');
+
+                // Loop through all quarter options
+                Array.from(quarterSelect.options).forEach(option => {
+                    const text = option.text.toLowerCase();
+
+                    if (!option.value) return; // skip "Select type"
+
+                    if (isPlot) {
+                        // Show only MIG & HIG
+                        if (text.includes('mig') || text.includes('hig')) {
+                            option.hidden = false;
+                        } else {
+                            option.hidden = true;
+                            if (option.selected) option.selected = false;
+                        }
+                    } else {
+                        // Show all options
+                        option.hidden = false;
+                    }
+                });
+
+                // Make required always true (since not hiding field)
+                quarterSelect.required = true;
             }
 
             // Function to update property number label based on property type
@@ -519,19 +560,8 @@
                 const saveBtn = form.querySelector('.save-btn');
                 const originalText = saveBtn.innerHTML;
 
-                // Detect Plot type
-                const propertyTypeSelect = document.querySelector('.property-type-select');
-                const isPlot = propertyTypeSelect?.selectedOptions[0]?.text
-                    ?.toLowerCase()
-                    .includes('plot');
-
                 // Required fields validation
                 let inputs = [...form.querySelectorAll('input[required], select[required]')];
-
-                // Exclude quarter type if Plot
-                if (isPlot) {
-                    inputs = inputs.filter(input => !input.closest('.quarter-type-field'));
-                }
 
                 let firstInvalid = null;
 

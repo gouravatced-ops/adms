@@ -10,9 +10,10 @@ use App\Http\Controllers\Admin\PropertyCategoryController;
 use App\Http\Controllers\Admin\PropertyTypeController;
 use App\Http\Controllers\Admin\PropertyMainTypeController;
 use App\Http\Controllers\Admin\SchemeController;
+use App\Http\Controllers\Admin\SchemeBlockController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/council-office/dashboard', [AdminController::class, 'councilDashboard'])->name('council_office.dashboard');
+Route::get('/dashboard', [AdminController::class, 'councilDashboard'])->name('council_office.dashboard');
 
 Route::get('/headquarters', [HeadquarterController::class, 'index'])->name('headquarters.index');
 Route::get('/headquarters/create', [HeadquarterController::class, 'createPage'])->name('admin.headquarters.create');
@@ -87,7 +88,7 @@ Route::prefix('schemes')->name('admin.schemes.')->group(function () {
     Route::post('/', [SchemeController::class, 'store'])->name('store');
     Route::get('/{scheme}/edit', [SchemeController::class, 'edit'])->name('edit');
     Route::put('/{scheme}', [SchemeController::class, 'update'])->name('update');
-    Route::delete('/{scheme}', [SchemeController::class, 'destroy'])->name('destroy');
+    Route::delete('/{scheme}', [SchemeController::class, 'destroy'])->name('destroy');    
     
     // Status Management routes
     Route::post('/{scheme}/change-status', [SchemeController::class, 'changeStatus'])->name('change-status');
@@ -97,6 +98,17 @@ Route::prefix('schemes')->name('admin.schemes.')->group(function () {
     Route::get('/{scheme}/details', [SchemeController::class, 'getSchemeDetails'])->name('details');
     Route::get('/dropdown', [SchemeController::class, 'getSchemesForDropdown'])->name('dropdown');
     Route::post('/calculate-emi', [SchemeController::class, 'calculateEmi'])->name('calculate-emi');
+});
+
+// Scheme Master Routes
+Route::prefix('schemes')->name('admin.schemes.')->group(function () {
+    Route::get('/blocks/list/{schemeId}', [SchemeBlockController::class, 'index'])->name('blocks.manage');
+    Route::get('/blocks/create/page', [SchemeBlockController::class, 'createPage'])->name('blocks.create.page');
+    Route::post('/blocks/create', [SchemeBlockController::class, 'createBlocks'])->name('blocks.create');
+    Route::get('/blocks/add/{schemeId}', [SchemeBlockController::class, 'addBlocksPage'])->name('blocks.add.page');
+    Route::post('/blocks/individual/store', [SchemeBlockController::class, 'individualAdd'])->name('blocks.individual.store');
+    Route::post('/blocks/individual/update', [SchemeBlockController::class, 'individualUpdate'])->name('blocks.individual.update');
+    Route::post('/blocks/delete/{blockId}', [SchemeBlockController::class, 'schemeBlockDelete'])->name('blocks.individual.delete');
 });
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');

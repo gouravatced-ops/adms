@@ -14,10 +14,14 @@ class SchemeController extends Controller
 {
     public function index()
     {
-        $schemes = SchemeMaster::with(['creator', 'updater'])
+        $schemes = SchemeMaster::with(['creator', 'updater', 'propertyType'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
+        $schemes->getCollection()->transform(function ($scheme) {
+            $scheme->encoded_id = base64_encode($scheme->scheme_id);
+            return $scheme;
+        });
         return view('admin.components.schemes.index', compact('schemes'));
     }
 
@@ -31,48 +35,44 @@ class SchemeController extends Controller
         try {
             DB::beginTransaction();
 
-            $validator = Validator::make($request->all(), SchemeMaster::validationRules());
+            $validator = Validator::make(
+                $request->all(),
+                SchemeMaster::validationRules()
+            );
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors(),
-                    'message' => 'Please fix the validation errors.'
-                ], 422);
+                return redirect()
+                    ->back()
+                    ->withErrors($validator)
+                    ->withInput();
             }
 
             // Process JSON fields
             $data = $request->all();
 
-
-            // Handle subnames
-            if ($request->has('subname')) {
-                $data['subnames'] = json_encode($request->subname);
-            }
-
             // Handle dimensions and arms
             $data['dimensions'] = json_encode($request->dimensions);
             $data['arms'] = json_encode($request->arms);
 
-            $schemeValue = (float) ($data['scheme_value'] ?? 0);
-            $downPaymentPercent = (float) ($data['down_payment_percentage'] ?? 0);
+            // $schemeValue = (float) ($data['scheme_value'] ?? 0);
+            // $downPaymentPercent = (float) ($data['down_payment_percentage'] ?? 0);
 
-            $data['down_payment_amount'] = ($schemeValue * $downPaymentPercent) / 100;
-            
-            $principal = $schemeValue - $data['down_payment_amount'];
-            $annualRate = $data['compound_interest_rate'];       // %
-            $months = $data['emi_count'];             // n
+            // $data['down_payment_amount'] = ($schemeValue * $downPaymentPercent) / 100;
 
-            $monthlyRate = $annualRate / (12 * 100); // r
-            $data['monthlyrate'] = $monthlyRate;
-            $calculationRate = pow(1 + $monthlyRate, $months);
-            $data['calculationRate'] =  round($calculationRate , 2);
-            $emi = ($principal * $monthlyRate * $calculationRate) /
-                ($calculationRate - 1);
+            // $principal = $schemeValue - $data['down_payment_amount'];
+            // $annualRate = $data['compound_interest_rate'];       // %
+            // $months = $data['emi_count'];             // n
 
-            $emi = round($emi, 2);
+            // $monthlyRate = $annualRate / (12 * 100); // r
+            // $data['monthlyrate'] = $monthlyRate;
+            // $calculationRate = pow(1 + $monthlyRate, $months);
+            // $data['calculationRate'] =  round($calculationRate , 2);
+            // $emi = ($principal * $monthlyRate * $calculationRate) /
+            //     ($calculationRate - 1);
 
-            $data['emi_amount'] = $emi;
+            // $emi = round($emi, 2);
+
+            // $data['emi_amount'] = $emi;
 
             // Set default status if not provided
             if (!isset($data['status'])) {
@@ -122,42 +122,45 @@ class SchemeController extends Controller
             $validator = Validator::make($request->all(), SchemeMaster::validationRules($scheme->scheme_id));
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors(),
-                    'message' => 'Please fix the validation errors.'
-                ], 422);
+                return redirect()
+                    ->back()
+                    ->withErrors($validator)
+                    ->withInput();
             }
 
             // Process JSON fields
             $data = $request->all();
 
-            // Handle subnames
-            if ($request->has('subname')) {
-                $data['subnames'] = json_encode($request->subname);
-            } else {
-                $data['subnames'] = null;
-            }
+            // Handle dimensions and arms
+            $data['dimensions'] = json_encode($request->dimensions);
+            $data['arms'] = json_encode($request->arms);
 
-            $schemeValue = (float) ($data['scheme_value'] ?? 0);
-            $downPaymentPercent = (float) ($data['down_payment_percentage'] ?? 0);
+            // // Handle subnames
+            // if ($request->has('subname')) {
+            //     $data['subnames'] = json_encode($request->subname);
+            // } else {
+            //     $data['subnames'] = null;
+            // }
 
-            $data['down_payment_amount'] = ($schemeValue * $downPaymentPercent) / 100;
-            
-            $principal = $schemeValue - $data['down_payment_amount'];
-            $annualRate = $data['compound_interest_rate'];       // %
-            $months = $data['emi_count'];             // n
+            // $schemeValue = (float) ($data['scheme_value'] ?? 0);
+            // $downPaymentPercent = (float) ($data['down_payment_percentage'] ?? 0);
 
-            $monthlyRate = $annualRate / (12 * 100); // r
-            $data['monthlyrate'] = $monthlyRate;
-            $calculationRate = pow(1 + $monthlyRate, $months);
-            $data['calculationRate'] =  round($calculationRate , 2);
-            $emi = ($principal * $monthlyRate * $calculationRate) /
-                ($calculationRate - 1);
+            // $data['down_payment_amount'] = ($schemeValue * $downPaymentPercent) / 100;
 
-            $emi = round($emi, 2);
+            // $principal = $schemeValue - $data['down_payment_amount'];
+            // $annualRate = $data['compound_interest_rate'];       // %
+            // $months = $data['emi_count'];             // n
 
-            $data['emi_amount'] = $emi;
+            // $monthlyRate = $annualRate / (12 * 100); // r
+            // $data['monthlyrate'] = $monthlyRate;
+            // $calculationRate = pow(1 + $monthlyRate, $months);
+            // $data['calculationRate'] =  round($calculationRate , 2);
+            // $emi = ($principal * $monthlyRate * $calculationRate) /
+            //     ($calculationRate - 1);
+
+            // $emi = round($emi, 2);
+
+            // $data['emi_amount'] = $emi;
 
             // Set updated_by
             $data['updated_by'] = Auth::id();
@@ -193,6 +196,7 @@ class SchemeController extends Controller
 
     public function edit(SchemeMaster $scheme)
     {
+        // return $scheme; die();
         return view('admin.components.schemes.edit', compact('scheme'));
     }
 
