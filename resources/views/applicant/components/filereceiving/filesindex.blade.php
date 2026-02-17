@@ -3,236 +3,239 @@
 @section('title', 'File Receiving – Files')
 
 @section('content')
-@if (session('error'))
-<div class="alert alert-danger alert-dismissible" role="alert">
-    {{ session('error') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
-@if (session('success'))
-<div class="alert alert-success alert-dismissible" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
-<div class="card" style="box-shadow:none;">
-    <div class="compact-card overflow-hidden">
+    <div class="card" style="box-shadow:none;">
+        <div class="compact-card overflow-hidden">
 
-        <!-- Header with Search -->
-        <div class="p-4 border-b" style="border-color: var(--gray-border);">
-            <div class="flex items-start justify-between mb-4">
-                <div>
-                    <!-- Subtitle -->
-                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                        <i class="fas fa-folder-open"></i>
-                        Registered Files (Allottees)
-                    </h3>
+            <!-- Header with Search -->
+            <div class="p-4 border-b" style="border-color: var(--gray-border);">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <!-- Subtitle -->
+                        <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                            <i class="fas fa-folder-open"></i>
+                            Registered Files (Allottees)
+                        </h3>
 
-                    <!-- Title BELOW subtitle -->
-                    <p class="text-xs text-gray-500 mt-1" id="registerNumber">
-                        Registration No: {{ $registerAllottee->first()->register_id ?? '-' }}
-                    </p>
-                </div>
-
-                <button class="pdf-btn" onclick="openPdfModal()">
-                    <svg class="pdf-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M6 2h7l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
-                        <path d="M13 2v5h5" />
-                        <text x="7" y="17" font-size="6" font-weight="700" fill="white">PDF</text>
-                    </svg>
-                    Export PDF
-                </button>
-            </div>
-
-            <!-- Search Box with Filters -->
-            <div class="search-container" style="margin-top: 10px;">
-                <div class="row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-                    <div class="col" style="flex: 1; min-width: 200px;">
-                        <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Search
-                            Allottee</label>
-                        <input type="text" id="searchAllottee" class="form-control search-input"
-                            placeholder="Search by allottee name..." style="padding: 8px 12px;" autocomplete="off">
+                        <!-- Title BELOW subtitle -->
+                        <p class="text-xs text-gray-500 mt-1" id="registerNumber">
+                            Registration No: {{ $registerAllottee->first()->register_id ?? '-' }}
+                        </p>
                     </div>
 
-                    <div class="col" style="flex: 1; min-width: 150px;">
-                        <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Property
-                            No</label>
-                        <input type="text" id="searchPropertyNo" class="form-control search-input"
-                            placeholder="Search property number..." style="padding: 8px 12px;" autocomplete="off">
-                    </div>
-
-                    <div class="col" style="flex: 1; min-width: 150px;">
-                        <label
-                            style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
-                        <select id="searchDivision" class="form-control search-select" style="padding: 8px 12px;">
-                            <option value="">All Divisions</option>
-                            @if (isset($divisions) && $divisions->count())
-                            @foreach ($divisions as $division)
-                            <option value="{{ $division->id }}">{{ $division->name }}</option>
-                            @endforeach
-                            @endif
-                        </select>
-                    </div>
-
-                    <div class="col" style="width: auto;">
-                        <button id="searchButton" class="btn btn-primary"
-                            style="padding: 8px 16px; white-space: nowrap;">
-                            <i class="fas fa-search"></i> Search
-                        </button>
-                        <button id="clearSearch" class="btn btn-secondary"
-                            style="padding: 8px 16px; white-space: nowrap; display: none;">
-                            <i class="fas fa-times"></i> Clear
+                    <div class="flex items-center gap-2">
+                        <!-- Generate PDF Button -->
+                        <button class="pdf-btn" onclick="openPdfModal()">
+                            <svg class="pdf-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M6 2h7l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
+                                <path d="M13 2v5h5" />
+                                <text x="7" y="17" font-size="6" font-weight="700" fill="white">PDF</text>
+                            </svg>
+                            Generate PDF
                         </button>
                     </div>
                 </div>
+
+                <!-- Search Box with Filters -->
+                <div class="search-container" style="margin-top: 10px;">
+                    <div class="row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                        <div class="col" style="flex: 1; min-width: 200px;">
+                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Search
+                                Allottee</label>
+                            <input type="text" id="searchAllottee" class="form-control search-input"
+                                placeholder="Search by allottee name..." style="padding: 8px 12px;" autocomplete="off">
+                        </div>
+
+                        <div class="col" style="flex: 1; min-width: 150px;">
+                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Property
+                                No</label>
+                            <input type="text" id="searchPropertyNo" class="form-control search-input"
+                                placeholder="Search property number..." style="padding: 8px 12px;" autocomplete="off">
+                        </div>
+
+                        <div class="col" style="flex: 1; min-width: 150px;">
+                            <label
+                                style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
+                            <select id="searchDivision" class="form-control search-select" style="padding: 8px 12px;">
+                                <option value="">All Divisions</option>
+                                @if (isset($divisions) && $divisions->count())
+                                    @foreach ($divisions as $division)
+                                        <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col" style="width: auto;">
+                            <button id="searchButton" class="btn btn-primary"
+                                style="padding: 8px 16px; white-space: nowrap;">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button id="clearSearch" class="btn btn-secondary"
+                                style="padding: 8px 16px; white-space: nowrap; display: none;">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" style="display: none; text-align: center; padding: 20px;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" style="display: none; text-align: center; padding: 20px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p style="margin-top: 10px; color: #6c757d;">Loading data...</p>
             </div>
-            <p style="margin-top: 10px; color: #6c757d;">Loading data...</p>
-        </div>
 
-        <!-- Table -->
-        <div class="table-responsive">
-            <table id="studentListTable" class="table table-striped table-bordered align-middle w-full">
-                <thead class="table-light">
-                    <tr>
-                        <th width="50">#</th>
-                        <th>Allottee & Property</th>
-                        <th>Division Details</th>
-                        <th>Property Details</th>
-                        <th>Remarks</th>
-                        <th>Dates</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table id="studentListTable" class="table table-striped table-bordered align-middle w-full">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Allottee & Property</th>
+                            <th>Division Details</th>
+                            <th>Property Details</th>
+                            <th>Remarks</th>
+                            <th>Dates</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
 
-                <tbody id="tableBody">
-                    @forelse ($registerAllottee as $key => $file)
-                    <tr>
-                        <!-- SL -->
-                        <td>{{ $key + 1 }}</td>
+                    <tbody id="tableBody">
+                        @forelse ($registerAllottee as $key => $file)
+                            <tr>
+                                <!-- SL -->
+                                <td>{{ $key + 1 }}</td>
 
-                        <!-- Allottee & Property -->
-                        <td>
-                            <div class="d-flex flex-column">
-                                <strong class="fw-semibold">{{ $file->allottee_name }}</strong><br>
-                                <small class="text-muted">
-                                    <strong>Property No: </strong>{{ $file->property_number }}
-                                </small>
-                                <small class="text-muted">
-                                    <strong>No.of Files: </strong>{{ $file->total_files }}
-                                </small>
-                            </div>
-                        </td>
+                                <!-- Allottee & Property -->
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <strong class="fw-semibold" style="color:green;">{{ $file->prefix }} {{ $file->allottee_name }}</strong>
+                                        <small class="text-muted">
+                                            <strong>Property No: </strong>{{ $file->property_number }}
+                                        </small>
+                                        <small class="text-muted">
+                                            <strong>No.of Files: </strong>{{ $file->total_files }}
+                                        </small>
+                                    </div>
+                                </td>
 
-                        <!-- Division -->
-                        <td>
-                            <div class="d-flex flex-column">
-                                <span class="text-muted"><strong>Division: </strong>{{ $file->dname }}</span> <br>
-                                <small class="text-muted"><strong>Sub Division:</strong>{{ $file->subname }}</small>
-                            </div>
-                        </td>
+                                <!-- Division -->
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-muted"><strong>Division: </strong>{{ $file->dname }}</span>
+                                        <small class="text-muted"><strong>Sub
+                                                Division:</strong>{{ $file->subname }}</small>
+                                    </div>
+                                </td>
 
-                        <!-- Property Details -->
-                        <td>
-                            <div class="d-flex flex-column">
-                                <span>
-                                    <strong>{{ $file->cname }}</strong> – {{ $file->pname }}
-                                </span> <br>
-                                <small class="text-muted">
-                                    <strong>Quarter:</strong> {{ $file->quarter_code }}
-                                </small>
-                            </div>
-                        </td>
+                                <!-- Property Details -->
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span>
+                                            <strong>{{ $file->cname }}</strong> – {{ $file->pname }}
+                                        </span>
+                                        <small class="text-muted">
+                                            <strong>Quarter:</strong> {{ $file->quarter_code }}
+                                        </small>
+                                    </div>
+                                </td>
 
-                        <!-- Remarks -->
-                        <td>
-                            @if ($file->remarks)
-                            {{ $file->remarks }}
-                            @else
-                            N/A
-                            @endif
-                        </td>
+                                <!-- Remarks -->
+                                <td>
+                                    @if ($file->remarks)
+                                        {{ $file->remarks }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
 
-                        <!-- Dates -->
-                        <td>
-                            <div class="d-flex flex-column">
-                                {{ \Carbon\Carbon::parse($file->created_at)->format('d M Y') }}
-                            </div>
-                        </td>
+                                <!-- Dates -->
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        {{ \Carbon\Carbon::parse($file->created_at)->format('d M Y') }}
+                                    </div>
+                                </td>
 
-                        <!-- Actions -->
-                        <td class="py-2">
-                            <div class="flex gap-2">
-                                <!-- View -->
-                                <a href="{{ route('admin.individual.filereceving.fetch', $file->allotteeId) }}"
-                                    class="action-btn action-btn-success" title="Edit file">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                <!-- Actions -->
+                                <td class="py-2">
+                                    <div class="flex gap-2">
+                                        <!-- View -->
+                                        <a href="{{ route('admin.individual.filereceving.fetch', $file->allotteeId) }}"
+                                            class="action-btn action-btn-success" title="Edit file">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
 
-                                <!-- View -->
-                                <a href="{{ route('scanner.filereceving.delete-allottee', $file->allotteeId) }}"
-                                    class="action-btn action-btn-danger" title="Delete file">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr id="noDataRow">
-                        <td colspan="7" class="text-center text-muted py-4">
-                            <div class="py-3">
-                                <i class="bx bx-folder-open bx-lg text-muted mb-3"></i>
-                                <h6>No Files Found</h6>
-                                <p class="mb-0">No allottee files available for this register</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                        <!-- View -->
+                                        <a href="{{ route('scanner.filereceving.delete-allottee', $file->allotteeId) }}"
+                                            class="action-btn action-btn-danger" title="Delete file">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr id="noDataRow">
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <div class="py-3">
+                                        <i class="bx bx-folder-open bx-lg text-muted mb-3"></i>
+                                        <h6>No Files Found</h6>
+                                        <p class="mb-0">No allottee files available for this register</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
 
-            <!-- Pagination -->
-            <div id="paginationContainer" class="p-4 border-t" style="border-color: var(--gray-border);">
-                @if (method_exists($registerAllottee, 'links'))
-                {{ $registerAllottee->links() }}
-                @endif
+                <!-- Pagination -->
+                <div id="paginationContainer" class="p-4 border-t" style="border-color: var(--gray-border);">
+                    @if (method_exists($registerAllottee, 'links'))
+                        {{ $registerAllottee->links() }}
+                    @endif
+                </div>
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
 
-<!-- PDF Export Confirmation Modal -->
-<div id="pdfModal" class="modal-overlay">
+    <!-- PDF Export Confirmation Modal -->
+    <div id="pdfModal" class="modal-overlay">
 
-    <div class="modal modal-top">
-        <div class="modal-header">
-            <h4>Confirm PDF Export</h4>
-            <button class="modal-close" onclick="closePdfModal()">×</button>
-        </div>
+        <div class="modal modal-top">
+            <div class="modal-header">
+                <h4>Confirm PDF Generate</h4>
+                <button class="modal-close" onclick="closePdfModal()">×</button>
+            </div>
 
-        <div class="modal-body">
-            <p>Are you sure you want to export this registration as a PDF?</p>
-        </div>
+            <div class="modal-body">
+                <p>Are you sure you want to Generate this registration as a PDF?</p>
+            </div>
 
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closePdfModal()">Cancel</button>
-            <a href="{{ route('admin.filereceving.export', $registerId) }}"  class="btn btn-danger">Yes, Export</a>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePdfModal()">Cancel</button>
+                <a href="{{ route('admin.filereceving.export', $registerId) }}" class="btn btn-danger">Yes, Generate</a>
+            </div>
         </div>
     </div>
 
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             // Search elements
             const searchAllottee = document.getElementById('searchAllottee');
             const searchPropertyNo = document.getElementById('searchPropertyNo');
@@ -614,315 +617,315 @@
             // Focus on first search input
             searchAllottee.focus();
         });
-</script>
-<script>
-    function openPdfModal() {
-    document.getElementById('pdfModal').style.display = 'flex';
-}
-
-function closePdfModal() {
-    document.getElementById('pdfModal').style.display = 'none';
-}
-</script>
-
-<style>
-    /* Overlay */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        display: none;
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 80px;
-        /* TOP CENTER spacing */
-        z-index: 9999;
-    }
-
-    /* Modal box */
-    .modal {
-        background: #fff;
-        width: 100%;
-        max-width: 380px;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        animation: slideDown 0.25s ease-out;
-        overflow: hidden;
-    }
-
-    /* Header */
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 14px 16px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .modal-header h4 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    /* Close button */
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        color: #6b7280;
-    }
-
-    /* Body */
-    .modal-body {
-        padding: 16px;
-        font-size: 13px;
-        color: #4b5563;
-    }
-
-    /* Footer */
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        padding: 12px 16px;
-        border-top: 1px solid #eee;
-    }
-
-    /* Buttons */
-    .btn {
-        padding: 6px 14px;
-        font-size: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        border: none;
-        text-decoration: none;
-    }
-
-    .btn-secondary {
-        background: #e5e7eb;
-        color: #111827;
-    }
-
-    .btn-secondary:hover {
-        background: #d1d5db;
-    }
-
-    .btn-danger {
-        background: #b11226;
-        /* Cherry red */
-        color: #fff;
-    }
-
-    .btn-danger:hover {
-        background: #8f0e1f;
-    }
-
-    /* Animation */
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
+    </script>
+    <script>
+        function openPdfModal() {
+            document.getElementById('pdfModal').style.display = 'flex';
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        function closePdfModal() {
+            document.getElementById('pdfModal').style.display = 'none';
         }
-    }
+    </script>
 
-    /* Base PDF Icon */
-    .pdf-icon {
-        width: 24px;
-        height: 24px;
-        fill: #830a1a;
-        /* Cherry Red */
-    }
-
-    /* Outline Version */
-    .pdf-icon-outline {
-        width: 24px;
-        height: 24px;
-        color: #0b1c2d;
-        /* Navy */
-    }
-
-    /* Download Icon */
-    .pdf-download-icon {
-        width: 20px;
-        height: 20px;
-        stroke: #000;
-        stroke-width: 2;
-        fill: none;
-    }
-
-    /* Button with PDF icon */
-    .pdf-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        background: #b11226;
-        color: #fff;
-        font-size: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .pdf-btn:hover {
-        background: #2f7003;
-    }
-
-    /* Icon animation on hover */
-    .pdf-btn:hover svg {
-        transform: translateY(-1px);
-    }
-
-
-    .search-input,
-    .search-select {
-        border: 1px solid var(--gray-border);
-        border-radius: 4px;
-        width: 100%;
-        font-size: 14px;
-        transition: all 0.3s ease;
-    }
-
-    .search-input:focus,
-    .search-select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
-    }
-
-    .btn {
-        border: 1px solid transparent;
-        border-radius: 4px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-left: 5px;
-    }
-
-    .btn-primary {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        border-color: #6c757d;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .action-btn-success {
-        background-color: var(--success-color);
-        color: white;
-    }
-
-    .action-btn-danger {
-        background-color: var(--danger-color);
-        color: white;
-    }
-
-    .action-btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-    .spinner-border {
-        display: inline-block;
-        width: 2rem;
-        height: 2rem;
-        border: 0.25em solid currentColor;
-        border-right-color: transparent;
-        border-radius: 50%;
-        animation: spinner-border .75s linear infinite;
-    }
-
-    @keyframes spinner-border {
-        to {
-            transform: rotate(360deg);
+    <style>
+        /* Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 80px;
+            /* TOP CENTER spacing */
+            z-index: 9999;
         }
-    }
 
-    .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
+        /* Modal box */
+        .modal {
+            background: #fff;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.25s ease-out;
+            overflow: hidden;
+        }
 
-    .highlight {
-        background-color: #fff3cd;
-        color: #856404;
-        font-weight: bold;
-        padding: 0 2px;
-        border-radius: 2px;
-    }
+        /* Header */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #eee;
+        }
 
-    .text-danger {
-        color: var(--danger-color);
-    }
+        .modal-header h4 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
 
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -5px;
-    }
+        /* Close button */
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #6b7280;
+        }
 
-    .col {
-        padding: 0 5px;
-    }
+        /* Body */
+        .modal-body {
+            padding: 16px;
+            font-size: 13px;
+            color: #4b5563;
+        }
 
-    .d-flex {
-        display: flex;
-    }
+        /* Footer */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid #eee;
+        }
 
-    .flex-column {
-        flex-direction: column;
-    }
+        /* Buttons */
+        .btn {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
 
-    .fw-semibold {
-        font-weight: 600;
-    }
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
 
-    .text-muted {
-        color: #6c757d !important;
-    }
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
 
-    .table-light {
-        background-color: #f8f9fa;
-    }
-</style>
+        .btn-danger {
+            background: #b11226;
+            /* Cherry red */
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #8f0e1f;
+        }
+
+        /* Animation */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Base PDF Icon */
+        .pdf-icon {
+            width: 24px;
+            height: 24px;
+            fill: #830a1a;
+            /* Cherry Red */
+        }
+
+        /* Outline Version */
+        .pdf-icon-outline {
+            width: 24px;
+            height: 24px;
+            color: #0b1c2d;
+            /* Navy */
+        }
+
+        /* Download Icon */
+        .pdf-download-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #000;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Button with PDF icon */
+        .pdf-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #b11226;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pdf-btn:hover {
+            background: #2f7003;
+        }
+
+        /* Icon animation on hover */
+        .pdf-btn:hover svg {
+            transform: translateY(-1px);
+        }
+
+
+        .search-input,
+        .search-select {
+            border: 1px solid var(--gray-border);
+            border-radius: 4px;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus,
+        .search-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .action-btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -5px;
+        }
+
+        .col {
+            padding: 0 5px;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .flex-column {
+            flex-direction: column;
+        }
+
+        .fw-semibold {
+            font-weight: 600;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .table-light {
+            background-color: #f8f9fa;
+        }
+    </style>
 @endsection

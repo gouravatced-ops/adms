@@ -18,6 +18,7 @@ class RegisterAllottee extends Model
         'p_type_id',
         'property_number',
         'quarter_type',
+        'prefix',
         'allottee_name',
         'remarks',
         'no_of_files',

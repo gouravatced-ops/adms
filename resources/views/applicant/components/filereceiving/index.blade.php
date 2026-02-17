@@ -67,7 +67,6 @@
                             <th class="text-left text-xs font-semibold">Sl No</th>
                             <th class="text-left text-xs font-semibold">Register No</th>
                             <th class="text-left text-xs font-semibold">Total Files</th>
-                            <th class="text-left text-xs font-semibold">Remarks</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Submitted Date</th>
                             <th class="text-left text-xs font-semibold">Action</th>
@@ -86,15 +85,11 @@
                                     {{ $registration->total_files }}
                                 </td>
 
-                                <td class="py-2">
-                                    {{ $registration->remarks ?? '-' }}
-                                </td>
-
                                 <td class="py-2">{{ ucfirst($registration->status) }}
                                 </td>
 
                                 <td class="py-2">
-                                    {{ $registration->created_at }}
+                                    {{ formatDateTime($registration->created_at) }}
                                 </td>
                                 <!-- ACTION BUTTONS -->
                                 <td class="py-2">

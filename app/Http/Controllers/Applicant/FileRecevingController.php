@@ -144,7 +144,7 @@ class FileRecevingController extends Controller
             }
 
             // Paginate results
-            $registerAllottee = $query->paginate(10);
+            $registerAllottee = $query->paginate(25);
 
             // Prepare data for response
             $encodedRegisterNo = base64_encode($registerNo);
@@ -272,7 +272,7 @@ class FileRecevingController extends Controller
     public function storeIndividual(Request $request)
     {
         try {
-            $exists = RegisterAllottee::where('property_number', $request->property_number)
+            $exists = RegisterAllottee::where('division_id', $request->division_id)->where('sub_division_id', $request->sub_division_id)->where('property_number', $request->property_number)
                 ->exists();
 
             if ($exists) {
@@ -435,6 +435,7 @@ class FileRecevingController extends Controller
             'pcategory_id' => 'required',
             'p_type_id' => 'required',
             'property_number' => 'required|string',
+            'prefix' => 'required|string',
             'allottee_name' => 'required|string',
             'no_of_files' => 'required',
             'no_of_supplement' => 'nullable|min:0|max:10',
@@ -468,13 +469,14 @@ class FileRecevingController extends Controller
             'p_type_id' => 'required',
             'quarter_type' => 'nullable',
             'property_number' => 'required|string',
+            'prefix' => 'required|string',
             'allottee_name' => 'required|string',
             'no_of_files' => 'required',
             'no_of_supplement' => 'nullable|min:0|max:10',
             'remarks' => 'nullable|string',
         ]);
 
-        $duplicate = RegisterAllottee::where('property_number', $validated['property_number'])
+        $duplicate = RegisterAllottee::where('division_id', $validated['division_id'])->where('sub_division_id', $validated['sub_division_id'])->where('property_number', $validated['property_number'])
             ->where('id', '!=', $validated['allottee_id'])
             ->exists();
 
@@ -494,6 +496,7 @@ class FileRecevingController extends Controller
             'p_type_id' => $validated['p_type_id'],
             'property_number' => $validated['property_number'],
             'quarter_type' => $validated['quarter_type'] ?? null,
+            'prefix' => $validated['prefix'],
             'allottee_name' => $validated['allottee_name'],
             'remarks' => $validated['remarks'] ?? null,
             'no_of_files' => $validated['no_of_files'],
@@ -562,7 +565,9 @@ class FileRecevingController extends Controller
             ->setPaper('A4', 'portrait')
             ->setOption('defaultFont', 'dejavu sans');
 
-        $filename = 'Files-Receiving-' . $registerNo . '-' . time() . '.pdf';
+        $todayDate = $this->generateRegisterNo();
+
+        $filename = $todayDate . '-ced-jshb-receiving.pdf';
 
         $directory = public_path("uploads/{$registerNo}/files");
 

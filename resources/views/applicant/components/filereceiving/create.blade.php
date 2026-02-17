@@ -160,9 +160,6 @@
             border-color: #ef4444;
         }
 
-        .field select {
-            margin-top: 4px;
-        }
 
         /* Property number label styling */
         .property-number-label {
@@ -279,6 +276,34 @@
         }
     </style>
 
+    <style>
+        .input-group {
+            display: flex;
+            width: 100%;
+        }
+
+        .prefix-select {
+            width: 55px;
+            border: 1px solid #ccc;
+            border-right: none;
+            padding: 14px 12px;
+            border-radius: 6px 0 0 6px;
+            background: #f9f9f9;
+        }
+
+        .input-group input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 14px 12px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+    </style>
     @if (session('error'))
         <div class="alert alert-danger alert-dismissible" role="alert">
             {{ session('error') }}
@@ -472,9 +497,23 @@
                                 <!-- Allottee Name -->
                                 <div class="field">
                                     <label class="label required">Allottee Name</label>
-                                    <input type="text" name="allottees[{{ $index }}][allottee_name]"
-                                        placeholder="Enter allottee name" value="{{ $allottee['allottee_name'] }}"
-                                        required>
+
+                                    <div class="input-group">
+                                        @php
+                                           $prefixes = ['Shri', 'Smt.', 'Miss', 'Late', 'M/S'];
+                                        @endphp
+
+                                        <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
+                                            @foreach ($prefixes as $prefix)
+                                                <option value="{{ $prefix }}"
+                                                    {{ ($allottee['prefix'] ?? '') === $prefix ? 'selected' : '' }}>
+                                                    {{ $prefix }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_name]"
+                                            placeholder="Enter allottee name" value="{{ $allottee['allottee_name'] }}">
+                                    </div>
                                 </div>
 
                                 <!-- No. of Files -->
@@ -640,13 +679,26 @@
                                         required>
                                 </div>
 
-
                                 <!-- Allottee Name -->
                                 <div class="field">
                                     <label class="label required">Allottee Name</label>
-                                    <input type="text" name="allottees[{{ $index }}][allottee_name]"
-                                        placeholder="Enter allottee name" value="{{ $allottee->allottee_name }}"
-                                        required>
+
+                                    <div class="input-group">
+                                        @php
+                                           $prefixes = ['Shri', 'Smt.', 'Miss', 'Late', 'M/S'];
+                                        @endphp
+
+                                        <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
+                                            @foreach ($prefixes as $prefix)
+                                                <option value="{{ $prefix }}"
+                                                    {{ ($allottee->prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                                    {{ $prefix }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_name]"
+                                            placeholder="Enter allottee name" value="{{ $allottee->allottee_name }}">
+                                    </div>
                                 </div>
 
 
@@ -777,7 +829,7 @@
                                 <select name="allottees[0][quarter_type]" class="quarter-type-select" required>
                                     <option value="">Select type</option>
                                     @foreach ($getQuarterType as $quarterType)
-                                        <option value="{{ $quarterType->quarter_id }}" >
+                                        <option value="{{ $quarterType->quarter_id }}">
                                             {{ $quarterType->quarter_code }}
                                         </option>
                                     @endforeach
@@ -793,13 +845,27 @@
                                     placeholder="Enter property number" required>
                             </div>
 
+
+
                             <!-- Allottee Name -->
+                            @php
+                                $prefixes = ['Shri', 'Smt.', 'Miss', 'Late', 'M/S'];
+                            @endphp
+
                             <div class="field">
                                 <label class="label required">Allottee Name</label>
-                                <input type="text" name="allottees[0][allottee_name]"
-                                    placeholder="Enter allottee name" required>
-                            </div>
 
+                                <div class="input-group">
+                                    <select name="allottees[0][prefix]" class="prefix-select" required>
+                                        @foreach ($prefixes as $prefix)
+                                            <option value="{{ $prefix }}">{{ $prefix }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <input type="text" name="allottees[0][allottee_name]"
+                                        placeholder="Enter allottee name" required>
+                                </div>
+                            </div>
 
                             <!-- No. of Files -->
                             <div class="field">
@@ -1789,11 +1855,25 @@
                                 required>
                         </div>
 
-                        <div class="field">
-                            <label class="label required">Allottee Name</label>
-                            <input type="text" name="allottees[${index}][allottee_name]" 
-                                placeholder="Enter allottee name" required>
-                        </div>
+                            <!-- Allottee Name -->
+                            @php
+                               $prefixes = ['Shri', 'Smt.', 'Miss', 'Late', 'M/S'];
+                            @endphp
+
+                            <div class="field">
+                                <label class="label required">Allottee Name</label>
+
+                                <div class="input-group">
+                                    <select name="allottees[${index}][prefix]" class="prefix-select" required>
+                                        @foreach ($prefixes as $prefix)
+                                            <option value="{{ $prefix }}">{{ $prefix }}</option>
+                                        @endforeach
+                                    </select>
+
+                                    <input type="text" name="allottees[${index}][allottee_name]"
+                                        placeholder="Enter allottee name" required>
+                                </div>
+                            </div>
 
                         
                                 <!-- No. of Files -->

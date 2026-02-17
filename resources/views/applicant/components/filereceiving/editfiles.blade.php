@@ -87,10 +87,6 @@
             border-color: #ef4444;
         }
 
-        .field select {
-            margin-top: 4px;
-        }
-
         /* Button styling */
         .save-btn {
             background: #007bff;
@@ -174,7 +170,34 @@
             background: #545b62;
         }
     </style>
+    <style>
+        .input-group {
+            display: flex;
+            width: 100%;
+        }
 
+        .prefix-select {
+            width: 55px;
+            border: 1px solid #ccc;
+            border-right: none;
+            padding: 14px 12px;
+            border-radius: 6px 0 0 6px;
+            background: #f9f9f9;
+        }
+
+        .input-group input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 14px 12px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+    </style>
     @if (session('error'))
         <div class="alert alert-danger alert-dismissible" role="alert">
             {{ session('error') }}
@@ -293,8 +316,23 @@
                     <!-- Allottee Name -->
                     <div class="field">
                         <label class="label required">Allottee Name</label>
-                        <input type="text" name="allottee_name" value="{{ $allottes->allottee_name }}"
-                            placeholder="Enter allottee name" required>
+
+                        <div class="input-group">
+                            @php
+                                $prefixes = ['Shri', 'Smt.', 'Miss', 'Late', 'M/S'];
+                            @endphp
+
+                            <select name="prefix" class="prefix-select">
+                                @foreach ($prefixes as $prefix)
+                                    <option value="{{ $prefix }}"
+                                        {{ ($allottes->prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                        {{ $prefix }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <input type="text" name="allottee_name"
+                                placeholder="Enter allottee name" value="{{ $allottes->allottee_name }}">
+                        </div>
                     </div>
 
                     <!-- No. of Files -->
@@ -350,15 +388,17 @@
                         </select>
                     </div>
                 </div>
-
+                @php
+                    $encodedRegistrationNo = base64_encode($register->register_no);
+                @endphp
                 <!-- Action Buttons -->
                 <div class="section-actions">
-                    <button type="button" class="back-btn" onclick="window.history.back()">
+                    <a href="{{ route('admin.filereceving.fileindex', $encodedRegistrationNo) }}" class="back-btn">
                         <svg viewBox="0 0 24 24" width="16" height="16">
                             <path d="M19 12H5m0 0l6-6m-6 6l6 6" stroke="currentColor" stroke-width="2" fill="none" />
                         </svg>
                         Back
-                    </button>
+                    </a>
                     <button type="submit" class="save-btn">
                         <svg viewBox="0 0 24 24" width="16" height="16">
                             <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" fill="none" />

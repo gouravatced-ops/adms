@@ -98,6 +98,21 @@ if (!function_exists('getPropertySubType')) {
     }
 }
 
+if (!function_exists('formatDateTime')) {
+    function formatDateTime($date, $format = 'd/m/Y H:i A')
+    {
+        if (!$date) {
+            return '-';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($date)->format($format);
+        } catch (\Exception $e) {
+            return '-';
+        }
+    }
+}
+
 if(!function_exists('getDebugIndex')) {
     function getDebugIndex($data){
         echo '<pre>';
