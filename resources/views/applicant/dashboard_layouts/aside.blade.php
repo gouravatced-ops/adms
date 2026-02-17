@@ -26,12 +26,23 @@
                             <i class="fas fa-chevron-down text-xs submenu-icon" style="transition: transform 0.3s;"></i>
                         </a>
                         <div class="submenu">
-                            <a href="{{ route('admin.filereceving.create') }}" class="sidebar-item submenu-item flex items-center">
+                            <a href="{{ route('admin.filereceving.create') }}"
+                                class="sidebar-item submenu-item flex items-center">
                                 <i class="fas fa-plus-circle"></i>
                                 <span class="ml-3"> Add File Receiving </span>
                             </a>
-                            <a href="{{ route('admin.filereceving.index') }}" class="sidebar-item submenu-item flex items-center">
-                                <i class="fas fa-clock"></i>
+                            <a href="{{ route('admin.filereceving.index') }}"
+                                class="sidebar-item submenu-item flex items-center">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <path d="M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01"
+                                            stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
                                 <span class="ml-3">Receiving List</span>
                             </a>
                         </div>
@@ -66,7 +77,16 @@
                             </a>
                             <a href="#" class="sidebar-item submenu-item flex items-center"
                                 onclick="setActiveMenu(event, 'scanning-books')">
-                                <i class="fa-solid fa-scanner-gun"></i>
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <path d="M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01"
+                                            stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
                                 <span class="ml-3">Scanning List</span>
                             </a>
                         </div>
@@ -104,7 +124,8 @@
                     </a>
 
                     <!-- Reports Section -->
-                    <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'profile')">
+                    <a href="#" class="sidebar-item flex items-center"
+                        onclick="setActiveMenu(event, 'profile')">
                         <i class="fas fa-chart-line"></i>
                         <span class="ml-3">Reports</span>
                     </a>
