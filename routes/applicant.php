@@ -93,7 +93,9 @@ Route::middleware('auth:web')->group(function () {
     // filerecieving
     Route::get('/filereceving/listing', [FileRecevingController::class, 'index'])->name('admin.filereceving.index');
     Route::get('/filereceving/item/list/{registerId}', [FileRecevingController::class, 'fileIndex'])->name('admin.filereceving.fileindex');
-    Route::get('/filereceving/create', [FileRecevingController::class, 'createPage'])->name('admin.filereceving.create');
+    Route::get('/filereceving/register/create', [FileRecevingController::class, 'createPage'])->name('admin.filereceving.create');
+    // Route::get('/filereceving/create', [FileRecevingController::class, 'createPage'])->name('admin.filereceving.create');
+    Route::post('/filereceving/create', [FileRecevingController::class, 'generateRgistrationFileLimit'])->name('admin.filereceving.limitset');
     Route::get('/filereceving/add/file/{registerId}', [FileRecevingController::class, 'addFilesPage'])->name('admin.filereceving.addmore');
     Route::post('/filereceving/store', [FileRecevingController::class, 'store'])->name('admin.filereceving.store');
     Route::post('/filereceving/individual/store', [FileRecevingController::class, 'storeIndividual'])->name('admin.individual.filereceving.store');

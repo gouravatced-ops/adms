@@ -26,26 +26,19 @@
                     <i class="fas fa-folder-open"></i>
                     Registered Files
                 </h3>
-                
+
                 <!-- Search Box -->
                 <div class="search-container" style="position: relative; width: 300px;">
-                    <input type="text" 
-                           id="searchInput" 
-                           class="form-control search-input" 
-                           placeholder="Search by Register No..."
-                           style="padding-right: 40px;"
-                           autocomplete="off"
-                    >
-                    <button id="searchButton" 
-                            class="search-button" 
-                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #6c757d;"
-                            title="Search">
+                    <input type="text" id="searchInput" class="form-control search-input"
+                        placeholder="Search by Register No..." style="padding-right: 40px;" autocomplete="off">
+                    <button id="searchButton" class="search-button"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #6c757d;"
+                        title="Search">
                         <i class="fas fa-search"></i>
                     </button>
-                    <button id="clearSearch" 
-                            class="clear-search-button" 
-                            style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #6c757d;"
-                            title="Clear search">
+                    <button id="clearSearch" class="clear-search-button"
+                        style="display: none; position: absolute; right: 35px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #6c757d;"
+                        title="Clear search">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -67,6 +60,8 @@
                             <th class="text-left text-xs font-semibold">Sl No</th>
                             <th class="text-left text-xs font-semibold">Register No</th>
                             <th class="text-left text-xs font-semibold">Total Files</th>
+                            <th class="text-left text-xs font-semibold">Allow Files</th>
+                            <th class="text-left text-xs font-semibold">Remaining</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Submitted Date</th>
                             <th class="text-left text-xs font-semibold">Action</th>
@@ -85,6 +80,29 @@
                                     {{ $registration->total_files }}
                                 </td>
 
+                                <td class="py-2">
+                                    {{ $registration->allowed_files }}
+                                </td>
+
+                                @php
+                                    $remaining = max(
+                                        0,
+                                        (int) ($registration->allowed_files ?? 0) -
+                                            (int) ($registration->total_files ?? 0),
+                                    );
+                                @endphp
+
+                                <td class="py-2">
+                                    @if ($remaining > 0)
+                                        {{ $remaining }}
+                                    @else
+                                        <span class="text-danger fw-bold" style="color: red;">
+                                            Limit Reached
+                                        </span>
+                                    @endif
+                                </td>
+
+
                                 <td class="py-2">{{ ucfirst($registration->status) }}
                                 </td>
 
@@ -94,11 +112,19 @@
                                 <!-- ACTION BUTTONS -->
                                 <td class="py-2">
                                     <div class="flex gap-2">
-                                        <!-- Add File -->
-                                        <a href="{{ route('admin.filereceving.addmore', $registration->encoded_register_no) }}"
-                                            class="action-btn action-btn-success" title="Add File">
-                                            <i class="fas fa-plus"></i>
-                                        </a>
+                                        @php
+                                            $total = (int) ($registration->total_files ?? 0);
+                                            $allowed = (int) ($registration->allowed_files ?? 0);
+                                        @endphp
+
+                                        @if ($total < $allowed)
+                                            <!-- Add File -->
+                                            <a href="{{ route('admin.filereceving.addmore', $registration->encoded_register_no) }}"
+                                                class="action-btn action-btn-success" title="Add File">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        @endif
+
 
                                         <!-- View Files -->
                                         <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}"
@@ -118,7 +144,7 @@
                     </tbody>
 
                 </table>
-                
+
                 <!-- Pagination -->
                 <div id="paginationContainer" class="p-4 border-t" style="border-color: var(--gray-border);">
                     {{ $registrations->links() }}
@@ -127,77 +153,80 @@
         </div>
     </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const clearSearch = document.getElementById('clearSearch');
-    const tableBody = document.getElementById('tableBody');
-    const paginationContainer = document.getElementById('paginationContainer');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const table = document.getElementById('studentListTable');
-    
-    let currentPage = 1;
-    let currentSearch = '';
-    let isSearching = false;
-    let searchTimeout = null;
-    let lastSearchTerm = '';
-    
-    // Function to load data
-    function loadData(page = 1, search = '') {
-        if (isSearching) return;
-        
-        isSearching = true;
-        table.style.opacity = '0.5';
-        loadingIndicator.style.display = 'block';
-        paginationContainer.style.display = 'none';
-        
-        const url = new URL('{{ route("admin.filereceving.index") }}');
-        url.searchParams.append('page', page);
-        if (search) {
-            url.searchParams.append('search', search);
-        }
-        
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Clear existing rows except the header
-            const rows = tableBody.querySelectorAll('tr');
-            rows.forEach(row => row.remove());
-            
-            if (data.registrations.data && data.registrations.data.length > 0) {
-                // Add new rows
-                data.registrations.data.forEach((registration, index) => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-t';
-                    
-                    // Highlight search term in register_no
-                    let registerNo = registration.register_no;
-                    if (search) {
-                        const searchLower = search.toLowerCase();
-                        const registerLower = registerNo.toLowerCase();
-                        const indexOfSearch = registerLower.indexOf(searchLower);
-                        
-                        if (indexOfSearch !== -1) {
-                            const before = registerNo.substring(0, indexOfSearch);
-                            const match = registerNo.substring(indexOfSearch, indexOfSearch + search.length);
-                            const after = registerNo.substring(indexOfSearch + search.length);
-                            
-                            registerNo = `${before}<span class="highlight">${match}</span>${after}`;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const clearSearch = document.getElementById('clearSearch');
+            const tableBody = document.getElementById('tableBody');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const table = document.getElementById('studentListTable');
+
+            let currentPage = 1;
+            let currentSearch = '';
+            let isSearching = false;
+            let searchTimeout = null;
+            let lastSearchTerm = '';
+
+            // Function to load data
+            function loadData(page = 1, search = '') {
+                if (isSearching) return;
+
+                isSearching = true;
+                table.style.opacity = '0.5';
+                loadingIndicator.style.display = 'block';
+                paginationContainer.style.display = 'none';
+
+                const url = new URL('{{ route('admin.filereceving.index') }}');
+                url.searchParams.append('page', page);
+                if (search) {
+                    url.searchParams.append('search', search);
+                }
+
+                fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
                         }
-                    }
-                    
-                    row.innerHTML = `
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear existing rows except the header
+                        const rows = tableBody.querySelectorAll('tr');
+                        rows.forEach(row => row.remove());
+
+                        if (data.registrations.data && data.registrations.data.length > 0) {
+                            // Add new rows
+                            data.registrations.data.forEach((registration, index) => {
+                                const row = document.createElement('tr');
+                                row.className = 'border-t';
+
+                                // Highlight search term in register_no
+                                let registerNo = registration.register_no;
+                                if (search) {
+                                    const searchLower = search.toLowerCase();
+                                    const registerLower = registerNo.toLowerCase();
+                                    const indexOfSearch = registerLower.indexOf(searchLower);
+
+                                    if (indexOfSearch !== -1) {
+                                        const before = registerNo.substring(0, indexOfSearch);
+                                        const match = registerNo.substring(indexOfSearch,
+                                            indexOfSearch + search.length);
+                                        const after = registerNo.substring(indexOfSearch + search
+                                            .length);
+
+                                        registerNo =
+                                            `${before}<span class="highlight">${match}</span>${after}`;
+                                    }
+                                }
+
+                                row.innerHTML = `
                         <td>${(data.registrations.current_page - 1) * data.registrations.per_page + index + 1}</td>
                         <td class="py-2">${registerNo}</td>
                         <td class="py-2">${registration.total_files}</td>
@@ -217,270 +246,281 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </td>
                     `;
-                    tableBody.appendChild(row);
-                });
-                
-                // Update pagination
-                paginationContainer.innerHTML = data.pagination;
-                paginationContainer.style.display = 'block';
-            } else {
-                // Show no results message
-                const noDataRow = document.createElement('tr');
-                noDataRow.id = 'noDataRow';
-                noDataRow.innerHTML = `
+                                tableBody.appendChild(row);
+                            });
+
+                            // Update pagination
+                            paginationContainer.innerHTML = data.pagination;
+                            paginationContainer.style.display = 'block';
+                        } else {
+                            // Show no results message
+                            const noDataRow = document.createElement('tr');
+                            noDataRow.id = 'noDataRow';
+                            noDataRow.innerHTML = `
                     <td colspan="7" class="text-center py-6 text-gray-500">
                         ${search ? 'No registrations found for "' + search + '"' : 'No registrations found.'}
                     </td>
                 `;
-                tableBody.appendChild(noDataRow);
-                paginationContainer.style.display = 'none';
-            }
-            
-            // Re-attach pagination event listeners
-            attachPaginationListeners();
-            
-            currentPage = page;
-            currentSearch = search;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Show error message in table
-            const errorRow = document.createElement('tr');
-            errorRow.innerHTML = `
+                            tableBody.appendChild(noDataRow);
+                            paginationContainer.style.display = 'none';
+                        }
+
+                        // Re-attach pagination event listeners
+                        attachPaginationListeners();
+
+                        currentPage = page;
+                        currentSearch = search;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Show error message in table
+                        const errorRow = document.createElement('tr');
+                        errorRow.innerHTML = `
                 <td colspan="7" class="text-center py-6 text-danger">
                     <i class="fas fa-exclamation-triangle"></i> Error loading data. Please try again.
                 </td>
             `;
-            tableBody.appendChild(errorRow);
-        })
-        .finally(() => {
-            isSearching = false;
-            table.style.opacity = '1';
-            loadingIndicator.style.display = 'none';
-        });
-    }
-    
-    // Function to attach pagination listeners
-    function attachPaginationListeners() {
-        const paginationLinks = paginationContainer.querySelectorAll('a[rel="prev"], a[rel="next"], a.page-link');
-        paginationLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const url = new URL(this.href);
-                const page = url.searchParams.get('page');
-                if (page) {
-                    loadData(page, currentSearch);
+                        tableBody.appendChild(errorRow);
+                    })
+                    .finally(() => {
+                        isSearching = false;
+                        table.style.opacity = '1';
+                        loadingIndicator.style.display = 'none';
+                    });
+            }
+
+            // Function to attach pagination listeners
+            function attachPaginationListeners() {
+                const paginationLinks = paginationContainer.querySelectorAll(
+                    'a[rel="prev"], a[rel="next"], a.page-link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        const url = new URL(this.href);
+                        const page = url.searchParams.get('page');
+                        if (page) {
+                            loadData(page, currentSearch);
+                        }
+                    });
+                });
+            }
+
+            // Debounced search function
+            function debounceSearch() {
+                const searchTerm = searchInput.value.trim();
+
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+
+                // If search term is empty, load immediately
+                if (searchTerm === '') {
+                    if (lastSearchTerm !== '') {
+                        loadData(1, '');
+                        lastSearchTerm = '';
+                    }
+                    return;
+                }
+
+                // If search term changed, search with debounce
+                if (searchTerm !== lastSearchTerm) {
+                    searchTimeout = setTimeout(() => {
+                        loadData(1, searchTerm);
+                        lastSearchTerm = searchTerm;
+                    }, 500); // 500ms debounce delay
+                }
+            }
+
+            // Search button click handler
+            searchButton.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm !== currentSearch) {
+                    loadData(1, searchTerm);
+                    if (searchTerm) {
+                        clearSearch.style.display = 'block';
+                    }
                 }
             });
-        });
-    }
-    
-    // Debounced search function
-    function debounceSearch() {
-        const searchTerm = searchInput.value.trim();
-        
-        // Clear previous timeout
-        if (searchTimeout) {
-            clearTimeout(searchTimeout);
-        }
-        
-        // If search term is empty, load immediately
-        if (searchTerm === '') {
-            if (lastSearchTerm !== '') {
-                loadData(1, '');
-                lastSearchTerm = '';
-            }
-            return;
-        }
-        
-        // If search term changed, search with debounce
-        if (searchTerm !== lastSearchTerm) {
-            searchTimeout = setTimeout(() => {
-                loadData(1, searchTerm);
-                lastSearchTerm = searchTerm;
-            }, 500); // 500ms debounce delay
-        }
-    }
-    
-    // Search button click handler
-    searchButton.addEventListener('click', function() {
-        const searchTerm = searchInput.value.trim();
-        if (searchTerm !== currentSearch) {
-            loadData(1, searchTerm);
-            if (searchTerm) {
-                clearSearch.style.display = 'block';
-            }
-        }
-    });
-    
-    // Keyup handler for search (real-time search)
-    searchInput.addEventListener('keyup', function(e) {
-        // Still allow Enter key for immediate search
-        if (e.key === 'Enter') {
-            const searchTerm = searchInput.value.trim();
-            if (searchTerm !== currentSearch) {
-                loadData(1, searchTerm);
+
+            // Keyup handler for search (real-time search)
+            searchInput.addEventListener('keyup', function(e) {
+                // Still allow Enter key for immediate search
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm !== currentSearch) {
+                        loadData(1, searchTerm);
+                        if (searchTerm) {
+                            clearSearch.style.display = 'block';
+                        }
+                    }
+                    return;
+                }
+
+                // Debounce for other keys
+                debounceSearch();
+            });
+
+            // Input event for immediate UI feedback
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim();
+
+                // Show/hide clear button
                 if (searchTerm) {
                     clearSearch.style.display = 'block';
+                } else {
+                    clearSearch.style.display = 'none';
+                    // If input is cleared, search immediately
+                    if (lastSearchTerm !== '') {
+                        loadData(1, '');
+                        lastSearchTerm = '';
+                    }
                 }
+            });
+
+            // Clear search handler
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                clearSearch.style.display = 'none';
+                if (currentSearch) {
+                    loadData(1, '');
+                    lastSearchTerm = '';
+                }
+                searchInput.focus();
+            });
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchParam = urlParams.get('search') || '';
+                const pageParam = urlParams.get('page') || '1';
+
+                if (searchParam !== currentSearch) {
+                    searchInput.value = searchParam;
+                    if (searchParam) {
+                        clearSearch.style.display = 'block';
+                    }
+                    loadData(parseInt(pageParam), searchParam);
+                }
+            });
+
+            // Initial attachment of pagination listeners
+            attachPaginationListeners();
+
+            // Focus search input on page load for better UX
+            searchInput.focus();
+        });
+    </script>
+
+    <style>
+        .search-input {
+            border: 1px solid var(--gray-border);
+            border-radius: 4px;
+            padding: 8px 12px;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .search-input.searching {
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 2px rgba(var(--info-rgb), 0.1);
+        }
+
+        .clear-search-button:hover {
+            color: var(--danger-color);
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .action-btn-info {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
             }
-            return;
         }
-        
-        // Debounce for other keys
-        debounceSearch();
-    });
-    
-    // Input event for immediate UI feedback
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.trim();
-        
-        // Show/hide clear button
-        if (searchTerm) {
-            clearSearch.style.display = 'block';
-        } else {
-            clearSearch.style.display = 'none';
-            // If input is cleared, search immediately
-            if (lastSearchTerm !== '') {
-                loadData(1, '');
-                lastSearchTerm = '';
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        /* Search loading indicator */
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
             }
         }
-    });
-    
-    // Clear search handler
-    clearSearch.addEventListener('click', function() {
-        searchInput.value = '';
-        clearSearch.style.display = 'none';
-        if (currentSearch) {
-            loadData(1, '');
-            lastSearchTerm = '';
+
+        .search-loading .fa-search {
+            animation: pulse 1.5s infinite;
         }
-        searchInput.focus();
-    });
-    
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchParam = urlParams.get('search') || '';
-        const pageParam = urlParams.get('page') || '1';
-        
-        if (searchParam !== currentSearch) {
-            searchInput.value = searchParam;
-            if (searchParam) {
-                clearSearch.style.display = 'block';
-            }
-            loadData(parseInt(pageParam), searchParam);
-        }
-    });
-    
-    // Initial attachment of pagination listeners
-    attachPaginationListeners();
-    
-    // Focus search input on page load for better UX
-    searchInput.focus();
-});
-</script>
-
-<style>
-.search-input {
-    border: 1px solid var(--gray-border);
-    border-radius: 4px;
-    padding: 8px 12px;
-    width: 100%;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
-}
-
-.search-input.searching {
-    border-color: var(--info-color);
-    box-shadow: 0 0 0 2px rgba(var(--info-rgb), 0.1);
-}
-
-.clear-search-button:hover {
-    color: var(--danger-color);
-}
-
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.action-btn-success {
-    background-color: var(--success-color);
-    color: white;
-}
-
-.action-btn-info {
-    background-color: var(--info-color);
-    color: white;
-}
-
-.action-btn:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-.spinner-border {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    border: 0.25em solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: spinner-border .75s linear infinite;
-}
-
-@keyframes spinner-border {
-    to { transform: rotate(360deg); }
-}
-
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.highlight {
-    background-color: #fff3cd;
-    color: #856404;
-    font-weight: bold;
-    padding: 0 2px;
-    border-radius: 2px;
-}
-
-.text-danger {
-    color: var(--danger-color);
-}
-
-/* Search loading indicator */
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-
-.search-loading .fa-search {
-    animation: pulse 1.5s infinite;
-}
-</style>
+    </style>
 @endsection

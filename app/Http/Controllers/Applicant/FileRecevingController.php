@@ -41,7 +41,7 @@ class FileRecevingController extends Controller
                 $query->where('register_no', 'like', '%' . $search . '%');
             }
 
-            $registrations = $query->paginate(10)->through(function ($item) use ($search) {
+            $registrations = $query->paginate(25)->through(function ($item) use ($search) {
                 $item->encoded_register_no = base64_encode($item->register_no);
 
                 // Highlight search term in response (optional)
@@ -201,6 +201,24 @@ class FileRecevingController extends Controller
         ]);
 
         $data = [
+            'register' => $register,
+        ];
+
+        return view('applicant.components.filereceiving.register', $data);
+    }
+
+    public function generateRgistrationFileLimit(Request $request)
+    {
+        $request->validate([
+            'allowed_files' => 'required|integer|min:1|max:15',
+            'register_id' => 'required'
+        ]);
+
+        $register = Register::where('register_no', $request->register_id)->first();
+        $register->allowed_files = $request->allowed_files;
+        $register->save();
+
+        $data = [
             'divisions' => getDivisions(),
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
@@ -296,6 +314,7 @@ class FileRecevingController extends Controller
                 $finalRegistration = new RegistrationFile;
                 $finalRegistration->register_no = $tempRegister->register_no;
                 $finalRegistration->total_files = $tempRegister->total_files + 1;
+                $finalRegistration->allowed_files = $tempRegister->allowed_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
                 $finalRegistration->status = 'submitted';
                 $finalRegistration->created_by = auth()->id();
