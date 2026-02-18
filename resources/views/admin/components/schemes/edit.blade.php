@@ -36,11 +36,11 @@
                     // print_r($scheme); die();
                 @endphp
 
-                <form action="{{ route('admin.schemes.update', $scheme->scheme_id) }}" method="POST"
+                <form action="{{ route('admin.schemes.update' , $scheme->id) }}" method="POST"
                     class="row g-3 align-items-end" id="schemeForm">
                     @csrf
                     @method('PUT')
-
+                    <input type="hidden" name="scheme_id" value="{{ $scheme->id }}">
                     <!-- Division Name -->
                     <div class="col-md-6">
                         <label class="form-label">Division <small class="text-danger">*</small></label>
@@ -141,7 +141,7 @@
                         <input type="text" class="krutidev form-control @error('scheme_name_hindi') is-invalid @enderror"
                             id="scheme_name_hindi" name="scheme_name_hindi"
                             value="{{ old('scheme_name_hindi', $scheme->scheme_name_hindi) }}"
-                            placeholder="Enter Scheme Name" style="font-size: 24px;">
+                            placeholder="Enter Scheme Name">
                         @error('scheme_name_hindi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -175,252 +175,276 @@
                         <small class="text-muted">Total Units</small>
                     </div>
 
-                    <!-- Financial Details -->
-                    <div class="col-12 mt-4">
-                        <h6 class="border-bottom pb-2 mb-3" style="color: #aa7700 !important;">
-                            <i class="bx bx-money me-1"></i> Properties Financial Details
-                        </h6>
-                    </div>
+                    <div class="row g-3">
 
-                    <!-- Scheme Value -->
-                    <div class="col-md-4">
-                        <label for="scheme_value" class="form-label">
-                            Scheme Value (₹) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">₹</span>
-                            <input type="number" class="form-control @error('scheme_value') is-invalid @enderror"
-                                id="scheme_value" name="scheme_value"
-                                value="{{ old('scheme_value', $scheme->scheme_value) }}" placeholder="Enter Scheme Value"
-                                step="0.01" min="1000" required>
+                        <!-- ===================================================== -->
+                        <!-- HEADER -->
+                        <!-- ===================================================== -->
+
+                        <div class="col-12 mt-4">
+                            <div class="d-flex align-items-center p-3 rounded shadow-sm"
+                                style="background: linear-gradient(90deg, #aa7700, #ffb703); color: #fff;">
+                                <i class="bx bx-money me-2"></i>
+                                <h5 class="mb-0 fw-semibold text-white">Properties Financial Details</h5>
+                            </div>
                         </div>
-                        @error('scheme_value')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <!-- Down Payment Percentage -->
-                    <div class="col-md-4">
-                        <label for="down_payment_percentage" class="form-label">
-                            Down Payment (%) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <input type="number"
-                                class="form-control @error('down_payment_percentage') is-invalid @enderror"
-                                id="down_payment_percentage" name="down_payment_percentage"
-                                value="{{ old('down_payment_percentage', $scheme->down_payment_percentage) }}"
-                                placeholder="Enter Percentage" step="0.01" min="0" max="100" required>
-                            <span class="input-group-text">%</span>
+                        <!-- ===================================================== -->
+                        <!-- STEP 1 : INITIAL DEPOSIT -->
+                        <!-- ===================================================== -->
+                        <div class="col-12 mt-4">
+                            <div class="d-flex align-items-center p-3 rounded shadow-sm"
+                                style="background: #f6def7; border-left: 5px solid #e100ff;">
+                                <h6 class="mb-0 fw-semibold" style="color:#e100ff;">
+                                    <i class="bx bx-wallet me-2"></i>
+                                    Step 1 : Initial Deposit
+                                </h6>
+                            </div>
                         </div>
-                        @error('down_payment_percentage')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        @php
+                            $quarterFees = $scheme->quarterFees->keyBy('quarter_type_id');
+                        @endphp
+                        <!-- Application Form Fee -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Application Form Fee (₹)</label>
+                            <div class="row g-2">
+                                @foreach ($quarterTypes as $qt)
+                                    <div class="col-md-3">
 
-                    <!-- Down Payment Percentage -->
-                    <div class="col-md-4">
-                        <label for="down_payment_amount" class="form-label">
-                            Down Payment Amount (₹) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <input type="number" class="form-control @error('down_payment_amount') is-invalid @enderror"
-                                id="down_payment_amount" name="down_payment_amount"
-                                value="{{ old('down_payment_amount', $scheme->down_payment_amount) }}"
-                                placeholder="Enter Percentage">
+                                        <input type="hidden" name="quarter_fees[{{ $qt->quarter_id }}][quarter_type_id]"
+                                            value="{{ $qt->quarter_id }}">
+
+                                        <input type="number" class="form-control"
+                                            name="quarter_fees[{{ $qt->quarter_id }}][application_fee]"
+                                            value="{{ $quarterFees[$qt->quarter_id]->application_fee ?? '' }}"
+                                            placeholder="{{ $qt->quarter_code }} - {{ strtoupper($qt->quarter_name) }}"
+                                            required>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                        @error('down_payment_amount')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <!-- Application Deposit Percentage -->
-                    <div class="col-md-4">
-                        <label for="application_deposit_amount" class="form-label">
-                            Application Deposit (₹) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <input type="text"
-                                class="form-control @error('application_deposit_amount') is-invalid @enderror"
-                                id="application_deposit_amount" name="application_deposit_amount"
-                                value="{{ old('application_deposit_amount', $scheme->application_deposit_amount) }}"
-                                placeholder="Enter Percentage" required>
+                        <!-- EMD -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">EMD (Earnest Money Deposit) (₹)</label>
+                            <div class="row g-2">
+                                @foreach ($quarterTypes as $qt)
+                                    <div class="col-md-3">
+
+                                        <input type="hidden" name="quarter_fees[{{ $qt->quarter_id }}][quarter_type_id]"
+                                            value="{{ $qt->quarter_id }}">
+
+                                        <input type="number" class="form-control"
+                                            name="quarter_fees[{{ $qt->quarter_id }}][emd_amount]"
+                                            value="{{ $quarterFees[$qt->quarter_id]->emd_amount ?? '' }}"
+                                            placeholder="{{ $qt->quarter_code }} - {{ strtoupper($qt->quarter_name) }}"
+                                            required>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                        @error('application_deposit_amount')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <!-- Extra Amount -->
-                    <div class="col-md-4">
-                        <label for="extra_amount" class="form-label">
-                            Extra Amount (₹)
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">₹</span>
-                            <input type="number" class="form-control @error('extra_amount') is-invalid @enderror"
-                                id="extra_amount" name="extra_amount"
-                                value="{{ old('extra_amount', $scheme->extra_amount) }}" placeholder="Extra Charges"
-                                step="0.01" min="0">
+                        <div class="col-12 mt-4">
+                            <div class="d-flex align-items-center p-3 rounded shadow-sm"
+                                style="background: #e8f0f7; border-left: 5px solid #0d4cc2;">
+                                <h6 class="mb-0 fw-semibold text-info">
+                                    <i class="bx bx-building-house me-2"></i>
+                                    Step 2 : At the Time of Allotment
+                                </h6>
+                            </div>
                         </div>
-                        @error('extra_amount')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <!-- Registry Time Deposit -->
-                    <div class="col-md-4">
-                        <label for="registry_time_deposit" class="form-label">
-                            Registry Time Deposit (₹) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text">₹</span>
-                            <input type="number"
-                                class="form-control @error('registry_time_deposit') is-invalid @enderror"
-                                id="registry_time_deposit" name="registry_time_deposit"
-                                value="{{ old('registry_time_deposit', $scheme->registry_time_deposit) }}"
-                                placeholder="Enter Amount" step="0.01" min="0" required>
+
+                        <!-- Property Total Cost -->
+                        <div class="col-md-4">
+                            <label class="form-label">Property Total Cost (₹)</label>
+                            <input type="number" name="property_total_cost" id="total_cost"
+                                value="{{ old('property_total_cost', $scheme->financial->property_total_cost ?? '') }}"
+                                class="form-control" required>
                         </div>
-                        @error('registry_time_deposit')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <!-- EMI Count -->
-                    <div class="col-md-4">
-                        <label for="emi_count" class="form-label">
-                            Number of EMI <small class="text-danger">*</small>
-                        </label>
-                        <input type="number" class="form-control @error('emi_count') is-invalid @enderror"
-                            id="emi_count" name="emi_count" value="{{ old('emi_count', $scheme->emi_count) }}"
-                            placeholder="Enter EMI Count" min="1" max="240" required>
-                        @error('emi_count')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- EMI Amount -->
-                    <div class="col-md-4">
-                        <label for="emi_amount" class="form-label">
-                            EMI Amount <small class="text-danger">*</small>
-                        </label>
-                        <input type="number" class="form-control @error('emi_amount') is-invalid @enderror"
-                            id="emi_amount" name="emi_amount" value="{{ old('emi_amount', $scheme->emi_amount) }}"
-                            placeholder="Enter EMI Count">
-                        @error('emi_amount')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- Interest Rates -->
-                    <div class="col-12 mt-4">
-                        <h6 class="border-bottom pb-2 mb-3" style="color: #8803ec !important;">
-                            <i class="bx bx-percentage me-1"></i> Interest Rates
-                        </h6>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="compound_interest_rate" class="form-label">
-                            Compound Interest Rate (%) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <input type="number"
-                                class="form-control @error('compound_interest_rate') is-invalid @enderror"
-                                id="compound_interest_rate" name="compound_interest_rate"
-                                value="{{ old('compound_interest_rate', $scheme->compound_interest_rate) }}"
-                                placeholder="Enter Rate" step="0.01" min="0" max="100" required>
-                            <span class="input-group-text">% p.a.</span>
+                        <!-- Down Payment % -->
+                        <div class="col-md-4">
+                            <label class="form-label">Down Payment (%)</label>
+                            <input type="number" name="down_payment_percentage" id="down_percent"
+                                value="{{ old('down_payment_percentage', $scheme->financial->down_payment_percentage ?? '') }}"
+                                class="form-control" required>
                         </div>
-                        @error('compound_interest_rate')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <div class="col-md-6">
-                        <label for="late_compound_interest_rate" class="form-label">
-                            Late Payment Interest Rate (%) <small class="text-danger">*</small>
-                        </label>
-                        <div class="input-group">
-                            <input type="number"
-                                class="form-control @error('late_compound_interest_rate') is-invalid @enderror"
-                                id="late_compound_interest_rate" name="late_compound_interest_rate"
-                                value="{{ old('late_compound_interest_rate', $scheme->late_compound_interest_rate) }}"
-                                placeholder="Enter Rate" step="0.01" min="0" max="100" required>
-                            <span class="input-group-text">% p.a.</span>
+                        <!-- Down Payment Amount -->
+                        <div class="col-md-4">
+                            <label class="form-label">Down Payment Amount (₹)</label>
+                            <input type="number" name="down_payment_amount" id="down_amount"
+                                value="{{ old('down_payment_amount', $scheme->financial->down_payment_amount ?? '') }}"
+                                class="form-control" required>
                         </div>
-                        @error('late_compound_interest_rate')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <div class="col-md-6" id="administrativeChargesSection">
-                        <label for="administrative_charges" class="form-label">
-                            Administrative Charges (₹) <small class="text-danger">*</small>
-                        </label>
+                        <!-- ===================================================== -->
+                        <!-- STEP 3 : AT AGREEMENT -->
+                        <!-- ===================================================== -->
 
-                        <input type="number" class="form-control @error('administrative_charges') is-invalid @enderror"
-                            id="administrative_charges" name="administrative_charges"
-                            value="{{ old('administrative_charges', $scheme->administrative_charges) }}" min="0"
-                            step="0.01">
+                        <div class="col-12 mt-4">
+                            <div class="p-3 rounded shadow-sm"
+                                style="background: #e8f7ee; border-left: 5px solid #28a745;">
+                                <h6 class="mb-0 fw-semibold text-success">
+                                    <i class="bx bx-file me-2"></i>
+                                    Step 3 : At the Time of Agreement
+                                </h6>
+                            </div>
+                        </div>
 
-                        @error('administrative_charges')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">According to HIG/MIG/LIG/EWS</small>
-                    </div>
 
-                    <!-- Dates -->
-                    <div class="col-12 mt-4">
-                        <h6 class="border-bottom pb-2 mb-3 text-info">
-                            <i class="bx bx-calendar me-1"></i> Lease Details & Dates
-                        </h6>
-                    </div>
+                        <!-- Balance Amount -->
+                        <div class="col-md-4">
+                            <label class="form-label">Balance Amount (₹)</label>
+                            <input type="number" name="balance_amount" id="balance_amount"
+                                value="{{ old('balance_amount', $scheme->financial->balance_amount ?? '') }}"
+                                class="form-control" required>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label for="lease_period" class="form-label">
-                            Lease Period
-                        </label>
+                        <!-- EMI Count -->
+                        <div class="col-md-4">
+                            <label class="form-label">No. of EMIs</label>
+                            <input type="number" name="emi_count" id="emi_count"
+                                value="{{ old('emi_count', $scheme->financial->emi_count ?? '') }}" class="form-control"
+                                required>
+                        </div>
 
-                        <select class="form-select @error('lease_period') is-invalid @enderror" id="lease_period"
-                            name="lease_period">
 
-                            <option value="">-- Select Lease Period --</option>
-                            <option value="90"
-                                {{ old('lease_period', $scheme->lease_period) == '90' ? 'selected' : '' }}>
-                                90 Years
-                            </option>
-                            <option value="99"
-                                {{ old('lease_period', $scheme->lease_period) == '99' ? 'selected' : '' }}>
-                                99 Years
-                            </option>
-                        </select>
+                        <!-- Admin Charges -->
+                        <div class="col-md-4">
+                            <label>Admin Charges (₹)</label>
+                            <input type="number" name="admin_charges"
+                                value="{{ old('admin_charges', $scheme->financial->admin_charges ?? '') }}"
+                                class="form-control">
+                        </div>
 
-                        @error('lease_period')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <div class="col-md-6">
-                        <label for="scheme_start_date" class="form-label">
-                            Scheme Start Date <small class="text-danger">*</small>
-                        </label>
-                        <input type="date" class="form-control @error('scheme_start_date') is-invalid @enderror"
-                            id="scheme_start_date" name="scheme_start_date"
-                            value="{{ old('scheme_start_date', $scheme->scheme_start_date->format('Y-m-d')) }}" required>
-                        @error('scheme_start_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <!-- EMI Calculation Section -->
+                        <div class="col-12 mt-4">
+                            <div class="p-3 rounded shadow-sm" style="background:#f8f9fa;">
+                                <h6 class="mb-3 fw-semibold">
+                                    EMI Calculation Details
+                                </h6>
 
-                    <div class="col-md-6">
-                        <label for="scheme_end_date" class="form-label">
-                            Scheme End Date
-                        </label>
-                        <input type="date" class="form-control @error('scheme_end_date') is-invalid @enderror"
-                            id="scheme_end_date" name="scheme_end_date"
-                            value="{{ old('scheme_end_date', $scheme->scheme_end_date ? $scheme->scheme_end_date->format('Y-m-d') : '') }}">
-                        @error('scheme_end_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                                <div class="row g-4">
+
+                                    <!-- WITHOUT PENALTY -->
+                                    <div class="col-md-6">
+                                        <div class="p-3" style="background:#eef4ff; border-left:4px solid #0d6efd;">
+                                            <h6 class="fw-bold text-primary mb-3">
+                                                Without Penalty
+                                            </h6>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Interest Rate (%)</label>
+                                                <input type="number" name="normal_interest_rate" id="normal_interest"
+                                                    value="{{ old('normal_interest_rate', $scheme->financial->normal_interest_rate ?? '') }}"
+                                                    class="form-control" required>
+                                            </div>
+
+                                            <div>
+                                                <label class="form-label">
+                                                    Monthly EMI (₹)
+                                                    <small class="text-danger">/ Month</small>
+                                                </label>
+                                                <input type="number" name="emi_without_penalty" id="emi_normal"
+                                                    value="{{ old('emi_without_penalty', $scheme->financial->emi_without_penalty ?? '') }}"
+                                                    class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- WITH PENALTY -->
+                                    <div class="col-md-6">
+                                        <div class="p-3" style="background:#fff1f1; border-left:4px solid #dc3545;">
+                                            <h6 class="fw-bold text-danger mb-3">
+                                                With Penalty
+                                            </h6>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Penalty Rate (%) </label>
+                                                <input type="number" name="penalty_interest_rate" id="penalty_rate"
+                                                    value="{{ old('penalty_interest_rate', $scheme->financial->penalty_interest_rate ?? '') }}"
+                                                    class="form-control" required>
+                                            </div>
+
+                                            <div>
+                                                <label class="form-label">
+                                                    Monthly EMI (₹)
+                                                    <small class="text-danger">/ Month </small> &nbsp; (Interest Rate +
+                                                    Penalty Rate) of balance Amount
+                                                </label>
+                                                <input type="number" name="emi_with_penalty" id="emi_penalty"
+                                                    value="{{ old('emi_with_penalty', $scheme->financial->emi_with_penalty ?? '') }}"
+                                                    class="form-control" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 mt-4">
+                            <div class="d-flex align-items-center p-3 rounded shadow-sm"
+                                style="background: linear-gradient(90deg, #0dcaf0, #3a86ff); color: #fff;">
+                                <i class="bx bx-calendar me-2"></i>
+                                <h5 class="mb-0 fw-semibold text-white">Lease Details</h5>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Lease Period</label>
+                            <select name="lease_period" class="form-select" required>
+                                <option value="90" {{ $scheme->lease_period == 90 ? 'selected' : '' }}>
+                                    90 Years
+                                </option>
+                                <option value="99" {{ $scheme->lease_period == 99 ? 'selected' : '' }}>
+                                    99 Years
+                                </option>
+                            </select>
+                        </div>
+
+                        @php
+                            $currentYear = date('Y');
+                        @endphp
+
+                        <div class="col-md-4">
+                            <label for="initiation_year" class="form-label">
+                                Year of Initiation
+                            </label>
+
+                            <select name="initiation_year" id="initiation_year"
+                                class="form-select @error('initiation_year') is-invalid @enderror" required>
+
+                                <option value="">-- Select Initiation Year --</option>
+                                @for ($year = 1950; $year <= date('Y'); $year++)
+                                    <option value="{{ $year }}"
+                                        {{ $scheme->initiation_year == $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endfor
+                            </select>
+
+                            @error('initiation_year')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Scheme Start Date</label>
+                            <input type="date" name="scheme_start_date" value="{{ $scheme->scheme_start_date }}"
+                                class="form-control" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>Scheme End Date</label>
+                            <input type="date" name="scheme_end_date" value="{{ $scheme->scheme_end_date }}"
+                                class="form-control">
+                        </div>
+
                     </div>
 
                     <!-- ACTION BUTTONS -->
@@ -456,7 +480,99 @@
             background-color: #f8f9fa;
         }
     </style>
+    <script>
+        $(document).ready(function() {
 
+            $('#initiation_year').select2({
+                placeholder: "-- Select Initiation Year --",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Auto focus open dropdown
+            $('#initiation_year').on('focus', function() {
+                $(this).select2('open');
+            });
+
+        });
+    </script>
+
+    <script>
+        const total_cost = document.getElementById('total_cost');
+        const down_percent = document.getElementById('down_percent');
+        const down_amount = document.getElementById('down_amount');
+        const balance_amount = document.getElementById('balance_amount');
+        const emi_count = document.getElementById('emi_count');
+        const normal_interest = document.getElementById('normal_interest');
+        const penalty_rate = document.getElementById('penalty_rate');
+        const emi_normal = document.getElementById('emi_normal');
+        const emi_penalty = document.getElementById('emi_penalty');
+
+        function calculateAll(changedField = null) {
+
+            let total = parseFloat(total_cost.value) || 0;
+            let percent = parseFloat(down_percent.value) || 0;
+            let amount = parseFloat(down_amount.value) || 0;
+
+            // =============================
+            // Down Payment Logic
+            // =============================
+
+            if (changedField === "percent") {
+                down_amount.value = Math.ceil((total * percent) / 100);
+            }
+
+            if (changedField === "amount") {
+                down_percent.value = total > 0 ?
+                    Math.ceil((amount / total) * 100) :
+                    0;
+            }
+
+            let finalDown = parseFloat(down_amount.value) || 0;
+
+            // Balance
+            balance_amount.value = Math.ceil(total - finalDown);
+
+            // =============================
+            // EMI Logic
+            // =============================
+
+            let P = parseFloat(balance_amount.value) || 0;
+            let N = parseFloat(emi_count.value) || 1;
+            let R = parseFloat(normal_interest.value) || 0;
+            let penalty = parseFloat(penalty_rate.value) || 0;
+
+            // Normal EMI
+            let monthlyRate = R / 12 / 100;
+
+            if (monthlyRate > 0 && N > 0) {
+                let emi = (P * monthlyRate * Math.pow(1 + monthlyRate, N)) /
+                    (Math.pow(1 + monthlyRate, N) - 1);
+                emi_normal.value = Math.ceil(emi);
+            } else {
+                emi_normal.value = N > 0 ? Math.ceil(P / N) : 0;
+            }
+
+            // Penalty EMI
+            let penaltyRate = (R + penalty) / 12 / 100;
+
+            if (penaltyRate > 0 && N > 0) {
+                let emiPen = (P * penaltyRate * Math.pow(1 + penaltyRate, N)) /
+                    (Math.pow(1 + penaltyRate, N) - 1);
+                emi_penalty.value = Math.ceil(emiPen);
+            } else {
+                emi_penalty.value = N > 0 ? Math.ceil(P / N) : 0;
+            }
+        }
+
+
+        total_cost.addEventListener('input', () => calculateAll());
+        down_percent.addEventListener('input', () => calculateAll('percent'));
+        down_amount.addEventListener('input', () => calculateAll('amount'));
+        emi_count.addEventListener('input', () => calculateAll());
+        normal_interest.addEventListener('input', () => calculateAll());
+        penalty_rate.addEventListener('input', () => calculateAll());
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Date validation

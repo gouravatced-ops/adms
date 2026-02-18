@@ -290,15 +290,15 @@ class FileRecevingController extends Controller
     public function storeIndividual(Request $request)
     {
         try {
-            $exists = RegisterAllottee::where('division_id', $request->division_id)->where('sub_division_id', $request->sub_division_id)->where('property_number', $request->property_number)
-                ->exists();
+            // $exists = RegisterAllottee::where('division_id', $request->division_id)->where('sub_division_id', $request->sub_division_id)->where('property_number', $request->property_number)
+            //     ->exists();
 
-            if ($exists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This property number is already added in this registration.',
-                ]);
-            }
+            // if ($exists) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'This property number is already added in this registration.',
+            //     ]);
+            // }
 
             $exists = RegistrationFile::where('register_no', $request->register_id)->exists();
             if (! $exists) {
@@ -495,16 +495,16 @@ class FileRecevingController extends Controller
             'remarks' => 'nullable|string',
         ]);
 
-        $duplicate = RegisterAllottee::where('division_id', $validated['division_id'])->where('sub_division_id', $validated['sub_division_id'])->where('property_number', $validated['property_number'])
-            ->where('id', '!=', $validated['allottee_id'])
-            ->exists();
+        // $duplicate = RegisterAllottee::where('division_id', $validated['division_id'])->where('sub_division_id', $validated['sub_division_id'])->where('property_number', $validated['property_number'])
+        //     ->where('id', '!=', $validated['allottee_id'])
+        //     ->exists();
 
-        if ($duplicate) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This property number is already added in this registration.',
-            ], 422);
-        }
+        // if ($duplicate) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'This property number is already added in this registration.',
+        //     ], 422);
+        // }
 
         $allottee = RegisterAllottee::find($validated['allottee_id']);
 

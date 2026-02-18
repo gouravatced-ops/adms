@@ -6,7 +6,7 @@ use App\Models\PropertyCategory;
 use App\Models\PropertyType;
 use App\Models\PropertyMainType;
 use App\Models\QuarterType;
-use App\Models\SchemeMaster;
+use App\Models\Scheme;
 use Illuminate\Support\Facades\DB;
 
 if (!function_exists('getDivisions')) {
@@ -47,8 +47,8 @@ if (!function_exists('getQuarterType')) {
 if (!function_exists('getSchemes')) {
     function getSchemes()
     {
-        return SchemeMaster::query()
-            ->from('scheme_master as sm')
+        return Scheme::query()
+            ->from('schemes as sm')
             ->leftJoin('divisions as d', 'd.id', '=', 'sm.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'sm.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'sm.pcategory_id')
@@ -63,7 +63,7 @@ if (!function_exists('getSchemes')) {
                 'pt.name as property_type_name',
                 'pst.name as property_sub_type_name',
                 'qt.quarter_code',
-                DB::raw('(SELECT COUNT(*) FROM scheme_blocks sb WHERE sb.scheme_id = sm.scheme_id) as total_blocks')
+                DB::raw('(SELECT COUNT(*) FROM scheme_blocks sb WHERE sb.scheme_id = sm.id) as total_blocks')
             ])
             ->latest('sm.created_at') // cleaner than orderByDesc
             ->get(); // ← execute here
@@ -113,8 +113,24 @@ if (!function_exists('formatDateTime')) {
     }
 }
 
-if(!function_exists('getDebugIndex')) {
-    function getDebugIndex($data){
+if (!function_exists('formatDate')) {
+    function formatDate($date, $format = 'd/m/Y')
+    {
+        if (!$date) {
+            return '-';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($date)->format($format);
+        } catch (\Exception $e) {
+            return '-';
+        }
+    }
+}
+
+if (!function_exists('getDebugIndex')) {
+    function getDebugIndex($data)
+    {
         echo '<pre>';
         print_r($data);
         echo '</pre>';

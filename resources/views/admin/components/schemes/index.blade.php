@@ -37,8 +37,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php 
-                                #return getDebugIndex($schemes);  
+                            <?php
+                            #return getDebugIndex($schemes);
                             ?>
                             @forelse ($schemes as $key => $scheme)
                                 <tr>
@@ -46,11 +46,12 @@
 
                                     <td>
                                         <div class="d-flex flex-column">
-                                            <strong class="fw-semibold">{{ $scheme->scheme_name }} (<span class="text-danger">{{ $scheme->propertyType->name }}</span>)</strong>
-                                            <strong class="fw-semibold krutidev"
-                                                style="font-size:18px;">{{ $scheme->scheme_name_hindi }}</strong>
+                                            <strong class="fw-semibold">{{ $scheme->scheme_name }} (<span
+                                                    class="text-danger">{{ $scheme->propertyType->name }}</span>)</strong>
+                                            <strong class="fw-semibold krutidev">{{ $scheme->scheme_name_hindi }}</strong>
                                             @if ($scheme->scheme_code)
-                                                <small class="text-muted">Code: {{ $scheme->scheme_code }}</small>
+                                                <small>Code: <span
+                                                        class="text-success fw-bold">{{ $scheme->scheme_code }}</span></small>
                                             @endif
                                             <small class="text-muted">Created by:
                                                 {{ $scheme->creator->admin_name ?? 'System' }}</small>
@@ -69,12 +70,12 @@
                                     <td>
                                         <div class="d-flex flex-column">
                                             <strong
-                                                class="text-primary">₹{{ number_format($scheme->scheme_value, 2) }}</strong>
-                                            <small>Down: ₹{{ number_format($scheme->down_payment_amount, 2) }}
-                                                ({{ $scheme->down_payment_percentage }}%)
+                                                class="text-primary">₹{{ number_format($scheme->financial->property_total_cost, 2) }}</strong>
+                                            <small>Down: ₹{{ number_format($scheme->financial->down_payment_amount, 2) }}
+                                                ({{ $scheme->financial->down_payment_percentage }}%)
                                             </small>
-                                            <small>EMI: ₹{{ number_format($scheme->emi_amount, 2) }} ×
-                                                {{ $scheme->emi_count }}</small>
+                                            <small>EMI: ₹{{ number_format($scheme->financial->emi_without_penalty, 2) }} ×
+                                                {{ $scheme->financial->emi_count }}</small>
                                         </div>
                                     </td>
 
@@ -101,32 +102,33 @@
                                     <td>
                                         <div class="d-flex flex-column">
                                             <small><strong>Start:</strong>
-                                                {{ $scheme->scheme_start_date->format('d M Y') }}</small>
+                                                {{ formatDate($scheme->scheme_start_date) }}</small>
                                             @if ($scheme->scheme_end_date)
                                                 <small><strong>End:</strong>
-                                                    {{ $scheme->scheme_end_date->format('d M Y') }}</small>
+                                                    {{ formatDate($scheme->scheme_end_date) }}</small>
                                             @else
                                                 <small><strong>End:</strong> —</small>
                                             @endif
                                             <small><strong>Created:</strong>
-                                                {{ $scheme->created_at->format('d M Y') }}</small>
+                                                {{ formatDate($scheme->created_at) }}</small>
                                         </div>
                                     </td>
 
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
 
-                                            <a href="{{ route('admin.schemes.blocks.manage', ['schemeId' => $scheme->encoded_id]) }}" class="btn btn-outline-info btn-sm" title="Add Blocks Types">
+                                            <a href="{{ route('admin.schemes.blocks.manage', ['schemeId' => $scheme->encoded_id]) }}"
+                                                class="btn btn-outline-info btn-sm" title="Add Blocks Types">
                                                 <i class="bx bx-building"></i> Blocks
                                             </a>
-                                            
-                                            <a href="{{ route('admin.schemes.edit', $scheme->scheme_id) }}"
+
+                                            <a href="{{ route('admin.schemes.edit', $scheme->id) }}"
                                                 class="btn btn-outline-primary" title="Edit">
                                                 <i class="bx bx-edit"></i>
                                             </a>
 
                                             @if ($scheme->is_active)
-                                                <form action="{{ route('admin.schemes.destroy', $scheme->scheme_id) }}"
+                                                <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
                                                     method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -136,7 +138,7 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <form action="{{ route('admin.schemes.destroy', $scheme->scheme_id) }}"
+                                                <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
                                                     method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')

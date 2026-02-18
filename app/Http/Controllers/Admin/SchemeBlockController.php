@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SchemeBlock;
-use App\Models\SchemeMaster;
+use App\Models\Scheme;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,9 +14,9 @@ class SchemeBlockController extends Controller
     public function index($schemeId)
     {
         $schId = base64_decode($schemeId);
-        $schemes = SchemeMaster::with(['blocks', 'propertyType'])
+        $schemes = Scheme::with(['blocks', 'propertyType'])
             ->withCount('blocks')
-            ->where('scheme_id', $schId)
+            ->where('id', $schId)
             ->get();
         return view('admin.components.schemes.blocks.index', compact('schemes', 'schemeId'));
     }
@@ -31,12 +31,14 @@ class SchemeBlockController extends Controller
     public function addBlocksPage($schemeId)
     {
         $schId = base64_decode($schemeId);
-        $schemes = SchemeMaster::with(['blocks', 'propertyType'])
+
+        $scheme = Scheme::with(['blocks', 'propertyType'])
             ->withCount('blocks')
-            ->where('scheme_id', $schId)
-            ->get();
-        return view('admin.components.schemes.blocks.add', compact('schemes', 'schemeId'));
+            ->findOrFail($schId);
+
+        return view('admin.components.schemes.blocks.add', compact('scheme' , 'schemeId'));
     }
+
 
     public function individualAdd(Request $request)
     {
@@ -274,9 +276,9 @@ class SchemeBlockController extends Controller
 
     public function fetchBlocks($schemeId)
     {
-        $schemes = SchemeMaster::with('blocks')
+        $schemes = Scheme::with('blocks')
             ->withCount('blocks')
-            ->where('scheme_id', $schemeId)
+            ->where('id', $schemeId)
             ->get();
         return view('admin.components.schemes.blocks.edit', compact('schemes'));
     }

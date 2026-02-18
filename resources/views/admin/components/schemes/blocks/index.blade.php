@@ -200,7 +200,7 @@
                                     @csrf
 
                                     <input type="hidden" name="edit_block_id" id="edit_block_id">
-                                    <input type="hidden" name="scheme_id" value="{{ $scheme->scheme_id }}">
+                                    <input type="hidden" name="scheme_id" value="{{ $scheme->id }}">
 
                                     <div class="row g-3">
                                         <!-- Block Name Input -->
