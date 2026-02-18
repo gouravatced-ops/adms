@@ -359,7 +359,7 @@
                                         <td>${slNo}</td>
                                         <td>
                                             <div class="d-flex flex-column">
-                                                <strong class="fw-semibold">${allotteeName}</strong><br>
+                                                <strong class="fw-semibold">${file.prefix}${allotteeName}</strong>
                                                 <small class="text-muted">
                                                     <strong>Property No: </strong>${propertyNo}
                                                 </small>
@@ -370,7 +370,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex flex-column">
-                                                <span class="text-muted"><strong>Division: </strong>${file.dname || 'N/A'}</span> <br>
+                                                <span class="text-muted"><strong>Division: </strong>${file.dname || 'N/A'}</span>
                                                 <small class="text-muted"><strong>Sub Division:</strong> ${file.subname || 'N/A'}</small>
                                             </div>
                                         </td>
@@ -378,7 +378,7 @@
                                             <div class="d-flex flex-column">
                                                 <span>
                                                     <strong>${file.cname || 'N/A'}</strong> – ${file.pname || 'N/A'}
-                                                </span> <br>
+                                                </span>
                                                 <small class="text-muted">
                                                     <strong>Quarter:</strong> ${file.quarter_code || 'N/A'}
                                                 </small>
