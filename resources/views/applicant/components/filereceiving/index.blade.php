@@ -195,21 +195,23 @@
                                 }
 
                                 row.innerHTML = `
-                        <td>${(data.registrations.current_page - 1) * data.registrations.per_page + index + 1}</td>
-                        <td class="py-2">${registerNo}</td>
-                        <td class="py-2">${registration.total_files}</td>
-                        <td class="py-2">${registration.remarks || '-'}</td>
-                        <td class="py-2">${registration.status.charAt(0).toUpperCase() + registration.status.slice(1)}</td>
-                        <td class="py-2">${registration.created_at}</td>
-                        <td class="py-2">
-                            <div class="flex gap-2">
-                                <a href="/filereceving/item/list/${btoa(registration.register_no)}"
-                                    class="action-btn action-btn-info" title="View Files">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </td>
-                    `;
+                                <td>${(data.registrations.current_page - 1) * data.registrations.per_page + index + 1}</td>
+                                <td class="py-2">${registration.lot_no}</td>
+                                <td class="py-2"><a href="/filereceving/item/list/${btoa(registration.register_no)}" title="View Files" style="text-decoration: underline;color: blue;">
+                                            ${registerNo}
+                                        </a></td>
+                                <td class="py-2">${registration.total_files}</td>
+                                <td class="py-2">${registration.status.charAt(0).toUpperCase() + registration.status.slice(1)}</td>
+                                <td class="py-2">${registration.created_at}</td>
+                                <td class="py-2">
+                                    <div class="flex gap-2">
+                                        <a href="/filereceving/item/list/${btoa(registration.register_no)}"
+                                            class="action-btn action-btn-info" title="View Files">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            `;
                                 tableBody.appendChild(row);
                             });
 
@@ -221,10 +223,10 @@
                             const noDataRow = document.createElement('tr');
                             noDataRow.id = 'noDataRow';
                             noDataRow.innerHTML = `
-                    <td colspan="7" class="text-center py-6 text-gray-500">
-                        ${search ? 'No registrations found for "' + search + '"' : 'No registrations found.'}
-                    </td>
-                `;
+                                <td colspan="7" class="text-center py-6 text-gray-500">
+                                    ${search ? 'No registrations found for "' + search + '"' : 'No registrations found.'}
+                                </td>
+                            `;
                             tableBody.appendChild(noDataRow);
                             paginationContainer.style.display = 'none';
                         }

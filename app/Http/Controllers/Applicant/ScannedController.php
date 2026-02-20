@@ -101,7 +101,6 @@ class ScannedController extends Controller
 
     public function completedScanned(Request $request)
     {
-        // return $request->all();
         try {
             $search = $request->query('search', '');
 
@@ -110,7 +109,8 @@ class ScannedController extends Controller
                     // Agar koi bhi allottee scanned nahi hai toh exclude karo
                     $q->where('allottee_status', '!=', 'scanned');
                 })
-                ->orderBy('created_at', 'desc');
+            ->whereHas('allottees')
+            ->orderBy('created_at', 'desc');
 
             // Search filter
             if (!empty($search)) {
@@ -261,26 +261,6 @@ class ScannedController extends Controller
             return redirect()
                 ->back()
                 ->with('error', 'Failed to load files.');
-        }
-    }
-
-    public function show($encodedId, $id)
-    {
-        try {
-            $allotteeId = decrypt($id);
-
-            $allottee = RegisterAllottee::with(['division', 'subDivision'])
-                ->findOrFail($allotteeId);
-
-            return view('applicant.components.scanning.scanfile', compact('allottee', 'encodedId'));
-        } catch (\Exception $e) {
-            Log::error('Show allottee file failed', [
-                'error' => $e->getMessage(),
-                'encodedId' => $encodedId,
-                'id' => $id
-            ]);
-
-            return back()->with('error', 'Failed to load allottee file details.');
         }
     }
 

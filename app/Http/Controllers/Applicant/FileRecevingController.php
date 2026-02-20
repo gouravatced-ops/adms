@@ -34,6 +34,9 @@ class FileRecevingController extends Controller
             $search = $request->query('search', '');
 
             $query = RegistrationFile::with('creator')
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', '!=', 'scanned');
+                })
                 ->orderBy('created_at', 'desc');
 
             if (!empty($search)) {
@@ -48,6 +51,10 @@ class FileRecevingController extends Controller
                 $item->created_by_name = $item->creator->name ?? 'N/A';
 
                 if ($search && strpos(strtolower($item->register_no), strtolower($search)) !== false) {
+                    $item->highlighted = true;
+                }
+
+                if ($search && strpos(strtolower($item->lot_no), strtolower($search)) !== false) {
                     $item->highlighted = true;
                 }
 
