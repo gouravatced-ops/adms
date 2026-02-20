@@ -19,7 +19,6 @@
 
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
-
             <!-- Header with Search -->
             <div class="p-4 border-b" style="border-color: var(--gray-border);">
                 <div class="flex items-start justify-between mb-4">
@@ -37,6 +36,11 @@
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <a href="{{ route('admin.filereceving.index') }}">
+                            <button class="btn btn-info" style="background: rgb(3, 138, 222); color:white;">
+                                Back
+                            </button>
+                        </a>
                         <!-- Generate PDF Button -->
                         <button class="pdf-btn" onclick="openPdfModal()">
                             <svg class="pdf-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -44,7 +48,7 @@
                                 <path d="M13 2v5h5" />
                                 <text x="7" y="17" font-size="6" font-weight="700" fill="white">PDF</text>
                             </svg>
-                            Generate PDF
+                            Download PDF
                         </button>
                     </div>
                 </div>
@@ -125,7 +129,8 @@
                                 <!-- Allottee & Property -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <strong class="fw-semibold" style="color:green;">{{ $file->prefix }} {{ $file->allottee_name }}</strong>
+                                        <strong class="fw-semibold" style="color:green;">{{ $file->prefix }}
+                                            {{ $file->allottee_name }}</strong>
                                         <small class="text-muted">
                                             <strong>Property No: </strong>{{ $file->property_number }}
                                         </small>
@@ -179,12 +184,6 @@
                                         <a href="{{ route('admin.individual.filereceving.fetch', $file->allotteeId) }}"
                                             class="action-btn action-btn-success" title="Edit file">
                                             <i class="fas fa-edit"></i>
-                                        </a>
-
-                                        <!-- View -->
-                                        <a href="{{ route('scanner.filereceving.delete-allottee', $file->allotteeId) }}"
-                                            class="action-btn action-btn-danger" title="Delete file">
-                                            <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
                                 </td>

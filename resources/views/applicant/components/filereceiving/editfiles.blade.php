@@ -330,8 +330,8 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <input type="text" name="allottee_name"
-                                placeholder="Enter allottee name" value="{{ $allottes->allottee_name }}">
+                            <input type="text" name="allottee_name" placeholder="Enter allottee name"
+                                value="{{ $allottes->allottee_name }}">
                         </div>
                     </div>
 
@@ -341,7 +341,7 @@
                         <select name="no_of_files" required>
                             <option value="">-- Select No. of Files --</option>
 
-                            @for ($i = 1; $i <= 6; $i++)
+                            @for ($i = 1; $i <= 8; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_files) && $allottes->no_of_files == $i ? 'selected' : '' }}>
                                     {{ $i }}

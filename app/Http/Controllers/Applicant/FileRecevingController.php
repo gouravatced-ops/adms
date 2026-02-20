@@ -33,18 +33,20 @@ class FileRecevingController extends Controller
         try {
             $search = $request->query('search', '');
 
-            $query = RegistrationFile::query()
+            $query = RegistrationFile::with('creator')
                 ->orderBy('created_at', 'desc');
 
-            // Apply search filter
-            if (! empty($search)) {
+            if (!empty($search)) {
                 $query->where('register_no', 'like', '%' . $search . '%');
             }
 
             $registrations = $query->paginate(25)->through(function ($item) use ($search) {
+
                 $item->encoded_register_no = base64_encode($item->register_no);
 
-                // Highlight search term in response (optional)
+                // Add creator name safely
+                $item->created_by_name = $item->creator->name ?? 'N/A';
+
                 if ($search && strpos(strtolower($item->register_no), strtolower($search)) !== false) {
                     $item->highlighted = true;
                 }
@@ -52,7 +54,6 @@ class FileRecevingController extends Controller
                 return $item;
             });
 
-            // If AJAX request, return JSON
             if ($request->ajax()) {
                 return response()->json([
                     'registrations' => $registrations,
@@ -66,6 +67,7 @@ class FileRecevingController extends Controller
                 compact('registrations', 'search')
             );
         } catch (\Throwable $e) {
+
             Log::error('Registration index failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -264,7 +266,7 @@ class FileRecevingController extends Controller
                 $finalRegistration->register_no = $tempRegister->register_no;
                 $finalRegistration->total_files = $tempRegister->total_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
-                $finalRegistration->status = 'submitted';
+                $finalRegistration->status = 'received';
                 $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();
@@ -312,11 +314,12 @@ class FileRecevingController extends Controller
                 }
 
                 $finalRegistration = new RegistrationFile;
+                $finalRegistration->lot_no = 'Lot-' . RegistrationFile::max('id') + 1;
                 $finalRegistration->register_no = $tempRegister->register_no;
                 $finalRegistration->total_files = $tempRegister->total_files + 1;
                 $finalRegistration->allowed_files = $tempRegister->allowed_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
-                $finalRegistration->status = 'submitted';
+                $finalRegistration->status = 'received';
                 $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();

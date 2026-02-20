@@ -1876,20 +1876,6 @@ tbody tr:hover {
     border: 1px solid var(--gray-border);
 }
 
-/* Badge */
-.badge {
-    background-color: var(--yellow-primary);
-    color: var(--primary-color);
-    border-radius: 50%;
-    font-size: 10px;
-    min-width: 18px;
-    height: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
 /* Settings Panel */
 .settings-panel {
     position: fixed;
@@ -2455,7 +2441,6 @@ select.duration-200 {
     color: #1f2937; /* darker icon for contrast */
 }
 
-
 /* Alert Message Styling */
 .alert {
     position: relative;
@@ -2504,11 +2489,12 @@ select.duration-200 {
 
 .alert-success::before {
     content: "\f058"; /* fa-circle-check */
-    color: #10b981;
+    color: #ffffff;
 }
 
 .alert-success .btn-close {
-    filter: invert(42%) sepia(93%) saturate(384%) hue-rotate(123deg) brightness(95%) contrast(94%);
+    filter: invert(42%) sepia(93%) saturate(384%) hue-rotate(123deg)
+        brightness(95%) contrast(94%);
 }
 
 /* Danger Alert */
@@ -2520,11 +2506,12 @@ select.duration-200 {
 
 .alert-danger::before {
     content: "\f057"; /* fa-circle-xmark */
-    color: #ef4444;
+    color: #ffffff;
 }
 
 .alert-danger .btn-close {
-    filter: invert(33%) sepia(67%) saturate(2000%) hue-rotate(340deg) brightness(95%) contrast(94%);
+    filter: invert(33%) sepia(67%) saturate(2000%) hue-rotate(340deg)
+        brightness(95%) contrast(94%);
 }
 
 /* Info Alert (Optional) */
@@ -2536,7 +2523,7 @@ select.duration-200 {
 
 .alert-info::before {
     content: "\f05a"; /* fa-circle-info */
-    color: #3b82f6;
+    color: #e9eff8;
 }
 
 /* Warning Alert (Optional) */
@@ -2586,7 +2573,9 @@ select.duration-200 {
 
 /* Alert Dismiss Animation */
 .alert.fade {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
 }
 
 .alert.fade.show {
@@ -2607,18 +2596,18 @@ select.duration-200 {
         margin-bottom: 1rem;
         font-size: 0.875rem;
     }
-    
+
     .alert::before {
         font-size: 1rem;
     }
-    
+
     .alert .btn-close {
         top: 0.5rem;
         right: 0.5rem;
         width: 1.125rem;
         height: 1.125rem;
     }
-    
+
     .alert .alert-content {
         padding-right: 1.25rem;
     }
@@ -2631,25 +2620,27 @@ select.duration-200 {
         color: #d1fae5;
         border-left-color: #10b981;
     }
-    
+
     .alert-danger {
-        background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
-        color: #fee2e2;
+        background: linear-gradient(135deg, #c20404 0%, #9a2f2f 100%);
+        color: #ffffff;
         border-left-color: #ef4444;
+        font-weight: bold;
+        letter-spacing: 1px;
     }
-    
+
     .alert-info {
         background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
         color: #dbeafe;
         border-left-color: #3b82f6;
     }
-    
+
     .alert-warning {
         background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
         color: #fef3c7;
         border-left-color: #f59e0b;
     }
-    
+
     .alert .btn-close {
         filter: invert(1);
         background: rgba(255, 255, 255, 0.1);
@@ -2701,4 +2692,107 @@ select.duration-200 {
     margin-top: 12px;
     font-size: 0.725rem;
     color: #6b7280;
+}
+
+/* Base Badge */
+.custom-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    min-width: 90px;
+}
+
+/* Not Started */
+.badge-not-started {
+    background: linear-gradient(135deg, #ff4d4d, #cc0000);
+    color: #fff;
+    /* box-shadow: 0 3px 8px rgba(255, 0, 0, 0.3); */
+}
+
+/* In Progress */
+.badge-progress {
+    background: linear-gradient(135deg, #ffcc00, #ff9900);
+    color: #000;
+    /* box-shadow: 0 3px 8px rgba(255, 153, 0, 0.3); */
+}
+
+/* Completed */
+.badge-completed {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+    color: #fff;
+    /* box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3); */
+}
+
+/* Hover Effect */
+/* .custom-badge:hover {
+    transform: scale(1.05);
+    cursor: default;
+} */
+
+.highlight {
+    background-color: #fff3cd;
+    color: #856404;
+    font-weight: bold;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.bg-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.bg-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.bg-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.submit-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.submit-btn:hover {
+    background: #218838;
 }

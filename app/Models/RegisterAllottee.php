@@ -27,4 +27,15 @@ class RegisterAllottee extends Model
         'updated_by',
         'ip_address',
     ];
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class, 'division_id');
+    }
+
+    public function subDivision()
+    {
+        return $this->belongsTo(SubDivision::class, 'sub_division_id');
+    }
+
 }

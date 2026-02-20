@@ -70,13 +70,13 @@
                             <i class="fas fa-chevron-down text-xs submenu-icon" style="transition: transform 0.3s;"></i>
                         </a>
                         <div class="submenu">
-                            <a href="#" class="sidebar-item submenu-item flex items-center"
-                                onclick="setActiveMenu(event, 'received-books')">
+                            <a href="{{ route('applicant.scanning.index') }}" class="sidebar-item submenu-item flex items-center"
+                                >
                                 <i class="fas fa-inbox"></i>
                                 <span class="ml-3">Add Scanning</span>
                             </a>
-                            <a href="#" class="sidebar-item submenu-item flex items-center"
-                                onclick="setActiveMenu(event, 'scanning-books')">
+                            <a href="{{ route('applicant.scanning.completed') }}" class="sidebar-item submenu-item flex items-center"
+                                >
                                 <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -93,7 +93,7 @@
                     </div>
 
                     <!-- File Handover -->
-                    <a href="#" class="sidebar-item flex items-center"
+                    {{-- <a href="#" class="sidebar-item flex items-center"
                         onclick="setActiveMenu(event, 'documents')">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -106,7 +106,7 @@
                             <path d="M5 8v2a2 2 0 0 0 2 2h2" />
                         </svg>
                         <span class="ml-3">File Handover</span>
-                    </a>
+                    </a> --}}
 
                     <!-- Proof Section -->
                     <a href="#" class="sidebar-item flex items-center"
@@ -120,15 +120,15 @@
                             <path d="M10 11l-2 2l2 2" />
                             <path d="M14 11l2 2l-2 2" />
                         </svg>
-                        <span class="ml-3">Client Signature</span>
+                        <span class="ml-3">Allottee Records</span>
                     </a>
 
                     <!-- Reports Section -->
-                    <a href="#" class="sidebar-item flex items-center"
+                    {{-- <a href="#" class="sidebar-item flex items-center"
                         onclick="setActiveMenu(event, 'profile')">
                         <i class="fas fa-chart-line"></i>
                         <span class="ml-3">Reports</span>
-                    </a>
+                    </a> --}}
                 @endif
                 @if (Auth::user()->role === 'dataentry')
                     <!-- Assigned Scans -->

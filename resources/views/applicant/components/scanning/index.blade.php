@@ -24,7 +24,7 @@
             <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--gray-border);">
                 <h3 class="flex items-center gap-2 text-sm font-semibold">
                     <i class="fas fa-folder-open"></i>
-                    Files Received by JSHB
+                    Scanning >> Add Scanned Pages Records
                 </h3>
 
                 <!-- Search Box -->
@@ -55,20 +55,16 @@
             <!-- Table -->
             <div class="overflow-x-auto">
                 <table id="studentListTable" class="table table-striped table-bordered align-middle w-full">
-                    <thead>
+                    <thead style="background: #0a4aa1 !important;">
                         <tr>
                             <th class="text-left text-xs font-semibold">Sl. No.</th>
                             <th class="text-left text-xs font-semibold">Lot No.</th>
                             <th class="text-left text-xs font-semibold">Register No.</th>
-                            <th class="text-left text-xs font-semibold">No. of Files Received</th>
-                            <th class="text-left text-xs font-semibold">Status</th>
-                            <th class="text-left text-xs font-semibold">Created on (Date & Time)</th>
-                            <th class="text-left text-xs font-semibold">View Register</th>
+                            <th class="text-left text-xs font-semibold">No. of Files Scanned</th>
+                            <th class="text-left text-xs font-semibold">Action</th>
                         </tr>
                     </thead>
-                    @php
-                        #return getDebugIndex($registrations);
-                    @endphp
+
                     <tbody id="tableBody">
                         @forelse ($registrations as $key => $registration)
                             <tr class="border-t">
@@ -77,7 +73,7 @@
                                     {{ $registration->lot_no }}
                                 </td>
                                 <td class="py-2">
-                                    <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}" style="text-decoration: underline;color: blue;">
+                                    <a href="{{ route('applicant.scanning.fileindex', $registration->encoded_register_no) }}" style="text-decoration: underline;color: blue;">
                                         {{ $registration->register_no }}
                                     </a>
                                 </td>
@@ -86,19 +82,12 @@
                                     {{ $registration->total_files }}
                                 </td>
 
-                                <td class="py-2">{{ ucfirst($registration->status) }} by <br> {{ $registration->creator->name ?? 'System' }}
-                                </td>
-
-                                <td class="py-2">
-                                    {{ formatDateTime($registration->created_at) }}
-                                </td>
                                 <!-- ACTION BUTTONS -->
                                 <td class="py-2">
                                     <div class="flex gap-2">
-                                             <!-- View Files -->
-                                        <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}"
-                                            class="action-btn action-btn-info" title="View Files">
-                                            <i class="fas fa-eye"></i>
+                                             <!-- Add Records -->
+                                        <a href="{{ route('applicant.scanning.fileindex', $registration->encoded_register_no) }}" style="text-decoration: underline; color:blue;"
+                                            title="Add Records">Add Records
                                         </a>
                                     </div>
                                 </td>
@@ -111,6 +100,7 @@
                             </tr>
                         @endforelse
                     </tbody>
+
                 </table>
 
                 <!-- Pagination -->

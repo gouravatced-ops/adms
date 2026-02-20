@@ -202,25 +202,6 @@
             background: #e0a800;
         }
 
-        .submit-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 4px 14px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s;
-        }
-
-        .submit-btn:hover {
-            background: #218838;
-        }
-
         .section-actions {
             display: flex;
             justify-content: flex-end;
@@ -921,7 +902,7 @@
                                     <div class="field">
                                         <label class="label required">No. of Files</label>
                                         <select name="allottees[{{ $index }}][no_of_files]" required>
-                                            @for ($i = 1; $i <= 6; $i++)
+                                            @for ($i = 1; $i <= 8; $i++)
                                                 <option value="{{ $i }}"
                                                     {{ (isset($allottee['no_of_files']) ? $allottee['no_of_files'] == $i : $i == 1) ? 'selected' : '' }}>
                                                     {{ $i }}
@@ -1098,7 +1079,7 @@
                                     <div class="field">
                                         <label class="label required">No. of Files</label>
                                         <select name="allottees[{{ $index }}][no_of_files]" required>
-                                            @for ($i = 1; $i <= 6; $i++)
+                                            @for ($i = 1; $i <= 8; $i++)
                                                 <option value="{{ $i }}"
                                                     {{ $allottee->no_of_files == $i ? 'selected' : '' }}>
                                                     {{ $i }}
@@ -1248,7 +1229,7 @@
                                 <div class="field">
                                     <label class="label required">No. of Files</label>
                                     <select name="allottees[0][no_of_files]" required>
-                                        @for ($i = 1; $i <= 6; $i++)
+                                        @for ($i = 1; $i <= 8; $i++)
                                             <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>
                                                 {{ $i }}
                                             </option>
@@ -1944,7 +1925,7 @@
                             <div class="field">
                                 <label class="label required">No. of Files</label>
                                 <select name="allottees[${index}][no_of_files]" required>
-                                    @for ($i = 1; $i <= 6; $i++)
+                                    @for ($i = 1; $i <= 8; $i++)
                                         <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>
                                             {{ $i }}
                                         </option>

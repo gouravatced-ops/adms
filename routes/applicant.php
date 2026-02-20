@@ -6,6 +6,7 @@ use App\Http\Controllers\Applicant\AuthController;
 use App\Http\Controllers\Applicant\DashboardController;
 use App\Http\Controllers\Applicant\StudentApplicationController;
 use App\Http\Controllers\Applicant\FileRecevingController;
+use App\Http\Controllers\Applicant\ScannedController;
 
 
 Route::middleware('guest')->group(function () {
@@ -108,5 +109,14 @@ Route::middleware('auth:web')->group(function () {
 
     // filinlingExport
     Route::get('/filereceving/export/{registerId}', [FileRecevingController::class, 'filesExports'])->name('admin.filereceving.export');
+
+    // allottee files scanning
+    Route::get('/register/list', [ScannedController::class, 'index'])->name('applicant.scanning.index');
+    Route::get('/lot/scanned/list', [ScannedController::class, 'completedScanned'])->name('applicant.scanning.completed');
+    Route::get('/register/item/list/{registerId}', [ScannedController::class, 'fileIndex'])->name('applicant.scanning.fileindex');
+    Route::delete('/allottee/file/delete/{encodedId}/{id}', [ScannedController::class, 'destroy'])->name('applicant.scanning.delete');
+    Route::get('/allottee/view/{encodedId}/{id}', [ScannedController::class, 'show'])->name('applicant.scanning.show');
+    Route::post('/allottee/store', [ScannedController::class, 'store'])->name('applicant.scanning.store');
+
 
 });
