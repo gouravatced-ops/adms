@@ -96,7 +96,7 @@
     <div class="loader-overlay" id="loader">
         <div>
             <div class="loader"></div>
-            <div class="loader-text">Loading Dashboard...</div>
+            <div class="loader-text">Loading ...</div>
         </div>
     </div>
 
@@ -228,6 +228,7 @@
             }
         }
 
+        // routes open means perticular route is active means menu defaultly open
         function toggleSubmenu(e) {
             e.preventDefault();
             const submenu = e.currentTarget.nextElementSibling;

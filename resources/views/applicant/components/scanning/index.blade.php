@@ -106,7 +106,7 @@
 
                 <!-- Pagination -->
                 <div id="paginationContainer" class="p-4 border-t" style="border-color: var(--gray-border);">
-                    {{ $registrations->links() }}
+                    {{ $registrations->appends(request()->query())->links('vendor.pagination.custom') }}
                 </div>
             </div>
         </div>

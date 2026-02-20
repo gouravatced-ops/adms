@@ -10,14 +10,14 @@
 
             <!-- Menu Items -->
             <nav class="space-y-1">
-                <a href="{{ route('dashboard') }}" class="sidebar-item active flex items-center">
+                <a href="{{ route('dashboard') }}" class="sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }} flex items-center">
                     <i class="fas fa-home"></i>
                     <span class="ml-3">Dashboard</span>
                 </a>
                 @if (Auth::user()->role === 'scanner')
                     <!-- File Section -->
                     <div>
-                        <a href="#" class="sidebar-item flex items-center justify-between"
+                        <a href="#" class="sidebar-item flex {{ request()->routeIs('admin.filereceving.*') ? 'active' : '' }} items-center justify-between"
                             onclick="toggleSubmenu(event)">
                             <div class="flex items-center">
                                 <i class="fas fa-file-alt"></i>
@@ -27,12 +27,12 @@
                         </a>
                         <div class="submenu">
                             <a href="{{ route('admin.filereceving.create') }}"
-                                class="sidebar-item submenu-item flex items-center">
+                                class="sidebar-item {{ request()->routeIs('admin.filereceving.create') ? 'active' : '' }} submenu-item flex items-center">
                                 <i class="fas fa-plus-circle"></i>
                                 <span class="ml-3"> Add File Receiving </span>
                             </a>
                             <a href="{{ route('admin.filereceving.index') }}"
-                                class="sidebar-item submenu-item flex items-center">
+                                class="sidebar-item {{ request()->routeIs('admin.filereceving.index') ? 'active' : '' }} submenu-item flex items-center">
                                 <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -50,7 +50,7 @@
 
                     <!-- Scanning Management -->
                     <div>
-                        <a href="#" class="sidebar-item flex items-center justify-between"
+                        <a href="#" class="sidebar-item flex {{ request()->routeIs('applicant.scanning.*') ? 'active' : '' }} items-center justify-between"
                             onclick="toggleSubmenu(event)">
                             <div class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -70,12 +70,12 @@
                             <i class="fas fa-chevron-down text-xs submenu-icon" style="transition: transform 0.3s;"></i>
                         </a>
                         <div class="submenu">
-                            <a href="{{ route('applicant.scanning.index') }}" class="sidebar-item submenu-item flex items-center"
+                            <a href="{{ route('applicant.scanning.index') }}" class="sidebar-item {{ request()->routeIs('applicant.scanning.index') ? 'active' : '' }} submenu-item flex items-center"
                                 >
                                 <i class="fas fa-inbox"></i>
                                 <span class="ml-3">Add Scanning</span>
                             </a>
-                            <a href="{{ route('applicant.scanning.completed') }}" class="sidebar-item submenu-item flex items-center"
+                            <a href="{{ route('applicant.scanning.completed') }}" class="sidebar-item {{ request()->routeIs('applicant.scanning.completed') ? 'active' : '' }} submenu-item flex items-center"
                                 >
                                 <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">

@@ -61,11 +61,14 @@
                             <th class="text-left text-xs font-semibold">Lot No.</th>
                             <th class="text-left text-xs font-semibold">Register No.</th>
                             <th class="text-left text-xs font-semibold">No. of Files Scanned</th>
+                            <th class="text-left text-xs font-semibold">Total Pages</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Scanned on (Date & Time)</th>
                         </tr>
                     </thead>
-
+                    @php
+                        #return getDebugIndex($registrations);
+                    @endphp
                     <tbody id="tableBody">
                         @forelse ($registrations as $key => $registration)
                             <tr class="border-t">
@@ -79,6 +82,10 @@
 
                                 <td class="py-2">
                                     {{ $registration->scanned_count ?? 0 }}
+                                </td>
+
+                                <td class="py-2">
+                                    {{ $registration->allottees->sum('total_pages') ?? 0 }}
                                 </td>
                                 <td class="py-2">
                                     {{ ucfirst($registration->status ?? 'Unknown') }} by
