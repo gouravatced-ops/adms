@@ -219,7 +219,7 @@ class FileRecevingController extends Controller
     public function generateRgistrationFileLimit(Request $request)
     {
         $request->validate([
-            'allowed_files' => 'required|integer|min:1|max:15',
+            'allowed_files' => 'required|integer|min:1|max:20',
             'register_id' => 'required'
         ]);
 
@@ -333,10 +333,10 @@ class FileRecevingController extends Controller
             } else {
                 // Prevent creating if already 2
                 $finalRegistration = RegistrationFile::where('register_no', $request->register_id)->first();
-                if ($finalRegistration->total_files >= 15) {
+                if ($finalRegistration->total_files >= 20) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Maximum file limit (15) reached for this register.',
+                        'message' => 'Maximum file limit (20) reached for this register.',
                     ], 400);
                 }
                 $finalRegistration->total_files = $finalRegistration->total_files + 1;

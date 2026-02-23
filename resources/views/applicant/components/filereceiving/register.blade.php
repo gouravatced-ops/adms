@@ -314,7 +314,7 @@
             <div class="field"> <label class="label required">Allowed Files</label> <select name="allowed_files"
                     class="form-select" required>
                     <option value="">Select</option>
-                    @for ($i = 1; $i <= 15; $i++)
+                    @for ($i = 1; $i <= 20; $i++)
                         <option value="{{ $i }}">{{ $i }}</option>
                     @endfor
                 </select>
