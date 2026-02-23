@@ -11,6 +11,8 @@ class RegisterAllottee extends Model
     protected $table = 'register_allottees';
     protected $fillable = [
         'register_id',
+        'confirm_received',
+        'confirm_same_allottee_name',
         'division_id',
         'sub_division_id',
         'area',
@@ -20,9 +22,12 @@ class RegisterAllottee extends Model
         'quarter_type',
         'prefix',
         'allottee_name',
+        'allottee_middle_name',
+        'allottee_surname',
         'remarks',
         'no_of_files',
         'no_of_supplement',
+        'parent_id',
         'created_by',
         'updated_by',
         'ip_address',

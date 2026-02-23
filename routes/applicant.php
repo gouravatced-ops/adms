@@ -107,6 +107,9 @@ Route::middleware('auth:web')->group(function () {
     Route::post('/filereceving/individual/update-allottee', [FileRecevingController::class, 'updateAllottee'])->name('filereceving.update-allottee');
     Route::post('/filereceving/update-details', [FileRecevingController::class, 'updateAllotteeDetails'])->name('filereceving.update-details');
 
+    // Automatic file receiving
+    Route::post('/filereceving/check-property-number', [FileRecevingController::class, 'checkPropertyNumber'])->name('admin.automatic.filereceving.check-property-number');
+
     // filinlingExport
     Route::get('/filereceving/export/{registerId}', [FileRecevingController::class, 'filesExports'])->name('admin.filereceving.export');
 

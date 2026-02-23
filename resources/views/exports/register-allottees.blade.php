@@ -376,7 +376,7 @@
                             <td>{{ $allottee->pname ?? 'N/A' }}</td>
                             <td class="text-center">{{ $allottee->quarter_code ?? 'N/A' }}</td>
                             <td class="text-center">{{ $allottee->property_number ?? 'N/A' }}</td>
-                            <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}</td>
+                            <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }} {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}</td>
                             <td>{{ $allottee->remarks ?? 'N/A' }}</td>
                         </tr>
                     @empty

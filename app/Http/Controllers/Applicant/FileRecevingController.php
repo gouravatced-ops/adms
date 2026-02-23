@@ -34,6 +34,7 @@ class FileRecevingController extends Controller
             $search = $request->query('search', '');
 
             $query = RegistrationFile::with('creator')
+                ->where('created_by', auth()->id())
                 ->whereHas('allottees', function ($q) {
                     $q->where('allottee_status', '!=', 'scanned');
                 })
@@ -119,7 +120,10 @@ class FileRecevingController extends Controller
                 ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
                 ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
                 ->where('ra.register_id', $registerNo)
+                ->where('ra.allottee_status', 'received')
+                ->where('ra.is_active', 1)
                 ->orderByDesc('ra.created_at')
+                ->where('created_by', auth()->id())
                 ->select([
                     'ra.*',
                     'd.name  as dname',
@@ -132,7 +136,9 @@ class FileRecevingController extends Controller
 
             // Apply search filters
             if (! empty($searchAllottee)) {
-                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%');
+                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_middle_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_surname', 'like', '%' . $searchAllottee . '%');
             }
 
             if (! empty($searchPropertyNo)) {
@@ -345,6 +351,11 @@ class FileRecevingController extends Controller
             }
 
             $data = $request->all();
+            if ($data['confirm_same_allottee_name'] == 'Yes') {
+                $data['parent_id'] = $data['allottee_exists_id'] ?? null;
+            } else {
+                $data['parent_id'] = null;
+            }
             $data['created_by'] = auth()->id();
             $data['ip_address'] = $request->ip();
             $allottee = RegisterAllottee::create($data);
@@ -404,7 +415,11 @@ class FileRecevingController extends Controller
             }
         }
         if ($allottee) {
-            $allottee->delete();
+            $allottee->is_active = 0;
+            $allottee->save();
+
+            RegistrationFile::where('register_no', $allottee->register_id)
+                ->decrement('total_files');
 
             return response()->json(['success' => true]);
         }
@@ -537,6 +552,63 @@ class FileRecevingController extends Controller
         return response()->json([
             'success' => true,
             'allottee_id' => $allottee->id,
+        ]);
+    }
+
+    public function checkPropertyNumber(Request $request)
+    {
+        // return $request->all();
+        $validated = $request->validate([
+            'division_id'       => ['required', 'integer'],
+            'sub_division_id'   => ['required', 'integer'],
+            'pcategory_id'      => ['nullable', 'integer'],
+            'p_type_id'         => ['nullable', 'integer'],
+            'property_number'   => ['required', 'string'],
+            'allottee_id'       => ['nullable', 'integer'],
+        ]);
+
+        $allottee = RegisterAllottee::query()
+            ->where('division_id', $validated['division_id'])
+            ->where('sub_division_id', $validated['sub_division_id'])
+            ->where('property_number', $validated['property_number'])
+            ->when(!empty($validated['pcategory_id']), function ($q) use ($validated) {
+                $q->where('pcategory_id', $validated['pcategory_id']);
+            })
+            ->when(!empty($validated['p_type_id']), function ($q) use ($validated) {
+                $q->where('p_type_id', $validated['p_type_id']);
+            })
+            ->when(!empty($validated['allottee_id']), function ($q) use ($validated) {
+                $q->where('id', '!=', $validated['allottee_id']);
+            })
+            ->select([
+                'id',
+                'prefix',
+                'allottee_name',
+                'allottee_middle_name',
+                'allottee_surname',
+                'no_of_files',
+                'no_of_supplement',
+            ])
+            ->first();
+
+        if (!$allottee) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Property not found',
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'id_exits' => $allottee->id,
+                'prefix' => $allottee->prefix,
+                'allottee_name' => $allottee->allottee_name,
+                'allottee_middle_name' => $allottee->allottee_middle_name,
+                'allottee_surname' => $allottee->allottee_surname,
+                'no_of_files' => $allottee->no_of_files,
+                'no_of_supplement' => $allottee->no_of_supplement,
+            ]
         ]);
     }
 

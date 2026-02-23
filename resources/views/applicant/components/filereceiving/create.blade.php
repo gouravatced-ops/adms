@@ -780,6 +780,36 @@
                                 </div>
 
                                 <div class="form-grid">
+                                    <!-- Confirm Recived -->
+                                    <div class="field">
+                                        <label class="label required">Is Allottee file already received?</label>
+                                        <select name="allottees[{{ $index }}][confirm_received]"
+                                            class="confirm-select @error('allottees.' . $index . '.confirm_received') border-red-500 @enderror"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                        @error('allottees.' . $index . '.confirm_received')
+                                            <div class="error-message">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Hidden input select show when confirm_received is "Yes" select open show is this same allotte name select yes / no -->
+
+                                    <!-- Confirm Allottee Name -->
+                                    <div class="field" style="display: none;">
+                                        <label class="label required">Is this same allotte name ?</label>
+                                        <select name="allottees[{{ $index }}][confirm_same_allottee_name]"
+                                            class="confirm-name-select @error('allottees.' . $index . '.confirm_same_allottee_name') border-red-500 @enderror"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                        @error('allottees.' . $index . '.confirm_same_allottee_name')
+                                            <div class="error-message">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
                                     <!-- Division -->
                                     <div class="field">
                                         <label class="label required">Division</label>
@@ -851,8 +881,8 @@
                                         </label>
                                         <input type="text" class="property-number-input"
                                             name="allottees[{{ $index }}][property_number]"
-                                            placeholder="Enter property number" value="{{ $allottee['property_number'] }}"
-                                            required>
+                                            placeholder="Enter property number"
+                                            value="{{ $allottee['property_number'] }}" required>
                                     </div>
 
                                     <!-- Quarter Type -->
@@ -876,7 +906,7 @@
 
                                     <!-- Allottee Name -->
                                     <div class="field">
-                                        <label class="label required">Allottee Name</label>
+                                        <label class="label required">Allottee First Name</label>
                                         <div class="input-group">
                                             @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
                                             <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
@@ -891,6 +921,22 @@
                                                 placeholder="Enter allottee name"
                                                 value="{{ $allottee['allottee_name'] }}">
                                         </div>
+                                    </div>
+
+                                    <!-- Allottee Middle name -->
+                                    <div class="field">
+                                        <label class="label">Allottee Middle Name</label>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_middle_name]"
+                                            placeholder="Enter allottee middle name"
+                                            value="{{ $allottee['allottee_middle_name'] }}">
+                                    </div>
+
+                                    <!-- Allottee Surname -->
+                                    <div class="field">
+                                        <label class="label required">Allottee Surname</label>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_surname]"
+                                            placeholder="Enter allottee surname"
+                                            value="{{ $allottee['allottee_surname'] }}">
                                     </div>
 
                                     <!-- No. of Files -->
@@ -976,6 +1022,36 @@
                                     <input type="hidden" class="allottee-id-input"
                                         name="allottees[{{ $index }}][id]" value="{{ $allottee->id }}">
 
+                                    <!-- Confirm Recived -->
+                                    <div class="field">
+                                        <label class="label required">Is Allottee file already received?</label>
+                                        <select name="allottees[{{ $index }}][confirm_received]"
+                                            class="confirm-select @error('allottees.' . $index . '.confirm_received') border-red-500 @enderror"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                        @error('allottees.' . $index . '.confirm_received')
+                                            <div class="error-message">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Hidden input select show when confirm_received is "Yes" select open show is this same allotte name select yes / no -->
+
+                                    <!-- Confirm Allottee Name -->
+                                    <div class="field" style="display: none;">
+                                        <label class="label required">Is this same allotte name ?</label>
+                                        <select name="allottees[{{ $index }}][confirm_same_allottee_name]"
+                                            class="confirm-name-select @error('allottees.' . $index . '.confirm_same_allottee_name') border-red-500 @enderror"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                        @error('allottees.' . $index . '.confirm_same_allottee_name')
+                                            <div class="error-message">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
                                     <!-- Division -->
                                     <div class="field">
                                         <label class="label required">Division</label>
@@ -1054,20 +1130,37 @@
 
                                     <!-- Allottee Name -->
                                     <div class="field">
-                                        <label class="label required">Allottee Name</label>
+                                        <label class="label required">Allottee First Name</label>
                                         <div class="input-group">
                                             @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
                                             <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
                                                 @foreach ($prefixes as $prefix)
                                                     <option value="{{ $prefix }}"
-                                                        {{ ($allottee->prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                                        {{ ($allottee['prefix'] ?? '') === $prefix ? 'selected' : '' }}>
                                                         {{ $prefix }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                             <input type="text" name="allottees[{{ $index }}][allottee_name]"
-                                                placeholder="Enter allottee name" value="{{ $allottee->allottee_name }}">
+                                                placeholder="Enter allottee name"
+                                                value="{{ $allottee['allottee_name'] }}">
                                         </div>
+                                    </div>
+
+                                    <!-- Allottee Middle name -->
+                                    <div class="field">
+                                        <label class="label">Allottee Middle Name</label>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_middle_name]"
+                                            placeholder="Enter allottee middle name"
+                                            value="{{ $allottee['allottee_middle_name'] }}">
+                                    </div>
+
+                                    <!-- Allottee Surname -->
+                                    <div class="field">
+                                        <label class="label required">Allottee Surname</label>
+                                        <input type="text" name="allottees[{{ $index }}][allottee_surname]"
+                                            placeholder="Enter allottee surname"
+                                            value="{{ $allottee['allottee_surname'] }}">
                                     </div>
 
                                     <!-- No. of Files -->
@@ -1105,7 +1198,8 @@
                                                 {{ $allottee->remarks == 'All Fresh Pages' ? 'selected' : '' }}>All Fresh
                                                 Pages</option>
                                             <option value="All Old Pages"
-                                                {{ $allottee->remarks == 'All Old Pages' ? 'selected' : '' }}>All Old Pages
+                                                {{ $allottee->remarks == 'All Old Pages' ? 'selected' : '' }}>All Old
+                                                Pages
                                             </option>
                                             <option value="All Poor Quality Pages"
                                                 {{ $allottee->remarks == 'All Poor Quality Pages' ? 'selected' : '' }}>All
@@ -1144,6 +1238,27 @@
                             <div class="form-grid">
                                 <!-- Hidden allottee ID for updates -->
                                 <input type="hidden" class="allottee-id-input" name="allottees[0][id]" value="">
+
+                                <!-- Confirm Recived -->
+                                <div class="field">
+                                    <label class="label required">Is Allottee file already received?</label>
+                                    <select name="allottees[0][confirm_received]" class="confirm-select" required>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+
+                                <!-- Hidden input select show when confirm_received is "Yes" select open show is this same allotte name select yes / no -->
+
+                                <!-- Confirm Allottee Name -->
+                                <div class="field" style="display: none;">
+                                    <label class="label required">Is this same allotte name ?</label>
+                                    <select name="allottees[0][confirm_same_allottee_name]" class="confirm-name-select"
+                                        required>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
 
                                 <!-- Division -->
                                 <div class="field">
@@ -1207,17 +1322,34 @@
 
                                 <!-- Allottee Name -->
                                 <div class="field">
-                                    <label class="label required">Allottee Name</label>
+                                    <label class="label required">Allottee First Name</label>
                                     <div class="input-group">
                                         @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
-                                        <select name="allottees[0][prefix]" class="prefix-select" required>
+                                        <select name="allottees[0][prefix]" class="prefix-select">
                                             @foreach ($prefixes as $prefix)
-                                                <option value="{{ $prefix }}">{{ $prefix }}</option>
+                                                <option value="{{ $prefix }}"
+                                                    {{ ($allottee['prefix'] ?? '') === $prefix ? 'selected' : '' }}>
+                                                    {{ $prefix }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         <input type="text" name="allottees[0][allottee_name]"
-                                            placeholder="Enter allottee name" required>
+                                            placeholder="Enter allottee name" value="">
                                     </div>
+                                </div>
+
+                                <!-- Allottee Middle name -->
+                                <div class="field">
+                                    <label class="label">Allottee Middle Name</label>
+                                    <input type="text" name="allottees[0][allottee_middle_name]"
+                                        placeholder="Enter allottee middle name" value="">
+                                </div>
+
+                                <!-- Allottee Surname -->
+                                <div class="field">
+                                    <label class="label required">Allottee Surname</label>
+                                    <input type="text" name="allottees[0][allottee_surname]"
+                                        placeholder="Enter allottee surname" value="">
                                 </div>
 
                                 <!-- No. of Files -->
@@ -1318,6 +1450,157 @@
 @endsection
 
 @push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            document.addEventListener("change", function(e) {
+
+                // When Confirm Received changes
+                if (e.target.classList.contains("confirm-select")) {
+
+                    let currentField = e.target.closest(".field");
+                    let nextField = currentField.nextElementSibling;
+                    let row = currentField.parentElement;
+
+                    if (nextField && nextField.querySelector(".confirm-name-select")) {
+
+                        if (e.target.value === "Yes") {
+                            nextField.style.display = "block";
+                        } else {
+                            nextField.style.display = "none";
+                            nextField.querySelector(".confirm-name-select").value = "No";
+                        }
+                    }
+
+                    updateAutoClass(row);
+                }
+
+                // When Confirm Same Name changes
+                if (e.target.classList.contains("confirm-name-select")) {
+
+                    let row = e.target.closest(".field").parentElement;
+                    updateAutoClass(row);
+                }
+
+            });
+
+            function updateAutoClass(row) {
+
+                let confirmSelect = row.querySelector(".confirm-select");
+                let confirmNameSelect = row.querySelector(".confirm-name-select");
+                let propertyInput = row.querySelector(".property-number-input");
+
+                if (!confirmSelect || !confirmNameSelect || !propertyInput) return;
+
+                if (
+                    confirmSelect.value === "Yes" &&
+                    confirmNameSelect.value === "Yes"
+                ) {
+                    propertyInput.classList.add("auto-check-enabled");
+                } else {
+                    propertyInput.classList.remove("auto-check-enabled");
+                }
+            }
+
+            // Helper functions
+            function showNotification(title, message, type) {
+                showToast('File Receiving', message, type);
+            }
+
+
+            document.addEventListener("blur", function(e) {
+
+                if (e.target.classList.contains("property-number-input")) {
+
+                    let propertyInput = e.target;
+
+                    if (!propertyInput.classList.contains("auto-check-enabled")) return;
+
+                    let row = propertyInput.closest(".field").parentElement;
+
+                    let division = row.querySelector(".division-select")?.value;
+                    let subDivision = row.querySelector(".sub-division-select")?.value;
+                    let category = row.querySelector(".property-category-select")?.value;
+                    let type = row.querySelector(".property-type-select")?.value;
+                    let propertyNumber = propertyInput.value.trim();
+
+                    if (!division || !subDivision || !category || !type || !propertyNumber) {
+                        showNotification(
+                            'File Auto fetch failed',
+                            'All required fields not selected.',
+                            'error'
+                        );
+                        return;
+                    }
+
+                    fetch(`/filereceving/check-property-number`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute("content")
+                            },
+                            body: JSON.stringify({
+                                division_id: division,
+                                sub_division_id: subDivision,
+                                pcategory_id: category,
+                                p_type_id: type,
+                                property_number: propertyNumber
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("API Response:", data);
+                            if (!data.status) return;
+
+                                let row = propertyInput.closest(".field").parentElement;
+
+                                // Get inputs
+                                let prefixSelect = row.querySelector(".prefix-select");
+                                let firstNameInput = row.querySelector('input[name*="[allottee_name]"]');
+                                let middleNameInput = row.querySelector('input[name*="[allottee_middle_name]"]');
+                                let surnameInput = row.querySelector('input[name*="[allottee_surname]"]');
+                                let filesSelect = row.querySelector('select[name*="[no_of_files]"]');
+
+                                // Autofill values
+                                prefixSelect.value = data.data.prefix ?? "";
+                                firstNameInput.value = data.data.allottee_name ?? "";
+                                middleNameInput.value = data.data.allottee_middle_name ?? "";
+                                surnameInput.value = data.data.allottee_surname ?? "";
+                                filesSelect.value = data.data.no_of_files ?? 1;
+
+                                // Disable fields
+                                prefixSelect.disabled = true;
+                                firstNameInput.disabled = true;
+                                middleNameInput.disabled = true;
+                                surnameInput.disabled = true;
+                                filesSelect.disabled = true;
+
+                                let firstNameNameAttr = firstNameInput.getAttribute("name"); 
+                                let hiddenName = firstNameNameAttr.replace("[allottee_name]", "[allottee_exists_id]");
+
+                                // Remove old hidden if exists
+                                let oldHidden = row.querySelector(`input[name="${hiddenName}"]`);
+                                if (oldHidden) oldHidden.remove();
+
+                                // Create new hidden
+                                let hiddenInput = document.createElement("input");
+                                hiddenInput.type = "hidden";
+                                hiddenInput.name = hiddenName;
+                                hiddenInput.value = data.data.id_exits ?? "";
+
+                                row.appendChild(hiddenInput);
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                        });
+
+                }
+
+            }, true);
+
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Global variables
@@ -1448,6 +1731,10 @@
                 let previewHtml = '';
                 console.log(sections);
                 sections.forEach((section, index) => {
+                    const confirmRecieved = section.querySelector('[name*="[confirm_received]"] option:checked')
+                        ?.text || 'Not selected';
+                    const confirmSameAllotteename = section.querySelector('[name*="[confirm_same_allottee_name]"] option:checked')
+                        ?.text || 'Not selected';
                     const division = section.querySelector('[name*="[division_id]"] option:checked')
                         ?.text || 'Not selected';
                     const subDivision = section.querySelector('[name*="[sub_division_id]"] option:checked')
@@ -1462,6 +1749,10 @@
                         ?.text || 'Not selected';
                     const prefix = section.querySelector('[name*="[prefix]"] option:checked')?.value || '';
                     const allotteeName = section.querySelector('[name*="[allottee_name]"]')?.value ||
+                        'Not entered';
+                    const allotteeMiddleName = section.querySelector('[name*="[allottee_middle_name]"]')?.value ||
+                        'Not entered';
+                    const allotteeSurname = section.querySelector('[name*="[allottee_surname]"]')?.value ||
                         'Not entered';
                     const noOfFiles = section.querySelector('[name*="[no_of_files]"] option:checked')
                         ?.value || 'Not selected';
@@ -1479,6 +1770,14 @@
                             </span>
                         </div>
                         <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Is Allottee file already received?</span>
+                                <span class="summary-value editable" onclick="editField(${index}, 'confirm_received')">${confirmRecieved}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Is this same allotte name ?</span>
+                                <span class="summary-value editable" onclick="editField(${index}, 'confirm_same_allottee_name')">${confirmSameAllotteename}</span>
+                            </div>
                             <div class="summary-item">
                                 <span class="summary-label">Division</span>
                                 <span class="summary-value editable" onclick="editField(${index}, 'division')">${division}</span>
@@ -1506,6 +1805,14 @@
                             <div class="summary-item">
                                 <span class="summary-label">Allottee Name</span>
                                 <span class="summary-value editable" onclick="editField(${index}, 'allottee_name')">${prefix} ${allotteeName}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Allottee Middle Name</span>
+                                <span class="summary-value editable" onclick="editField(${index}, 'allottee_middle_name')">${allotteeMiddleName}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Allottee Surname</span>
+                                <span class="summary-value editable" onclick="editField(${index}, 'allottee_surname')">${allotteeSurname}</span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label">No. of Files</span>
@@ -1709,7 +2016,11 @@
                     if (firstInvalidInput) {
                         firstInvalidInput.focus();
                     }
-                    alert('Please fill all required fields (marked in red) before saving.');
+                    showNotification(
+                        'File Receiving',
+                        'Please fill all required fields (marked in red) before saving.',
+                        'error'
+                    );
                     return;
                 }
 
@@ -1853,6 +2164,30 @@
                         <div class="form-grid">
                             <input type="hidden" class="allottee-id-input" name="allottees[${index}][id]" value="">
 
+                             <!-- Confirm Recived -->
+                                    <div class="field">
+                                        <label class="label required">Is Allottee file already received?</label>
+                                        <select name="allottees[${index}][confirm_received]"
+                                            class="confirm-select"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Hidden input select show when confirm_received is "Yes" select open show is this same allotte name select yes / no -->
+
+                                    <!-- Confirm Allottee Name -->
+                                    <div class="field" style="display: none;">
+                                        <label class="label required">Is this same allotte name ?</label>
+                                        <select name="allottees[${index}][confirm_same_allottee_name]"
+                                            class="confirm-name-select"
+                                            required>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                    </div>
+
                             <div class="field">
                                 <label class="label required">Division</label>
                                 <select name="allottees[${index}][division_id]" class="division-select" required>
@@ -1905,16 +2240,35 @@
                             </div>
 
                             <div class="field">
-                                <label class="label required">Allottee Name</label>
+                                <label class="label required">Allottee First Name</label>
                                 <div class="input-group">
                                     @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
                                     <select name="allottees[${index}][prefix]" class="prefix-select" required>
                                         @foreach ($prefixes as $prefix)
-                                            <option value="{{ $prefix }}">{{ $prefix }}</option>
+                                            <option value="{{ $prefix }}"
+                                                {{ ($allottee['prefix'] ?? '') === $prefix ? 'selected' : '' }}>
+                                                {{ $prefix }}
+                                            </option>
                                         @endforeach
                                     </select>
-                                    <input type="text" name="allottees[${index}][allottee_name]" placeholder="Enter allottee name" required>
+                                    <input type="text" name="allottees[${index}][allottee_name]"
+                                        placeholder="Enter allottee name" required>
                                 </div>
+                            </div>
+
+                            <!-- Allottee Middle name -->
+                            <div class="field">
+                                <label class="label">Allottee Middle Name</label>
+                                    <input type="text" name="allottees[${index}][allottee_middle_name]"
+                                        placeholder="Enter allottee middle name">
+                            </div>
+
+                            <!-- Allottee Surname -->
+                            <div class="field">
+                                <label class="label required">Allottee Surname</label>
+                                    <input type="text" name="allottees[${index}][allottee_surname]"
+                                        placeholder="Enter allottee surname"
+                                        required>
                             </div>
 
                             <div class="field">

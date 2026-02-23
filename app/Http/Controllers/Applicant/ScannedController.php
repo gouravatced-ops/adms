@@ -22,6 +22,7 @@ class ScannedController extends Controller
             $search = $request->query('search', '');
 
             $query = RegistrationFile::with('allottees')
+                ->where('created_by', auth()->id())
                 ->whereHas('allottees', function ($q) {
                     // At least one allottee NOT scanned
                     $q->where('allottee_status', '!=', 'scanned');
@@ -109,8 +110,8 @@ class ScannedController extends Controller
                     // Agar koi bhi allottee scanned nahi hai toh exclude karo
                     $q->where('allottee_status', '!=', 'scanned');
                 })
-            ->whereHas('allottees')
-            ->orderBy('created_at', 'desc');
+                ->whereHas('allottees')
+                ->orderBy('created_at', 'desc');
 
             // Search filter
             if (!empty($search)) {
@@ -182,7 +183,9 @@ class ScannedController extends Controller
                 ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
                 ->where('ra.register_id', $registerNo)
                 ->where('ra.allottee_status', 'received')
+                ->where('ra.is_active', 1)
                 ->orderByDesc('ra.created_at')
+                ->where('created_by', auth()->id())
                 ->select([
                     'ra.*',
                     'd.name  as dname',
@@ -195,7 +198,9 @@ class ScannedController extends Controller
 
             // Apply search filters
             if (! empty($searchAllottee)) {
-                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%');
+                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_middle_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_surname', 'like', '%' . $searchAllottee . '%');
             }
 
             if (! empty($searchPropertyNo)) {

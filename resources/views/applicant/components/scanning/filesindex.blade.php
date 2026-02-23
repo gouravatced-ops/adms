@@ -172,7 +172,7 @@
 
                                 <td>
                                     <strong class="fw-semibold text-success">
-                                        {{ $file->prefix }} {{ $file->allottee_name }}
+                                        {{ $file->prefix }} {{ $file->allottee_name }} {{ $file->allottee_middle_name }} {{ $file->allottee_surname }}
                                     </strong>
                                 </td>
 

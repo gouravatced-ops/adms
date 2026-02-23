@@ -130,7 +130,7 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         <strong class="fw-semibold" style="color:green;">{{ $file->prefix }}
-                                            {{ $file->allottee_name }}</strong>
+                                            {{ $file->allottee_name }} {{ $file->allottee_middle_name }} {{ $file->allottee_surname }}</strong>
                                         <small class="text-muted">
                                             <strong>Property No: </strong>{{ $file->property_number }}
                                         </small>
@@ -223,12 +223,12 @@
             </div>
 
             <div class="modal-body">
-                <p>Are you sure you want to Generate this registration as a PDF?</p>
+                <p>Are you sure you want to Download this registration as a PDF?</p>
             </div>
 
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closePdfModal()">Cancel</button>
-                <a href="{{ route('admin.filereceving.export', $registerId) }}" class="btn btn-danger">Yes, Generate</a>
+                <a href="{{ route('admin.filereceving.export', $registerId) }}" class="btn btn-danger">Yes, Download</a>
             </div>
         </div>
     </div>
@@ -314,7 +314,7 @@
                                 const row = document.createElement('tr');
 
                                 // Highlight search terms
-                                let allotteeName = file.allottee_name;
+                                let allotteeName = file.allottee_name+' '+file.allottee_middle_name+' '+file.allottee_surname;
                                 let propertyNo = file.property_number;
 
                                 // Highlight allottee name if searched
@@ -358,7 +358,7 @@
                                         <td>${slNo}</td>
                                         <td>
                                             <div class="d-flex flex-column">
-                                                <strong class="fw-semibold">${file.prefix}${allotteeName}</strong>
+                                                <strong class="fw-semibold" style="color:green;">${file.prefix} ${allotteeName}</strong>
                                                 <small class="text-muted">
                                                     <strong>Property No: </strong>${propertyNo}
                                                 </small>
