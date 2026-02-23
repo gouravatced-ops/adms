@@ -22,8 +22,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/reload-captcha', function () {
         return response()->json([
             'captcha' => captcha_img('flat')
-            ]);
-        })->name('captcha.reload');
+        ]);
+    })->name('captcha.reload');
     Route::get('/forgot-password', function () {
         return view('applicant.auth_components.forgot-password');
     })->name('forgot-password');
@@ -121,5 +121,18 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/allottee/view/{encodedId}/{id}', [ScannedController::class, 'show'])->name('applicant.scanning.show');
     Route::post('/allottee/store', [ScannedController::class, 'store'])->name('applicant.scanning.store');
 
+    // data entry 
+    Route::prefix('applicant')->name('applicant.')->group(function () {
+        // Stepper Form Routes
+        Route::get('/apply', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('apply.index');
+        Route::get('/apply/step/{step}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getStep'])->name('apply.step');
 
+        // AJAX Save Routes
+        Route::get('/scanned/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('dataentry.scanned.files');
+        Route::get('/scanned/lots/files/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'fileIndex'])->name('dataentry.scanned.lots.files');
+        Route::post('/apply/step1/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep1'])->name('apply.step1.save');
+        Route::post('/apply/step2/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep2'])->name('apply.step2.save');
+        Route::post('/apply/step3/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep3'])->name('apply.step3.save');
+        Route::post('/apply/step4/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep4'])->name('apply.step4.save');
+    });
 });

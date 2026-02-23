@@ -70,7 +70,6 @@
     :root {
         --primary-color: {{ $projectTheme['primary-color'] }};
         --primary-hover: {{ $projectTheme['primary-hover'] }};
-
         --sidebar-bg: {{ $projectTheme['sidebar-bg'] }};
         --sidebar-secondary: {{ $projectTheme['sidebar-secondary'] }};
         --sidebar-hover: {{ $projectTheme['sidebar-hover'] }};

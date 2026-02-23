@@ -104,10 +104,9 @@ class ScannedController extends Controller
     {
         try {
             $search = $request->query('search', '');
-
             $query = RegistrationFile::with(['allottees', 'scannedBy'])
+                ->where('created_by', auth()->id())
                 ->whereDoesntHave('allottees', function ($q) {
-                    // Agar koi bhi allottee scanned nahi hai toh exclude karo
                     $q->where('allottee_status', '!=', 'scanned');
                 })
                 ->whereHas('allottees')

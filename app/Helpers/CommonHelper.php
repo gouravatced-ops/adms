@@ -78,6 +78,15 @@ if (!function_exists('getpcategoryType')) {
     }
 }
 
+if (!function_exists('getSchemeList')) {
+    function getSchemeList()
+    {
+        return Scheme::where('is_active', 1)
+            ->orderBy('scheme_name', 'asc')
+            ->get();
+    }
+}
+
 if (!function_exists('getPropertyType')) {
     function getPropertyType($category_id)
     {
