@@ -37,6 +37,7 @@ class DivisionsController extends Controller
         try {
             Division::create([
                 'name' => $request->name,
+                'division_code' => $request->division_code,
                 'status' => $request->status,
             ]);
 
@@ -62,6 +63,7 @@ class DivisionsController extends Controller
 
             $division->update([
                 'name' => $request->name,
+                'division_code' => $request->division_code,
                 'status' => $request->status,
             ]);
 

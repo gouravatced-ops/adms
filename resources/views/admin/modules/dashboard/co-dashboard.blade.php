@@ -62,7 +62,7 @@
                             <div>
                                 <div class="fw-semibold">Divisions</div>
                                 <span class="badge bg-primary text-primary-fg">
-                                    {{ $incompleteCount }}
+                                    0
                                 </span>
                             </div>
                         </div>
@@ -97,7 +97,7 @@
                             <div>
                                 <div class="fw-semibold">Sub Divisions</div>
                                 <span class="badge bg-primary text-primary-fg">
-                                    {{ $acceptCount }}
+                                    0
                                 </span>
                             </div>
                         </div>
@@ -137,7 +137,7 @@
                             <div>
                                 <div class="fw-semibold">Total Allotty</div>
                                 <span class="badge bg-primary text-primary-fg">
-                                    {{ $rejectCount }}
+                                    0
                                 </span>
                             </div>
                         </div>
@@ -174,7 +174,7 @@
                             <div>
                                 <div class="fw-semibold">Total Schemes</div>
                                 <span class="badge bg-primary text-primary-fg">
-                                    {{ $approveCount }}
+                                    0
                                 </span>
                             </div>
                         </div>

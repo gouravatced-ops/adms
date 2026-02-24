@@ -14,6 +14,7 @@ class SubDivision extends Model
     protected $fillable = [
         'division_id',
         'name',
+        'subdivision_code',
         'status'
     ];
 

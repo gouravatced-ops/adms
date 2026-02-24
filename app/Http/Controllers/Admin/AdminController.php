@@ -18,46 +18,14 @@ class AdminController extends Controller
 {
     public function councilDashboard()
     {
-        $incompleteCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'incomplete')
-            ->where('auth', 'council_office')
-            ->count();
-        $acceptCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'accept')
-            ->where('auth', 'council_office')
-            ->count();
-        $rejectCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'reject')
-            ->where('auth', 'council_office')
-            ->count();
-        $approveCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'approved')
-            ->where('auth', 'council_office')
-            ->count();
 
-        return view('admin.modules.dashboard.co-dashboard', compact('incompleteCount', 'acceptCount', 'rejectCount', 'approveCount'));
+        return view('admin.modules.dashboard.co-dashboard');
     }
 
     public function registarDashboard()
     {
-        $incompleteCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'incomplete')
-            ->where('auth', 'council_office')
-            ->count();
-        $acceptCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'accept')
-            ->where('auth', 'council_office')
-            ->count();
-        $rejectCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'reject')
-            ->where('auth', 'council_office')
-            ->count();
-        $approveCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'approved')
-            ->where('auth', 'council_office')
-            ->count();
 
-        return view('admin.modules.dashboard.rgtr-dashboard', compact('incompleteCount', 'acceptCount', 'rejectCount', 'approveCount'));
+        return view('admin.modules.dashboard.rgtr-dashboard');
     }
 
     public function getMyProfile(Request $request)

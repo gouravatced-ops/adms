@@ -35,6 +35,7 @@ class SubDivisionController extends Controller
         $request->validate([
             'division_id' => 'required',
             'name' => 'required|string|max:255',
+            'subdivision_code' => 'required|string|max:255',
             'status' => 'required|string',
         ]);
 
@@ -42,6 +43,7 @@ class SubDivisionController extends Controller
             SubDivision::create([
                 'division_id' => $request->division_id,
                 'name' => $request->name,
+                'subdivision_code' => $request->subdivision_code,
                 'status' => $request->status,
             ]);
 
