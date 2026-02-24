@@ -42,6 +42,14 @@
                     </div>
 
                     <div class="col-md-6">
+                        <label for="subdivision_code" class="form-label">
+                            Sub Division Code <small class="text-danger">*</small>  (e.g HR for Ranchi Division->Harmu Colony Sub Division)
+                        </label>
+                        <input type="text" class="form-control" id="subdivision_code" name="subdivision_code"
+                            placeholder="Enter Sub Division Code">
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="status" class="form-label">
                             Status <small class="text-danger">*</small>
                         </label>

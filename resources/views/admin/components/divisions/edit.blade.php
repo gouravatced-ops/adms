@@ -27,6 +27,15 @@
                             placeholder="Enter Division Name" value="{{ old('name', $division->name) }}">
                     </div>
 
+                    <!-- Division Name -->
+                    <div class="col-md-6">
+                        <label for="division_code" class="form-label">
+                            Division Code <small class="text-danger">*</small>  (e.g RNC for Ranchi Division)
+                        </label>
+                        <input type="text" class="form-control" id="division_code" name="division_code"
+                            placeholder="Enter Division Code" value="{{ old('division_code', $division->division_code) }}">
+                    </div>
+
                     <div class="col-md-6">
                         <label for="status" class="form-label">
                             Status <small class="text-danger">*</small>

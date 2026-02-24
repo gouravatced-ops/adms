@@ -26,6 +26,7 @@
                         <tr>
                             <th>#</th>
                             <th>Division Name</th>
+                            <th>Division Code</th>
                             <th>Status</th>
                             <th>Created On</th>
                             <th class="text-center">Action</th>
@@ -38,6 +39,9 @@
 
                             <td class="fw-semibold">
                                 {{ $division->name }}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ $division->division_code }}</span>
                             </td>
 
                             <td>
