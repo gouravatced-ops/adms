@@ -64,6 +64,7 @@
                             <th class="text-left text-xs font-semibold">Total Pages</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Scanned on (Date & Time)</th>
+                            <th class="text-left text-xs font-semibold">Action</th>
                         </tr>
                     </thead>
                     @php
@@ -93,6 +94,27 @@
                                 </td>
                                 <td class="py-2">
                                     {{ formatDateTime($registration->updated_at) }}
+                                </td>
+                                <!-- Actions -->
+                                <td>
+                                    <div class="flex gap-2">
+                                        <!-- View -->
+                                        <a href="{{ route('applicant.scanning.completed.fileindex', encrypt($registration->register_no)) }}"
+                                            class="action-btn action-btn-info" title="Scanned File List for this register">
+                                            <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                </g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                    <path d="M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01"
+                                                        stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                </g>
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -158,10 +180,10 @@
                             const rowNumber =
                                 (data.registrations.current_page - 1) *
                                 data.registrations.per_page + index + 1;
-                            const statusText = item.status
-                            ? `${item.status.charAt(0).toUpperCase() + item.status.slice(1)} 
-                            by <br> ${item.scanned_by?.name ?? 'System'}`
-                            : 'Unknown';
+                            const statusText = item.status ?
+                                `${item.status.charAt(0).toUpperCase() + item.status.slice(1)} 
+                            by <br> ${item.scanned_by?.name ?? 'System'}` :
+                                'Unknown';
 
                             tableBody.innerHTML += `
                             <tr>

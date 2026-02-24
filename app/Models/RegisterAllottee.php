@@ -43,4 +43,8 @@ class RegisterAllottee extends Model
         return $this->belongsTo(SubDivision::class, 'sub_division_id');
     }
 
+        public function scannedBy()
+    {
+        return $this->belongsTo(User::class, 'scanned_by');
+    }
 }
