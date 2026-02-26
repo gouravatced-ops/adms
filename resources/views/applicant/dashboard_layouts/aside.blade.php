@@ -109,7 +109,7 @@
                 </a> --}}
 
                 <!-- Proof Section -->
-                <a href="{{ route('applicant.apply.index') }}" class="sidebar-item flex items-center">
+                {{-- <a href="#" class="sidebar-item flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -120,7 +120,7 @@
                         <path d="M14 11l2 2l-2 2" />
                     </svg>
                     <span class="ml-3">Scanned Lots List</span>
-                </a>
+                </a> --}}
 
                 <div>
                     <a href="#"
@@ -160,7 +160,7 @@
                         </a>
 
                         <!-- Completed Lots List -->
-                        <a href="{{ route('applicant.apply.index') }}"
+                        <a href="#"
                             class="sidebar-item submenu-item flex items-center">
 
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

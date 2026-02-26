@@ -79,9 +79,14 @@ if (!function_exists('getpcategoryType')) {
 }
 
 if (!function_exists('getSchemeList')) {
-    function getSchemeList()
+    function getSchemeList($divisionId, $subDivisionId, $categoryId, $typeId, $quarterTypeId)
     {
         return Scheme::where('is_active', 1)
+            ->where('division_id', $divisionId)
+            ->where('sub_division_id', $subDivisionId)
+            ->where('pcategory_id', $categoryId)
+            ->where('p_type_id', $typeId)
+            ->where('quarter_type_id', $quarterTypeId)
             ->orderBy('scheme_name', 'asc')
             ->get();
     }

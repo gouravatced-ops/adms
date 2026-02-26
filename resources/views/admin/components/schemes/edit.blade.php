@@ -480,22 +480,6 @@
             background-color: #f8f9fa;
         }
     </style>
-    <script>
-        $(document).ready(function() {
-
-            $('#initiation_year').select2({
-                placeholder: "-- Select Initiation Year --",
-                allowClear: true,
-                width: '100%'
-            });
-
-            // Auto focus open dropdown
-            $('#initiation_year').on('focus', function() {
-                $(this).select2('open');
-            });
-
-        });
-    </script>
 
     <script>
         const total_cost = document.getElementById('total_cost');

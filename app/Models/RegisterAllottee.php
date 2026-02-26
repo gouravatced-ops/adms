@@ -43,7 +43,22 @@ class RegisterAllottee extends Model
         return $this->belongsTo(SubDivision::class, 'sub_division_id');
     }
 
-        public function scannedBy()
+    public function propertyCategory()
+    {
+        return $this->belongsTo(PropertyCategory::class, 'pcategory_id');
+    }
+
+    public function propertyType()
+    {
+        return $this->belongsTo(PropertyType::class, 'p_type_id');
+    }
+
+    public function quarterType()
+    {
+        return $this->belongsTo(QuarterType::class, 'quarter_type');
+    }
+
+    public function scannedBy()
     {
         return $this->belongsTo(User::class, 'scanned_by');
     }

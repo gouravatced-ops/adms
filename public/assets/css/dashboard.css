@@ -2732,6 +2732,13 @@ select.duration-200 {
     /* box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3); */
 }
 
+/* Completed */
+.badge-info {
+    background: linear-gradient(135deg, #2342f3, #0f64d4);
+    color: #fff;
+    /* box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3); */
+}
+
 /* Hover Effect */
 /* .custom-badge:hover {
     transform: scale(1.05);
@@ -2799,4 +2806,10 @@ select.duration-200 {
 
 .submit-btn:hover {
     background: #218838;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
 }

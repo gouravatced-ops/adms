@@ -4,12 +4,6 @@
 @section('title', 'Application Form')
 @section('content')
 
-    {{-- <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
-        rel="stylesheet"> --}}
-
     <style>
         :root {
             --ink: #000000;
@@ -83,14 +77,14 @@
         }
 
         .header-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: #fad637;
             line-height: 1.2;
         }
 
         .header-sub {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255, 255, 255, 0.5);
             margin-top: 6px;
         }
@@ -432,7 +426,6 @@
         .custom-input {
             width: 100%;
             padding: 11px 14px;
-            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
             background: var(--surface);
             border: 1.5px solid var(--border);
@@ -551,15 +544,15 @@
         }
 
         .btn-ghost {
-            background: transparent;
+            background: var(--gold-dk);
             border: 1.5px solid var(--border);
-            color: #6a6f7e;
+            color: #ffffff;
         }
 
         .btn-ghost:hover {
-            background: var(--surface);
+            background: #094fc0;
             border-color: #c0c4d0;
-            color: var(--ink);
+            color: #ffffff;
         }
 
         .btn-primary {
@@ -1027,6 +1020,63 @@
             font-weight: 600;
             color: var(--ink);
         }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+        }
+
+        .prefix-select {
+            width: 100px;
+            border: 1px solid #ccc;
+            border-right: none;
+            padding: 11px 14px;
+            border-radius: 6px 0 0 6px;
+            background: #f9f9f9;
+        }
+
+        .input-group input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 11px 14px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .bilingual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 35px;
+        }
+
+        .field-label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .field-inline {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
     </style>
 
     <div class="app-shell">
@@ -1034,15 +1084,20 @@
         <div class="modern-card-header">
             <div class="header-flex">
                 <div>
-                    <h1 class="header-title">Application Form</h1>
-                    <p class="header-subtitle">Complete your application form in 4 easy steps</p>
+                    <h1 class="header-title">Residential Property Allotment Application</h1>
+                    <p class="header-subtitle">Submit complete allottee and property information</p>
                 </div>
-                @if (isset($applicant))
-                    <div class="app-number-badge">
-                        <div class="app-number-label">Application No.</div>
-                        <div class="app-number-value">{{ $applicant->application_number }}</div>
-                    </div>
-                @endif
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('applicant.dataentry.scanned.lots.files', encrypt($registerId)) }}">
+                        <button class="btn btn-info"
+                            style="background: linear-gradient(135deg, #ce3d04, #ee5121) !important; color:white;padding: 6px 24px;
+                            border-radius: 2px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg> Back
+                        </button>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -1050,74 +1105,34 @@
         <div class="stepper-wrapper">
             <div class="stepper" id="stepper">
                 <div class="stepper-track" id="stepperTrack"></div>
-
-                <div class="step-item active" data-step="1" onclick="goToStep(1)">
-                    <div class="step-bubble">
-                        <span>1</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
+                @foreach ([
+            1 => 'Allottee Details',
+            2 => 'Address Details',
+            3 => 'Property Financial Details',
+            4 => 'Nominee & Banking',
+            5 => 'Property Details',
+            6 => 'Documents Uploads',
+            7 => 'Review & Submit',
+        ] as $step => $label)
+                    <div class="step-item {{ $step === 1 ? 'active' : '' }}" data-step="{{ $step }}"
+                        onclick="app.goToStep({{ $step }})">
+                        <div class="step-bubble">
+                            <span>{{ $step }}</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                        <div class="step-meta">
+                            <div class="step-label">{{ $label }}</div>
+                        </div>
                     </div>
-                    <div class="step-meta">
-                        <div class="step-label">Allottee Details</div>
-                    </div>
-                </div>
-
-                <div class="step-item" data-step="2" onclick="goToStep(2)">
-                    <div class="step-bubble">
-                        <span>2</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <div class="step-meta">
-                        <div class="step-label">Address Details</div>
-                        {{-- <div class="step-label">Nominee &amp; banking details</div> --}}
-                    </div>
-                </div>
-
-                <div class="step-item" data-step="3" onclick="goToStep(3)">
-                    <div class="step-bubble">
-                        <span>3</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <div class="step-meta">
-                        <div class="step-label">Nominee &amp; banking details</div>
-                        {{-- <div class="step-label">Property &amp; payment info</div> --}}
-                    </div>
-                </div>
-
-                <div class="step-item" data-step="4" onclick="goToStep(4)">
-                    <div class="step-bubble">
-                        <span>4</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <div class="step-meta">
-                        <div class="step-label">Property &amp; payment info</div>
-                        {{-- <div class="step-label">Review &amp; Submit</div> --}}
-                    </div>
-                </div>
-
-                <div class="step-item" data-step="5" onclick="goToStep(5)">
-                    <div class="step-bubble">
-                        <span>5</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </div>
-                    <div class="step-meta">
-                        <div class="step-label">Review &amp; Submit</div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
 
         {{-- Body --}}
         <div class="app-body">
+
             {{-- Step Content --}}
             <div id="stepContent" class="step-content-area">
                 @include('applicant.components.stepper-form.step1')
@@ -1126,18 +1141,19 @@
             {{-- Navigation --}}
             <div class="nav-bar">
                 <div class="nav-info">
-                    Step <strong id="stepNum">1</strong> of <strong>5</strong>
+                    Step <strong id="stepNum">1</strong> of <strong>7</strong>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center;">
-                    <button type="button" class="btn btn-ghost" id="prevBtn" onclick="prevStep()" style="display:none;">
+                    <button type="button" class="btn btn-ghost" id="prevBtn" onclick="app.prevStep()"
+                        style="display:none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
                         Previous
                     </button>
-                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="app.nextStep()">
                         <div class="spinner" id="btnSpinner"></div>
-                        <span id="btnLabel">Save &amp; Continue</span>
+                        <span id="btnLabel">Save & Continue</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7" />
                         </svg>
@@ -1146,273 +1162,428 @@
             </div>
         </div>
     </div>
+
     <script>
-        window.copyAddress = function() {
+        window.app = {
+            config: {
+                currentStep: 1,
+                applicantId: {{ isset($applicant) ? $applicant->id : 'null' }},
+                steps: {
+                    1: '{{ route('applicant.apply.step1.save') }}',
+                    2: '{{ route('applicant.apply.step2.save') }}',
+                    3: '{{ route('applicant.apply.step3.save') }}',
+                    4: '{{ route('applicant.apply.step4.save') }}',
+                    5: '{{ route('applicant.apply.step5.save') }}',
+                    6: '{{ route('applicant.apply.step6.save') }}',
+                },
+                loadStepUrl: '{{ route('applicant.apply.step', ['step' => '__STEP__', 'applicantId' => '__ID__']) }}',
+                csrfToken: '{{ csrf_token() }}'
+            },
 
-            const checkbox = document.getElementById("same_as_present");
+            init: function() {
+                @if (isset($applicant) && $applicant->current_step > 1)
+                    this.config.currentStep = {{ $applicant->current_step }};
+                    this.loadStep(this.config.currentStep);
+                @endif
+                this.updateStepper(this.config.currentStep);
+                this.bindEvents();
+            },
 
-            const fieldMap = [
-                ["present_address", "permanent_address"],
-                ["post_office", "permanent_post_office"],
-                ["police_station", "permanent_police_station"],
-                ["state", "permanent_state"],
-                ["district", "permanent_district"],
-                ["pin_code", "permanent_pin_code"],
-                ["telephone", "permanent_telephone"],
-                ["mobile_number", "permanent_mobile_number"]
-            ];
+            bindEvents: function() {
+                // Remove validation errors on input
+                document.addEventListener('input', e => {
+                    if (e.target.classList.contains('is-invalid') && e.target.value.trim()) {
+                        e.target.classList.remove('is-invalid');
+                    }
+                });
 
-            if (checkbox.checked) {
+                document.addEventListener('change', e => {
+                    if (e.target.classList.contains('is-invalid') && e.target.value) {
+                        e.target.classList.remove('is-invalid');
+                    }
+                });
+            },
 
-                // Copy Values
+            updateStepper: function(step) {
+                const items = document.querySelectorAll('.step-item');
+                items.forEach((item, i) => {
+                    item.classList.remove('active', 'completed');
+                    if (i + 1 < step) item.classList.add('completed');
+                    if (i + 1 === step) item.classList.add('active');
+                });
+
+                const pct = step === 1 ? 0 : ((step - 1) / (items.length - 1)) * 100;
+                document.getElementById('stepperTrack').style.width = pct + '%';
+                document.getElementById('stepNum').textContent = step;
+
+                const prev = document.getElementById('prevBtn');
+                const lbl = document.getElementById('btnLabel');
+
+                prev.style.display = step === 1 ? 'none' : 'inline-flex';
+                lbl.innerHTML = step === 7 ? 'Submit Application' : 'Save & Continue';
+
+                this.config.currentStep = step;
+            },
+
+            goToStep: function(step) {
+                const item = document.querySelector(`.step-item[data-step="${step}"]`);
+                if (item && (item.classList.contains('completed') || step === this.config.currentStep)) {
+                    this.loadStep(step);
+                }
+            },
+
+            loadStep: function(step) {
+                if (!this.config.applicantId) {
+                    this.showAlert('Please save step 1 first.', 'error');
+                    return;
+                }
+
+                const url = this.config.loadStepUrl
+                    .replace('__STEP__', step)
+                    .replace('__ID__', this.config.applicantId);
+
+                fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to load step');
+                        return res.text();
+                    })
+                    .then(html => {
+                        document.getElementById('stepContent').innerHTML = html;
+                        this.updateStepper(step);
+
+                        // Re-initialize any step-specific JavaScript
+                        this.initializeStepScripts(step);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.showAlert('Failed to load step. Please try again.', 'error');
+                    });
+            },
+
+            // New function to initialize step-specific scripts
+            initializeStepScripts: function(step) {
+                // Re-run DOMContentLoaded scripts for the newly loaded content
+                if (step === 1) {
+                    // Re-initialize step1 specific functionality
+                    this.initializeStep1();
+                } else if (step === 2) {
+                    // Initialize step2 specific functionality
+                    this.initializeStep2();
+                } else if (step === 3) {
+                    // Initialize step3 specific functionality
+                    this.initializeStep3();
+                } else if (step === 4) {
+                    // Initialize step4 specific functionality
+                    this.initializeStep4();
+                } else if (step === 5) {
+                    // Initialize step5 specific functionality
+                    this.initializeStep5();
+                } else if (step === 6) {
+                    // Initialize step6 specific functionality
+                    this.initializeStep6();
+                } else if (step === 7) {
+                    this.initializeStep7();
+                }
+            },
+
+            // Step 1 initialization
+            initializeStep1: function() {
+                // Re-attach year validation
+                const yearInput = document.getElementById("allotmentYear");
+                const errorText = document.getElementById("yearError");
+
+                if (yearInput) {
+                    // Remove any existing listeners to prevent duplicates
+                    const newYearInput = yearInput.cloneNode(true);
+                    yearInput.parentNode.replaceChild(newYearInput, yearInput);
+
+                    // Add fresh listener
+                    newYearInput.addEventListener("input", function() {
+                        let value = this.value.trim();
+                        this.value = value.replace(/[^0-9]/g, '');
+
+                        if (this.value.length === 4) {
+                            const currentYear = new Date().getFullYear();
+                            const minYear = 1970;
+                            let year = parseInt(this.value);
+
+                            if (year < minYear || year > currentYear) {
+                                this.classList.add("invalid-year");
+                                if (errorText) errorText.textContent =
+                                    `Year must be between ${minYear} and ${currentYear}`;
+                            } else {
+                                this.classList.remove("invalid-year");
+                                if (errorText) errorText.textContent = "";
+                            }
+                        } else {
+                            this.classList.remove("invalid-year");
+                            if (errorText) errorText.textContent = "";
+                        }
+                    });
+                }
+
+                // Re-initialize PAN/Aadhar toggle
+                const allotmentDate = document.getElementById('allotment_date');
+                if (allotmentDate) {
+                    // Remove existing listeners
+                    const newAllotmentDate = allotmentDate.cloneNode(true);
+                    allotmentDate.parentNode.replaceChild(newAllotmentDate, allotmentDate);
+
+                    newAllotmentDate.addEventListener('change', function() {
+                        app.togglePanAadhar();
+                    });
+
+                    // Trigger initial toggle
+                    this.togglePanAadhar();
+                }
+            },
+
+            // Step 2 initialization (add your step2 specific code)
+            initializeStep2: function() {
+                // Re-initialize address copy functionality
+                const sameAsPresent = document.getElementById('same_as_present');
+                if (sameAsPresent) {
+                    const newCheckbox = sameAsPresent.cloneNode(true);
+                    sameAsPresent.parentNode.replaceChild(newCheckbox, sameAsPresent);
+
+                    newCheckbox.addEventListener('change', function() {
+                        app.copyAddress();
+                    });
+                }
+            },
+
+            // Step 3 initialization
+            initializeStep3: function() {
+                // Add any step3 specific initialization here
+                console.log('Step 3 initialized');
+            },
+
+            // Step 4 initialization
+            initializeStep4: function() {
+                // Add any step4 specific initialization here
+                console.log('Step 4 initialized');
+            },
+
+            // Step 5 initialization
+            initializeStep5: function() {
+                // Add any step4 specific initialization here
+                console.log('Step 5 initialized');
+            },
+
+            // Step 6 initialization
+            initializeStep4: function() {
+                // Add any step4 specific initialization here
+                console.log('Step 6 initialized');
+            },
+
+            // Step 4 initialization
+            initializeStep7: function() {
+                // Add any step4 specific initialization here
+                console.log('Step 7 initialized');
+            },
+
+            validateStep: function() {
+                const form = document.querySelector('#stepContent form');
+                if (!form) return true;
+
+                let valid = true,
+                    firstInvalid = null;
+
+                form.querySelectorAll('[required]').forEach(field => {
+                    field.classList.remove('is-invalid');
+
+                    const isEmpty = !field.value.trim();
+                    const isInvalidEmail = field.type === 'email' && field.value &&
+                        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value);
+                    const isInvalidPattern = field.pattern && field.value &&
+                        !new RegExp(field.pattern).test(field.value);
+
+                    if (isEmpty || isInvalidEmail || isInvalidPattern) {
+                        field.classList.add('is-invalid');
+                        valid = false;
+                        if (!firstInvalid) firstInvalid = field;
+                    }
+                });
+
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+
+                return valid;
+            },
+
+            nextStep: function() {
+                if (!this.validateStep()) {
+                    this.showAlert('Please fill in all required fields correctly.', 'error');
+                    return;
+                }
+
+                const nextBtn = document.getElementById('nextBtn');
+                const spinner = document.getElementById('btnSpinner');
+                const btnLabel = document.getElementById('btnLabel');
+
+                nextBtn.disabled = true;
+                spinner.style.display = 'block';
+                btnLabel.textContent = 'Saving...';
+
+                // Handle final submission
+                if (this.config.currentStep === 7) {
+                    this.submitApplication();
+                    return;
+                }
+
+                const form = document.querySelector('#stepContent form');
+                if (!form) {
+                    this.loadStep(this.config.currentStep + 1);
+                    nextBtn.disabled = false;
+                    spinner.style.display = 'none';
+                    btnLabel.innerHTML = 'Save & Continue';
+                    return;
+                }
+
+                const formData = new FormData(form);
+                formData.append('applicant_id', this.config.applicantId);
+
+                fetch(this.config.steps[this.config.currentStep], {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': this.config.csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.showAlert(data.message, 'success');
+                            if (data.applicant_id) {
+                                this.config.applicantId = data.applicant_id;
+                            }
+                            if (data.next_step) {
+                                this.loadStep(data.next_step);
+                            } else if (this.config.currentStep < 7) {
+                                this.loadStep(this.config.currentStep + 1);
+                            }
+                        } else {
+                            const msg = data.errors ?
+                                Object.values(data.errors).flat().join('<br>') :
+                                'Error saving data. Please try again.';
+                            this.showAlert(msg, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        this.showAlert('An error occurred. Please try again.', 'error');
+                    })
+                    .finally(() => {
+                        nextBtn.disabled = false;
+                        spinner.style.display = 'none';
+                        btnLabel.innerHTML = this.config.currentStep === 7 ? 'Submit Application' :
+                            'Save & Continue';
+                    });
+            },
+
+            prevStep: function() {
+                if (this.config.currentStep > 1) {
+                    this.loadStep(this.config.currentStep - 1);
+                }
+            },
+
+            submitApplication: function() {
+                fetch('{{ route('applicant.apply.step7.save') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': this.config.csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            applicant_id: this.config.applicantId,
+                            final_submission: true
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.showAlert('Application submitted successfully!', 'success');
+                            setTimeout(() => {
+                                window.location.href =
+                                    '{{ route('applicant.dataentry.scanned.files') }}';
+                            }, 2000);
+                        } else {
+                            this.showAlert(data.message || 'Error submitting application.', 'error');
+                        }
+                    })
+                    .catch(() => {
+                        this.showAlert('Error submitting application. Please try again.', 'error');
+                    });
+            },
+
+            showAlert: function(message, type = 'success') {
+                showToast('Allottee Data Entry', message, type);
+            },
+
+            // Utility functions for specific features
+            copyAddress: function() {
+                const checkbox = document.getElementById('same_as_present');
+                if (!checkbox) return;
+
+                const fieldMap = [
+                    ['present_address', 'permanent_address'],
+                    ['post_office', 'permanent_post_office'],
+                    ['police_station', 'permanent_police_station'],
+                    ['state', 'permanent_state'],
+                    ['district', 'permanent_district'],
+                    ['pin_code', 'permanent_pin_code'],
+                    ['telephone', 'permanent_telephone'],
+                    ['mobile_number', 'permanent_mobile_number']
+                ];
+
                 fieldMap.forEach(([from, to]) => {
                     const fromEl = document.getElementById(from);
                     const toEl = document.getElementById(to);
 
                     if (fromEl && toEl) {
-                        toEl.value = fromEl.value;
+                        toEl.value = checkbox.checked ? fromEl.value : '';
                     }
                 });
+            },
 
-            } else {
+            togglePanAadhar: function() {
+                const dateInput = document.getElementById('allotment_date');
+                const panField = document.getElementById('pan-field');
+                const aadharField = document.getElementById('aadhar-field');
+                const panInput = document.getElementById('pan_card_number');
+                const aadharInput = document.getElementById('aadhar_card_number');
+                const panStar = document.getElementById('pan-star');
+                const aadharStar = document.getElementById('aadhar-star');
 
-                // Clear Values
-                fieldMap.forEach(([_, to]) => {
-                    const toEl = document.getElementById(to);
-                    if (toEl) toEl.value = "";
-                });
+                if (!dateInput || !panField || !aadharField) return;
 
-            }
-        };
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-
-            const dateInput = document.getElementById("allotment_date");
-            const panField = document.getElementById("pan-field");
-            const aadharField = document.getElementById("aadhar-field");
-
-            const panInput = document.getElementById("pan_card_number");
-            const aadharInput = document.getElementById("aadhar_card_number");
-
-            const panStar = document.getElementById("pan-star");
-            const aadharStar = document.getElementById("aadhar-star");
-
-            const toggleFields = () => {
                 const year = dateInput.value ? new Date(dateInput.value).getFullYear() : null;
                 const show = year && year >= 2009;
 
-                // Toggle display
-                panField.style.display = show ? "block" : "none";
-                aadharField.style.display = show ? "block" : "none";
+                panField.style.display = show ? 'block' : 'none';
+                aadharField.style.display = show ? 'block' : 'none';
 
-                // Toggle required
-                panInput.required = show;
-                aadharInput.required = show;
+                if (panInput) panInput.required = show;
+                if (aadharInput) aadharInput.required = show;
 
-                // Toggle star
-                panStar.style.display = show ? "inline" : "none";
-                aadharStar.style.display = show ? "inline" : "none";
-            };
-
-            toggleFields(); // On load (edit mode support)
-            dateInput.addEventListener("change", toggleFields);
-        });
-    </script>
-    <script>
-        let currentStep = 1;
-        let applicantId = {{ $applicant->id ?? 'null' }};
-
-        /* ── Stepper visual ───── */
-        function updateStepper(step) {
-            const items = document.querySelectorAll('.step-item');
-            items.forEach((item, i) => {
-                item.classList.remove('active', 'completed');
-                if (i + 1 < step) item.classList.add('completed');
-                if (i + 1 === step) item.classList.add('active');
-            });
-
-            // Animate track
-            const pct = step === 1 ? 0 : ((step - 1) / (items.length - 1)) * 100;
-            document.getElementById('stepperTrack').style.width = pct + '%';
-
-            // Step counter
-            document.getElementById('stepNum').textContent = step;
-
-            // Buttons
-            const prev = document.getElementById('prevBtn');
-            const lbl = document.getElementById('btnLabel');
-
-            prev.style.display = step === 1 ? 'none' : 'inline-flex';
-            lbl.innerHTML = step === 5 ?
-                'Submit Application' :
-                'Save &amp; Continue';
-        }
-
-        function goToStep(step) {
-            const item = document.querySelector(`.step-item[data-step="${step}"]`);
-            if (item && (item.classList.contains('completed') || step === currentStep)) {
-                loadStep(step);
+                if (panStar) panStar.style.display = show ? 'inline' : 'none';
+                if (aadharStar) aadharStar.style.display = show ? 'inline' : 'none';
             }
-        }
+        };
 
-        /* ── Alert ───────────── */
-        function showAlert(message, type) {
-            showToast('Allottee Data Entry', message, type);
-        }
-
-        /* ── Load step ───────── */
-        function loadStep(step) {
-            document.getElementById('stepContent').innerHTML =
-                `<div class="load-state"><div class="load-ring"></div>Loading step ${step}…</div>`;
-
-            fetch(`{{ route('applicant.apply.step', '') }}/${step}`)
-                .then(r => r.text())
-                .then(html => {
-                    document.getElementById('stepContent').innerHTML = html;
-                    currentStep = step;
-                    updateStepper(step);
-                    document.getElementById('stepContent').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                })
-                .catch(() => showAlert('Failed to load step. Please try again.', 'error'));
-        }
-
-        /* ── Validation ──────── */
-        function validateStep() {
-            const form = document.querySelector('#stepContent form');
-            if (!form) return true;
-
-            let valid = true,
-                first = null;
-
-            form.querySelectorAll('[required]').forEach(f => {
-                f.classList.remove('is-invalid');
-                const empty = !f.value.trim();
-                const badEmail = f.type === 'email' && f.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.value);
-                const badPat = f.pattern && f.value && !(new RegExp(f.pattern).test(f.value));
-
-                if (empty || badEmail || badPat) {
-                    f.classList.add('is-invalid');
-                    valid = false;
-                    if (!first) first = f;
-                }
-            });
-
-            if (first) first.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
-            return valid;
-        }
-
-        /* ── Next / Save ─────── */
-        function nextStep() {
-            if (!validateStep()) {
-                showAlert('Please fill in all required fields correctly.', 'error');
-                return;
-            }
-
-            const nextBtn = document.getElementById('nextBtn');
-            const spinner = document.getElementById('btnSpinner');
-            const lbl = document.getElementById('btnLabel');
-
-            nextBtn.disabled = true;
-            spinner.style.display = 'block';
-            lbl.textContent = 'Saving…';
-
-            const form = document.querySelector('#stepContent form');
-
-            if (!form && currentStep === 5) {
-                submitApplication();
-                return;
-            }
-
-            const urls = {
-                1: '{{ route('applicant.apply.step1.save') }}',
-                2: '{{ route('applicant.apply.step2.save') }}',
-                3: '{{ route('applicant.apply.step3.save') }}',
-                4: '{{ route('applicant.apply.step4.save') }}',
-            };
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-
-            fetch(urls[currentStep], {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: new FormData(form)
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert(data.message, 'success');
-                        if (data.applicant_id) applicantId = data.applicant_id;
-                        if (data.next_step) loadStep(data.next_step);
-                    } else {
-                        const msg = data.errors ?
-                            Object.values(data.errors).flat().join('<br>') :
-                            'Error saving data.';
-                        showAlert(msg, 'error');
-                    }
-                })
-                .catch(() => showAlert('An error occurred. Please try again.', 'error'))
-                .finally(() => {
-                    nextBtn.disabled = false;
-                    spinner.style.display = 'none';
-                    lbl.innerHTML = currentStep === 5 ? 'Submit Application' : 'Save &amp; Continue';
-                });
-        }
-
-        function prevStep() {
-            if (currentStep > 1) loadStep(currentStep - 1);
-        }
-
-        function submitApplication() {
-            fetch('{{ route('applicant.apply.step3.save') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        applicant_id: applicantId,
-                        final_submission: true
-                    })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert('Application submitted successfully!', 'success');
-                        setTimeout(() => {
-                            window.location.href = '#';
-                        }, 2000);
-                    }
-                })
-                .catch(() => showAlert('Error submitting application.', 'error'));
-        }
-
-        /* ── Init ────────────── */
-        document.addEventListener('DOMContentLoaded', function() {
-            @if (isset($applicant) && $applicant->current_step > 1)
-                currentStep = {{ $applicant->current_step }};
-                loadStep(currentStep);
-            @endif
-            updateStepper(currentStep);
-
-            document.addEventListener('input', e => {
-                if (e.target.classList.contains('is-invalid') && e.target.value.trim()) e.target.classList
-                    .remove('is-invalid');
-            });
-            document.addEventListener('change', e => {
-                if (e.target.classList.contains('is-invalid') && e.target.value) e.target.classList.remove(
-                    'is-invalid');
-            });
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app.init();
         });
     </script>
 @endsection

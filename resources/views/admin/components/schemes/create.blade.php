@@ -468,25 +468,6 @@
             color: #dc3545 !important;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-
-            $('#initiation_year').select2({
-                placeholder: "-- Select Initiation Year --",
-                allowClear: true,
-                width: '100%'
-            });
-
-            // Auto focus open dropdown
-            $('#initiation_year').on('focus', function() {
-                $(this).select2('open');
-            });
-
-        });
-    </script>
-
     <script>
         const total_cost = document.getElementById('total_cost');
         const down_percent = document.getElementById('down_percent');

@@ -117,6 +117,7 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/register/list', [ScannedController::class, 'index'])->name('applicant.scanning.index');
     Route::get('/lot/scanned/list', [ScannedController::class, 'completedScanned'])->name('applicant.scanning.completed');
     Route::get('/register/item/list/{registerId}', [ScannedController::class, 'fileIndex'])->name('applicant.scanning.fileindex');
+    Route::get('/scanned/item/list/{encodedId}', [ScannedController::class, 'completedScannedfileIndex'])->name('applicant.scanning.completed.fileindex');
     Route::delete('/allottee/file/delete/{encodedId}/{id}', [ScannedController::class, 'destroy'])->name('applicant.scanning.delete');
     Route::get('/allottee/view/{encodedId}/{id}', [ScannedController::class, 'show'])->name('applicant.scanning.show');
     Route::post('/allottee/store', [ScannedController::class, 'store'])->name('applicant.scanning.store');
@@ -124,8 +125,8 @@ Route::middleware('auth:web')->group(function () {
     // data entry 
     Route::prefix('applicant')->name('applicant.')->group(function () {
         // Stepper Form Routes
-        Route::get('/apply', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('apply.index');
-        Route::get('/apply/step/{step}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getStep'])->name('apply.step');
+        Route::get('/dataentry/start/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'indexStart'])->name('apply.index');
+        Route::get('/apply/step/{step}/{applicantId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getStep'])->name('apply.step');
 
         // AJAX Save Routes
         Route::get('/scanned/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('dataentry.scanned.files');
@@ -134,5 +135,8 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/apply/step2/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep2'])->name('apply.step2.save');
         Route::post('/apply/step3/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep3'])->name('apply.step3.save');
         Route::post('/apply/step4/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep4'])->name('apply.step4.save');
+        Route::post('/apply/step5/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep5'])->name('apply.step5.save');
+        Route::post('/apply/step6/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep6'])->name('apply.step6.save');
+        Route::post('/apply/step7/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
     });
 });

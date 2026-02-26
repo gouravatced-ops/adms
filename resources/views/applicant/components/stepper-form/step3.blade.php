@@ -1,11 +1,130 @@
 {{-- resources/views/applicant/components/stepper-form/step2.blade.php --}}
-<form id="step2Form" method="POST">
-    @csrf
-    <input type="hidden" name="applicant_id" value="{{ $applicant->id ?? '' }}">
+<style>
+    .form-block {
+        line-height: 1.9;
+        background: #fafafa;
+        /* padding: 15px 40px; */
+    }
 
-    {{-- ── Nominee Details ── --}}
+    table.form-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.form-table td {
+        padding: 10px 8px;
+        vertical-align: top;
+    }
+
+    table.form-table tr {
+        border-bottom: 1px dashed #ddd;
+    }
+
+    table.form-table tr:nth-child(even) {
+        background-color: #f5f4f0;
+        /* Light Yellow */
+    }
+
+    .term {
+        width: 60%;
+        font-weight: 500;
+        font-size: 16px;
+    }
+
+    .input-cell {
+        width: 40%;
+    }
+
+    input {
+        border: 1.5px solid #ccc !important;
+        font-size: 15px;
+        padding: 6px 8px;
+        width: 100%;
+        border-radius: inherit;
+    }
+
+    .small {
+        max-width: 120px;
+    }
+
+    .medium {
+        max-width: 200px;
+    }
+
+    .long {
+        width: 100%;
+    }
+
+    table.form-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table.form-table th {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 2px solid #e0a800;
+    }
+
+    table.form-table td {
+        padding: 8px;
+    }
+
+    table.form-table tbody tr:nth-child(even) {
+        background-color: #fffde7;
+    }
+
+    table.form-table tr {
+        border-bottom: 1px dashed #ddd;
+    }
+
+    /* Sl. Number Column */
+    td.sl {
+        text-align: center;
+        font-weight: 600;
+        border-right: 1px solid #ccc;
+    }
+
+    /* Select Styling */
+    .custom-select {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    /* Focus Effect */
+    .custom-select:focus {
+        border-color: #e0a800;
+        outline: none;
+        box-shadow: 0 0 3px rgba(224, 168, 0, 0.4);
+    }
+
+    /* Hover */
+    .custom-select:hover {
+        border-color: #d39e00;
+    }
+
+    /* Date Group Layout */
+    .date-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* Smaller width selects */
+    .small-select {
+        width: 130px;
+    }
+</style>
+<form id="step3Form" method="POST">
+    @csrf
+
+    {{-- ── Property Financial Details ── --}}
     <div class="form-section">
-        <div class="section-header gradient-header" style="background: linear-gradient(90deg, #aa7700, #ffb703);">
+        {{-- <div class="section-header gradient-header" style="background: linear-gradient(90deg, #aa7700, #ffb703);">
             <div class="section-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
@@ -16,182 +135,363 @@
                 </svg>
             </div>
             <div>
-                <h3 class="section-title">Nominee Details</h3>
+                <h3 class="section-title">Property Financial Details</h3>
                 <p class="section-desc">Person nominated to receive benefits on your behalf</p>
             </div>
+        </div> --}}
+        <div class="form-block">
+            <table class="form-table">
+                <thead>
+                    <tr>
+                        <th style="width:100px;">Sl. No.</th>
+                        <th>विवरण (Description)</th>
+                        <th>प्रविष्टि दर्ज करें (Enter Details)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="sl">1.</td>
+                        <td class="term">भूखंड के अंतरिम (टेन्टेटिव) कीमत (Tentative Plot Price)</td>
+                        <td><input name="tentative_price" id="tentative_price" placeholder="राशि दर्ज करें / Enter Amount"></td>
+                    </tr>
+                    <tr>
+                        <td class="sl">2.</td>
+                        <td class="term">राशि रुपये (शब्दों में) (Amount in Words)</td>
+                        <td><input name="amount_words" placeholder="राशि शब्दों में / Amount in Words"></td>
+                    </tr>
+                    <tr>
+                        <td class="sl">3.</td>
+                        <td class="term">मूल्यांकन दिनांक (Valuation Date)</td>
+                        <td class="value date-group">
+
+                            <!-- Day Dropdown -->
+                            <select name="maav_day" class="custom-select small-select">
+                                <option value="">दिन / Day</option>
+                                <?php for ($d = 1; $d <= 31; $d++): ?>
+                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Month Dropdown -->
+                            <select name="maav_month" class="custom-select small-select">
+                                <option value="">माह / Month</option>
+                                <?php for ($m = 1; $m <= 12; $m++): ?>
+                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Year Dropdown -->
+                            <select name="maav_year" class="custom-select small-select">
+                                <option value="">वर्ष / Year</option>
+                                <?php 
+                                    $currentYear = date('Y');
+                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">4.</td>
+                        <td class="term">निर्गत होने की तिथि के अंदर (दिनों में) (Issue Period in Days)</td>
+                        <td><input name="nirgat_days" placeholder="दिन दर्ज करें / Enter Days"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">5.</td>
+                        <td class="term">उच्चतम आय वर्ग, अंतरिम कीमत का (%) (High Income % of Tentative Price)</td>
+                        <td><input name="high_income_percent" id="high_income_percent" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">6.</td>
+                        <td class="term">अल्प/कमजोर वर्ग, अंतरिम कीमत का (%) (Low Income % of Tentative Price)</td>
+                        <td><input name="low_income_percent" id="low_income_percent" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">7.</td>
+                        <td class="term">जमा की गयी राशि (-) (Deposited Amount)</td>
+                        <td><input name="deposited_amount" id="deposited_amount" placeholder="जमा राशि / Deposited Amount"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">8.</td>
+                        <td class="term">विधि एवं अनुशासन शुल्क (+) (Legal & Discipline Fee)</td>
+                        <td><input name="legal_fee" id="legal_fee" placeholder="शुल्क दर्ज करें / Enter Fee"></td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="sl">9.</td>
+                        <td class="term">विधि एवं अभिलेखन शुल्क  (+) (Legal and Documentation Charges)</td>
+                        <td><input name="legal_document_fee" id="legal_document_fee" placeholder="शुल्क दर्ज करें / Enter Fee"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">10.</td>
+                        <td class="term">कुल भुक्तान राशि (Total Payment Amount)</td>
+                        <td><input name="total_payment" id="total_payment" placeholder="कुल राशि / Total Amount"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">11.</td>
+                        <td class="term">प्रतिष्ठित राशि अवधि (40/30 ब्याज सहित) (Instalment Amount with Interest)
+                        </td>
+                        <td><input name="installment_amount" id="installment_amount" placeholder="राशि दर्ज करें / Enter Amount"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">12.</td>
+                        <td class="term">अंतरिम कीमत (Tentative Price)</td>
+                        <td><input name="interim_price" id="interim_price" placeholder="अंतरिम कीमत / Tentative Price"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">13.</td>
+                        <td class="term">शेष राशि (Remaining Amount)</td>
+                        <td><input name="remaining_amount" id="remaining_amount" placeholder="शेष राशि / Remaining Amount"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">14.</td>
+                        <td class="term">भुगतान मास (किस्तों में) (Payment Months in Instalments)</td>
+                        <td><input name="payment_months" id="payment_months" placeholder="महीनों की संख्या / Number of Months"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">15.</td>
+                        <td class="term">ब्याज का प्रकार (Type of Interest)</td>
+                        <td class="value">
+                            <select name="interest_type" id="interest_type" class="custom-select">
+                                <option value="">-- चयन करें / Select --</option>
+                                <option value="simple">साधारण ब्याज / Simple Interest</option>
+                                <option value="compound">चक्रवृद्धि ब्याज / Compound Interest</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">16.</td>
+                        <td class="term">पूर्व भुगतान पर वृद्धि व्याज (%) (Prepayment Interest %)</td>
+                        <td><input name="pre_interest" id="pre_interest" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">17.</td>
+                        <td class="term">विलंब पर वृद्धि व्याज (%) (Late Payment Interest %)</td>
+                        <td><input name="late_interest" id="late_interest" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">18.</td>
+                        <td class="term">व्याज राशि (₹) (Interest Amount)</td>
+                        <td><input name="pre_interest" id="pre_interest" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">19.</td>
+                        <td class="term">दंड वृद्धि व्याज (₹) (Penalty increase interest)</td>
+                        <td><input name="late_interest" id="late_interest" placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">20.</td>
+                        <td class="term">निर्धारित अवधि (दिनों में) (Specified Period in Days)</td>
+                        <td><input name="specified_days" placeholder="दिन दर्ज करें / Enter Days"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">21.</td>
+                        <td class="term">अंतिम जमा करने की तिथि (Last Submission Date)</td>
+                        <td class="value date-group">
+
+                            <!-- Day -->
+                            <select name="last_day" class="custom-select small-select">
+                                <option value="">दिन / Day</option>
+                                <?php for ($d = 1; $d <= 31; $d++): ?>
+                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Month -->
+                            <select name="last_month" class="custom-select small-select">
+                                <option value="">माह / Month</option>
+                                <?php for ($m = 1; $m <= 12; $m++): ?>
+                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Year -->
+                            <select name="last_year" class="custom-select small-select">
+                                <option value="">वर्ष / Year</option>
+                                <?php 
+                                    $currentYear = date('Y');
+                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">22.</td>
+                        <td class="term">आवंटन दिनांक (Allotment Date)</td>
+                        <td class="value date-group">
+
+                            <!-- Day -->
+                            <select name="allot_day" class="custom-select small-select">
+                                <option value="">दिन / Day</option>
+                                <?php for ($d = 1; $d <= 31; $d++): ?>
+                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Month -->
+                            <select name="allot_month" class="custom-select small-select">
+                                <option value="">माह / Month</option>
+                                <?php for ($m = 1; $m <= 12; $m++): ?>
+                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>">
+                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                                </option>
+                                <?php endfor; ?>
+                            </select>
+                            /
+                            <!-- Year -->
+                            <select name="allot_year" class="custom-select small-select">
+                                <option value="">वर्ष / Year</option>
+                                <?php 
+                                    $currentYear = date('Y');
+                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                ?>
+                                <option value="<?= $y ?>"><?= $y ?></option>
+                                <?php endfor; ?>
+                            </select>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">23.</td>
+                        <td class="term">किस लॉटरी के तहत (शब्दों में) (Lottery Details in Words)</td>
+                        <td><input name="lottery_details" placeholder="लॉटरी विवरण / Lottery Details"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">24.</td>
+                        <td class="term">आवासीय कॉलोनी का नाम (Residential Colony Name)</td>
+                        <td><input name="colony_name" placeholder="कॉलोनी का नाम / Colony Name"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">25.</td>
+                        <td class="term">बोर्ड द्वारा आवंटीत भूखंड संख्या (Board Allotted Plot No.)</td>
+                        <td><input name="plot_number" placeholder="भूखंड संख्या / Plot Number"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">26.</td>
+                        <td class="term">रकबा (वर्गफीट) (Area in Sq. Ft.)</td>
+                        <td><input name="area_sqft" placeholder="क्षेत्रफल / Area"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">27.</td>
+                        <td class="term">मुहल्ला (Locality)</td>
+                        <td><input name="mohalla" placeholder="मुहल्ला / Locality"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">28.</td>
+                        <td class="term">डाकघर (Post Office)</td>
+                        <td><input name="post_office" placeholder="डाकघर / Post Office"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">29.</td>
+                        <td class="term">शहर (City)</td>
+                        <td><input name="city" placeholder="शहर / City"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">30.</td>
+                        <td class="term">थाना (Police Station)</td>
+                        <td><input name="police_station" placeholder="थाना / Police Station"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">31.</td>
+                        <td class="term">जिला (District)</td>
+                        <td><input name="district" placeholder="जिला / District"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">32.</td>
+                        <td class="term">चौहद्दी - उत्तर सीमा (Boundary - North)</td>
+                        <td><input name="north_boundary" placeholder="उत्तर सीमा / North Boundary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">33.</td>
+                        <td class="term">चौहद्दी - दक्षिण सीमा (Boundary - South)</td>
+                        <td><input name="south_boundary" placeholder="दक्षिण सीमा / South Boundary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">34.</td>
+                        <td class="term">चौहद्दी - पूरब सीमा (Boundary - East)</td>
+                        <td><input name="east_boundary" placeholder="पूरब सीमा / East Boundary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">35.</td>
+                        <td class="term">चौहद्दी - पश्चिम सीमा (Boundary - West)</td>
+                        <td><input name="west_boundary" placeholder="पश्चिम सीमा / West Boundary"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">36.</td>
+                        <td class="term">पूरब से पश्चिम उत्तर तरफ (फीट) (East-West North Side in Ft.)</td>
+                        <td><input name="ew_north" placeholder="फीट में लंबाई / Length in Ft."></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">37.</td>
+                        <td class="term">पूरब से पश्चिम दक्षिण तरफ (फीट) (East-West South Side in Ft.)</td>
+                        <td><input name="ew_south" placeholder="फीट में लंबाई / Length in Ft."></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">38.</td>
+                        <td class="term">उत्तर से दक्षिण पूरब तरफ (फीट) (North-South East Side in Ft.)</td>
+                        <td><input name="ns_east" placeholder="फीट में लंबाई / Length in Ft."></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl">39.</td>
+                        <td class="term">उत्तर से दक्षिण पश्चिम तरफ (फीट) (North-South West Side in Ft.)</td>
+                        <td><input name="ns_west" placeholder="फीट में लंबाई / Length in Ft."></td>
+                    </tr>
+
+                </tbody>
+
+            </table>
         </div>
-
-        <div class="form-grid" style="grid-template-columns: repeat(2, 1fr) !important;">
-            <div class="field">
-                <label class="field-label">Nominee Full Name <span class="req-star">*</span></label>
-                <input type="text" name="nominee_name" class="custom-input"
-                    value="{{ $applicant->nominee_name ?? '' }}" placeholder="Enter nominee's full name" required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">Relationship with Applicant <span class="req-star">*</span></label>
-                <input type="text" name="nominee_relationship" class="custom-input"
-                    value="{{ $applicant->nominee_relationship ?? '' }}" placeholder="e.g. Spouse, Son, Daughter"
-                    required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">Nominee PAN Card <span class="req-star">*</span></label>
-                <input type="text" name="nominee_pan_card" class="custom-input"
-                    value="{{ $applicant->nominee_pan_card ?? '' }}" placeholder="ABCDE1234F"
-                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10"
-                    style="text-transform:uppercase; letter-spacing:0.05em" required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">Nominee Aadhaar Number <span class="req-star">*</span></label>
-                <input type="text" name="nominee_aadhaar" class="custom-input"
-                    value="{{ $applicant->nominee_aadhaar ?? '' }}" placeholder="12-digit Aadhaar number"
-                    pattern="[0-9]{12}" maxlength="12" required>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Family Details ── --}}
-    <div class="form-section">
-        <div class="section-header gradient-header" style="background:linear-gradient(90deg, #1e3c72, #2a5298)">
-            <div class="section-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-            </div>
-            <div>
-                <h3 class="section-title">Family Details</h3>
-                <p class="section-desc">Add details of all family members to be included in the application</p>
-            </div>
-        </div>
-
-        <div id="familyMembers">
-            <div class="member-card" id="member">
-                {{-- Member header --}}
-                <div class="member-card-head">
-                    <div class="member-number">
-                        <span class="member-num-label">Family Member</span>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label class="field-label">Full Name <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[name]" class="custom-input" value=""
-                            placeholder="Member's full name" required>
-                    </div>
-
-                    <div class="field">
-                        <label class="field-label">Gender <span class="req-star">*</span></label>
-                        <select name="family_details[gender]" class="custom-input" required>
-                            <option value="">— Select gender —</option>
-                            <option value="Male">
-                                Male</option>
-                            <option value="Female">
-                                Female</option>
-                            {{-- <option value="Other">
-                                Other</option> --}}
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label class="field-label">Date of Birth <span class="req-star">*</span></label>
-                        <input type="date" name="family_details[dob]" class="custom-input" value=""
-                            required>
-                    </div>
-
-                    <div class="field">
-                        <label class="field-label">Relationship <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[relationship]" class="custom-input"
-                            value="" placeholder="e.g. Spouse, Child" required>
-                    </div>
-
-                    <div class="field">
-                        <label class="field-label">Aadhaar Number <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[aadhaar]" class="custom-input" value=""
-                            placeholder="12-digit number" pattern="[0-9]{12}" maxlength="12" required>
-                    </div>
-
-                    <div class="field">
-                        <label class="field-label">PAN Card <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[pan]" class="custom-input" value=""
-                            placeholder="ABCDE1234F" style="text-transform:uppercase" required>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Bank Details ── --}}
-    <div class="form-section">
-        <div class="section-header gradient-header" style="background:linear-gradient(90deg, #8e2de2, #4a00e0)">
-            <div class="section-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <rect x="2" y="7" width="20" height="14" rx="2" />
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-            </div>
-            <div>
-                <h3 class="section-title">Bank Details</h3>
-                <p class="section-desc">Bank account details for payment and refund processing</p>
-            </div>
-        </div>
-
-        <div class="form-grid">
-            <div class="field">
-                <label class="field-label">Bank Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_name" class="custom-input"
-                    value="{{ $applicant->bank_name ?? '' }}" placeholder="e.g. State Bank of India" required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">Account Number <span class="req-star">*</span></label>
-                <input type="text" name="bank_account_no" class="custom-input"
-                    value="{{ $applicant->bank_account_no ?? '' }}" placeholder="Enter account number"
-                    style="letter-spacing:0.04em" required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">Branch Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_branch" class="custom-input"
-                    value="{{ $applicant->bank_branch ?? '' }}" placeholder="e.g. Palamu Main Branch" required>
-            </div>
-
-            <div class="field">
-                <label class="field-label">IFSC Code <span class="req-star">*</span></label>
-                <input type="text" name="bank_ifsc" class="custom-input"
-                    value="{{ $applicant->bank_ifsc ?? '' }}" placeholder="e.g. SBIN0001234"
-                    pattern="[A-Z]{4}0[A-Z0-9]{6}" maxlength="11"
-                    style="text-transform:uppercase; letter-spacing:0.05em" required>
-                <span class="field-hint">4 letters + 0 + 6 alphanumeric characters</span>
-            </div>
-
-            <div class="field col-span-2">
-                <label class="field-label">Account Holder Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_account_holder" class="custom-input"
-                    value="{{ $applicant->bank_account_holder ?? '' }}" placeholder="Name as printed on passbook"
-                    required>
-                <span class="field-hint">Must match exactly with the bank records</span>
-            </div>
-        </div>
-
-        {{-- Bank verification badge --}}
-        <div class="bank-verify-note">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            Please ensure all bank details are accurate. Incorrect details may delay payment processing.
-        </div>
-    </div>
 </form>
-
 {{-- Step 2 scoped styles --}}
 <style>
     /* Member Card */
