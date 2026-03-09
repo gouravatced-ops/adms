@@ -271,7 +271,7 @@
         <span class="text-xs text-gray-300">Technology Partner</span>
         <a href="https://www.computered.in/" target="_blank"
             class="flex items-center space-x-2 hover:opacity-80 transition">
-            <img src="https://computered.co.in/cgst/domains/assets/images/logos/insta-logo.jpg" alt="Partner Logo"
+            <img src="{{ asset(config('config-system.patrnterFooterLogo')) }}" alt="Partner Logo"
                 class="h-8 w-auto object-contain">
             <span class="text-xs text-white font-medium">COMPUTER Ed.</span>
         </a>

@@ -138,5 +138,14 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/apply/step5/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep5'])->name('apply.step5.save');
         Route::post('/apply/step6/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep6'])->name('apply.step6.save');
         Route::post('/apply/step7/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
+        Route::post('/documents/store', [App\Http\Controllers\Applicant\StepperFormController::class, 'store'])->name('documents.store');
+        Route::post('/save-allottee-details', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveAllotteeDetails'])->name('save.new.store');
+        Route::post('/save-emi-details', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveEmiDetails'])->name('applicant.save.emi.details');
+        Route::post('/skip-step', [App\Http\Controllers\Applicant\StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
+        Route::get('/documents/configs', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
+        Route::get('/documents/list/{allotteeId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
     });
+
+    // Add to your routes file
+    Route::post('/applicant/documents/skip', [ScannedController::class, 'skip'])->name('applicant.documents.skip');
 });

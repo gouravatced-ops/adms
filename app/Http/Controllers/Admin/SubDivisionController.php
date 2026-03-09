@@ -36,6 +36,8 @@ class SubDivisionController extends Controller
             'division_id' => 'required',
             'name' => 'required|string|max:255',
             'subdivision_code' => 'required|string|max:255',
+            'colony_name' => 'nullable',
+            'locality_address' => 'nullable',
             'status' => 'required|string',
         ]);
 
@@ -44,6 +46,8 @@ class SubDivisionController extends Controller
                 'division_id' => $request->division_id,
                 'name' => $request->name,
                 'subdivision_code' => $request->subdivision_code,
+                'colony_name' => $request->colony_name ?? NULL,
+                'locality_address' => $request->locality_address ?? NULL,
                 'status' => $request->status,
             ]);
 
@@ -62,6 +66,9 @@ class SubDivisionController extends Controller
         $request->validate([
             'division_id' => 'required',
             'name' => 'required|string|max:255',
+            'subdivision_code' => 'required|string|max:255',
+            'colony_name' => 'nullable',
+            'locality_address' => 'nullable',
             'status' => 'required|string',
         ]);
 
@@ -71,6 +78,9 @@ class SubDivisionController extends Controller
             $SubDivision->update([
                 'division_id' => $request->division_id,
                 'name' => $request->name,
+                'subdivision_code' => $request->subdivision_code,
+                'colony_name' => $request->colony_name ?? NULL,
+                'locality_address' => $request->locality_address ?? NULL,
                 'status' => $request->status,
             ]);
 
@@ -115,6 +125,6 @@ class SubDivisionController extends Controller
             'status' => $status,
         ]);
 
-        return redirect()->back()->with($messageType, 'Subdivision ' .$message. ' successfully.');
+        return redirect()->back()->with($messageType, 'Subdivision ' . $message . ' successfully.');
     }
 }

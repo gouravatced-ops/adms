@@ -15,6 +15,8 @@ class SubDivision extends Model
         'division_id',
         'name',
         'subdivision_code',
+        'colony_name',
+        'locality_address',
         'status'
     ];
 
@@ -22,5 +24,4 @@ class SubDivision extends Model
     {
         return $this->belongsTo(Division::class, 'division_id');
     }
-
 }

@@ -335,6 +335,18 @@
                         </div>
                     </div>
 
+                    <div class="field">
+                        <label class="label required">Allottee Middle Name</label>
+                        <input type="text" name="allottee_middle_name" placeholder="Enter allottee middle name"
+                            value="{{ $allottes->allottee_middle_name }}">
+                    </div>
+
+                    <div class="field">
+                        <label class="label required">Allottee Surname</label>
+                        <input type="text" name="allottee_surname" placeholder="Enter allottee surname"
+                            value="{{ $allottes->allottee_surname }}">
+                    </div>
+
                     <!-- No. of Files -->
                     <div class="field">
                         <label class="label">No. of Files</label>

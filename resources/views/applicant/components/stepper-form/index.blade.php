@@ -1,4 +1,3 @@
-{{-- resources/views/applicant/stepper-form/index.blade.php --}}
 @extends('applicant.dashboard_layouts.main')
 
 @section('title', 'Application Form')
@@ -1077,8 +1076,14 @@
             gap: 20px;
             margin-bottom: 15px;
         }
+
+        .date-group {
+            display: flex;
+            gap: 8px;
+        }
     </style>
 
+    {{-- Your existing HTML structure remains the same --}}
     <div class="app-shell">
         {{-- Header --}}
         <div class="modern-card-header">
@@ -1090,11 +1095,10 @@
                 <div class="flex items-center gap-2">
                     <a href="{{ route('applicant.dataentry.scanned.lots.files', encrypt($registerId)) }}">
                         <button class="btn btn-info"
-                            style="background: linear-gradient(135deg, #ce3d04, #ee5121) !important; color:white;padding: 6px 24px;
-                            border-radius: 2px;">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg> Back
+                            style="background: linear-gradient(135deg, #ce3d04, #ee5121) !important; color:white;padding: 6px 24px; border-radius: 2px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg> Back
                         </button>
                     </a>
                 </div>
@@ -1110,12 +1114,11 @@
             2 => 'Address Details',
             3 => 'Property Financial Details',
             4 => 'Nominee & Banking',
-            5 => 'Property Details',
-            6 => 'Documents Uploads',
-            7 => 'Review & Submit',
+            5 => 'Documents Uploads',
+            6 => 'Review & Submit',
         ] as $step => $label)
                     <div class="step-item {{ $step === 1 ? 'active' : '' }}" data-step="{{ $step }}"
-                        onclick="app.goToStep({{ $step }})">
+                        onclick="StepManager.goToStep({{ $step }})">
                         <div class="step-bubble">
                             <span>{{ $step }}</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1132,7 +1135,6 @@
 
         {{-- Body --}}
         <div class="app-body">
-
             {{-- Step Content --}}
             <div id="stepContent" class="step-content-area">
                 @include('applicant.components.stepper-form.step1')
@@ -1141,17 +1143,18 @@
             {{-- Navigation --}}
             <div class="nav-bar">
                 <div class="nav-info">
-                    Step <strong id="stepNum">1</strong> of <strong>7</strong>
+                    Step <strong id="stepNum">1</strong> of <strong>6</strong>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center;">
-                    <button type="button" class="btn btn-ghost" id="prevBtn" onclick="app.prevStep()"
+                    <button type="button" class="btn btn-ghost" id="prevBtn" onclick="StepManager.prevStep()"
                         style="display:none;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
                         Previous
                     </button>
-                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="app.nextStep()">
+
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="StepManager.nextStep()">
                         <div class="spinner" id="btnSpinner"></div>
                         <span id="btnLabel">Save & Continue</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1163,8 +1166,18 @@
         </div>
     </div>
 
+@endsection
+@php
+    #return getDebugIndex($applicant);
+@endphp
+@push('scripts')
     <script>
-        window.app = {
+        // Pass PHP data to JavaScript
+        window.documentBasicList = @json($documents);
+         window.completedDocumentsList = @json($completedDocuments); // Completed documents
+    </script>
+    <script>
+        const StepManager = {
             config: {
                 currentStep: 1,
                 applicantId: {{ isset($applicant) ? $applicant->id : 'null' }},
@@ -1174,23 +1187,33 @@
                     3: '{{ route('applicant.apply.step3.save') }}',
                     4: '{{ route('applicant.apply.step4.save') }}',
                     5: '{{ route('applicant.apply.step5.save') }}',
-                    6: '{{ route('applicant.apply.step6.save') }}',
                 },
                 loadStepUrl: '{{ route('applicant.apply.step', ['step' => '__STEP__', 'applicantId' => '__ID__']) }}',
                 csrfToken: '{{ csrf_token() }}'
             },
 
+            stepHandlers: {}, // Will store step-specific handlers
+            currentHandler: null, // Currently active handler
+
             init: function() {
                 @if (isset($applicant) && $applicant->current_step > 1)
                     this.config.currentStep = {{ $applicant->current_step }};
                     this.loadStep(this.config.currentStep);
+                    console.log('Y');
+                    console.log(this.config);
+                @else
+                    // Load handler for step 1
+                    setTimeout(() => {
+                        this.loadStepHandler(1);
+                    }, 100);
                 @endif
+                console.log('N');
+                console.log(this.config);
                 this.updateStepper(this.config.currentStep);
                 this.bindEvents();
             },
 
             bindEvents: function() {
-                // Remove validation errors on input
                 document.addEventListener('input', e => {
                     if (e.target.classList.contains('is-invalid') && e.target.value.trim()) {
                         e.target.classList.remove('is-invalid');
@@ -1213,14 +1236,17 @@
                 });
 
                 const pct = step === 1 ? 0 : ((step - 1) / (items.length - 1)) * 100;
-                document.getElementById('stepperTrack').style.width = pct + '%';
-                document.getElementById('stepNum').textContent = step;
+                const track = document.getElementById('stepperTrack');
+                if (track) track.style.width = pct + '%';
+
+                const stepNum = document.getElementById('stepNum');
+                if (stepNum) stepNum.textContent = step;
 
                 const prev = document.getElementById('prevBtn');
                 const lbl = document.getElementById('btnLabel');
 
-                prev.style.display = step === 1 ? 'none' : 'inline-flex';
-                lbl.innerHTML = step === 7 ? 'Submit Application' : 'Save & Continue';
+                if (prev) prev.style.display = step === 1 ? 'none' : 'inline-flex';
+                if (lbl) lbl.innerHTML = step === 6 ? 'Submit Application' : 'Save & Continue';
 
                 this.config.currentStep = step;
             },
@@ -1233,14 +1259,17 @@
             },
 
             loadStep: function(step) {
-                if (!this.config.applicantId) {
+                if (!this.config.applicantId && step > 1) {
                     this.showAlert('Please save step 1 first.', 'error');
                     return;
                 }
 
+                // Show loading state
+                document.getElementById('stepContent').innerHTML = this.getLoadingHTML();
+
                 const url = this.config.loadStepUrl
                     .replace('__STEP__', step)
-                    .replace('__ID__', this.config.applicantId);
+                    .replace('__ID__', this.config.applicantId || '');
 
                 fetch(url, {
                         headers: {
@@ -1255,8 +1284,10 @@
                         document.getElementById('stepContent').innerHTML = html;
                         this.updateStepper(step);
 
-                        // Re-initialize any step-specific JavaScript
-                        this.initializeStepScripts(step);
+                        // Load and initialize step handler
+                        setTimeout(() => {
+                            this.loadStepHandler(step);
+                        }, 100);
                     })
                     .catch(err => {
                         console.error(err);
@@ -1264,157 +1295,56 @@
                     });
             },
 
-            // New function to initialize step-specific scripts
-            initializeStepScripts: function(step) {
-                // Re-run DOMContentLoaded scripts for the newly loaded content
-                if (step === 1) {
-                    // Re-initialize step1 specific functionality
-                    this.initializeStep1();
-                } else if (step === 2) {
-                    // Initialize step2 specific functionality
-                    this.initializeStep2();
-                } else if (step === 3) {
-                    // Initialize step3 specific functionality
-                    this.initializeStep3();
-                } else if (step === 4) {
-                    // Initialize step4 specific functionality
-                    this.initializeStep4();
-                } else if (step === 5) {
-                    // Initialize step5 specific functionality
-                    this.initializeStep5();
-                } else if (step === 6) {
-                    // Initialize step6 specific functionality
-                    this.initializeStep6();
-                } else if (step === 7) {
-                    this.initializeStep7();
+            getLoadingHTML: function() {
+                return `
+            <div class="load-state">
+                <div class="load-ring"></div>
+                <span>Loading step...</span>
+            </div>
+        `;
+            },
+
+            loadStepHandler: function(step) {
+                // Destroy previous handler
+                if (this.currentHandler && typeof this.currentHandler.destroy === 'function') {
+                    this.currentHandler.destroy();
+                }
+
+                // Get handler for this step
+                const HandlerClass = this.stepHandlers[step];
+                if (HandlerClass) {
+                    // Create new handler instance
+                    this.currentHandler = Object.create(HandlerClass);
+                    this.currentHandler.manager = this; // Give handler access to manager
+                    this.currentHandler.init();
+                    console.log(`Step ${step} handler initialized`);
+                } else {
+                    console.warn(`No handler found for step ${step}`);
                 }
             },
 
-            // Step 1 initialization
-            initializeStep1: function() {
-                // Re-attach year validation
-                const yearInput = document.getElementById("allotmentYear");
-                const errorText = document.getElementById("yearError");
-
-                if (yearInput) {
-                    // Remove any existing listeners to prevent duplicates
-                    const newYearInput = yearInput.cloneNode(true);
-                    yearInput.parentNode.replaceChild(newYearInput, yearInput);
-
-                    // Add fresh listener
-                    newYearInput.addEventListener("input", function() {
-                        let value = this.value.trim();
-                        this.value = value.replace(/[^0-9]/g, '');
-
-                        if (this.value.length === 4) {
-                            const currentYear = new Date().getFullYear();
-                            const minYear = 1970;
-                            let year = parseInt(this.value);
-
-                            if (year < minYear || year > currentYear) {
-                                this.classList.add("invalid-year");
-                                if (errorText) errorText.textContent =
-                                    `Year must be between ${minYear} and ${currentYear}`;
-                            } else {
-                                this.classList.remove("invalid-year");
-                                if (errorText) errorText.textContent = "";
-                            }
-                        } else {
-                            this.classList.remove("invalid-year");
-                            if (errorText) errorText.textContent = "";
-                        }
-                    });
-                }
-
-                // Re-initialize PAN/Aadhar toggle
-                const allotmentDate = document.getElementById('allotment_date');
-                if (allotmentDate) {
-                    // Remove existing listeners
-                    const newAllotmentDate = allotmentDate.cloneNode(true);
-                    allotmentDate.parentNode.replaceChild(newAllotmentDate, allotmentDate);
-
-                    newAllotmentDate.addEventListener('change', function() {
-                        app.togglePanAadhar();
-                    });
-
-                    // Trigger initial toggle
-                    this.togglePanAadhar();
-                }
-            },
-
-            // Step 2 initialization (add your step2 specific code)
-            initializeStep2: function() {
-                // Re-initialize address copy functionality
-                const sameAsPresent = document.getElementById('same_as_present');
-                if (sameAsPresent) {
-                    const newCheckbox = sameAsPresent.cloneNode(true);
-                    sameAsPresent.parentNode.replaceChild(newCheckbox, sameAsPresent);
-
-                    newCheckbox.addEventListener('change', function() {
-                        app.copyAddress();
-                    });
-                }
-            },
-
-            // Step 3 initialization
-            initializeStep3: function() {
-                // Add any step3 specific initialization here
-                console.log('Step 3 initialized');
-            },
-
-            // Step 4 initialization
-            initializeStep4: function() {
-                // Add any step4 specific initialization here
-                console.log('Step 4 initialized');
-            },
-
-            // Step 5 initialization
-            initializeStep5: function() {
-                // Add any step4 specific initialization here
-                console.log('Step 5 initialized');
-            },
-
-            // Step 6 initialization
-            initializeStep4: function() {
-                // Add any step4 specific initialization here
-                console.log('Step 6 initialized');
-            },
-
-            // Step 4 initialization
-            initializeStep7: function() {
-                // Add any step4 specific initialization here
-                console.log('Step 7 initialized');
+            registerHandler: function(step, handlerObj) {
+                this.stepHandlers[step] = handlerObj;
             },
 
             validateStep: function() {
+                // Delegate validation to current handler if it has validate method
+                if (this.currentHandler && typeof this.currentHandler.validate === 'function') {
+                    return this.currentHandler.validate();
+                }
+
+                // Default validation
                 const form = document.querySelector('#stepContent form');
                 if (!form) return true;
 
-                let valid = true,
-                    firstInvalid = null;
-
+                let valid = true;
                 form.querySelectorAll('[required]').forEach(field => {
                     field.classList.remove('is-invalid');
-
-                    const isEmpty = !field.value.trim();
-                    const isInvalidEmail = field.type === 'email' && field.value &&
-                        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value);
-                    const isInvalidPattern = field.pattern && field.value &&
-                        !new RegExp(field.pattern).test(field.value);
-
-                    if (isEmpty || isInvalidEmail || isInvalidPattern) {
+                    if (!field.value.trim()) {
                         field.classList.add('is-invalid');
                         valid = false;
-                        if (!firstInvalid) firstInvalid = field;
                     }
                 });
-
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
 
                 return valid;
             },
@@ -1429,12 +1359,11 @@
                 const spinner = document.getElementById('btnSpinner');
                 const btnLabel = document.getElementById('btnLabel');
 
-                nextBtn.disabled = true;
-                spinner.style.display = 'block';
-                btnLabel.textContent = 'Saving...';
+                if (nextBtn) nextBtn.disabled = true;
+                if (spinner) spinner.style.display = 'block';
+                if (btnLabel) btnLabel.textContent = 'Saving...';
 
-                // Handle final submission
-                if (this.config.currentStep === 7) {
+                if (this.config.currentStep === 6) {
                     this.submitApplication();
                     return;
                 }
@@ -1442,9 +1371,7 @@
                 const form = document.querySelector('#stepContent form');
                 if (!form) {
                     this.loadStep(this.config.currentStep + 1);
-                    nextBtn.disabled = false;
-                    spinner.style.display = 'none';
-                    btnLabel.innerHTML = 'Save & Continue';
+                    this.resetNextButton();
                     return;
                 }
 
@@ -1469,7 +1396,7 @@
                             }
                             if (data.next_step) {
                                 this.loadStep(data.next_step);
-                            } else if (this.config.currentStep < 7) {
+                            } else if (this.config.currentStep < 6) {
                                 this.loadStep(this.config.currentStep + 1);
                             }
                         } else {
@@ -1483,11 +1410,20 @@
                         this.showAlert('An error occurred. Please try again.', 'error');
                     })
                     .finally(() => {
-                        nextBtn.disabled = false;
-                        spinner.style.display = 'none';
-                        btnLabel.innerHTML = this.config.currentStep === 7 ? 'Submit Application' :
-                            'Save & Continue';
+                        this.resetNextButton();
                     });
+            },
+
+            resetNextButton: function() {
+                const nextBtn = document.getElementById('nextBtn');
+                const spinner = document.getElementById('btnSpinner');
+                const btnLabel = document.getElementById('btnLabel');
+
+                if (nextBtn) nextBtn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (btnLabel) {
+                    btnLabel.innerHTML = this.config.currentStep === 6 ? 'Submit Application' : 'Save & Continue';
+                }
             },
 
             prevStep: function() {
@@ -1497,7 +1433,7 @@
             },
 
             submitApplication: function() {
-                fetch('{{ route('applicant.apply.step7.save') }}', {
+                fetch('{{ route('applicant.apply.step6.save') }}', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': this.config.csrfToken,
@@ -1527,63 +1463,24 @@
             },
 
             showAlert: function(message, type = 'success') {
-                showToast('Allottee Data Entry', message, type);
-            },
-
-            // Utility functions for specific features
-            copyAddress: function() {
-                const checkbox = document.getElementById('same_as_present');
-                if (!checkbox) return;
-
-                const fieldMap = [
-                    ['present_address', 'permanent_address'],
-                    ['post_office', 'permanent_post_office'],
-                    ['police_station', 'permanent_police_station'],
-                    ['state', 'permanent_state'],
-                    ['district', 'permanent_district'],
-                    ['pin_code', 'permanent_pin_code'],
-                    ['telephone', 'permanent_telephone'],
-                    ['mobile_number', 'permanent_mobile_number']
-                ];
-
-                fieldMap.forEach(([from, to]) => {
-                    const fromEl = document.getElementById(from);
-                    const toEl = document.getElementById(to);
-
-                    if (fromEl && toEl) {
-                        toEl.value = checkbox.checked ? fromEl.value : '';
-                    }
-                });
-            },
-
-            togglePanAadhar: function() {
-                const dateInput = document.getElementById('allotment_date');
-                const panField = document.getElementById('pan-field');
-                const aadharField = document.getElementById('aadhar-field');
-                const panInput = document.getElementById('pan_card_number');
-                const aadharInput = document.getElementById('aadhar_card_number');
-                const panStar = document.getElementById('pan-star');
-                const aadharStar = document.getElementById('aadhar-star');
-
-                if (!dateInput || !panField || !aadharField) return;
-
-                const year = dateInput.value ? new Date(dateInput.value).getFullYear() : null;
-                const show = year && year >= 2009;
-
-                panField.style.display = show ? 'block' : 'none';
-                aadharField.style.display = show ? 'block' : 'none';
-
-                if (panInput) panInput.required = show;
-                if (aadharInput) aadharInput.required = show;
-
-                if (panStar) panStar.style.display = show ? 'inline' : 'none';
-                if (aadharStar) aadharStar.style.display = show ? 'inline' : 'none';
+                if (typeof showToast === 'function') {
+                    showToast('Allottee Data Entry', message, type);
+                } else {
+                    alert(message);
+                }
             }
         };
 
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', () => {
-            window.app.init();
+            StepManager.init();
         });
     </script>
-@endsection
+
+    {{-- Load Step Handlers --}}
+    <script src="{{ asset('assets/stepjs/step1-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step2-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step3-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step4-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step5-handler.js') }}"></script>
+@endpush

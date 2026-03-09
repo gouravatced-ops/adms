@@ -271,6 +271,16 @@
             document.querySelectorAll('.alert').forEach(el => el.remove());
         }, 3000);
     </script>
+    <script>
+        setInterval(() => {
+            fetch('/refresh-csrf')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('meta[name="csrf-token"]')
+                        .setAttribute('content', data.token);
+                });
+        }, 600000);
+    </script>
     @stack('scripts')
 </body>
 

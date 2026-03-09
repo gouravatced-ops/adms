@@ -28,6 +28,8 @@
                                 <th>Division Name</th>
                                 <th>Sub Division Name</th>
                                 <th>Sub Division Code</th>
+                                <th>Colony Name</th>
+                                <th>Locality Address</th>
                                 <th>Status</th>
                                 <th>Created On</th>
                                 <th class="text-center">Action</th>
@@ -49,7 +51,8 @@
                                     <td>
                                         <span class="badge bg-info">{{ $subdivision->subdivision_code }}</span>
                                     </td>
-
+                                    <td>{{ $subdivision->colony_name ?? 'N/A' }}</td>
+                                    <td>{{ $subdivision->locality_address ?? 'N/A' }}</td>
                                     <td>
                                         @if ($subdivision->status == 1)
                                             <span class="badge bg-success">Active</span>

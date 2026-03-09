@@ -1,7 +1,10 @@
 {{-- resources/views/applicant/components/stepper-form/step2.blade.php --}}
+@php
+    #return getDebugIndex($applicant);
+@endphp
 <form id="step4Form" method="POST">
     @csrf
-
+    <input type="hidden" name="allottee_id" id="allottee_id" value="{{ $applicant->id ?? '' }}">
     {{-- ── Nominee Details ── --}}
     <div class="form-section">
         <div class="section-header gradient-header" style="background: linear-gradient(90deg, #aa7700, #ffb703);">
@@ -22,31 +25,42 @@
 
         <div class="form-grid" style="grid-template-columns: repeat(2, 1fr) !important;">
             <div class="field">
-                <label class="field-label">Nominee Full Name <span class="req-star">*</span></label>
-                <input type="text" name="nominee_name" class="custom-input"
-                    value="{{ $applicant->nominee_name ?? '' }}" placeholder="Enter nominee's full name" >
+                <label class="field-label">Nominee Full Name</label>
+                <div class="input-group">
+                    @php $prefixes = ['Shri', 'Smt.', 'Miss']; @endphp
+                    <select name="nominee_prefix" class="prefix-select">
+                        @foreach ($prefixes as $prefix)
+                            <option value="{{ $prefix }}"
+                                {{ ($applicant->nominee_prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                {{ $prefix }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <input type="text" name="nominee_name" class="custom-input only-alphabet"
+                        value="{{ $applicant->nominee_name ?? '' }}"
+                        value="{{ old('tentative_price', $applicant->tentative_price) }}"
+                        placeholder="Enter nominee's full name">
+                </div>
             </div>
 
             <div class="field">
-                <label class="field-label">Relationship with Applicant <span class="req-star">*</span></label>
-                <input type="text" name="nominee_relationship" class="custom-input"
-                    value="{{ $applicant->nominee_relationship ?? '' }}" placeholder="e.g. Spouse, Son, Daughter"
-                    >
+                <label class="field-label">Relationship with Applicant</label>
+                <input type="text" name="nominee_relationship" class="custom-input only-alphabet"
+                    value="{{ $applicant->nominee_relationship ?? '' }}" placeholder="e.g. Spouse, Son, Daughter">
             </div>
 
             <div class="field">
-                <label class="field-label">Nominee PAN Card <span class="req-star">*</span></label>
-                <input type="text" name="nominee_pan_card" class="custom-input"
-                    value="{{ $applicant->nominee_pan_card ?? '' }}" placeholder="ABCDE1234F"
-                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10"
-                    style="text-transform:uppercase; letter-spacing:0.05em" >
+                <label class="field-label">Nominee PAN Card</label>
+                <input type="text" name="nominee_pan_card" class="custom-input pan-input"
+                    value="{{ $applicant->nominee_pan_card ?? '' }}" placeholder="ABCDE1234F" maxlength="10"
+                    style="text-transform:uppercase; letter-spacing:0.05em">
             </div>
 
             <div class="field">
-                <label class="field-label">Nominee Aadhaar Number <span class="req-star">*</span></label>
-                <input type="text" name="nominee_aadhaar" class="custom-input"
+                <label class="field-label">Nominee Aadhaar Number</label>
+                <input type="text" name="nominee_aadhaar" class="custom-input only-number"
                     value="{{ $applicant->nominee_aadhaar ?? '' }}" placeholder="12-digit Aadhaar number"
-                    pattern="[0-9]{12}" maxlength="12" >
+                    pattern="[0-9]{12}" maxlength="12">
             </div>
         </div>
     </div>
@@ -78,46 +92,64 @@
 
                 <div class="form-grid">
                     <div class="field">
-                        <label class="field-label">Full Name <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[name]" class="custom-input" value=""
-                            placeholder="Member's full name" >
+                        <label class="field-label">Full Name</label>
+                        <div class="input-group">
+                            @php $prefixes = ['Shri', 'Smt.', 'Miss']; @endphp
+                            <select name="family_name_prefix" class="prefix-select">
+                                @foreach ($prefixes as $prefix)
+                                    <option value="{{ $prefix }}"
+                                        {{ ($applicant->family_name_prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                        {{ $prefix }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <input type="text" name="family_name" class="custom-input only-alphabet"
+                                value="{{ old('family_name', $applicant->family_name) }}"
+                                placeholder="Member's full name">
+                        </div>
                     </div>
 
                     <div class="field">
-                        <label class="field-label">Gender <span class="req-star">*</span></label>
-                        <select name="family_details[gender]" class="custom-input" >
+                        <label class="field-label">Gender</label>
+                        <select name="family_gender" class="custom-input">
                             <option value="">— Select gender —</option>
-                            <option value="Male">
+                            <option value="Male" {{ $applicant->family_gender == 'Male' ? 'selected' : '' }}>
                                 Male</option>
-                            <option value="Female">
+                            <option value="Female" {{ $applicant->family_gender == 'Female' ? 'selected' : '' }}>
                                 Female</option>
+                            <option value="Trangender"
+                                {{ $applicant->family_gender == 'Trangender' ? 'selected' : '' }}>
+                                Trangender</option>
                             {{-- <option value="Other">
                                 Other</option> --}}
                         </select>
                     </div>
 
                     <div class="field">
-                        <label class="field-label">Date of Birth <span class="req-star">*</span></label>
-                        <input type="date" name="family_details[dob]" class="custom-input" value=""
-                            >
+                        <label class="field-label">Date of Birth</label>
+                        <input type="date" name="family_dob" class="custom-input"
+                            value="{{ old('family_dob', $applicant->family_dob) }}">
                     </div>
 
                     <div class="field">
-                        <label class="field-label">Relationship <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[relationship]" class="custom-input"
-                            value="" placeholder="e.g. Spouse, Child" >
+                        <label class="field-label">Relationship</label>
+                        <input type="text" name="family_relationship" class="custom-input only-alphabet"
+                            value="{{ old('family_relationship', $applicant->family_relationship) }}"
+                            placeholder="e.g. Spouse, Child">
                     </div>
 
                     <div class="field">
-                        <label class="field-label">Aadhaar Number <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[aadhaar]" class="custom-input" value=""
-                            placeholder="12-digit number" pattern="[0-9]{12}" maxlength="12" >
+                        <label class="field-label">Aadhaar Number</label>
+                        <input type="text" name="family_aadhaar" class="custom-input only-number"
+                            value="{{ old('family_aadhaar', $applicant->family_aadhaar) }}"
+                            placeholder="12-digit number" pattern="[0-9]{12}" maxlength="12">
                     </div>
 
                     <div class="field">
-                        <label class="field-label">PAN Card <span class="req-star">*</span></label>
-                        <input type="text" name="family_details[pan]" class="custom-input" value=""
-                            placeholder="ABCDE1234F" style="text-transform:uppercase" >
+                        <label class="field-label">PAN Card</label>
+                        <input type="text" name="family_pan" class="custom-input pan-input"
+                            value="{{ old('family_pan', $applicant->family_pan) }}" placeholder="ABCDE1234F"
+                            style="text-transform:uppercase">
                     </div>
                 </div>
             </div>
@@ -142,38 +174,37 @@
 
         <div class="form-grid">
             <div class="field">
-                <label class="field-label">Bank Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_name" class="custom-input"
-                    value="{{ $applicant->bank_name ?? '' }}" placeholder="e.g. State Bank of India" >
+                <label class="field-label">Bank Name</label>
+                <input type="text" name="bank_name" class="custom-input only-alphabet"
+                    value="{{ $applicant->bank_name ?? '' }}" placeholder="e.g. State Bank of India">
             </div>
 
             <div class="field">
-                <label class="field-label">Account Number <span class="req-star">*</span></label>
-                <input type="text" name="bank_account_no" class="custom-input"
-                    value="{{ $applicant->bank_account_no ?? '' }}" placeholder="Enter account number"
-                    style="letter-spacing:0.04em" >
+                <label class="field-label">Account Number</label>
+                <input type="text" name="bank_account_no" class="custom-input only-number"
+                    value="{{ $applicant->bank_account_no ?? '' }}" maxlength="12"
+                    placeholder="Enter account number" style="letter-spacing:0.04em">
             </div>
 
             <div class="field">
-                <label class="field-label">Branch Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_branch" class="custom-input"
-                    value="{{ $applicant->bank_branch ?? '' }}" placeholder="e.g. Palamu Main Branch" >
+                <label class="field-label">Branch Name</label>
+                <input type="text" name="bank_branch" class="custom-input only-alphabet"
+                    value="{{ $applicant->bank_branch ?? '' }}" placeholder="e.g. Palamu Main Branch">
             </div>
 
             <div class="field">
-                <label class="field-label">IFSC Code <span class="req-star">*</span></label>
-                <input type="text" name="bank_ifsc" class="custom-input"
+                <label class="field-label">IFSC Code</label>
+                <input type="text" name="bank_ifsc" class="custom-input ifsc-input"
                     value="{{ $applicant->bank_ifsc ?? '' }}" placeholder="e.g. SBIN0001234"
                     pattern="[A-Z]{4}0[A-Z0-9]{6}" maxlength="11"
-                    style="text-transform:uppercase; letter-spacing:0.05em" >
+                    style="text-transform:uppercase; letter-spacing:0.05em">
                 <span class="field-hint">4 letters + 0 + 6 alphanumeric characters</span>
             </div>
 
             <div class="field col-span-2">
-                <label class="field-label">Account Holder Name <span class="req-star">*</span></label>
-                <input type="text" name="bank_account_holder" class="custom-input"
-                    value="{{ $applicant->bank_account_holder ?? '' }}" placeholder="Name as printed on passbook"
-                    >
+                <label class="field-label">Account Holder Name</label>
+                <input type="text" name="bank_account_holder" class="custom-input only-alphabet"
+                    value="{{ $applicant->bank_account_holder ?? '' }}" placeholder="Name as printed on passbook">
                 <span class="field-hint">Must match exactly with the bank records</span>
             </div>
         </div>

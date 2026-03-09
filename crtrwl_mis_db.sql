@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 23, 2026 at 02:02 PM
+-- Generation Time: Mar 09, 2026 at 02:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -53,7 +53,7 @@ CREATE TABLE `admins` (
 
 INSERT INTO `admins` (`id`, `admin_details_id`, `mobile_no`, `admin_name`, `profile_path`, `alt_mobile_no`, `email_id`, `password`, `prev_password`, `role`, `gender`, `otp_verified_at`, `last_login`, `last_ip`, `password_created_at`, `created_at`, `updated_at`) VALUES
 (1, 1, '8092213051', '', NULL, '7979040859', 'gouravatced11@gmail.com', '$2y$12$bVRQNcgP.DtHRnTSpr0kVOHUoM0gvA4x7vPlcmkSRhgBK9IOfp72.', NULL, 'superadmin', NULL, '2026-02-06 04:23:12', '2026-02-06 05:15:49', '127.0.0.1', '2026-02-06 05:13:19', '2024-09-09 08:48:35', '2026-02-06 05:31:27'),
-(3, 3, '7979040859', 'Gourav Computered', 'admin_pic/1770797011_photo-1494790108377-be9c29b29330.jpeg', '7979040859', 'gouravatced@gmail.com', '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', NULL, 'council_office', 'Male', '2026-02-18 04:19:42', '2026-02-18 04:19:42', '127.0.0.1', NULL, '2024-10-07 09:26:19', '2026-02-18 04:19:42'),
+(3, 3, '7979040859', 'Gourav Computered', 'admin_pic/1770797011_photo-1494790108377-be9c29b29330.jpeg', '7979040859', 'gouravatced@gmail.com', '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', NULL, 'council_office', 'Male', '2026-03-06 06:16:16', '2026-03-06 06:16:16', '127.0.0.1', NULL, '2024-10-07 09:26:19', '2026-03-06 06:16:16'),
 (4, 5, '8943756934', '', NULL, NULL, 'adminjshb2@gmail.com', '$2y$12$jwhx2V/0Ulgp9ibeLUnifOtPBvqzbMOPsU73wzdnskZqSulGmTn2W', NULL, 'registar', NULL, '2026-01-27 20:02:37', '2026-01-27 20:02:37', '47.31.85.195', NULL, '2024-10-23 10:43:58', '2026-02-05 12:51:44');
 
 -- --------------------------------------------------------
@@ -137,6 +137,177 @@ INSERT INTO `admin_otp_logs` (`id`, `login_with`, `hashed_otp`, `status`, `otp_e
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `allottees`
+--
+
+CREATE TABLE `allottees` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `register_file_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `division_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `subdivision_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `pcategory_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `property_type_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `quarter_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `username` varchar(100) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `cedjshb` longtext DEFAULT NULL,
+  `scheme_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `application_no` varchar(100) DEFAULT NULL,
+  `application_day` tinyint(4) DEFAULT NULL,
+  `application_month` varchar(4) DEFAULT NULL,
+  `application_year` year(4) DEFAULT NULL,
+  `allotment_no` varchar(100) DEFAULT NULL,
+  `allotment_day` tinyint(4) DEFAULT NULL,
+  `allotment_month` varchar(4) DEFAULT NULL,
+  `allotment_year` year(4) DEFAULT NULL,
+  `property_number` varchar(100) DEFAULT NULL,
+  `prefix` varchar(20) DEFAULT NULL,
+  `allottee_name` varchar(100) DEFAULT NULL,
+  `allottee_middle_name` varchar(100) DEFAULT NULL,
+  `allottee_surname` varchar(100) DEFAULT NULL,
+  `allottee_prefix_hindi` varchar(20) DEFAULT NULL,
+  `allottee_name_hindi` varchar(100) DEFAULT NULL,
+  `allottee_middle_hindi` varchar(100) DEFAULT NULL,
+  `allottee_surname_hindi` varchar(100) DEFAULT NULL,
+  `allottee_relation_type` varchar(20) DEFAULT NULL,
+  `relation_name` varchar(150) DEFAULT NULL,
+  `marital_status` varchar(20) DEFAULT NULL,
+  `allottee_gender` varchar(20) DEFAULT NULL,
+  `pan_card_number` varchar(10) DEFAULT NULL,
+  `aadhar_card_number` varchar(12) DEFAULT NULL,
+  `allottee_category` varchar(30) DEFAULT NULL,
+  `allottee_religion` varchar(30) DEFAULT NULL,
+  `allottee_nationality` varchar(50) DEFAULT NULL,
+  `age_number_of_birth_application` varchar(50) DEFAULT NULL,
+  `age_number_of_birth_application_hindi` varchar(50) DEFAULT NULL,
+  `age_word_of_birth_application` varchar(100) DEFAULT NULL,
+  `age_word_hindi_of_birth_application` varchar(100) DEFAULT NULL,
+  `date_of_birth_day` tinyint(4) DEFAULT NULL,
+  `date_of_birth_month` varchar(4) DEFAULT NULL,
+  `date_of_birth_year` year(4) DEFAULT NULL,
+  `no_of_files` int(11) DEFAULT NULL,
+  `no_of_supplement` int(11) DEFAULT NULL,
+  `json_pages` longtext DEFAULT NULL,
+  `total_pages` int(11) DEFAULT NULL,
+  `name_transfer_status` varchar(50) NOT NULL DEFAULT 'no',
+  `is_parents` int(11) NOT NULL DEFAULT 0,
+  `current_step` int(11) DEFAULT 1,
+  `allottee_create_date` date DEFAULT NULL,
+  `create_ip_address` varchar(100) DEFAULT NULL,
+  `update_ip_address` varchar(100) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottees`
+--
+
+INSERT INTO `allottees` (`id`, `register_file_id`, `division_id`, `subdivision_id`, `pcategory_id`, `property_type_id`, `quarter_id`, `username`, `password`, `cedjshb`, `scheme_id`, `application_no`, `application_day`, `application_month`, `application_year`, `allotment_no`, `allotment_day`, `allotment_month`, `allotment_year`, `property_number`, `prefix`, `allottee_name`, `allottee_middle_name`, `allottee_surname`, `allottee_prefix_hindi`, `allottee_name_hindi`, `allottee_middle_hindi`, `allottee_surname_hindi`, `allottee_relation_type`, `relation_name`, `marital_status`, `allottee_gender`, `pan_card_number`, `aadhar_card_number`, `allottee_category`, `allottee_religion`, `allottee_nationality`, `age_number_of_birth_application`, `age_number_of_birth_application_hindi`, `age_word_of_birth_application`, `age_word_hindi_of_birth_application`, `date_of_birth_day`, `date_of_birth_month`, `date_of_birth_year`, `no_of_files`, `no_of_supplement`, `json_pages`, `total_pages`, `name_transfer_status`, `is_parents`, `current_step`, `allottee_create_date`, `create_ip_address`, `update_ip_address`, `updated_by`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 2, 5, 10, 1, 1, 2, 'HZB1970SLE987023', '$2y$12$f/FoPVJ0iOoIueD5U5TMvebFjhuR4Fg717kLX3CVXYITjsOLn0Vhm', 'eyJpdiI6InRYbUllY1VWL2ltWmUvVXZGMnhSUFE9PSIsInZhbHVlIjoiVHZ6VWovS1Z5ZXhIZ1VEZWVUbG1MM05scXFnOVdrVnBkdnIzc2paaVM1OD0iLCJtYWMiOiJkZTQ5MWVjNjJkMGI4N2I4OWRmZDU1ZGVmZmQ1YmYxZmExODkyNjI2OWZiZGI5N2I5NDcwOTFlMTQ3N2ZmNTI5IiwidGFnIjoiIn0=', 8, 'JSHBA-1748087931', 3, '07', '2003', '7845/2003', 9, '10', '2003', 'FLT-5897', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'श्री', 'रितिक', NULL, 'पांडे', 'Father', 'Shiv Kumar', 'Unmarried', 'Male', NULL, NULL, 'EWS', 'Hindu', 'Indian', '15', '15', 'Fifteen Years', 'पंद्रह साल', 30, '08', '1990', 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'no', 0, 5, '2026-03-09', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 04:54:01', '2026-03-09 11:56:52'),
+(4, 1, 4, 7, 1, 2, 2, 'DHN1970KRD375821', '$2y$12$Tq6f2nL4UPRlsfTzg8MP..PGiXuA/Db1mKyi.ZAcqAZ0dS7JVK.Eu', 'eyJpdiI6IndRc25RSWhQUlBPOWpGUVcvOXRUT0E9PSIsInZhbHVlIjoiT0VrKzJhRGZDSnhhWXpRQy96VmZZTFM3b2l2elR3RCszYllPRSsvaWtRND0iLCJtYWMiOiI4ZDc0OGQxOGM5ZDA0NTg3NmE4ODhiODI0MTNmNzRlZWZiZDVmMGM5ZThlZDg2MWVlM2Y4YjQ0Yzc5YTdlNjk3IiwidGFnIjoiIn0=', 9, 'JSHBA-174808854345', 11, '06', '1999', '89556/2000', 3, '03', '2000', 'C-234', 'Shri', 'Krishna', 'Dev', 'Murthy', 'श्री', 'कृष्ण', 'देव', 'पांडे', 'Father', 'Ganesh Dev Murthy', 'Married', 'Male', NULL, NULL, 'General', 'Hindu', 'Indian', '25', '25', 'Twenty Five Years', 'पच्चीस साल', 5, '5', '1971', 3, 2, '[{\"file_name\":\"File-1\",\"pages\":87},{\"file_name\":\"File-2\",\"pages\":59},{\"file_name\":\"File-3\",\"pages\":97},{\"file_name\":\"File-4\",\"pages\":61},{\"file_name\":\"File-5\",\"pages\":45}]', 349, 'no', 0, 2, '2026-03-09', '127.0.0.1', NULL, NULL, 1, '2026-03-09 07:29:31', '2026-03-09 11:26:07');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allottees_contact_details`
+--
+
+CREATE TABLE `allottees_contact_details` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `allottee_id` bigint(20) DEFAULT NULL,
+  `mobile_number` varchar(15) DEFAULT NULL,
+  `alternate_mobile` varchar(15) DEFAULT NULL,
+  `stdCode` varchar(10) DEFAULT NULL,
+  `landline` varchar(15) DEFAULT NULL,
+  `whatsapp_number` varchar(15) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `relation_type` varchar(50) DEFAULT NULL,
+  `prefix_relation_eng` varchar(20) DEFAULT NULL,
+  `relation_name` varchar(150) DEFAULT NULL,
+  `prefix_relation_hindi` varchar(20) DEFAULT NULL,
+  `relation_name_hindi` varchar(150) DEFAULT NULL,
+  `relation_address` text DEFAULT NULL,
+  `relation_address_hindi` text DEFAULT NULL,
+  `relation_state` int(11) DEFAULT NULL,
+  `relation_district` int(11) DEFAULT NULL,
+  `relation_pincode` varchar(10) DEFAULT NULL,
+  `relation_post_office` varchar(150) DEFAULT NULL,
+  `relation_post_office_hindi` varchar(150) DEFAULT NULL,
+  `relation_police_station` varchar(150) DEFAULT NULL,
+  `relation_police_station_hindi` varchar(150) DEFAULT NULL,
+  `same_as_relation_copy` varchar(10) DEFAULT NULL,
+  `present_address` text DEFAULT NULL,
+  `present_address_hindi` text DEFAULT NULL,
+  `present_state` int(11) DEFAULT NULL,
+  `present_district` int(11) DEFAULT NULL,
+  `present_pincode` varchar(10) DEFAULT NULL,
+  `present_post_office` varchar(150) DEFAULT NULL,
+  `present_post_office_hindi` varchar(150) DEFAULT NULL,
+  `present_police_station` varchar(150) DEFAULT NULL,
+  `present_police_station_hindi` varchar(150) DEFAULT NULL,
+  `same_as_present_place_residance` varchar(10) DEFAULT NULL,
+  `permanent_address` text DEFAULT NULL,
+  `permanent_address_hindi` text DEFAULT NULL,
+  `permanent_state` int(11) DEFAULT NULL,
+  `permanent_district` int(11) DEFAULT NULL,
+  `permanent_pincode` varchar(10) DEFAULT NULL,
+  `permanent_post_office` varchar(150) DEFAULT NULL,
+  `permanent_post_office_hindi` varchar(150) DEFAULT NULL,
+  `permanent_police_station` varchar(150) DEFAULT NULL,
+  `permanent_police_station_hindi` varchar(150) DEFAULT NULL,
+  `same_as_permanent_address` varchar(10) DEFAULT NULL,
+  `correspondence_address` text DEFAULT NULL,
+  `correspondence_address_hindi` text DEFAULT NULL,
+  `correspondence_state` int(11) DEFAULT NULL,
+  `correspondence_district` int(11) DEFAULT NULL,
+  `correspondence_pincode` varchar(10) DEFAULT NULL,
+  `correspondence_post_office` varchar(150) DEFAULT NULL,
+  `correspondence_post_office_hindi` varchar(150) DEFAULT NULL,
+  `correspondence_police_station` varchar(150) DEFAULT NULL,
+  `correspondence_police_station_hindi` varchar(150) DEFAULT NULL,
+  `created_by` bigint(20) DEFAULT NULL,
+  `updated_by` bigint(20) DEFAULT NULL,
+  `create_ip_address` varchar(45) DEFAULT NULL,
+  `update_ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottees_contact_details`
+--
+
+INSERT INTO `allottees_contact_details` (`id`, `allottee_id`, `mobile_number`, `alternate_mobile`, `stdCode`, `landline`, `whatsapp_number`, `email`, `relation_type`, `prefix_relation_eng`, `relation_name`, `prefix_relation_hindi`, `relation_name_hindi`, `relation_address`, `relation_address_hindi`, `relation_state`, `relation_district`, `relation_pincode`, `relation_post_office`, `relation_post_office_hindi`, `relation_police_station`, `relation_police_station_hindi`, `same_as_relation_copy`, `present_address`, `present_address_hindi`, `present_state`, `present_district`, `present_pincode`, `present_post_office`, `present_post_office_hindi`, `present_police_station`, `present_police_station_hindi`, `same_as_present_place_residance`, `permanent_address`, `permanent_address_hindi`, `permanent_state`, `permanent_district`, `permanent_pincode`, `permanent_post_office`, `permanent_post_office_hindi`, `permanent_police_station`, `permanent_police_station_hindi`, `same_as_permanent_address`, `correspondence_address`, `correspondence_address_hindi`, `correspondence_state`, `correspondence_district`, `correspondence_pincode`, `correspondence_post_office`, `correspondence_post_office_hindi`, `correspondence_police_station`, `correspondence_police_station_hindi`, `created_by`, `updated_by`, `create_ip_address`, `update_ip_address`, `created_at`, `updated_at`) VALUES
+(3, 3, '9546798457', '8975694576', '06456', '6546456', '9836798456', 'ritikumarPandey@gmail.com', NULL, 'Shri', 'Shiv Kumar', 'श्री', 'शिव कुमार', 'TEST ADDRESS FATHER ADDRESS ENG', 'TEST ADDRESS FATHER ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS PRESENT ADDRESS ENG', 'TEST ADDRESS PRESENT ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS Permanent ADDRESS ENG', 'TEST ADDRESS Permanent ADDRESS HIN', 9, 172, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS CORRESPONDANCE ADDRESS ENG', 'TEST ADDRESS CORRESPONDANCE ADDRESS HIN', 9, 162, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 1, 1, '127.0.0.1', '127.0.0.1', '2026-03-09 04:56:42', '2026-03-09 04:56:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allottee_documents`
+--
+
+CREATE TABLE `allottee_documents` (
+  `id` bigint(20) NOT NULL,
+  `allottee_id` bigint(20) NOT NULL,
+  `document_id` int(11) NOT NULL,
+  `doc_no` varchar(100) DEFAULT NULL,
+  `doc_day` char(2) DEFAULT NULL,
+  `doc_month` char(2) DEFAULT NULL,
+  `doc_year` char(4) DEFAULT NULL,
+  `additional_info` text DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `uploaded_by` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `allottee_file_details`
 --
 
@@ -160,6 +331,118 @@ CREATE TABLE `allottee_file_details` (
 INSERT INTO `allottee_file_details` (`id`, `allottee_file_id`, `file_name`, `actual_pages`, `scanned_pages`, `damage_pages`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
 (1, 10, 'File 1', 55, 9, 19, 1, NULL, '2026-02-19 08:01:28', '2026-02-19 08:01:28'),
 (2, 10, 'File 2', 43, 8, 38, 1, NULL, '2026-02-19 08:01:28', '2026-02-19 08:01:28');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allottee_nominee_bank_details`
+--
+
+CREATE TABLE `allottee_nominee_bank_details` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `allottee_id` bigint(20) UNSIGNED NOT NULL,
+  `nominee_prefix` varchar(10) DEFAULT NULL,
+  `nominee_name` varchar(150) DEFAULT NULL,
+  `nominee_relationship` varchar(100) DEFAULT NULL,
+  `nominee_pan_card` varchar(20) DEFAULT NULL,
+  `nominee_aadhaar` varchar(20) DEFAULT NULL,
+  `family_name_prefix` varchar(10) DEFAULT NULL,
+  `family_name` varchar(150) DEFAULT NULL,
+  `family_gender` varchar(20) DEFAULT NULL,
+  `family_dob` date DEFAULT NULL,
+  `family_relationship` varchar(100) DEFAULT NULL,
+  `family_aadhaar` varchar(20) DEFAULT NULL,
+  `family_pan` varchar(20) DEFAULT NULL,
+  `bank_name` varchar(150) DEFAULT NULL,
+  `bank_account_no` varchar(50) DEFAULT NULL,
+  `bank_branch` varchar(150) DEFAULT NULL,
+  `bank_ifsc` varchar(20) DEFAULT NULL,
+  `bank_account_holder` varchar(150) DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `updated_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `create_ip_address` varchar(45) DEFAULT NULL,
+  `update_ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottee_nominee_bank_details`
+--
+
+INSERT INTO `allottee_nominee_bank_details` (`id`, `allottee_id`, `nominee_prefix`, `nominee_name`, `nominee_relationship`, `nominee_pan_card`, `nominee_aadhaar`, `family_name_prefix`, `family_name`, `family_gender`, `family_dob`, `family_relationship`, `family_aadhaar`, `family_pan`, `bank_name`, `bank_account_no`, `bank_branch`, `bank_ifsc`, `bank_account_holder`, `created_by`, `updated_by`, `create_ip_address`, `update_ip_address`, `created_at`, `updated_at`) VALUES
+(1, 3, 'Shri', 'Kavita Murthy Devi', 'Mother', 'ABCDE1234F', '93485028444', 'Shri', 'Kavita Murthy Devi', 'Female', '1981-03-15', 'Mother', '93485028444', 'ABCDE1234F', 'HDTC Bank', '598609458698', 'HDTC JSR BRANCH', 'HDTC0534503', 'Krishna Dev Murithy', 1, 1, '127.0.0.1', '127.0.0.1', '2026-03-09 08:03:16', '2026-03-09 09:06:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allottee_property_fin_details`
+--
+
+CREATE TABLE `allottee_property_fin_details` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `allottee_id` bigint(20) UNSIGNED NOT NULL,
+  `tentative_price` decimal(12,2) DEFAULT NULL,
+  `amount_words` varchar(255) DEFAULT NULL,
+  `maav_day` tinyint(4) DEFAULT NULL,
+  `maav_month` tinyint(4) DEFAULT NULL,
+  `maav_year` year(4) DEFAULT NULL,
+  `high_income_percent` decimal(5,2) DEFAULT NULL,
+  `low_income_percent` decimal(5,2) DEFAULT NULL,
+  `deposited_amount` decimal(12,2) DEFAULT NULL,
+  `legal_fee` decimal(10,2) DEFAULT NULL,
+  `legal_document_fee` decimal(10,2) DEFAULT NULL,
+  `total_payment` decimal(12,2) DEFAULT NULL,
+  `interim_price` decimal(12,2) DEFAULT NULL,
+  `remaining_amount` decimal(12,2) DEFAULT NULL,
+  `payment_months` int(11) DEFAULT NULL,
+  `payment_start_month` tinyint(4) DEFAULT NULL,
+  `payment_start_year` year(4) DEFAULT NULL,
+  `last_payment_due_date` varchar(50) DEFAULT NULL,
+  `interest_type` enum('simple','compound') DEFAULT NULL,
+  `pre_interest` decimal(5,2) DEFAULT NULL,
+  `late_interest` decimal(5,2) DEFAULT NULL,
+  `pre_interest_amount` decimal(12,2) DEFAULT NULL,
+  `late_interest_amount` decimal(12,2) DEFAULT NULL,
+  `allot_day` tinyint(4) DEFAULT NULL,
+  `allot_month` tinyint(4) DEFAULT NULL,
+  `allot_year` year(4) DEFAULT NULL,
+  `lottery_details` varchar(255) DEFAULT NULL,
+  `colony_name` varchar(255) DEFAULT NULL,
+  `plot_number` varchar(100) DEFAULT NULL,
+  `area_sqft` decimal(10,2) DEFAULT NULL,
+  `mohalla` varchar(150) DEFAULT NULL,
+  `post_office` varchar(150) DEFAULT NULL,
+  `city` varchar(150) DEFAULT NULL,
+  `police_station` varchar(150) DEFAULT NULL,
+  `state` int(11) DEFAULT NULL,
+  `district` int(11) DEFAULT NULL,
+  `north_boundary` varchar(100) DEFAULT NULL,
+  `south_boundary` varchar(100) DEFAULT NULL,
+  `east_boundary` varchar(100) DEFAULT NULL,
+  `west_boundary` varchar(100) DEFAULT NULL,
+  `ew_north` varchar(100) DEFAULT NULL,
+  `ew_south` varchar(100) DEFAULT NULL,
+  `ns_east` varchar(100) DEFAULT NULL,
+  `ns_west` varchar(100) DEFAULT NULL,
+  `specified_days` varchar(50) DEFAULT NULL,
+  `last_day` tinyint(4) DEFAULT NULL,
+  `last_month` tinyint(4) DEFAULT NULL,
+  `last_year` year(4) DEFAULT NULL,
+  `created_ip` varchar(45) DEFAULT NULL,
+  `updated_ip` varchar(45) DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `updated_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottee_property_fin_details`
+--
+
+INSERT INTO `allottee_property_fin_details` (`id`, `allottee_id`, `tentative_price`, `amount_words`, `maav_day`, `maav_month`, `maav_year`, `high_income_percent`, `low_income_percent`, `deposited_amount`, `legal_fee`, `legal_document_fee`, `total_payment`, `interim_price`, `remaining_amount`, `payment_months`, `payment_start_month`, `payment_start_year`, `last_payment_due_date`, `interest_type`, `pre_interest`, `late_interest`, `pre_interest_amount`, `late_interest_amount`, `allot_day`, `allot_month`, `allot_year`, `lottery_details`, `colony_name`, `plot_number`, `area_sqft`, `mohalla`, `post_office`, `city`, `police_station`, `state`, `district`, `north_boundary`, `south_boundary`, `east_boundary`, `west_boundary`, `ew_north`, `ew_south`, `ns_east`, `ns_west`, `specified_days`, `last_day`, `last_month`, `last_year`, `created_ip`, `updated_ip`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+(1, 3, 2088000.00, 'Twenty Lakh Eighty Eight Thousand Only', 4, 5, '2011', 25.00, NULL, 522000.00, 3000.00, 200.00, 519200.00, 2088000.00, 1566000.00, 60, 2, '2015', 'January 2020', 'compound', 13.50, 2.50, 36034.00, 38083.00, 21, 8, '2013', 'Indian Loatery', 'Sarle Colony', 'PLT-546464', 1200.00, 'Sarle', 'Sarle Post office', 'Sarle', 'Kikudih Police Station', 15, 265, '30', '40', '60', '40', '60', '60', '70', '40', '75 days', 15, 11, '2012', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 05:13:34', '2026-03-09 11:22:17');
 
 -- --------------------------------------------------------
 
@@ -237,6 +520,7 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('captcha_07eb5699d0182ab751db2e9578f6f549', 'a:5:{i:0;s:1:\"h\";i:1;s:1:\"8\";i:2;s:1:\"w\";i:3;s:1:\"n\";i:4;s:1:\"c\";}', 1772098076),
 ('captcha_0da9e66f8f545cfd72eb6d13f95c29bc', 'a:5:{i:0;s:1:\"n\";i:1;s:1:\"o\";i:2;s:1:\"6\";i:3;s:1:\"h\";i:4;s:1:\"d\";}', 1771647562),
 ('captcha_26c1b3b9f5705a13278f45790037c5c0', 'a:6:{i:0;s:1:\"s\";i:1;s:1:\"v\";i:2;s:1:\"4\";i:3;s:1:\"m\";i:4;s:1:\"7\";i:5;s:1:\"v\";}', 1771648076),
 ('captcha_31c743274faea0d5dbc14e0ea86552aa', 'a:5:{i:0;s:1:\"2\";i:1;s:1:\"h\";i:2;s:1:\"c\";i:3;s:1:\"x\";i:4;s:1:\"q\";}', 1771648177),
@@ -252,6 +536,7 @@ INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('captcha_5db6bfd0c63a87cdc994cd6bc8a8a103', 'a:5:{i:0;s:1:\"7\";i:1;s:1:\"r\";i:2;s:1:\"8\";i:3;s:1:\"z\";i:4;s:1:\"m\";}', 1771648168),
 ('captcha_5ea9ed93135461ed24fb27b0177b7304', 'a:5:{i:0;s:1:\"p\";i:1;s:1:\"y\";i:2;s:1:\"t\";i:3;s:1:\"n\";i:4;s:1:\"f\";}', 1771648427),
 ('captcha_63fd02b2891fe39993e8a3f80f16487b', 'a:5:{i:0;s:1:\"w\";i:1;s:1:\"8\";i:2;s:1:\"w\";i:3;s:1:\"e\";i:4;s:1:\"w\";}', 1771571077),
+('captcha_66c9021f6a2ae235e8396305535f857b', 'a:5:{i:0;s:1:\"5\";i:1;s:1:\"s\";i:2;s:1:\"t\";i:3;s:1:\"b\";i:4;s:1:\"i\";}', 1771917449),
 ('captcha_6f685cc5146095fe87d7d269164b115c', 'a:5:{i:0;s:1:\"e\";i:1;s:1:\"b\";i:2;s:1:\"e\";i:3;s:1:\"j\";i:4;s:1:\"z\";}', 1771648425),
 ('captcha_75e004c08aa6ef06f0a32dbc20d46196', 'a:5:{i:0;s:1:\"m\";i:1;s:1:\"4\";i:2;s:1:\"y\";i:3;s:1:\"r\";i:4;s:1:\"r\";}', 1771578153),
 ('captcha_7834933589aed19a8c9a167bf6cb4f48', 'a:5:{i:0;s:1:\"8\";i:1;s:1:\"g\";i:2;s:1:\"o\";i:3;s:1:\"o\";i:4;s:1:\"l\";}', 1771648187),
@@ -265,10 +550,14 @@ INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('captcha_c143fef5dce66e2b50232ee0e0beb14f', 'a:5:{i:0;s:1:\"7\";i:1;s:1:\"q\";i:2;s:1:\"c\";i:3;s:1:\"d\";i:4;s:1:\"l\";}', 1771648199),
 ('captcha_cb0f8a44a5105b3ceeb826fc9f2d1f3a', 'a:6:{i:0;s:1:\"4\";i:1;s:1:\"d\";i:2;s:1:\"m\";i:3;s:1:\"4\";i:4;s:1:\"x\";i:5;s:1:\"s\";}', 1771647875),
 ('captcha_cb746b8aac9b55df7c71361d5ece9559', 'a:6:{i:0;s:1:\"5\";i:1;s:1:\"4\";i:2;s:1:\"y\";i:3;s:1:\"4\";i:4;s:1:\"p\";i:5;s:1:\"6\";}', 1771647990),
+('captcha_cc917c1f03b1e9c4c5379a92fb88f6c8', 'a:5:{i:0;s:1:\"2\";i:1;s:1:\"f\";i:2;s:1:\"o\";i:3;s:1:\"0\";i:4;s:1:\"n\";}', 1771907819),
 ('captcha_d2f037f31bd75095506234c4493a5c87', 'a:6:{i:0;s:1:\"m\";i:1;s:1:\"r\";i:2;s:1:\"b\";i:3;s:1:\"d\";i:4;s:1:\"m\";i:5;s:1:\"h\";}', 1771648111),
 ('captcha_dc09a3162147595f7fb9f76180d2c78f', 'a:5:{i:0;s:1:\"q\";i:1;s:1:\"n\";i:2;s:1:\"a\";i:3;s:1:\"o\";i:4;s:1:\"1\";}', 1771648188),
+('captcha_de2ec868cb5f1a3d2c929449ffd543f0', 'a:5:{i:0;s:1:\"h\";i:1;s:1:\"p\";i:2;s:1:\"y\";i:3;s:1:\"w\";i:4;s:1:\"k\";}', 1772777821),
 ('captcha_e8f0b5a4cc560152c975e4bb00ebaa8d', 'a:5:{i:0;s:1:\"m\";i:1;s:1:\"b\";i:2;s:1:\"y\";i:3;s:1:\"x\";i:4;s:1:\"j\";}', 1771648201),
-('captcha_f898eb87164d0d99b62216c00321c320', 'a:5:{i:0;s:1:\"1\";i:1;s:1:\"c\";i:2;s:1:\"f\";i:3;s:1:\"h\";i:4;s:1:\"j\";}', 1771648175);
+('captcha_f47dd315d9ef1894c42fd4c27fa51eb2', 'a:5:{i:0;s:1:\"t\";i:1;s:1:\"x\";i:2;s:1:\"z\";i:3;s:1:\"i\";i:4;s:1:\"3\";}', 1772781046),
+('captcha_f898eb87164d0d99b62216c00321c320', 'a:5:{i:0;s:1:\"1\";i:1;s:1:\"c\";i:2;s:1:\"f\";i:3;s:1:\"h\";i:4;s:1:\"j\";}', 1771648175),
+('captcha_f9fb98840e90451088ab2a5c78f35668', 'a:5:{i:0;s:1:\"5\";i:1;s:1:\"v\";i:2;s:1:\"6\";i:3;s:1:\"v\";i:4;s:1:\"g\";}', 1772165478);
 
 -- --------------------------------------------------------
 
@@ -303,12 +592,815 @@ CREATE TABLE `courses` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `districts`
+--
+
+CREATE TABLE `districts` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `state_id` int(10) UNSIGNED NOT NULL,
+  `name_en` varchar(150) NOT NULL,
+  `name_hi` varchar(150) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `districts`
+--
+
+INSERT INTO `districts` (`id`, `state_id`, `name_en`, `name_hi`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Nicobar', 'निकोबार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(2, 1, 'North and Middle Andaman', 'उत्तर और मध्य अंडमान', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(3, 1, 'South Andaman', 'दक्षिण अंडमान', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(4, 2, 'Alluri Sitharama Raju', 'अल्लूरी सीताराम राजू', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(5, 2, 'Anakapalli', 'अनकापल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(6, 2, 'Anantapur', 'अनंतपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(7, 2, 'Annamayya', 'अन्नमय्या', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(8, 2, 'Bapatla', 'बपटला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(9, 2, 'Chittoor', 'चित्तूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(10, 2, 'Dr. B.R. Ambedkar Konaseema', 'डॉ. बी.आर. अंबेडकर कोनसीमा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(11, 2, 'East Godavari', 'पूर्व गोदावरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(12, 2, 'Eluru', 'एलुरु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(13, 2, 'Guntur', 'गुंटूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(14, 2, 'Kakinada', 'काकिनाडा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(15, 2, 'Krishna', 'कृष्णा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(16, 2, 'Kurnool', 'कुरनूल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(17, 2, 'Nandyal', 'नंद्याल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(18, 2, 'NTR', 'एन.टी.आर.', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(19, 2, 'Palnadu', 'पालनाडु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(20, 2, 'Parvathipuram Manyam', 'पार्वतीपुरम मन्यम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(21, 2, 'Prakasam', 'प्रकाशम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(22, 2, 'Sri Sathya Sai', 'श्री सत्य साई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(23, 2, 'Sri Balaji', 'श्री बालाजी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(24, 2, 'Srikakulam', 'श्रीकाकुलम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(25, 2, 'Tirupati', 'तिरुपति', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(26, 2, 'Visakhapatnam', 'विशाखापत्तनम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(27, 2, 'Vizianagaram', 'विजयनगरम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(28, 2, 'West Godavari', 'पश्चिम गोदावरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(29, 2, 'YSR Kadapa', 'वाई.एस.आर. कडप्पा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(30, 3, 'Anjaw', 'अंजाव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(31, 3, 'Changlang', 'चांगलांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(32, 3, 'Dibang Valley', 'दिबांग घाटी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(33, 3, 'East Kameng', 'पूर्वी कामेंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(34, 3, 'East Siang', 'पूर्वी सियांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(35, 3, 'Kamle', 'कामले', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(36, 3, 'Kra Daadi', 'क्रा दादी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(37, 3, 'Kurung Kumey', 'कुरुंग कुमेय', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(38, 3, 'Lepa Rada', 'लेपा राडा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(39, 3, 'Lohit', 'लोहित', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(40, 3, 'Longding', 'लॉन्गदिंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(41, 3, 'Lower Dibang Valley', 'निचली दिबांग घाटी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(42, 3, 'Lower Subansiri', 'निचली सुबनसिरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(43, 3, 'Namsai', 'नामसाई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(44, 3, 'Pakke Kessang', 'पक्के केस्सांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(45, 3, 'Papum Pare', 'पापुम पारे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(46, 3, 'Shi Yomi', 'शी योमी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(47, 3, 'Siang', 'सियांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(48, 3, 'Tawang', 'तवांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(49, 3, 'Tirap', 'तिराप', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(50, 3, 'Upper Siang', 'ऊपरी सियांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(51, 3, 'Upper Subansiri', 'ऊपरी सुबनसिरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(52, 3, 'West Kameng', 'पश्चिमी कामेंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(53, 3, 'West Siang', 'पश्चिमी सियांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(54, 4, 'Baksa', 'बक्सा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(55, 4, 'Barpeta', 'बारपेटा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(56, 4, 'Biswanath', 'बिश्वनाथ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(57, 4, 'Bongaigaon', 'बोंगईगांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(58, 4, 'Cachar', 'कछार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(59, 4, 'Charaideo', 'चराईदेव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(60, 4, 'Chirang', 'चिरांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(61, 4, 'Darrang', 'दरांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(62, 4, 'Dhemaji', 'धेमाजी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(63, 4, 'Dhubri', 'धुबरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(64, 4, 'Dibrugarh', 'डिब्रूगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(65, 4, 'Dima Hasao', 'दिमा हसाओ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(66, 4, 'Goalpara', 'गोआलपारा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(67, 4, 'Golaghat', 'गोलाघाट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(68, 4, 'Hailakandi', 'हैलाकांडी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(69, 4, 'Hojai', 'होजाई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(70, 4, 'Jorhat', 'जोरहाट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(71, 4, 'Kamrup', 'कामरूप', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(72, 4, 'Kamrup Metropolitan', 'कामरूप महानगरीय', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(73, 4, 'Karbi Anglong', 'कार्बी आंगलोंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(74, 4, 'Karimganj', 'करीमगंज', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(75, 4, 'Kokrajhar', 'कोकराझार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(76, 4, 'Lakhimpur', 'लखीमपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(77, 4, 'Majuli', 'माजुली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(78, 4, 'Morigaon', 'मोरिगांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(79, 4, 'Nagaon', 'नगांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(80, 4, 'Nalbari', 'नलबाड़ी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(81, 4, 'Sivasagar', 'शिवसागर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(82, 4, 'Sonitpur', 'सोनितपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(83, 4, 'South Salmara Mankachar', 'दक्षिण सलमारा मानकचार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(84, 4, 'Tinsukia', 'तिनसुकिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(85, 4, 'Udalguri', 'उदालगुड़ी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(86, 4, 'West Karbi Anglong', 'पश्चिम कार्बी आंगलोंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(87, 5, 'Araria', 'अररिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(88, 5, 'Arwal', 'अरवल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(89, 5, 'Aurangabad', 'औरंगाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(90, 5, 'Banka', 'बांका', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(91, 5, 'Begusarai', 'बेगूसराय', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(92, 5, 'Bhagalpur', 'भागलपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(93, 5, 'Bhojpur', 'भोजपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(94, 5, 'Buxar', 'बक्सर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(95, 5, 'Darbhanga', 'दरभंगा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(96, 5, 'East Champaran', 'पूर्वी चंपारण', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(97, 5, 'Gaya', 'गया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(98, 5, 'Gopalganj', 'गोपालगंज', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(99, 5, 'Jamui', 'जमुई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(100, 5, 'Jehanabad', 'जहानाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(101, 5, 'Kaimur', 'कैमूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(102, 5, 'Katihar', 'कटिहार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(103, 5, 'Khagaria', 'खगड़िया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(104, 5, 'Kishanganj', 'किशनगंज', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(105, 5, 'Lakhisarai', 'लखीसराय', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(106, 5, 'Madhepura', 'मधेपुरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(107, 5, 'Madhubani', 'मधुबनी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(108, 5, 'Munger', 'मुंगेर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(109, 5, 'Muzaffarpur', 'मुजफ्फरपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(110, 5, 'Nalanda', 'नालंदा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(111, 5, 'Nawada', 'नवादा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(112, 5, 'Patna', 'पटना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(113, 5, 'Purnia', 'पूर्णिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(114, 5, 'Rohtas', 'रोहतास', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(115, 5, 'Saharsa', 'सहरसा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(116, 5, 'Samastipur', 'समस्तीपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(117, 5, 'Saran', 'सारण', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(118, 5, 'Sheikhpura', 'शेखपुरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(119, 5, 'Sheohar', 'शिवहर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(120, 5, 'Sitamarhi', 'सीतामढ़ी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(121, 5, 'Siwan', 'सिवान', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(122, 5, 'Supaul', 'सुपौल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(123, 5, 'Vaishali', 'वैशाली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(124, 5, 'West Champaran', 'पश्चिमी चंपारण', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(125, 6, 'Chandigarh', 'चंडीगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(126, 7, 'Balod', 'बालोद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(127, 7, 'Baloda Bazar', 'बलौदा बाजार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(128, 7, 'Balrampur', 'बलरामपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(129, 7, 'Bastar', 'बस्तर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(130, 7, 'Bemetara', 'बेमेतरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(131, 7, 'Bijapur', 'बीजापुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(132, 7, 'Bilaspur', 'बिलासपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(133, 7, 'Dantewada', 'दंतेवाड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(134, 7, 'Dhamtari', 'धमतरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(135, 7, 'Durg', 'दुर्ग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(136, 7, 'Gariaband', 'गरियाबंद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(137, 7, 'Gaurela-Pendra-Marwahi', 'गौरेला-पेंड्रा-मारवाही', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(138, 7, 'Janjgir-Champa', 'जांजगीर-चांपा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(139, 7, 'Jashpur', 'जशपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(140, 7, 'Kabirdham', 'कबीरधाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(141, 7, 'Kanker', 'कांकेर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(142, 7, 'Khairagarh-Chhuikhadan-Gandai', 'खैरागढ़-छुईखदान-गंडई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(143, 7, 'Kondagaon', 'कोंडागांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(144, 7, 'Korba', 'कोरबा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(145, 7, 'Korea', 'कोरिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(146, 7, 'Mahasamund', 'महासमुंद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(147, 7, 'Manendragarh-Chirmiri-Bharatpur', 'मनेन्द्रगढ़-चिरमिरी-भारतपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(148, 7, 'Mohla-Manpur-Ambagarh', 'मोहला-मानपुर-अंबागढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(149, 7, 'Mungeli', 'मुंगेली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(150, 7, 'Narayanpur', 'नारायणपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(151, 7, 'Raigarh', 'रायगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(152, 7, 'Raipur', 'रायपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(153, 7, 'Rajnandgaon', 'राजनांदगांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(154, 7, 'Sakti', 'सकती', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(155, 7, 'Sarangarh-Bilaigarh', 'सारंगढ़-बिलाईगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(156, 7, 'Sukma', 'सुकमा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(157, 7, 'Surajpur', 'सूरजपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(158, 7, 'Surguja', 'सurguja', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(159, 8, 'Dadra and Nagar Haveli', 'दादरा और नगर हवेली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(160, 8, 'Daman', 'दमन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(161, 8, 'Diu', 'दीव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(162, 9, 'Central Delhi', 'मध्य दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(163, 9, 'East Delhi', 'पूर्वी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(164, 9, 'New Delhi', 'नई दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(165, 9, 'North Delhi', 'उत्तरी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(166, 9, 'North East Delhi', 'उत्तर-पूर्वी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(167, 9, 'North West Delhi', 'उत्तर-पश्चिमी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(168, 9, 'Shahdara', 'शाहदरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(169, 9, 'South Delhi', 'दक्षिण दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(170, 9, 'South East Delhi', 'दक्षिण-पूर्वी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(171, 9, 'South West Delhi', 'दक्षिण-पश्चिमी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(172, 9, 'West Delhi', 'पश्चिमी दिल्ली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(173, 10, 'North Goa', 'उत्तर गोवा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(174, 10, 'South Goa', 'दक्षिण गोवा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(175, 11, 'Ahmedabad', 'अहमदाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(176, 11, 'Amreli', 'अमरेली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(177, 11, 'Anand', 'आनंद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(178, 11, 'Aravalli', 'अरावली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(179, 11, 'Banaskantha', 'बनासकांठा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(180, 11, 'Bharuch', 'भरूच', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(181, 11, 'Bhavnagar', 'भावनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(182, 11, 'Botad', 'बोटाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(183, 11, 'Chhota Udaipur', 'छोटा उदयपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(184, 11, 'Dahod', 'दाहोद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(185, 11, 'Dang', 'डांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(186, 11, 'Devbhoomi Dwarka', 'देवभूमि द्वारका', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(187, 11, 'Gandhinagar', 'गांधीनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(188, 11, 'Gir Somnath', 'गिर सोमनाथ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(189, 11, 'Jamnagar', 'जामनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(190, 11, 'Junagadh', 'जूनागढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(191, 11, 'Kheda', 'खेड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(192, 11, 'Kutch', 'कच्छ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(193, 11, 'Mahisagar', 'माहीसागर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(194, 11, 'Mehsana', 'मेहसाणा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(195, 11, 'Morbi', 'मोरबी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(196, 11, 'Narmada', 'नर्मदा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(197, 11, 'Navsari', 'नवसारी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(198, 11, 'Panchmahal', 'पंचमहाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(199, 11, 'Patan', 'पाटण', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(200, 11, 'Porbandar', 'पोरबंदर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(201, 11, 'Rajkot', 'राजकोट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(202, 11, 'Sabarkantha', 'साबरकांठा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(203, 11, 'Surat', 'सूरत', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(204, 11, 'Surendranagar', 'सुरेंद्रनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(205, 11, 'Tapi', 'तापी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(206, 11, 'Vadodara', 'वडोदरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(207, 11, 'Valsad', 'वलसाड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(208, 12, 'Ambala', 'अंबाला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(209, 12, 'Bhiwani', 'भिवानी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(210, 12, 'Charkhi Dadri', 'चरखी दादरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(211, 12, 'Faridabad', 'फरीदाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(212, 12, 'Fatehabad', 'फतेहाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(213, 12, 'Gurugram', 'गुरुग्राम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(214, 12, 'Hisar', 'हिसार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(215, 12, 'Jhajjar', 'झज्जर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(216, 12, 'Jind', 'जींद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(217, 12, 'Kaithal', 'कैथल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(218, 12, 'Karnal', 'करनाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(219, 12, 'Kurukshetra', 'कुरुक्षेत्र', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(220, 12, 'Mahendragarh', 'महेंद्रगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(221, 12, 'Nuh', 'नूंह', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(222, 12, 'Palwal', 'पलवल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(223, 12, 'Panchkula', 'पंचकूला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(224, 12, 'Panipat', 'पानीपत', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(225, 12, 'Rewari', 'रेवाड़ी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(226, 12, 'Rohtak', 'रोहतक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(227, 12, 'Sirsa', 'सिरसा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(228, 12, 'Sonipat', 'सोनीपत', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(229, 12, 'Yamunanagar', 'यमुनानगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(230, 13, 'Bilaspur', 'बिलासपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(231, 13, 'Chamba', 'चंबा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(232, 13, 'Hamirpur', 'हमीरपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(233, 13, 'Kangra', 'कांगड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(234, 13, 'Kinnaur', 'किन्नौर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(235, 13, 'Kullu', 'कुल्लू', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(236, 13, 'Lahaul and Spiti', 'लाहौल और स्पीति', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(237, 13, 'Mandi', 'मंडी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(238, 13, 'Shimla', 'शिमला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(239, 13, 'Sirmaur', 'सिरमौर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(240, 13, 'Solan', 'सोलन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(241, 13, 'Una', 'ऊना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(242, 14, 'Anantnag', 'अनंतनाग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(243, 14, 'Bandipora', 'बांदीपोरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(244, 14, 'Baramulla', 'बारामूला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(245, 14, 'Budgam', 'बडगाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(246, 14, 'Doda', 'डोडा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(247, 14, 'Ganderbal', 'गांदरबल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(248, 14, 'Jammu', 'जम्मू', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(249, 14, 'Kathua', 'कठुआ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(250, 14, 'Kishtwar', 'किश्तवाड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(251, 14, 'Kulgam', 'कुलगाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(252, 14, 'Kupwara', 'कुपवाड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(253, 14, 'Poonch', 'पुंछ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(254, 14, 'Pulwama', 'पुलवामा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(255, 14, 'Rajouri', 'राजौरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(256, 14, 'Ramban', 'रामबन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(257, 14, 'Reasi', 'रियासी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(258, 14, 'Samba', 'सांबा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(259, 14, 'Shopian', 'शोपियां', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(260, 14, 'Srinagar', 'श्रीनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(261, 14, 'Udhampur', 'उधमपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(262, 15, 'Bokaro', 'बोकारो', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(263, 15, 'Chatra', 'चतरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(264, 15, 'Deoghar', 'देवघर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(265, 15, 'Dhanbad', 'धनबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(266, 15, 'Dumka', 'दुमका', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(267, 15, 'East Singhbhum', 'पूर्वी सिंहभूम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(268, 15, 'Garhwa', 'गढ़वा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(269, 15, 'Giridih', 'गिरिडीह', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(270, 15, 'Godda', 'गोड्डा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(271, 15, 'Gumla', 'गुमला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(272, 15, 'Hazaribagh', 'हजारीबाग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(273, 15, 'Jamtara', 'जामताड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(274, 15, 'Khunti', 'खूंटी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(275, 15, 'Koderma', 'कोडरमा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(276, 15, 'Latehar', 'लातेहार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(277, 15, 'Lohardaga', 'लोहरदगा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(278, 15, 'Pakur', 'पाकुड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(279, 15, 'Palamu', 'पलामू', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(280, 15, 'Ramgarh', 'रामगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(281, 15, 'Ranchi', 'रांची', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(282, 15, 'Sahibganj', 'साहिबगंज', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(283, 15, 'Seraikela Kharsawan', 'सरायकेला खरसावां', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(284, 15, 'Simdega', 'सिमडेगा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(285, 15, 'West Singhbhum', 'पश्चिमी सिंहभूम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(286, 16, 'Bagalkot', 'बागलकोट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(287, 16, 'Ballari', 'बल्लारी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(288, 16, 'Belagavi', 'बेलगावी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(289, 16, 'Bengaluru Rural', 'बेंगलुरु ग्रामीण', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(290, 16, 'Bengaluru Urban', 'बेंगलुरु शहरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(291, 16, 'Bidar', 'बीदर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(292, 16, 'Chamarajanagar', 'चामराजनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(293, 16, 'Chikkaballapur', 'चikkaballapur', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(294, 16, 'Chikkamagaluru', 'चिक्कमगलुरु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(295, 16, 'Chitradurga', 'चित्रदुर्ग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(296, 16, 'Dakshina Kannada', 'दक्षिण कन्नड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(297, 16, 'Davanagere', 'दावणगेरे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(298, 16, 'Dharwad', 'धारवाड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(299, 16, 'Gadag', 'गदग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(300, 16, 'Hassan', 'हासन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(301, 16, 'Haveri', 'हावेरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(302, 16, 'Kalaburagi', 'कलबुरगी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(303, 16, 'Kodagu', 'कोडगु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(304, 16, 'Kolar', 'कोलार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(305, 16, 'Koppal', 'कोप्पल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(306, 16, 'Mandya', 'मंड्या', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(307, 16, 'Mysuru', 'मैसूरु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(308, 16, 'Raichur', 'रायचूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(309, 16, 'Ramanagara', 'रामनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(310, 16, 'Shivamogga', 'शिवमोग्गा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(311, 16, 'Tumakuru', 'तुमकुरु', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(312, 16, 'Udupi', 'उडुपी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(313, 16, 'Uttara Kannada', 'उत्तर कन्नड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(314, 16, 'Vijayanagara', 'विजयनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(315, 16, 'Vijayapura', 'विजयपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(316, 16, 'Yadgir', 'यादगीर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(317, 17, 'Alappuzha', 'अलप्पुझा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(318, 17, 'Ernakulam', 'एर्नाकुलम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(319, 17, 'Idukki', 'इडुक्की', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(320, 17, 'Kannur', 'कन्नूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(321, 17, 'Kasaragod', 'कासरगोड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(322, 17, 'Kollam', 'कोल्लम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(323, 17, 'Kottayam', 'कोट्टायम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(324, 17, 'Kozhikode', 'कोझिकोड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(325, 17, 'Malappuram', 'मलप्पुरम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(326, 17, 'Palakkad', 'पालक्काड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(327, 17, 'Pathanamthitta', 'पठानमथिट्टा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(328, 17, 'Thiruvananthapuram', 'तिरुवनंतपुरम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(329, 17, 'Thrissur', 'त्रिशूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(330, 17, 'Wayanad', 'वायनाड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(331, 18, 'Kargil', 'कारगिल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(332, 18, 'Leh', 'लेह', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(333, 19, 'Lakshadweep', 'लक्षद्वीप', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(334, 20, 'Agar Malwa', 'अगर मालवा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(335, 20, 'Alirajpur', 'अलीराजपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(336, 20, 'Anuppur', 'अनूपपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(337, 20, 'Ashoknagar', 'अशोकनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(338, 20, 'Balaghat', 'बालाघाट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(339, 20, 'Barwani', 'बरवानी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(340, 20, 'Betul', 'बैतूल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(341, 20, 'Bhind', 'भिंड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(342, 20, 'Bhopal', 'भोपाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(343, 20, 'Burhanpur', 'बुरहानपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(344, 20, 'Chhatarpur', 'छतरपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(345, 20, 'Chhindwara', 'छिंदवाड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(346, 20, 'Damoh', 'दमोह', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(347, 20, 'Datia', 'दतिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(348, 20, 'Dewas', 'देवास', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(349, 20, 'Dhar', 'धार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(350, 20, 'Dindori', 'डिंडोरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(351, 20, 'Guna', 'गुना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(352, 20, 'Gwalior', 'ग्वालियर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(353, 20, 'Harda', 'हारदा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(354, 20, 'Hoshangabad', 'होशंगाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(355, 20, 'Indore', 'इंदौर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(356, 20, 'Jabalpur', 'जबलपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(357, 20, 'Jhabua', 'झाबुआ', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(358, 20, 'Katni', 'कटनी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(359, 20, 'Khandwa', 'खंडवा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(360, 20, 'Khargone', 'खरगोन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(361, 20, 'Maihar', 'मैहर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(362, 20, 'Mandla', 'मंडला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(363, 20, 'Mandsaur', 'मंदसौर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(364, 20, 'Morena', 'मुरैना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(365, 20, 'Narmadapuram', 'नर्मदापुरम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(366, 20, 'Narsinghpur', 'नरसिंहपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(367, 20, 'Neemuch', 'नीमच', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(368, 20, 'Niwari', 'निवाड़ी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(369, 20, 'Panna', 'पन्ना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(370, 20, 'Raisen', 'रायसेन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(371, 20, 'Rajgarh', 'राजगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(372, 20, 'Ratlam', 'रतलाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(373, 20, 'Rewa', 'रीवा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(374, 20, 'Sagar', 'सागर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(375, 20, 'Satna', 'सतना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(376, 20, 'Sehore', 'सीहोर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(377, 20, 'Seoni', 'सिवनी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(378, 20, 'Shahdol', 'शहडोल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(379, 20, 'Shajapur', 'शाजापुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(380, 20, 'Sheopur', 'श्योपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(381, 20, 'Shivpuri', 'शिवपुरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(382, 20, 'Sidhi', 'सीधी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(383, 20, 'Singrauli', 'सिंगरौली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(384, 20, 'Tikamgarh', 'टीकमगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(385, 20, 'Ujjain', 'उज्जैन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(386, 20, 'Umaria', 'उमरिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(387, 20, 'Vidisha', 'विदिशा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(388, 21, 'Ahmednagar', 'अहमदनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(389, 21, 'Akola', 'अकोला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(390, 21, 'Amravati', 'अमरावती', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(391, 21, 'Aurangabad', 'औरंगाबाद', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(392, 21, 'Beed', 'बीड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(393, 21, 'Bhandara', 'भंडारा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(394, 21, 'Buldhana', 'बुलढाणा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(395, 21, 'Chandrapur', 'चंद्रपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(396, 21, 'Dhule', 'धुले', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(397, 21, 'Gadchiroli', 'गढ़चिरौली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(398, 21, 'Gondia', 'गोंदिया', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(399, 21, 'Hingoli', 'हिंगोली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(400, 21, 'Jalgaon', 'जलगांव', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(401, 21, 'Jalna', 'जालना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(402, 21, 'Kolhapur', 'कोल्हापुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(403, 21, 'Latur', 'लातूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(404, 21, 'Mumbai City', 'मुंबई शहर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(405, 21, 'Mumbai Suburban', 'मुंबई उपनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(406, 21, 'Nagpur', 'नागपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(407, 21, 'Nanded', 'नांदेड़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(408, 21, 'Nandurbar', 'नंदुरबार', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(409, 21, 'Nashik', 'नासिक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(410, 21, 'Osmanabad', ' Osmanabad', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(411, 21, 'Palghar', 'पालघर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(412, 21, 'Parbhani', 'परभणी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(413, 21, 'Pune', 'पुणे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(414, 21, 'Raigad', 'रायगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(415, 21, 'Ratnagiri', 'रत्नागिरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(416, 21, 'Sangli', 'सांगली', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(417, 21, 'Satara', 'सातारा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(418, 21, 'Sindhudurg', 'सिंधुदुर्ग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(419, 21, 'Solapur', 'सोलापुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(420, 21, 'Thane', 'ठाणे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(421, 21, 'Wardha', 'वर्धा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(422, 21, 'Washim', 'वाशिम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(423, 21, 'Yavatmal', 'यवतमाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(424, 22, 'Bishnupur', 'बिश्नुपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(425, 22, 'Chandel', 'चंदेल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(426, 22, 'Churachandpur', 'चुराचांदपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(427, 22, 'Imphal East', 'इंफाल पूर्वी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(428, 22, 'Imphal West', 'इंफाल पश्चिमी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(429, 22, 'Jiribam', 'जिरिबाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(430, 22, 'Kakching', 'काकचिंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(431, 22, 'Kamjong', 'कामजोंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(432, 22, 'Kangpokpi', 'कांगपोकपी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(433, 22, 'Noney', 'नोनी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(434, 22, 'Pherzawl', 'फेरजावल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(435, 22, 'Senapati', 'सेनापति', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(436, 22, 'Tamenglong', 'तामेंगलॉन्ग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(437, 22, 'Tengnoupal', 'तेंगनौपाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(438, 22, 'Thoubal', 'थौबाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(439, 22, 'Ukhrul', 'उखरुल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(440, 23, 'East Garo Hills', 'पूर्वी गारो हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(441, 23, 'East Jaintia Hills', 'पूर्वी जैंतिया हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(442, 23, 'East Khasi Hills', 'पूर्वी खासी हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(443, 23, 'Mawkyrwat', 'मावकिरवट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(444, 23, 'North Garo Hills', 'उत्तरी गारो हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(445, 23, 'Ri Bhoi', 'री भोई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(446, 23, 'South Garo Hills', 'दक्षिण गारो हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(447, 23, 'South West Garo Hills', 'दक्षिण पश्चिम गारो हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(448, 23, 'South West Khasi Hills', 'दक्षिण पश्चिम खासी हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(449, 23, 'West Garo Hills', 'पश्चिम गारो हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(450, 23, 'West Jaintia Hills', 'पश्चिम जैंतिया हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(451, 23, 'West Khasi Hills', 'पश्चिम खासी हिल्स', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(452, 24, 'Aizawl', 'आइजोल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(453, 24, 'Champhai', 'चम्फाई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(454, 24, 'Hnahthial', 'ह्नाथ्थियाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(455, 24, 'Khawzawl', 'खावजॉल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(456, 24, 'Kolasib', 'कोलासिब', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(457, 24, 'Lawngtlai', 'लॉन्गतलाई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(458, 24, 'Lunglei', 'लुंगलेई', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(459, 24, 'Mamit', 'मामित', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(460, 24, 'Saiha', 'सैहा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(461, 24, 'Saitual', 'सैतुअल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(462, 24, 'Serchhip', 'सेरछिप', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(463, 25, 'Chumukedima', 'चुमुकेदिमा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(464, 25, 'Dimapur', 'दीमापुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(465, 25, 'Kiphire', 'किफिरे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(466, 25, 'Kohima', 'कोहिमा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(467, 25, 'Longleng', 'लॉन्गलेंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(468, 25, 'Mokokchung', 'मोकोकचुंग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(469, 25, 'Mon', 'मोन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(470, 25, 'Niuland', 'न्यूलैंड', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(471, 25, 'Noklak', 'नोकलाक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(472, 25, 'Peren', 'पेरेन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(473, 25, 'Phek', 'फेक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(474, 25, 'Shamator', 'शामاتور', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(475, 25, 'Tseminyu', 'त्सेमिन्यू', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(476, 25, 'Tuensang', 'तुएंसांग', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(477, 25, 'Wokha', 'वोखा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(478, 25, 'Zunheboto', 'जुन्हेबोटो', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(479, 26, 'Angul', 'अंगुल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(480, 26, 'Balangir', 'बलांगिर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(481, 26, 'Balasore', 'बालासोर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(482, 26, 'Bargarh', 'बरगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(483, 26, 'Bhadrak', 'भद्रक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(484, 26, 'Boudh', 'बौध', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(485, 26, 'Cuttack', 'कटक', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(486, 26, 'Deogarh', 'देवगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(487, 26, 'Dhenkanal', 'धेंकनाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(488, 26, 'Gajapati', 'गजपति', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(489, 26, 'Ganjam', 'गंजाम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(490, 26, 'Jagatsinghpur', 'जगतसिंहपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(491, 26, 'Jajpur', 'जाजपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(492, 26, 'Jharsuguda', 'झारसुगुड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(493, 26, 'Kalahandi', 'कलाहांडी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(494, 26, 'Kandhamal', 'कंधमाल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(495, 26, 'Kendrapara', 'केन्द्रपाड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(496, 26, 'Kendujhar', 'केन्द्रझर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(497, 26, 'Khordha', 'खोरधा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(498, 26, 'Koraput', 'कोरापुट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(499, 26, 'Malkangiri', 'मलकांगिरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(500, 26, 'Mayurbhanj', 'मयूरभंज', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(501, 26, 'Nabarangpur', 'नबरंगपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(502, 26, 'Nayagarh', 'नयागढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(503, 26, 'Nuapada', 'नुआपड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(504, 26, 'Puri', 'पुरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(505, 26, 'Rayagada', 'रायगड़ा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(506, 26, 'Sambalpur', 'संभलपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(507, 26, 'Subarnapur', 'सुबर्णपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(508, 26, 'Sundargarh', 'सुंदरगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(509, 27, 'Karaikal', 'कराईकल', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(510, 27, 'Mahe', 'माहे', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(511, 27, 'Puducherry', 'पुडुचेरी', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(512, 27, 'Yanam', 'यानम', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(513, 28, 'Amritsar', 'अमृतसर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(514, 28, 'Barnala', 'बरनाला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(515, 28, 'Bathinda', 'बठिंडा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(516, 28, 'Faridkot', 'फरीदकोट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(517, 28, 'Fatehgarh Sahib', 'फतेहगढ़ साहिब', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(518, 28, 'Fazilka', 'फजिल्का', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(519, 28, 'Ferozepur', 'फिरोजपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(520, 28, 'Gurdaspur', 'गुरदासपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(521, 28, 'Hoshiarpur', 'होशियारपुर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(522, 28, 'Jalandhar', 'जालंधर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(523, 28, 'Kapurthala', 'कपूरथला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(524, 28, 'Ludhiana', 'लुधियाना', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(525, 28, 'Malerkotla', 'मलेरकोटला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(526, 28, 'Mansa', 'मानसा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(527, 28, 'Moga', 'मोगा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(528, 28, 'Pathankot', 'पठानकोट', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(529, 28, 'Patiala', 'पटियाला', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(530, 28, 'Rupnagar', 'रूपनगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(531, 28, 'Sangrur', 'संगरूर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(532, 28, 'SAS Nagar', 'एस.ए.एस. नगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(533, 28, 'SBS Nagar', 'एस.बी.एस. नगर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(534, 28, 'Sri Muktsar Sahib', 'श्री मुक्तसर साहिब', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(535, 28, 'Tarn Taran', 'तरन तारन', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(536, 29, 'Ajmer', 'अजमेर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(537, 29, 'Alwar', 'अलवर', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(538, 29, 'Anupgarh', 'अनूपगढ़', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(539, 29, 'Balotra', 'बालोतरा', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(540, 29, 'Banswara', 'बांसवाड़ा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(541, 29, 'Baran', 'बारां', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(542, 29, 'Barmer', 'बाड़मेर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(543, 29, 'Beawar', 'ब्यावर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(544, 29, 'Bharatpur', 'भरतपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(545, 29, 'Bhilwara', 'भीलवाड़ा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(546, 29, 'Bikaner', 'बीकानेर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(547, 29, 'Bundi', 'बूंदी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(548, 29, 'Chittorgarh', 'चित्तौड़गढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(549, 29, 'Churu', 'चूरू', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(550, 29, 'Dausa', 'दौसा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(551, 29, 'Deeg', 'डीग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(552, 29, 'Dholpur', 'धौलपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(553, 29, 'Didwana-Kuchaman', 'दिदवाना-कुचामन', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(554, 29, 'Dudu', 'दूदू', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(555, 29, 'Dungarpur', 'डूंगरपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(556, 29, 'Ganganagar', 'गंगानगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(557, 29, 'Gangapur City', 'गंगापुर सिटी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(558, 29, 'Hanumangarh', 'हनुमानगढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(559, 29, 'Jaipur', 'जयपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(560, 29, 'Jaipur Rural', 'जयपुर ग्रामीण', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(561, 29, 'Jaisalmer', 'जैसलमेर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(562, 29, 'Jalore', 'जालोर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(563, 29, 'Jhalawar', 'झालावाड़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(564, 29, 'Jhunjhunu', 'झुंझुनू', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(565, 29, 'Jodhpur', 'जोधपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(566, 29, 'Jodhpur Rural', 'जोधपुर ग्रामीण', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(567, 29, 'Karauli', 'करौली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(568, 29, 'Kekri', 'केकड़ी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(569, 29, 'Khairthal-Tijara', 'खैरथल-तिजारा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(570, 29, 'Kotputli-Behror', 'कोटपूतली-बहरोड़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(571, 29, 'Nagaur', 'नागौर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(572, 29, 'Neem ka Thana', 'नीम का थाना', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(573, 29, 'Pali', 'पाली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(574, 29, 'Phalodi', 'फलोदी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(575, 29, 'Pratapgarh', 'प्रतापगढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(576, 29, 'Rajsamand', 'राजसमंद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(577, 29, 'Salumbar', 'सलुम्बर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(578, 29, 'Sanchore', 'सांचोर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(579, 29, 'Sawai Madhopur', 'सवाई माधोपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(580, 29, 'Shahpura', 'शाहपुरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(581, 29, 'Sikar', 'सीकर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(582, 29, 'Sirohi', 'सिरोही', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(583, 29, 'Tonk', 'टोंक', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(584, 29, 'Udaipur', 'उदयपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(585, 30, 'Gangtok', 'गंगटोक', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(586, 30, 'Gyalshing', 'ग्यालशिंग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(587, 30, 'Mangan', 'मंगन', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(588, 30, 'Namchi', 'नामची', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(589, 30, 'Pakyong', 'पाकयोंग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(590, 30, 'Soreng', 'सोरेंग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(591, 31, 'Ariyalur', 'अरियालुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(592, 31, 'Chengalpattu', 'चेंगलपट्टू', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(593, 31, 'Chennai', 'चेन्नई', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(594, 31, 'Coimbatore', 'कोयंबटूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(595, 31, 'Cuddalore', 'कडलूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(596, 31, 'Dharmapuri', 'धर्मपुरी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(597, 31, 'Dindigul', 'दिंडिगुल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(598, 31, 'Erode', 'ईरोड', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(599, 31, 'Kallakurichi', 'कल्लाकुरिची', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(600, 31, 'Kancheepuram', 'कांचीपुरम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(601, 31, 'Kanniyakumari', 'कन्याकुमारी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(602, 31, 'Karur', 'करूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(603, 31, 'Krishnagiri', 'कृष्णगिरि', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(604, 31, 'Madurai', 'मदुरै', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(605, 31, 'Mayiladuthurai', 'मयिलादुतुरै', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(606, 31, 'Nagapattinam', 'नागपट्टिनम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(607, 31, 'Namakkal', 'नामक्कल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(608, 31, 'Nilgiris', 'नीलगिरि', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(609, 31, 'Perambalur', 'पेरंबलूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(610, 31, 'Pudukkottai', 'पुदुक्कोट्टै', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(611, 31, 'Ramanathapuram', 'रामनाथपुरम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(612, 31, 'Ranipet', 'रणिपेट', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(613, 31, 'Salem', 'सेलम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(614, 31, 'Sivaganga', 'शिवगंगा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(615, 31, 'Tenkasi', 'तेनकासी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(616, 31, 'Thanjavur', 'तंजावुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(617, 31, 'Theni', 'थेनी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(618, 31, 'Thoothukudi', 'तूथुकुडी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(619, 31, 'Tiruchirappalli', 'तिरुचिरापल्ली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(620, 31, 'Tirunelveli', 'तिरुनेलवेली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(621, 31, 'Tirupathur', 'तिरुपत्तूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(622, 31, 'Tiruppur', 'तिरुप्पूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(623, 31, 'Tiruvallur', 'तिरुवल्लूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(624, 31, 'Tiruvannamalai', 'तिरुवन्नामलै', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(625, 31, 'Tiruvarur', 'तिरुवारूर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(626, 31, 'Vellore', 'वेल्लोर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(627, 31, 'Viluppuram', 'विलुप्पुरम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(628, 31, 'Virudhunagar', 'विरुद्धुनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(629, 32, 'Adilabad', 'आदिलाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(630, 32, 'Bhadradri Kothagudem', 'भद्राद्री कोठागुडेम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(631, 32, 'Hyderabad', 'हैदराबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(632, 32, 'Jagtial', 'जगतियाल', '2026-02-28 11:03:31', '2026-02-28 11:03:31');
+INSERT INTO `districts` (`id`, `state_id`, `name_en`, `name_hi`, `created_at`, `updated_at`) VALUES
+(633, 32, 'Jangaon', 'जंगांव', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(634, 32, 'Jayashankar Bhupalpally', 'जयशंकर भूपालपल्ली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(635, 32, 'Jogulamba Gadwal', 'जोगुलंबा गडवाल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(636, 32, 'Kamareddy', 'कामारेड्डी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(637, 32, 'Karimnagar', 'करीमनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(638, 32, 'Khammam', 'खम्मम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(639, 32, 'Komaram Bheem Asifabad', 'कोमारम भीम असिफाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(640, 32, 'Mahabubabad', 'महबूबाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(641, 32, 'Mahbubnagar', 'महबूबनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(642, 32, 'Mancherial', 'मंचेरियाल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(643, 32, 'Medak', 'मेदक', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(644, 32, 'Medchal Malkajgiri', 'मेडचल मलकजगिरी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(645, 32, 'Mulugu', 'मुलुगु', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(646, 32, 'Nagarkurnool', 'नागरकुरनूल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(647, 32, 'Nalgonda', 'नलगोंडा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(648, 32, 'Narayanpet', 'नारायणपेट', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(649, 32, 'Nirmal', 'निर्मल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(650, 32, 'Nizamabad', 'निजामाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(651, 32, 'Peddapalli', 'पेद्दापल्ली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(652, 32, 'Rajanna Sircilla', 'राजन्ना सिरसिल्ला', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(653, 32, 'Ranga Reddy', 'रंगा रेड्डी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(654, 32, 'Sangareddy', 'संगारेड्डी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(655, 32, 'Siddipet', 'सिद्दीपेट', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(656, 32, 'Suryapet', 'सूर्यापेट', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(657, 32, 'Vikarabad', 'विकाराबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(658, 32, 'Wanaparthy', 'वानापर्ती', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(659, 32, 'Warangal', 'वारंगल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(660, 32, 'Warangal Rural', 'वारंगल ग्रामीण', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(661, 32, 'Yadadri Bhuvanagiri', 'यादाद्री भुवनगिरि', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(662, 33, 'Dhalai', 'धलाई', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(663, 33, 'Gomati', 'गोमती', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(664, 33, 'Khowai', 'खोवाई', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(665, 33, 'North Tripura', 'उत्तर त्रिपुरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(666, 33, 'Sepahijala', 'सेपाहिजला', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(667, 33, 'South Tripura', 'दक्षिण त्रिपुरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(668, 33, 'Unakoti', 'उनाकोटी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(669, 33, 'West Tripura', 'पश्चिम त्रिपुरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(670, 34, 'Agra', 'आगरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(671, 34, 'Aligarh', 'अलीगढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(672, 34, 'Ambedkar Nagar', 'अंबेडकर नगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(673, 34, 'Amethi', 'अमेठी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(674, 34, 'Amroha', 'अमरोहा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(675, 34, 'Auraiya', 'औरैया', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(676, 34, 'Ayodhya', 'अयोध्या', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(677, 34, 'Azamgarh', 'आजमगढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(678, 34, 'Baghpat', 'बागपत', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(679, 34, 'Bahraich', 'बहराइच', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(680, 34, 'Ballia', 'बलिया', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(681, 34, 'Balrampur', 'बलरामपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(682, 34, 'Banda', 'बांदा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(683, 34, 'Barabanki', 'बाराबंकी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(684, 34, 'Bareilly', 'बरेली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(685, 34, 'Basti', 'बस्ती', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(686, 34, 'Bhadohi', 'भदोही', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(687, 34, 'Bijnor', 'बिजनौर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(688, 34, 'Budaun', 'बदायूं', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(689, 34, 'Bulandshahr', 'बुलंदशहर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(690, 34, 'Chandauli', 'चंदौली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(691, 34, 'Chitrakoot', 'चित्रकूट', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(692, 34, 'Deoria', 'देवरिया', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(693, 34, 'Etah', 'एटा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(694, 34, 'Etawah', 'इटावा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(695, 34, 'Farrukhabad', 'फर्रुखाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(696, 34, 'Fatehpur', 'फतेहपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(697, 34, 'Firozabad', 'फिरोजाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(698, 34, 'Gautam Buddha Nagar', 'गौतम बुद्ध नगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(699, 34, 'Ghaziabad', 'गाजियाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(700, 34, 'Ghazipur', 'गाजीपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(701, 34, 'Gonda', 'गोंडा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(702, 34, 'Gorakhpur', 'गोरखपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(703, 34, 'Hamirpur', 'हमीरपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(704, 34, 'Hapur', 'हापुड़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(705, 34, 'Hardoi', 'हरदोई', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(706, 34, 'Hathras', 'हाथरस', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(707, 34, 'Jalaun', 'जालौन', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(708, 34, 'Jaunpur', 'जौनपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(709, 34, 'Jhansi', 'झांसी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(710, 34, 'Kannauj', 'कन्नौज', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(711, 34, 'Kanpur Dehat', 'कानपुर देहात', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(712, 34, 'Kanpur Nagar', 'कानपुर नगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(713, 34, 'Kasganj', 'कासगंज', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(714, 34, 'Kaushambi', 'कौशांबी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(715, 34, 'Kheri', 'खीरी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(716, 34, 'Kushinagar', 'कुशीनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(717, 34, 'Lalitpur', 'ललितपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(718, 34, 'Lucknow', 'लखनऊ', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(719, 34, 'Maharajganj', 'महाराजगंज', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(720, 34, 'Mahoba', 'महोबा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(721, 34, 'Mainpuri', 'मैनपुरी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(722, 34, 'Mathura', 'मथुरा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(723, 34, 'Mau', 'मऊ', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(724, 34, 'Meerut', 'मेरठ', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(725, 34, 'Mirzapur', 'मिर्ज़ापुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(726, 34, 'Moradabad', 'मुरादाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(727, 34, 'Muzaffarnagar', 'मुजफ्फरनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(728, 34, 'Pilibhit', 'पीलीभीत', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(729, 34, 'Pratapgarh', 'प्रतापगढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(730, 34, 'Prayagraj', 'प्रयागराज', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(731, 34, 'Raebareli', 'रायबरेली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(732, 34, 'Rampur', 'रामपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(733, 34, 'Saharanpur', 'सहारनपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(734, 34, 'Sambhal', 'संभल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(735, 34, 'Sant Kabir Nagar', 'संत कबीर नगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(736, 34, 'Shahjahanpur', 'शाहजहांपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(737, 34, 'Shamli', 'शामली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(738, 34, 'Shravasti', 'श्रावस्ती', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(739, 34, 'Siddharthnagar', 'सिद्धार्थनगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(740, 34, 'Sitapur', 'सीतापुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(741, 34, 'Sonbhadra', 'सोनभद्र', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(742, 34, 'Sultanpur', 'सुल्तानपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(743, 34, 'Unnao', 'उन्नाव', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(744, 34, 'Varanasi', 'वाराणसी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(745, 35, 'Almora', 'अल्मोड़ा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(746, 35, 'Bageshwar', 'बागेश्वर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(747, 35, 'Chamoli', 'चमोली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(748, 35, 'Champawat', 'चंपावत', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(749, 35, 'Dehradun', 'देहरादून', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(750, 35, 'Haridwar', 'हरिद्वार', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(751, 35, 'Nainital', 'नैनीताल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(752, 35, 'Pauri Garhwal', 'पौड़ी गढ़वाल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(753, 35, 'Pithoragarh', 'पिथौरागढ़', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(754, 35, 'Rudraprayag', 'रुद्रप्रयाग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(755, 35, 'Tehri Garhwal', 'टिहरी गढ़वाल', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(756, 35, 'Udham Singh Nagar', 'उधम सिंह नगर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(757, 35, 'Uttarkashi', 'उत्तरकाशी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(758, 36, 'Alipurduar', 'अलीपुरद्वार', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(759, 36, 'Bankura', 'बांकुड़ा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(760, 36, 'Birbhum', 'बी रभूम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(761, 36, 'Cooch Behar', 'कूच बिहार', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(762, 36, 'Dakshin Dinajpur', 'दक्षिण दिनाजपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(763, 36, 'Darjeeling', 'दार्जिलिंग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(764, 36, 'Hooghly', 'हुगली', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(765, 36, 'Howrah', 'हावड़ा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(766, 36, 'Jalpaiguri', 'जलपाईगुड़ी', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(767, 36, 'Jhargram', 'झाड़ग्राम', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(768, 36, 'Kalimpong', 'कालिम्पोंग', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(769, 36, 'Kolkata', 'कोलकाता', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(770, 36, 'Malda', 'मालदा', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(771, 36, 'Murshidabad', 'मुर्शिदाबाद', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(772, 36, 'Nadia', 'नादिया', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(773, 36, 'North 24 Parganas', 'उत्तर 24 परगना', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(774, 36, 'Paschim Bardhaman', 'पश्चिम बर्धमान', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(775, 36, 'Paschim Medinipur', 'पश्चिम मेदिनीपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(776, 36, 'Purba Bardhaman', 'पूर्व बर्धमान', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(777, 36, 'Purba Medinipur', 'पूर्व मेदिनीपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(778, 36, 'Purulia', 'पुरुलिया', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(779, 36, 'South 24 Parganas', 'दक्षिण 24 परगना', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(780, 36, 'Uttar Dinajpur', 'उत्तर दिनाजपुर', '2026-02-28 11:03:31', '2026-02-28 11:03:31');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `divisions`
 --
 
 CREATE TABLE `divisions` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `division_code` varchar(50) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp()
@@ -318,12 +1410,52 @@ CREATE TABLE `divisions` (
 -- Dumping data for table `divisions`
 --
 
-INSERT INTO `divisions` (`id`, `name`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Ranchi Division', 1, '2026-02-05 17:09:52', '2026-02-06 12:54:53'),
-(2, 'Jamshedpur Division', 1, '2026-02-05 17:14:35', NULL),
-(3, 'Dumka Division', 1, '2026-02-05 17:15:43', NULL),
-(4, 'Dhanbad Division', 1, '2026-02-05 17:15:43', '2026-02-06 12:54:51'),
-(5, 'Hazaribagh Division', 1, '2026-02-05 17:15:43', NULL);
+INSERT INTO `divisions` (`id`, `name`, `division_code`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Ranchi Division', 'RNC', 1, '2026-02-05 17:09:52', '2026-02-24 13:12:41'),
+(2, 'Jamshedpur Division', 'JSR', 1, '2026-02-05 17:14:35', '2026-02-24 13:12:47'),
+(3, 'Dumka Division', 'DUM', 1, '2026-02-05 17:15:43', '2026-02-24 13:12:54'),
+(4, 'Dhanbad Division', 'DHN', 1, '2026-02-05 17:15:43', '2026-02-24 13:13:03'),
+(5, 'Hazaribag Division', 'HZB', 1, '2026-02-05 17:15:43', '2026-02-24 13:13:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `document_master`
+--
+
+CREATE TABLE `document_master` (
+  `id` int(11) NOT NULL,
+  `document_name` varchar(255) NOT NULL,
+  `document_key` varchar(100) NOT NULL,
+  `document_category` varchar(50) NOT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  `status` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `document_master`
+--
+
+INSERT INTO `document_master` (`id`, `document_name`, `document_key`, `document_category`, `sort_order`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Application Letter', 'application_letter', 'basic', 1, 1, '2026-03-09 09:26:18', '2026-03-09 10:20:45'),
+(2, 'Allotment Letter', 'allotment_letter', 'basic', 2, 1, '2026-03-09 09:26:18', '2026-03-09 10:20:42'),
+(3, 'Agreement Copy', 'agreement_copy', 'basic', 3, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(4, 'Allotment Cancellation Letter', 'allotment_cancellation', 'basic', 4, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(5, 'Re-Allotment Letter', 'reallotment_letter', 'basic', 5, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(6, 'Final Calculation', 'final_calculation', 'basic', 6, 1, '2026-03-09 09:26:18', '2026-03-09 10:18:17'),
+(7, 'NOC before Registry', 'noc_before_registry', 'basic', 7, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(8, 'Registry Deed', 'registry_deed', 'basic', 8, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(9, 'Name Transfer Request Order', 'name_transfer_request', 'nameTransfer', 1, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(10, 'Name Transfer forwarding from JSHB', 'name_transfer_forwarding', 'nameTransfer', 2, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(11, 'Dividend Calculation Letter', 'dividend_calculation', 'nameTransfer', 3, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(12, 'Letter for Deed to New Allottee', 'deed_letter', 'nameTransfer', 4, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(13, 'Site Verification Document', 'site_verification', 'nameTransfer', 5, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(14, 'NOC Letter', 'noc_letter', 'nameTransfer', 6, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(15, 'Name Transfer Confirmation Order', 'name_transfer_confirmation', 'nameTransfer', 7, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(16, 'Ground Rent before Registry', 'ground_rent', 'nameTransfer', 8, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18'),
+(17, 'Registry Deed', 'name_transfer_registry_deed', 'nameTransfer', 9, 1, '2026-03-09 09:26:18', '2026-03-09 09:26:18');
 
 -- --------------------------------------------------------
 
@@ -396,7 +1528,8 @@ CREATE TABLE `file_registrations` (
 
 INSERT INTO `file_registrations` (`id`, `lot_no`, `register_no`, `total_files`, `allowed_files`, `remarks`, `status`, `scanned_by`, `created_by`, `created_at`, `updated_at`) VALUES
 (1, 'Lot-1', '2302266678', 2, '2', NULL, 'scanned', 1, 1, '2026-02-23 09:24:56', '2026-02-23 11:11:35'),
-(2, 'Lot-2', '2302269882', 3, '3', NULL, 'received', NULL, 2, '2026-02-23 09:29:51', '2026-02-23 09:29:51');
+(2, 'Lot-2', '2302269882', 3, '3', NULL, 'received', NULL, 2, '2026-02-23 09:29:51', '2026-02-23 09:29:51'),
+(3, 'Lot-3', '2702263190', 1, '10', NULL, 'received', NULL, 1, '2026-02-27 09:56:51', '2026-02-27 09:56:51');
 
 -- --------------------------------------------------------
 
@@ -753,7 +1886,10 @@ INSERT INTO `property_sub_type` (`id`, `name`, `ptype_id`, `status`, `created_at
 (1, '1 BHK', 1, 1, '2026-02-06 12:49:34', '2026-02-07 04:23:22'),
 (2, '2 BHK', 1, 1, '2026-02-06 12:50:54', '2026-02-06 12:50:54'),
 (3, '3 BHK', 1, 1, '2026-02-06 12:51:41', '2026-02-06 12:59:39'),
-(4, '2 Rooms', 5, 1, '2026-02-07 04:40:58', '2026-02-07 04:40:58');
+(4, '2 Rooms', 5, 1, '2026-02-07 04:40:58', '2026-02-07 04:40:58'),
+(5, 'H 1 BHK', 2, 1, '2026-02-24 05:00:26', '2026-02-24 05:00:26'),
+(6, 'H 2 BHK', 2, 1, '2026-02-24 05:00:43', '2026-02-24 05:00:43'),
+(7, 'H 3 BHK', 2, 1, '2026-02-24 05:00:55', '2026-02-24 05:00:55');
 
 -- --------------------------------------------------------
 
@@ -890,7 +2026,8 @@ INSERT INTO `register_allottees` (`id`, `register_id`, `confirm_received`, `conf
 (2, '2302266678', 'Yes', 'No', 5, 10, NULL, 1, 1, 'FLT-5897', '2', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'All Fresh Pages', 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'scanned', NULL, 1, 1, 1, 1, '2026-02-23 09:23:42', '2026-02-23 11:11:35', '127.0.0.1'),
 (3, '2302269882', 'No', 'No', 2, 5, NULL, 1, 3, 'Plt-344', '2', 'Shri', 'Aditya', NULL, 'Kumar', 'All Fresh Pages', 1, 2, NULL, NULL, 'received', NULL, 1, NULL, 2, NULL, '2026-02-23 09:27:29', '2026-02-23 09:27:29', '127.0.0.1'),
 (4, '2302269882', 'No', 'No', 1, 1, NULL, 1, 2, 'H-EWS-233', '5', 'Shri', 'Kiran', 'Kumar', 'Dev', 'All Fresh Pages', 1, 0, NULL, NULL, 'received', NULL, 1, NULL, 2, NULL, '2026-02-23 09:28:51', '2026-02-23 09:28:51', '127.0.0.1'),
-(5, '2302269882', 'Yes', 'Yes', 4, 7, NULL, 1, 2, 'C-234', '2', 'Shri', 'Krishna', 'Dev', 'Murthy', 'All Old Pages', 3, 2, NULL, NULL, 'received', 1, 1, NULL, 2, NULL, '2026-02-23 09:29:45', '2026-02-23 09:29:45', '127.0.0.1');
+(5, '2302269882', 'Yes', 'Yes', 4, 7, NULL, 1, 2, 'C-234', '2', 'Shri', 'Krishna', 'Dev', 'Murthy', 'All Old Pages', 3, 2, NULL, NULL, 'received', 1, 1, NULL, 2, NULL, '2026-02-23 09:29:45', '2026-02-23 09:29:45', '127.0.0.1'),
+(6, '2702263190', 'Yes', 'No', 4, 9, NULL, 2, 4, 'PLT-34234', '2', 'Shri', 'Shiva', 'Shakti', 'Kumar', 'All Old Pages', 1, 0, NULL, NULL, 'received', NULL, 1, NULL, 1, 1, '2026-02-27 09:56:51', '2026-02-27 10:04:20', '127.0.0.1');
 
 -- --------------------------------------------------------
 
@@ -927,8 +2064,12 @@ CREATE TABLE `schemes` (
 --
 
 INSERT INTO `schemes` (`id`, `division_id`, `sub_division_id`, `pcategory_id`, `p_type_id`, `p_sub_type_id`, `quarter_type_id`, `scheme_name`, `scheme_name_hindi`, `scheme_code`, `total_units`, `lease_period`, `initiation_year`, `scheme_start_date`, `scheme_end_date`, `status`, `is_active`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
-(4, 2, 5, 1, 1, 1, 2, '44 HIG -dityapur Dindli Basti , Seraikela-kharsawan', '44 एचआईजी-दित्यपुर दिंदली बस्ती, सरायकेला-खरसावां', 'SCH-44-DINDLI-ADTP', 44, 90, '1962', '1962-12-12', NULL, 'active', 1, 3, NULL, '2026-02-18 07:24:13', '2026-02-18 07:24:13'),
-(5, 1, 1, 1, 1, 1, 3, '67 - RNC HI FLAT HARMU, RANCHI', '67 - आरएनसी हाई फ्लैट हारमू, रांची', 'SCH-67-RNC-HRMU', 67, 90, '1990', '1990-12-02', NULL, 'active', 1, 3, NULL, '2026-02-18 07:54:39', '2026-02-18 07:54:39');
+(4, 2, 5, 1, 1, 1, 2, '44 HIG -adityapur Dindli Basti , Seraikela-kharsawan', '44 एचआईजी-दित्यपुर दिंदली बस्ती, सरायकेला-खरसावां', 'SCH-44-DINDLI-ADTP', 44, 90, '1962', '1962-12-12', NULL, 'active', 1, 3, NULL, '2026-02-18 07:24:13', '2026-02-24 04:56:43'),
+(5, 1, 1, 1, 1, 1, 3, '67 - RNC HI FLAT HARMU, RANCHI', '67 - आरएनसी हाई फ्लैट हारमू, रांची', 'SCH-67-RNC-HRMU', 67, 90, '1990', '1990-12-02', NULL, 'active', 1, 3, NULL, '2026-02-18 07:54:39', '2026-02-18 07:54:39'),
+(6, 4, 8, 1, 1, 1, 2, '55 HIG FLAT DHANBAD BOKARO', NULL, 'SCHEME-DND-42398', 55, 90, '1995', '2026-02-25', NULL, 'active', 1, 3, NULL, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(7, 3, 6, 1, 2, 6, 3, '33 LIG-DUM-SHG Lower Income Group Jharkhand State', NULL, 'SCH-33-DUM-SHG', 33, 90, '2006', '2026-02-17', NULL, 'active', 1, 3, NULL, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(8, 5, 10, 1, 1, 2, 2, '44 HIG -HZB-SARLE-JHARKHAND HOUSING SCHEME', NULL, 'SCH-44-HZB-SLE', 44, 99, '1998', '2026-02-19', NULL, 'active', 1, 3, NULL, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(9, 4, 7, 1, 2, 6, 2, '110-HIG-DNB-2026-JHSB', NULL, 'SCH-110-DNB-DNBK', 110, 90, '2017', '2026-02-26', NULL, 'active', 1, 3, NULL, '2026-02-24 05:08:54', '2026-02-24 05:08:54');
 
 -- --------------------------------------------------------
 
@@ -1021,7 +2162,11 @@ CREATE TABLE `scheme_financials` (
 
 INSERT INTO `scheme_financials` (`id`, `scheme_id`, `property_total_cost`, `down_payment_percentage`, `down_payment_amount`, `balance_amount`, `emi_count`, `normal_interest_rate`, `emi_without_penalty`, `penalty_interest_rate`, `emi_with_penalty`, `admin_charges`, `created_at`, `updated_at`) VALUES
 (2, 4, 2088000.00, 25.00, 522000.00, 1566000.00, 60, 13.50, 36034.00, 2.50, 38083.00, 5.00, '2026-02-18 07:24:13', '2026-02-18 07:24:13'),
-(3, 5, 522000.00, 39.00, 200000.00, 322000.00, 50, 13.50, 8456.00, 2.50, 8865.00, 10.00, '2026-02-18 07:54:39', '2026-02-18 10:03:46');
+(3, 5, 522000.00, 39.00, 200000.00, 322000.00, 50, 13.50, 8456.00, 2.50, 8865.00, 10.00, '2026-02-18 07:54:39', '2026-02-18 10:03:46'),
+(4, 6, 60000.00, 20.00, 12000.00, 48000.00, 45, 13.50, 1366.00, 2.50, 1426.00, 5.00, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(5, 7, 800000.00, 20.00, 160000.00, 640000.00, 80, 13.50, 12175.00, 2.50, 13060.00, 5.00, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(6, 8, 250000.00, 15.00, 37500.00, 212500.00, 60, 13.50, 4890.00, 2.50, 5168.00, 5.00, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(7, 9, 1200000.00, 21.00, 252000.00, 948000.00, 40, 13.50, 29562.00, 2.50, 30734.00, 5.00, '2026-02-24 05:08:54', '2026-02-24 05:08:54');
 
 -- --------------------------------------------------------
 
@@ -1103,7 +2248,23 @@ INSERT INTO `scheme_quarter_fees` (`id`, `scheme_id`, `quarter_type_id`, `applic
 (5, 5, 2, 2500.00, 8000.00, '2026-02-18 07:54:39', '2026-02-18 07:54:39'),
 (6, 5, 3, 1500.00, 4000.00, '2026-02-18 07:54:39', '2026-02-18 07:54:39'),
 (7, 5, 4, 500.00, 2000.00, '2026-02-18 07:54:39', '2026-02-18 07:54:39'),
-(8, 5, 5, 500.00, 2000.00, '2026-02-18 07:54:39', '2026-02-18 07:54:39');
+(8, 5, 5, 500.00, 2000.00, '2026-02-18 07:54:39', '2026-02-18 07:54:39'),
+(9, 6, 2, 200.00, 3000.00, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(10, 6, 3, 100.00, 2000.00, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(11, 6, 4, 50.00, 1500.00, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(12, 6, 5, 50.00, 1500.00, '2026-02-24 04:59:30', '2026-02-24 04:59:30'),
+(13, 7, 2, 1000.00, 6000.00, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(14, 7, 3, 700.00, 5000.00, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(15, 7, 4, 500.00, 3000.00, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(16, 7, 5, 500.00, 3000.00, '2026-02-24 05:04:18', '2026-02-24 05:04:18'),
+(17, 8, 2, 600.00, 2500.00, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(18, 8, 3, 400.00, 1000.00, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(19, 8, 4, 100.00, 700.00, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(20, 8, 5, 100.00, 700.00, '2026-02-24 05:06:28', '2026-02-24 05:06:28'),
+(21, 9, 2, 2600.00, 9000.00, '2026-02-24 05:08:54', '2026-02-24 05:08:54'),
+(22, 9, 3, 2000.00, 6000.00, '2026-02-24 05:08:54', '2026-02-24 05:08:54'),
+(23, 9, 4, 1000.00, 3000.00, '2026-02-24 05:08:54', '2026-02-24 05:08:54'),
+(24, 9, 5, 1000.00, 3000.00, '2026-02-24 05:08:54', '2026-02-24 05:08:54');
 
 -- --------------------------------------------------------
 
@@ -1141,6 +2302,85 @@ CREATE TABLE `sessions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `states`
+--
+
+CREATE TABLE `states` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name_en` varchar(150) NOT NULL,
+  `name_hi` varchar(150) NOT NULL,
+  `code` varchar(10) DEFAULT NULL,
+  `type` varchar(100) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `states`
+--
+
+INSERT INTO `states` (`id`, `name_en`, `name_hi`, `code`, `type`, `created_at`, `updated_at`) VALUES
+(1, 'Andaman and Nicobar Islands', 'अंडमान और निकोबार द्वीप समूह', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(2, 'Andhra Pradesh', 'आंध्र प्रदेश', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(3, 'Arunachal Pradesh', 'अरुणाचल प्रदेश', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(4, 'Assam', 'असम', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(5, 'Bihar', 'बिहार', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(6, 'Chandigarh', 'चंडीगढ़', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(7, 'Chhattisgarh', 'छत्तीसगढ़', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(8, 'Dadra and Nagar Haveli and Daman and Diu', 'दादरा और नगर हवेली और दमन और दीव', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(9, 'Delhi', 'दिल्ली', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(10, 'Goa', 'गोवा', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(11, 'Gujarat', 'गुजरात', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(12, 'Haryana', 'हरियाणा', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(13, 'Himachal Pradesh', 'हिमाचल प्रदेश', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(14, 'Jammu and Kashmir', 'जम्मू और कश्मीर', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(15, 'Jharkhand', 'झारखंड', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(16, 'Karnataka', 'कर्नाटक', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(17, 'Kerala', 'केरल', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(18, 'Ladakh', 'लद्दाख', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(19, 'Lakshadweep', 'लक्षद्वीप', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(20, 'Madhya Pradesh', 'मध्य प्रदेश', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(21, 'Maharashtra', 'महाराष्ट्र', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(22, 'Manipur', 'मणिपुर', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(23, 'Meghalaya', 'मेघालय', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(24, 'Mizoram', 'मिजोरम', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(25, 'Nagaland', 'नागालैंड', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(26, 'Odisha', 'ओडिशा', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(27, 'Puducherry', 'पुडुचेरी', NULL, 'Union Territory', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(28, 'Punjab', 'पंजाब', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(29, 'Rajasthan', 'राजस्थान', NULL, 'State', '2026-02-28 11:03:30', '2026-02-28 11:03:30'),
+(30, 'Sikkim', 'सिक्किम', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(31, 'Tamil Nadu', 'तमिलनाडु', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(32, 'Telangana', 'तेलंगाना', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(33, 'Tripura', 'त्रिपुरा', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(34, 'Uttar Pradesh', 'उत्तर प्रदेश', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(35, 'Uttarakhand', 'उत्तराखंड', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31'),
+(36, 'West Bengal', 'पश्चिम बंगाल', NULL, 'State', '2026-02-28 11:03:31', '2026-02-28 11:03:31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `step_skips`
+--
+
+CREATE TABLE `step_skips` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `applicant_id` bigint(20) UNSIGNED NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `step_name` varchar(100) DEFAULT NULL,
+  `remark` text NOT NULL,
+  `reason_category` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `skiped_by` int(11) DEFAULT NULL,
+  `skipped_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sub_divisions`
 --
 
@@ -1148,6 +2388,9 @@ CREATE TABLE `sub_divisions` (
   `id` int(11) NOT NULL,
   `division_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `subdivision_code` varchar(50) DEFAULT NULL,
+  `colony_name` varchar(255) DEFAULT NULL,
+  `locality_address` varchar(255) DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1156,19 +2399,24 @@ CREATE TABLE `sub_divisions` (
 -- Dumping data for table `sub_divisions`
 --
 
-INSERT INTO `sub_divisions` (`id`, `division_id`, `name`, `status`, `created_at`) VALUES
-(1, 1, 'Harmu Colony', 1, '2026-02-05 17:19:24'),
-(2, 1, 'Argora', 1, '2026-02-05 17:19:24'),
-(3, 1, 'Bariatu', 1, '2026-02-05 17:19:24'),
-(4, 1, 'Kadru', 1, '2026-02-05 17:19:24'),
-(5, 2, 'Adityapur', 1, '2026-02-05 17:23:25'),
-(6, 3, 'Sahibganj', 1, '2026-02-05 17:23:25'),
-(7, 4, 'Dhanbad', 1, '2026-02-05 17:23:25'),
-(8, 4, 'Bokaro', 1, '2026-02-05 17:23:25'),
-(9, 4, 'Gomia', 1, '2026-02-05 17:23:25'),
-(10, 5, 'Sarle', 1, '2026-02-05 17:23:25'),
-(11, 5, 'Hazaribagh', 1, '2026-02-05 17:23:25'),
-(12, 5, 'Daltanganj II', 0, '2026-02-06 14:27:48');
+INSERT INTO `sub_divisions` (`id`, `division_id`, `name`, `subdivision_code`, `colony_name`, `locality_address`, `status`, `created_at`) VALUES
+(1, 1, 'Harmu-Ranchi', 'HR', 'Harmu Housing Colony', 'Harmu', 1, '2026-02-05 17:19:24'),
+(2, 1, 'Argora-Ranchi', 'AR', 'Argora Colony', 'Argora', 1, '2026-02-05 17:19:24'),
+(3, 1, 'Bariatu-Ranchi', 'BR', 'Bariatu Colony', 'Bariatu', 1, '2026-02-05 17:19:24'),
+(4, 1, 'Kadru-Ranchi', 'KR', 'Kadru Colony', 'Kadru', 1, '2026-02-05 17:19:24'),
+(5, 2, 'Dindli-Adityapur', 'DA', 'Dindli Colony', 'Dindli', 1, '2026-02-05 17:23:25'),
+(6, 3, 'Sahibganj', 'SBG', 'Sahibganj Colony', 'Sahibganj', 1, '2026-02-05 17:23:25'),
+(7, 4, 'Kumardhubi-Dhanbad', 'KRD', 'Kumardhubi Colony', 'Kumardhubi', 1, '2026-02-05 17:23:25'),
+(8, 4, 'Balidih-Bokaro', 'BLH', 'Balidih Colony', 'Balidih', 1, '2026-02-05 17:23:25'),
+(9, 4, 'Gomia-Bokaro', 'GM', 'Gomia Colony', 'Gomia', 1, '2026-02-05 17:23:25'),
+(10, 5, 'Sarle-Hazaribag', 'SLE', 'Sarle Colony', 'Sarle', 1, '2026-02-05 17:23:25'),
+(11, 5, 'Hazaribagh', 'HZB', 'Hazaribag Colony', 'Hazaribag', 1, '2026-02-05 17:23:25'),
+(12, 5, 'Daltanganj', 'DTO', 'Daltanganj Colony', 'Daltanganj', 1, '2026-02-06 14:27:48'),
+(13, 4, 'Hirapur-Dhanbad', 'HRP', 'Hirapur Colony', 'Hirapur', 1, '2026-02-10 19:05:56'),
+(14, 2, 'Adityapur-Jamshedpur', 'ADP', 'Adityapur Colony', 'Adityapur', 1, '2026-02-10 19:12:21'),
+(15, 2, 'Bagbera-Jamshedpur', 'BGB', 'Bagbera Colony', 'Bagbera', 1, '2026-02-10 19:13:19'),
+(16, 2, 'Chhotagovindpur-Jamshedpur', 'CGP', 'Chhotagovindpur Colony', 'Chhota Govindpur', 1, '2026-02-10 19:13:53'),
+(17, 2, 'Adityapur-1', 'ADP1', NULL, NULL, 0, '2026-02-10 19:14:29');
 
 -- --------------------------------------------------------
 
@@ -1196,7 +2444,13 @@ INSERT INTO `temp_registers` (`id`, `register_no`, `total_files`, `allowed_files
 (2, '2302269882', 3, 3, NULL, 'draft', '2026-02-23 09:25:13', '2026-02-23 09:29:45'),
 (3, '2302267597', 0, 2, NULL, 'draft', '2026-02-23 09:41:09', '2026-02-23 09:41:14'),
 (4, '2302264424', 0, NULL, NULL, 'draft', '2026-02-23 11:25:39', '2026-02-23 11:25:39'),
-(5, '2302263032', 0, NULL, NULL, 'draft', '2026-02-23 11:25:51', '2026-02-23 11:25:51');
+(5, '2302263032', 0, NULL, NULL, 'draft', '2026-02-23 11:25:51', '2026-02-23 11:25:51'),
+(6, '2402264904', 0, 4, NULL, 'draft', '2026-02-24 09:06:38', '2026-02-24 09:06:42'),
+(7, '2502266046', 0, 3, NULL, 'draft', '2026-02-25 04:32:18', '2026-02-25 04:32:22'),
+(8, '2502267386', 0, NULL, NULL, 'draft', '2026-02-25 04:34:05', '2026-02-25 04:34:05'),
+(9, '2502264812', 0, 15, NULL, 'draft', '2026-02-25 04:35:19', '2026-02-25 04:35:27'),
+(10, '2502262656', 0, NULL, NULL, 'draft', '2026-02-25 04:35:32', '2026-02-25 04:35:32'),
+(11, '2702263190', 1, 10, NULL, 'draft', '2026-02-27 09:56:07', '2026-02-27 09:56:51');
 
 -- --------------------------------------------------------
 
@@ -1264,7 +2518,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `gender`, `category`, `aadhaar_no`, `date_of_birth`, `mobile_no`, `email_id`, `profile_pic`, `password`, `role`, `password_created_at`, `otp_verified_at`, `created_at`, `last_login`, `last_ip`, `updated_at`) VALUES
-(1, 'COMPUTER Ed.', 'Other', 'General', '012222222222', '1996-07-12', '7979040859', 'computered3896@gmail.com', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-02-23 06:12:59', '2025-11-24 17:22:13', '2026-02-23 06:12:59', '127.0.0.1', '2026-02-23 06:12:59'),
+(1, 'COMPUTER Ed.', 'Other', 'General', '012222222222', '1996-07-12', '7979040859', 'computered3896@gmail.com', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-03-09 04:27:32', '2025-11-24 17:22:13', '2026-03-09 04:27:32', '127.0.0.1', '2026-03-09 04:27:32'),
 (2, 'Namita Kumari', 'Other', 'General', '89734578954', '2000-07-12', '9873578345', 'namita.jshb@computered.co.in', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-02-23 09:20:46', '2026-02-23 17:22:13', '2026-02-23 09:20:46', '127.0.0.1', '2026-02-23 09:20:46');
 
 --
@@ -1293,10 +2547,45 @@ ALTER TABLE `admin_otp_logs`
   ADD PRIMARY KEY (`id`) USING BTREE;
 
 --
+-- Indexes for table `allottees`
+--
+ALTER TABLE `allottees`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
+-- Indexes for table `allottees_contact_details`
+--
+ALTER TABLE `allottees_contact_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `allottee_documents`
+--
+ALTER TABLE `allottee_documents`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `document_id` (`document_id`),
+  ADD KEY `allottee_id` (`allottee_id`);
+
+--
 -- Indexes for table `allottee_file_details`
 --
 ALTER TABLE `allottee_file_details`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `allottee_nominee_bank_details`
+--
+ALTER TABLE `allottee_nominee_bank_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_allottee_id` (`allottee_id`);
+
+--
+-- Indexes for table `allottee_property_fin_details`
+--
+ALTER TABLE `allottee_property_fin_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_allottee_id` (`allottee_id`);
 
 --
 -- Indexes for table `applicants`
@@ -1325,10 +2614,23 @@ ALTER TABLE `courses`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `districts`
+--
+ALTER TABLE `districts`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `divisions`
 --
 ALTER TABLE `divisions`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `document_master`
+--
+ALTER TABLE `document_master`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `document_key` (`document_key`);
 
 --
 -- Indexes for table `exported_files`
@@ -1498,6 +2800,18 @@ ALTER TABLE `sessions`
   ADD KEY `sessions_last_activity_index` (`last_activity`);
 
 --
+-- Indexes for table `states`
+--
+ALTER TABLE `states`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `step_skips`
+--
+ALTER TABLE `step_skips`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `sub_divisions`
 --
 ALTER TABLE `sub_divisions`
@@ -1546,10 +2860,40 @@ ALTER TABLE `admin_otp_logs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
+-- AUTO_INCREMENT for table `allottees`
+--
+ALTER TABLE `allottees`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `allottees_contact_details`
+--
+ALTER TABLE `allottees_contact_details`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `allottee_documents`
+--
+ALTER TABLE `allottee_documents`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `allottee_file_details`
 --
 ALTER TABLE `allottee_file_details`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `allottee_nominee_bank_details`
+--
+ALTER TABLE `allottee_nominee_bank_details`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `allottee_property_fin_details`
+--
+ALTER TABLE `allottee_property_fin_details`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `applicants`
@@ -1564,10 +2908,16 @@ ALTER TABLE `courses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `districts`
+--
+ALTER TABLE `districts`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=781;
+
+--
 -- AUTO_INCREMENT for table `divisions`
 --
 ALTER TABLE `divisions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `exported_files`
@@ -1585,7 +2935,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `file_registrations`
 --
 ALTER TABLE `file_registrations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `headquater`
@@ -1639,7 +2989,7 @@ ALTER TABLE `property_category`
 -- AUTO_INCREMENT for table `property_sub_type`
 --
 ALTER TABLE `property_sub_type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `property_type`
@@ -1663,13 +3013,13 @@ ALTER TABLE `quota_types`
 -- AUTO_INCREMENT for table `register_allottees`
 --
 ALTER TABLE `register_allottees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `schemes`
 --
 ALTER TABLE `schemes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `scheme_blocks`
@@ -1687,7 +3037,7 @@ ALTER TABLE `scheme_block_dimensions`
 -- AUTO_INCREMENT for table `scheme_financials`
 --
 ALTER TABLE `scheme_financials`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `scheme_master_old`
@@ -1699,7 +3049,7 @@ ALTER TABLE `scheme_master_old`
 -- AUTO_INCREMENT for table `scheme_quarter_fees`
 --
 ALTER TABLE `scheme_quarter_fees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `scheme_unit_quotas`
@@ -1708,16 +3058,28 @@ ALTER TABLE `scheme_unit_quotas`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `states`
+--
+ALTER TABLE `states`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
+-- AUTO_INCREMENT for table `step_skips`
+--
+ALTER TABLE `step_skips`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `sub_divisions`
 --
 ALTER TABLE `sub_divisions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `temp_registers`
 --
 ALTER TABLE `temp_registers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `uploaded_documents`
@@ -1734,6 +3096,18 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `allottee_documents`
+--
+ALTER TABLE `allottee_documents`
+  ADD CONSTRAINT `allottee_documents_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `document_master` (`id`);
+
+--
+-- Constraints for table `allottee_nominee_bank_details`
+--
+ALTER TABLE `allottee_nominee_bank_details`
+  ADD CONSTRAINT `fk_allottee_nominee` FOREIGN KEY (`allottee_id`) REFERENCES `allottees` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `payments`
