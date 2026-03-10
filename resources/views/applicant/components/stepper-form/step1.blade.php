@@ -123,7 +123,7 @@
                         <?php 
                             $selectedYear = $applicant->application_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1950; $y--): 
+                            for ($y = $currentYear; $y >= 1960; $y--): 
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -196,7 +196,7 @@
                         <?php 
                             $selectedYear = $applicant->allotment_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1970; $y--): 
+                            for ($y = $currentYear; $y >= 1960; $y--): 
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -345,8 +345,8 @@
                     PAN Card Number
                 </label>
                 <input type="text" id="pan_card_number" name="pan_card_number" placeholder="ABCDE1234F"
-                    class="custom-input pan-input" value="{{ $applicant->pan_card_number ?? '' }}"
-                    maxlength="10" style="text-transform:uppercase">
+                    class="custom-input pan-input" value="{{ $applicant->pan_card_number ?? '' }}" maxlength="10"
+                    style="text-transform:uppercase">
             </div>
 
             <div class="field" id="aadhar-field" style="display:none;">
@@ -439,7 +439,7 @@
 
             <div class="field">
                 <label class="field-label">
-                    Date of Birth (जन्म तिथि) <span class="req-star">*</span>
+                    Date of Birth (जन्म तिथि)
                 </label>
                 <div class="input-group date-group">
                     <!-- Day -->
@@ -495,6 +495,11 @@
             <?php
                 }
             ?>
+
+            <div class="field">
+                <label class="field-label">Remark (If Date of Birth Not Available)</label>
+                <input type="text" name="remarks_for_dob" value="{{ $applicant->remarks_for_dob ?? '' }}" class="custom-input">
+            </div>
         </div>
     </div>
 

@@ -189,13 +189,11 @@ const Step1Handler = {
 
         // Required fields validation
         const requiredFields = [
-            'application_no', 'application_day', 'application_month', 'application_year',
-            'allotment_no', 'year', 'allotment_day', 'allotment_month', 'allotment_year',
-            'allottee_name', 'allottee_name_hindi', 'allottee_surname_hindi',
-            'relation_name', 'marital_status', 'allottee_gender',
-            'allottee_category', 'allottee_religion',
-            'date_of_birth_day', 'date_of_birth_month', 'date_of_birth_year',
-            'age_number_of_birth_application', 'age_word_of_birth_application'
+            // 'application_no', 'application_day', 'application_month', 'application_year',
+            // 'allotment_no', 'year', 'allotment_day', 'allotment_month', 'allotment_year',
+            // 'allottee_name', 'allottee_name_hindi', 'allottee_surname_hindi',
+            // 'relation_name', 'marital_status', 'allottee_gender',
+            // 'allottee_category', 'allottee_religion',
         ];
 
         requiredFields.forEach(fieldName => {

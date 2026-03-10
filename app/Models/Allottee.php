@@ -55,6 +55,7 @@ class Allottee extends Model
         'date_of_birth_day',
         'date_of_birth_month',
         'date_of_birth_year',
+        'remarks_for_dob',
         'no_of_files',
         'no_of_supplement',
         'json_pages',
@@ -95,6 +96,31 @@ class Allottee extends Model
     public function quarterType()
     {
         return $this->belongsTo(QuarterType::class, 'quarter_id');
+    }
+
+    public function allotProFinDetail()
+    {
+        return $this->hasOne(AllotteePropertyFinDetail::class, 'allottee_id', 'id');
+    }
+
+    public function alloteeAdresses()
+    {
+        return $this->hasOne(AllotteesContactDetail::class, 'allottee_id', 'id');
+    }
+
+    public function nomineesBank() 
+    {
+        return $this->hasOne(AllotteeNomineeBankDetail::class, 'allottee_id', 'id');
+    }
+
+    public function accountLedger()
+    {
+        return $this->hasOne(AllotteeEmiLedger::class, 'allottee_id', 'id');
+    }
+
+    public function documentData()
+    {
+        return $this->hasOne(AllotteeDocument::class, 'allottee_id', 'id');
     }
 
     public function creator()

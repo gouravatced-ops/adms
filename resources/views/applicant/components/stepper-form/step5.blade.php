@@ -1,16 +1,25 @@
 {{-- Step 6: Document Upload Form --}}
 @php
-    #return getDebugIndex($completedDocuments);
+    #return getDebugIndex($applicant);
 @endphp
 <form id="step5Form" method="POST" enctype="multipart/form-data">
     @csrf
     <input type="hidden" name="allottee_id" id="applicant_id" value="{{ $applicant->id ?? '' }}">
-    <input type="hidden" name="nametransferValue" id="nametransferValue" value="no">
+    <input type="hidden" name="remaining_amount" id="remaining_amount" value="{{ $applicant->AllotProFinDetail->remaining_amount ?? '' }}">
+    <input type="hidden" name="emi_month_count" id="emi_month_count" value="{{ $applicant->AllotProFinDetail->payment_months ?? '' }}">
+    <input type="hidden" name="payment_start_month" id="payment_start_month" value="{{ $applicant->AllotProFinDetail->payment_start_month ?? '' }}">
+    <input type="hidden" name="payment_start_year" id="payment_start_year" value="{{ $applicant->AllotProFinDetail->payment_start_year ?? '' }}">
+    {{-- January 2020 --}}
+    <input type="hidden" name="last_payment_due_date" id="last_payment_due_date" value="{{ $applicant->AllotProFinDetail->last_payment_due_date ?? '' }}">
+    <input type="hidden" name="pre_interest_amount" id="pre_interest_amount" value="{{ $applicant->AllotProFinDetail->pre_interest_amount ?? '' }}">
+    <input type="hidden" name="late_interest_amount" id="late_interest_amount" value="{{ $applicant->AllotProFinDetail->late_interest_amount ?? '' }}">
+    <input type="hidden" name="nametransferValue" id="nametransferValue" value="{{ $applicant->name_transfer_status ?? '' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </form>
 
 
 {{-- Completed Documents Table --}}
+<?php if(count($completedDocuments) > 0 ) { ?>
 <div class="documents-section" style="margin-bottom:20px;">
 
     <h4 style="margin:0 0 10px;font-size:14px;color:#aa7700;border-bottom:1px solid #aa7700;padding-bottom:5px;">
@@ -27,7 +36,6 @@
                 <th style="padding:8px 5px;border:1px solid #ddd;width:15%;">Additional Info</th>
                 <th style="padding:8px 5px;border:1px solid #ddd;width:18%;">File</th>
                 <th style="padding:8px 5px;border:1px solid #ddd;width:25%;">Remarks</th>
-                <th style="padding:8px 5px;border:1px solid #ddd;width:10%;">Action</th>
             </tr>
         </thead>
 
@@ -78,14 +86,6 @@
                     <td style="padding:8px 5px;border:1px solid #ddd;">
                         {{ $doc->remarks ?? 'N/A' }}
                     </td>
-
-                    <td style="padding:8px 5px;border:1px solid #ddd;text-align:center;">
-                        <button type="button" class="btn-submit reupload-btn" data-doc-id="{{ $doc->document_id }}"
-                            style="background:#ffc107;color:#000;">
-                            Reupload
-                        </button>
-                    </td>
-
                 </tr>
 
             @empty
@@ -95,10 +95,10 @@
                     </td>
                 </tr>
             @endforelse
-
         </tbody>
     </table>
 </div>
+<?php } ?>
 
 {{-- Document Upload Section --}}
 <div class="form-section">

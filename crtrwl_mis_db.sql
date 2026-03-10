@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 09, 2026 at 02:05 PM
+-- Generation Time: Mar 10, 2026 at 01:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -185,13 +185,17 @@ CREATE TABLE `allottees` (
   `date_of_birth_day` tinyint(4) DEFAULT NULL,
   `date_of_birth_month` varchar(4) DEFAULT NULL,
   `date_of_birth_year` year(4) DEFAULT NULL,
+  `remarks_for_dob` varchar(255) DEFAULT NULL,
   `no_of_files` int(11) DEFAULT NULL,
   `no_of_supplement` int(11) DEFAULT NULL,
   `json_pages` longtext DEFAULT NULL,
   `total_pages` int(11) DEFAULT NULL,
   `name_transfer_status` varchar(50) NOT NULL DEFAULT 'no',
   `is_parents` int(11) NOT NULL DEFAULT 0,
+  `is_emi_active` enum('false','true') DEFAULT 'false',
   `current_step` int(11) DEFAULT 1,
+  `is_step_completed` int(11) NOT NULL DEFAULT 0,
+  `is_trans_entry_completed` int(11) NOT NULL DEFAULT 0,
   `allottee_create_date` date DEFAULT NULL,
   `create_ip_address` varchar(100) DEFAULT NULL,
   `update_ip_address` varchar(100) DEFAULT NULL,
@@ -205,9 +209,9 @@ CREATE TABLE `allottees` (
 -- Dumping data for table `allottees`
 --
 
-INSERT INTO `allottees` (`id`, `register_file_id`, `division_id`, `subdivision_id`, `pcategory_id`, `property_type_id`, `quarter_id`, `username`, `password`, `cedjshb`, `scheme_id`, `application_no`, `application_day`, `application_month`, `application_year`, `allotment_no`, `allotment_day`, `allotment_month`, `allotment_year`, `property_number`, `prefix`, `allottee_name`, `allottee_middle_name`, `allottee_surname`, `allottee_prefix_hindi`, `allottee_name_hindi`, `allottee_middle_hindi`, `allottee_surname_hindi`, `allottee_relation_type`, `relation_name`, `marital_status`, `allottee_gender`, `pan_card_number`, `aadhar_card_number`, `allottee_category`, `allottee_religion`, `allottee_nationality`, `age_number_of_birth_application`, `age_number_of_birth_application_hindi`, `age_word_of_birth_application`, `age_word_hindi_of_birth_application`, `date_of_birth_day`, `date_of_birth_month`, `date_of_birth_year`, `no_of_files`, `no_of_supplement`, `json_pages`, `total_pages`, `name_transfer_status`, `is_parents`, `current_step`, `allottee_create_date`, `create_ip_address`, `update_ip_address`, `updated_by`, `created_by`, `created_at`, `updated_at`) VALUES
-(3, 2, 5, 10, 1, 1, 2, 'HZB1970SLE987023', '$2y$12$f/FoPVJ0iOoIueD5U5TMvebFjhuR4Fg717kLX3CVXYITjsOLn0Vhm', 'eyJpdiI6InRYbUllY1VWL2ltWmUvVXZGMnhSUFE9PSIsInZhbHVlIjoiVHZ6VWovS1Z5ZXhIZ1VEZWVUbG1MM05scXFnOVdrVnBkdnIzc2paaVM1OD0iLCJtYWMiOiJkZTQ5MWVjNjJkMGI4N2I4OWRmZDU1ZGVmZmQ1YmYxZmExODkyNjI2OWZiZGI5N2I5NDcwOTFlMTQ3N2ZmNTI5IiwidGFnIjoiIn0=', 8, 'JSHBA-1748087931', 3, '07', '2003', '7845/2003', 9, '10', '2003', 'FLT-5897', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'श्री', 'रितिक', NULL, 'पांडे', 'Father', 'Shiv Kumar', 'Unmarried', 'Male', NULL, NULL, 'EWS', 'Hindu', 'Indian', '15', '15', 'Fifteen Years', 'पंद्रह साल', 30, '08', '1990', 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'no', 0, 5, '2026-03-09', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 04:54:01', '2026-03-09 11:56:52'),
-(4, 1, 4, 7, 1, 2, 2, 'DHN1970KRD375821', '$2y$12$Tq6f2nL4UPRlsfTzg8MP..PGiXuA/Db1mKyi.ZAcqAZ0dS7JVK.Eu', 'eyJpdiI6IndRc25RSWhQUlBPOWpGUVcvOXRUT0E9PSIsInZhbHVlIjoiT0VrKzJhRGZDSnhhWXpRQy96VmZZTFM3b2l2elR3RCszYllPRSsvaWtRND0iLCJtYWMiOiI4ZDc0OGQxOGM5ZDA0NTg3NmE4ODhiODI0MTNmNzRlZWZiZDVmMGM5ZThlZDg2MWVlM2Y4YjQ0Yzc5YTdlNjk3IiwidGFnIjoiIn0=', 9, 'JSHBA-174808854345', 11, '06', '1999', '89556/2000', 3, '03', '2000', 'C-234', 'Shri', 'Krishna', 'Dev', 'Murthy', 'श्री', 'कृष्ण', 'देव', 'पांडे', 'Father', 'Ganesh Dev Murthy', 'Married', 'Male', NULL, NULL, 'General', 'Hindu', 'Indian', '25', '25', 'Twenty Five Years', 'पच्चीस साल', 5, '5', '1971', 3, 2, '[{\"file_name\":\"File-1\",\"pages\":87},{\"file_name\":\"File-2\",\"pages\":59},{\"file_name\":\"File-3\",\"pages\":97},{\"file_name\":\"File-4\",\"pages\":61},{\"file_name\":\"File-5\",\"pages\":45}]', 349, 'no', 0, 2, '2026-03-09', '127.0.0.1', NULL, NULL, 1, '2026-03-09 07:29:31', '2026-03-09 11:26:07');
+INSERT INTO `allottees` (`id`, `register_file_id`, `division_id`, `subdivision_id`, `pcategory_id`, `property_type_id`, `quarter_id`, `username`, `password`, `cedjshb`, `scheme_id`, `application_no`, `application_day`, `application_month`, `application_year`, `allotment_no`, `allotment_day`, `allotment_month`, `allotment_year`, `property_number`, `prefix`, `allottee_name`, `allottee_middle_name`, `allottee_surname`, `allottee_prefix_hindi`, `allottee_name_hindi`, `allottee_middle_hindi`, `allottee_surname_hindi`, `allottee_relation_type`, `relation_name`, `marital_status`, `allottee_gender`, `pan_card_number`, `aadhar_card_number`, `allottee_category`, `allottee_religion`, `allottee_nationality`, `age_number_of_birth_application`, `age_number_of_birth_application_hindi`, `age_word_of_birth_application`, `age_word_hindi_of_birth_application`, `date_of_birth_day`, `date_of_birth_month`, `date_of_birth_year`, `remarks_for_dob`, `no_of_files`, `no_of_supplement`, `json_pages`, `total_pages`, `name_transfer_status`, `is_parents`, `is_emi_active`, `current_step`, `is_step_completed`, `is_trans_entry_completed`, `allottee_create_date`, `create_ip_address`, `update_ip_address`, `updated_by`, `created_by`, `created_at`, `updated_at`) VALUES
+(3, 2, 5, 10, 1, 1, 2, 'HZB1970SLE987023', '$2y$12$f/FoPVJ0iOoIueD5U5TMvebFjhuR4Fg717kLX3CVXYITjsOLn0Vhm', 'eyJpdiI6InRYbUllY1VWL2ltWmUvVXZGMnhSUFE9PSIsInZhbHVlIjoiVHZ6VWovS1Z5ZXhIZ1VEZWVUbG1MM05scXFnOVdrVnBkdnIzc2paaVM1OD0iLCJtYWMiOiJkZTQ5MWVjNjJkMGI4N2I4OWRmZDU1ZGVmZmQ1YmYxZmExODkyNjI2OWZiZGI5N2I5NDcwOTFlMTQ3N2ZmNTI5IiwidGFnIjoiIn0=', 8, 'JSHBA-1748087931', 3, '07', '2003', '7845/2003', 9, '10', '2003', 'FLT-5897', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'श्री', 'रितिक', NULL, 'पांडे', 'Father', 'Shiv Kumar', 'Unmarried', 'Male', NULL, NULL, 'EWS', 'Hindu', 'Indian', '15', '15', 'Fifteen Years', 'पंद्रह साल', 30, '08', '1990', NULL, 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'yes', 0, 'true', 6, 1, 0, '2026-03-09', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 04:54:01', '2026-03-10 12:43:35'),
+(5, 1, 4, 7, 1, 2, 2, 'DHN1970KRD234605', '$2y$12$LxySE8q/193eQVTTDRMQhuR6uB/Dcl5bPx9mQEHbesiQ.r1p8yl0e', 'eyJpdiI6Ik9jL054YzUrMU5UaXZjYVZMankyWWc9PSIsInZhbHVlIjoiWWNCd0ZXb2x6VWFDQllsblJNRjNXVHZyR0RheEEraUNJN2dzYTlSUDZnUT0iLCJtYWMiOiIwOGQ0Y2FmMmVjNGY0NjRmY2QxMjFiMTY4MzBjY2I1OGRmNzJjOWQ0MWEyNTc0ODAyZTRlNjU0Yzc5NTI0MmVjIiwidGFnIjoiIn0=', 9, 'JSHBA-1748064565', 14, '10', '2013', '7845/2014', 4, '05', '2014', 'C-234', 'Shri', 'Krishna', 'Dev', 'Murthy', 'श्री', 'कृष्ण', NULL, 'मूर्ति', 'Father', 'Ganesh Dev Murthy', 'Unmarried', 'Male', 'ABCDE1234Z', '534534534534', 'General', 'Hindu', 'Indian', '10', '10', 'Ten Years', 'दस साल', NULL, NULL, NULL, 'NO AVILABLE', 3, 2, '[{\"file_name\":\"File-1\",\"pages\":87},{\"file_name\":\"File-2\",\"pages\":59},{\"file_name\":\"File-3\",\"pages\":97},{\"file_name\":\"File-4\",\"pages\":61},{\"file_name\":\"File-5\",\"pages\":45}]', 349, 'no', 0, 'false', 2, 0, 0, '2026-03-10', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-10 12:51:23', '2026-03-10 12:54:47');
 
 -- --------------------------------------------------------
 
@@ -281,7 +285,7 @@ CREATE TABLE `allottees_contact_details` (
 --
 
 INSERT INTO `allottees_contact_details` (`id`, `allottee_id`, `mobile_number`, `alternate_mobile`, `stdCode`, `landline`, `whatsapp_number`, `email`, `relation_type`, `prefix_relation_eng`, `relation_name`, `prefix_relation_hindi`, `relation_name_hindi`, `relation_address`, `relation_address_hindi`, `relation_state`, `relation_district`, `relation_pincode`, `relation_post_office`, `relation_post_office_hindi`, `relation_police_station`, `relation_police_station_hindi`, `same_as_relation_copy`, `present_address`, `present_address_hindi`, `present_state`, `present_district`, `present_pincode`, `present_post_office`, `present_post_office_hindi`, `present_police_station`, `present_police_station_hindi`, `same_as_present_place_residance`, `permanent_address`, `permanent_address_hindi`, `permanent_state`, `permanent_district`, `permanent_pincode`, `permanent_post_office`, `permanent_post_office_hindi`, `permanent_police_station`, `permanent_police_station_hindi`, `same_as_permanent_address`, `correspondence_address`, `correspondence_address_hindi`, `correspondence_state`, `correspondence_district`, `correspondence_pincode`, `correspondence_post_office`, `correspondence_post_office_hindi`, `correspondence_police_station`, `correspondence_police_station_hindi`, `created_by`, `updated_by`, `create_ip_address`, `update_ip_address`, `created_at`, `updated_at`) VALUES
-(3, 3, '9546798457', '8975694576', '06456', '6546456', '9836798456', 'ritikumarPandey@gmail.com', NULL, 'Shri', 'Shiv Kumar', 'श्री', 'शिव कुमार', 'TEST ADDRESS FATHER ADDRESS ENG', 'TEST ADDRESS FATHER ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS PRESENT ADDRESS ENG', 'TEST ADDRESS PRESENT ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS Permanent ADDRESS ENG', 'TEST ADDRESS Permanent ADDRESS HIN', 9, 172, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS CORRESPONDANCE ADDRESS ENG', 'TEST ADDRESS CORRESPONDANCE ADDRESS HIN', 9, 162, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 1, 1, '127.0.0.1', '127.0.0.1', '2026-03-09 04:56:42', '2026-03-09 04:56:42');
+(3, 3, '9546798457', '8975694576', '06456', '6546456', '9836798456', 'ritikumarPandey@gmail.com', 'father', 'Shri', 'Shiv Kumar', 'श्री', 'शिव कुमार', 'TEST ADDRESS FATHER ADDRESS ENG', 'TEST ADDRESS FATHER ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS PRESENT ADDRESS ENG', 'TEST ADDRESS PRESENT ADDRESS HIN', 9, 168, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS Permanent ADDRESS ENG', 'TEST ADDRESS Permanent ADDRESS HIN', 9, 172, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 'on', 'TEST ADDRESS CORRESPONDANCE ADDRESS ENG', 'TEST ADDRESS CORRESPONDANCE ADDRESS HIN', 9, 162, '786578', 'Indian Green', 'भारतीय हरा', 'Indian Gov', 'भारतीय सरकार', 1, 1, '127.0.0.1', '127.0.0.1', '2026-03-09 04:56:42', '2026-03-10 09:37:08');
 
 -- --------------------------------------------------------
 
@@ -304,6 +308,64 @@ CREATE TABLE `allottee_documents` (
   `uploaded_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottee_documents`
+--
+
+INSERT INTO `allottee_documents` (`id`, `allottee_id`, `document_id`, `doc_no`, `doc_day`, `doc_month`, `doc_year`, `additional_info`, `remarks`, `file_path`, `file_name`, `uploaded_by`, `created_at`) VALUES
+(1, 3, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'documents/HZB/SLE/Residential/2003/10/Flat/HIG/FLT-5897/RitikKumarPandey/HZBSLEHIG200310-FLT-5897_application_letter_4767.pdf', 'HZBSLEHIG200310-FLT-5897_application_letter_4767.pdf', 1, '2026-03-10 10:46:08'),
+(2, 3, 2, NULL, NULL, NULL, NULL, NULL, '3434', NULL, NULL, 1, '2026-03-10 10:46:12'),
+(3, 3, 3, NULL, NULL, NULL, NULL, NULL, 'Green', 'documents/HZB/SLE/Residential/2003/10/Flat/HIG/FLT-5897/RitikKumarPandey/HZBSLEHIG200310-FLT-5897_agreement_copy_3883.pdf', 'HZBSLEHIG200310-FLT-5897_agreement_copy_3883.pdf', 1, '2026-03-10 10:51:10'),
+(4, 3, 4, NULL, NULL, NULL, NULL, NULL, 'No Document', NULL, NULL, 1, '2026-03-10 10:51:17'),
+(5, 3, 5, NULL, NULL, NULL, NULL, NULL, 'No Document', NULL, NULL, 1, '2026-03-10 10:51:20'),
+(6, 3, 6, NULL, NULL, NULL, NULL, NULL, 'No Document', NULL, NULL, 1, '2026-03-10 10:51:23'),
+(7, 3, 7, NULL, NULL, NULL, NULL, NULL, 'No Document', NULL, NULL, 1, '2026-03-10 10:51:27'),
+(8, 3, 8, NULL, NULL, NULL, NULL, NULL, 'No Document', NULL, NULL, 1, '2026-03-10 10:51:30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `allottee_emi_ledger`
+--
+
+CREATE TABLE `allottee_emi_ledger` (
+  `id` bigint(20) NOT NULL,
+  `allottee_id` bigint(20) DEFAULT NULL,
+  `total_amount` varchar(20) DEFAULT NULL,
+  `total_emi_count` varchar(10) DEFAULT NULL,
+  `start_month` varchar(10) DEFAULT NULL,
+  `start_year` varchar(10) DEFAULT NULL,
+  `last_emi_month` varchar(20) DEFAULT NULL,
+  `last_emi_year` varchar(10) DEFAULT NULL,
+  `amount_without_penalty` varchar(20) DEFAULT NULL,
+  `amount_with_penalty` varchar(20) DEFAULT NULL,
+  `without_penalty_count` varchar(10) DEFAULT NULL,
+  `with_penalty_count` varchar(10) DEFAULT NULL,
+  `completed_emi` varchar(10) DEFAULT NULL,
+  `late_emi` varchar(10) DEFAULT NULL,
+  `remaining_emi` varchar(10) DEFAULT NULL,
+  `total_paid` varchar(20) DEFAULT NULL,
+  `total_remaining` varchar(20) DEFAULT NULL,
+  `current_balance` varchar(20) DEFAULT NULL,
+  `emi_status` varchar(50) DEFAULT NULL,
+  `expected_emi` varchar(10) DEFAULT NULL,
+  `payment_gap` varchar(10) DEFAULT NULL,
+  `emi_active` varchar(5) DEFAULT NULL,
+  `emi_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`emi_config`)),
+  `emi_inputs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`emi_inputs`)),
+  `emi_timeline` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`emi_timeline`)),
+  `emi_calculated` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`emi_calculated`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `allottee_emi_ledger`
+--
+
+INSERT INTO `allottee_emi_ledger` (`id`, `allottee_id`, `total_amount`, `total_emi_count`, `start_month`, `start_year`, `last_emi_month`, `last_emi_year`, `amount_without_penalty`, `amount_with_penalty`, `without_penalty_count`, `with_penalty_count`, `completed_emi`, `late_emi`, `remaining_emi`, `total_paid`, `total_remaining`, `current_balance`, `emi_status`, `expected_emi`, `payment_gap`, `emi_active`, `emi_config`, `emi_inputs`, `emi_timeline`, `emi_calculated`, `created_at`, `updated_at`) VALUES
+(1, 3, '1566000', '60', '2', '2015', 'January', '2020', '36034', '38083', '50', '0', '50', '0', '10', '1801700', '380830', '-235700', 'Late Payment', '60', '10', 'true', '\"{\\\"totalAmount\\\":1566000,\\\"totalCount\\\":60,\\\"startMonth\\\":\\\"2\\\",\\\"startYear\\\":\\\"2015\\\",\\\"amountWithoutPenalty\\\":36034,\\\"amountWithPenalty\\\":38083,\\\"lastEmiMonth\\\":\\\"January\\\",\\\"lastEmiYear\\\":\\\"2020\\\",\\\"endDate\\\":\\\"January 2020\\\"}\"', '\"{\\\"withoutPenaltyCount\\\":50,\\\"withPenaltyCount\\\":0}\"', '\"{\\\"expectedCount\\\":60,\\\"paymentGap\\\":10,\\\"isEndDatePassed\\\":true,\\\"penaltyApplied\\\":true,\\\"penaltyReason\\\":\\\"EMI end date (January 2020) has passed. All remaining EMIs include penalty.\\\"}\"', '\"{\\\"completedCount\\\":50,\\\"lateCount\\\":0,\\\"remainingCount\\\":10,\\\"totalPaid\\\":1801700,\\\"totalRemaining\\\":380830,\\\"currentBalance\\\":-235700,\\\"status\\\":\\\"Late Payment\\\",\\\"expectedCount\\\":60,\\\"paymentGap\\\":10}\"', '2026-03-10 09:20:21', '2026-03-10 10:50:37');
 
 -- --------------------------------------------------------
 
@@ -442,7 +504,7 @@ CREATE TABLE `allottee_property_fin_details` (
 --
 
 INSERT INTO `allottee_property_fin_details` (`id`, `allottee_id`, `tentative_price`, `amount_words`, `maav_day`, `maav_month`, `maav_year`, `high_income_percent`, `low_income_percent`, `deposited_amount`, `legal_fee`, `legal_document_fee`, `total_payment`, `interim_price`, `remaining_amount`, `payment_months`, `payment_start_month`, `payment_start_year`, `last_payment_due_date`, `interest_type`, `pre_interest`, `late_interest`, `pre_interest_amount`, `late_interest_amount`, `allot_day`, `allot_month`, `allot_year`, `lottery_details`, `colony_name`, `plot_number`, `area_sqft`, `mohalla`, `post_office`, `city`, `police_station`, `state`, `district`, `north_boundary`, `south_boundary`, `east_boundary`, `west_boundary`, `ew_north`, `ew_south`, `ns_east`, `ns_west`, `specified_days`, `last_day`, `last_month`, `last_year`, `created_ip`, `updated_ip`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
-(1, 3, 2088000.00, 'Twenty Lakh Eighty Eight Thousand Only', 4, 5, '2011', 25.00, NULL, 522000.00, 3000.00, 200.00, 519200.00, 2088000.00, 1566000.00, 60, 2, '2015', 'January 2020', 'compound', 13.50, 2.50, 36034.00, 38083.00, 21, 8, '2013', 'Indian Loatery', 'Sarle Colony', 'PLT-546464', 1200.00, 'Sarle', 'Sarle Post office', 'Sarle', 'Kikudih Police Station', 15, 265, '30', '40', '60', '40', '60', '60', '70', '40', '75 days', 15, 11, '2012', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 05:13:34', '2026-03-09 11:22:17');
+(1, 3, 2088000.00, 'Twenty Lakh Eighty Eight Thousand Only', 4, 5, '2011', 25.00, NULL, 522000.00, 3000.00, 200.00, 519200.00, 2088000.00, 1566000.00, 60, 2, '2015', 'January 2020', 'compound', 13.50, 2.50, 36034.00, 38083.00, 21, 8, '2013', 'Indian Loatery', 'Sarle Colony', 'PLT-546464', 1200.00, 'Sarle', 'Sarle Post office', 'Sarle', 'Kikudih Police Station', 15, 265, '30', '40', '60', '40', '60', '60', '70', '40', '75 days', 15, 11, '2012', '127.0.0.1', '127.0.0.1', 1, 1, '2026-03-09 05:13:34', '2026-03-10 10:23:01');
 
 -- --------------------------------------------------------
 
@@ -1515,7 +1577,7 @@ CREATE TABLE `file_registrations` (
   `total_files` int(11) DEFAULT 0,
   `allowed_files` varchar(50) NOT NULL,
   `remarks` varchar(255) DEFAULT NULL,
-  `status` enum('handover','received','scanned') DEFAULT 'received',
+  `status` enum('handover','received','scanned','dataentry') DEFAULT 'received',
   `scanned_by` int(11) DEFAULT NULL,
   `created_by` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
@@ -1527,7 +1589,7 @@ CREATE TABLE `file_registrations` (
 --
 
 INSERT INTO `file_registrations` (`id`, `lot_no`, `register_no`, `total_files`, `allowed_files`, `remarks`, `status`, `scanned_by`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'Lot-1', '2302266678', 2, '2', NULL, 'scanned', 1, 1, '2026-02-23 09:24:56', '2026-02-23 11:11:35'),
+(1, 'Lot-1', '2302266678', 2, '2', NULL, 'scanned', 1, 1, '2026-02-23 09:24:56', '2026-03-10 12:15:26'),
 (2, 'Lot-2', '2302269882', 3, '3', NULL, 'received', NULL, 2, '2026-02-23 09:29:51', '2026-02-23 09:29:51'),
 (3, 'Lot-3', '2702263190', 1, '10', NULL, 'received', NULL, 1, '2026-02-27 09:56:51', '2026-02-27 09:56:51');
 
@@ -2006,7 +2068,7 @@ CREATE TABLE `register_allottees` (
   `no_of_supplement` int(11) DEFAULT 0,
   `json_pages` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`json_pages`)),
   `total_pages` int(11) DEFAULT NULL,
-  `allottee_status` enum('received','scanned','handover','') NOT NULL DEFAULT 'received',
+  `allottee_status` enum('received','scanned','handover','dataentry') NOT NULL DEFAULT 'received',
   `parent_id` int(11) DEFAULT NULL,
   `is_active` int(11) NOT NULL DEFAULT 1,
   `scanned_by` int(11) DEFAULT NULL,
@@ -2022,8 +2084,8 @@ CREATE TABLE `register_allottees` (
 --
 
 INSERT INTO `register_allottees` (`id`, `register_id`, `confirm_received`, `confirm_same_allottee_name`, `division_id`, `sub_division_id`, `area`, `pcategory_id`, `p_type_id`, `property_number`, `quarter_type`, `prefix`, `allottee_name`, `allottee_middle_name`, `allottee_surname`, `remarks`, `no_of_files`, `no_of_supplement`, `json_pages`, `total_pages`, `allottee_status`, `parent_id`, `is_active`, `scanned_by`, `created_by`, `updated_by`, `created_at`, `updated_at`, `ip_address`) VALUES
-(1, '2302266678', 'No', 'No', 4, 7, NULL, 1, 2, 'C-234', '2', 'Shri', 'Krishna', 'Dev', 'Murthy', 'All Old Pages', 3, 2, '[{\"file_name\":\"File-1\",\"pages\":87},{\"file_name\":\"File-2\",\"pages\":59},{\"file_name\":\"File-3\",\"pages\":97},{\"file_name\":\"File-4\",\"pages\":61},{\"file_name\":\"File-5\",\"pages\":45}]', 349, 'scanned', NULL, 1, 1, 1, 1, '2026-02-23 09:22:04', '2026-02-23 11:12:08', '127.0.0.1'),
-(2, '2302266678', 'Yes', 'No', 5, 10, NULL, 1, 1, 'FLT-5897', '2', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'All Fresh Pages', 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'scanned', NULL, 1, 1, 1, 1, '2026-02-23 09:23:42', '2026-02-23 11:11:35', '127.0.0.1'),
+(1, '2302266678', 'No', 'No', 4, 7, NULL, 1, 2, 'C-234', '2', 'Shri', 'Krishna', 'Dev', 'Murthy', 'All Old Pages', 3, 2, '[{\"file_name\":\"File-1\",\"pages\":87},{\"file_name\":\"File-2\",\"pages\":59},{\"file_name\":\"File-3\",\"pages\":97},{\"file_name\":\"File-4\",\"pages\":61},{\"file_name\":\"File-5\",\"pages\":45}]', 349, 'scanned', NULL, 1, 1, 1, 1, '2026-02-23 09:22:04', '2026-03-10 12:44:16', '127.0.0.1'),
+(2, '2302266678', 'Yes', 'No', 5, 10, NULL, 1, 1, 'FLT-5897', '2', 'Shri', 'Ritik', 'Kumar', 'Pandey', 'All Fresh Pages', 2, 1, '[{\"file_name\":\"File-1\",\"pages\":8},{\"file_name\":\"File-2\",\"pages\":36},{\"file_name\":\"File-3\",\"pages\":48}]', 92, 'dataentry', NULL, 1, 1, 1, 1, '2026-02-23 09:23:42', '2026-03-10 12:14:08', '127.0.0.1'),
 (3, '2302269882', 'No', 'No', 2, 5, NULL, 1, 3, 'Plt-344', '2', 'Shri', 'Aditya', NULL, 'Kumar', 'All Fresh Pages', 1, 2, NULL, NULL, 'received', NULL, 1, NULL, 2, NULL, '2026-02-23 09:27:29', '2026-02-23 09:27:29', '127.0.0.1'),
 (4, '2302269882', 'No', 'No', 1, 1, NULL, 1, 2, 'H-EWS-233', '5', 'Shri', 'Kiran', 'Kumar', 'Dev', 'All Fresh Pages', 1, 0, NULL, NULL, 'received', NULL, 1, NULL, 2, NULL, '2026-02-23 09:28:51', '2026-02-23 09:28:51', '127.0.0.1'),
 (5, '2302269882', 'Yes', 'Yes', 4, 7, NULL, 1, 2, 'C-234', '2', 'Shri', 'Krishna', 'Dev', 'Murthy', 'All Old Pages', 3, 2, NULL, NULL, 'received', 1, 1, NULL, 2, NULL, '2026-02-23 09:29:45', '2026-02-23 09:29:45', '127.0.0.1'),
@@ -2518,7 +2580,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `gender`, `category`, `aadhaar_no`, `date_of_birth`, `mobile_no`, `email_id`, `profile_pic`, `password`, `role`, `password_created_at`, `otp_verified_at`, `created_at`, `last_login`, `last_ip`, `updated_at`) VALUES
-(1, 'COMPUTER Ed.', 'Other', 'General', '012222222222', '1996-07-12', '7979040859', 'computered3896@gmail.com', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-03-09 04:27:32', '2025-11-24 17:22:13', '2026-03-09 04:27:32', '127.0.0.1', '2026-03-09 04:27:32'),
+(1, 'COMPUTER Ed.', 'Other', 'General', '012222222222', '1996-07-12', '7979040859', 'computered3896@gmail.com', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-03-10 04:13:50', '2025-11-24 17:22:13', '2026-03-10 04:13:50', '127.0.0.1', '2026-03-10 04:13:50'),
 (2, 'Namita Kumari', 'Other', 'General', '89734578954', '2000-07-12', '9873578345', 'namita.jshb@computered.co.in', NULL, '$2y$12$FBSwitUzL/xEW1.U4oPfJOEsC1hzNrE4OqY1LPRLrW/sbNJUmWCCe', 'scanner', '2026-02-11 15:20:00', '2026-02-23 09:20:46', '2026-02-23 17:22:13', '2026-02-23 09:20:46', '127.0.0.1', '2026-02-23 09:20:46');
 
 --
@@ -2566,6 +2628,12 @@ ALTER TABLE `allottee_documents`
   ADD PRIMARY KEY (`id`),
   ADD KEY `document_id` (`document_id`),
   ADD KEY `allottee_id` (`allottee_id`);
+
+--
+-- Indexes for table `allottee_emi_ledger`
+--
+ALTER TABLE `allottee_emi_ledger`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `allottee_file_details`
@@ -2863,7 +2931,7 @@ ALTER TABLE `admin_otp_logs`
 -- AUTO_INCREMENT for table `allottees`
 --
 ALTER TABLE `allottees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `allottees_contact_details`
@@ -2875,7 +2943,13 @@ ALTER TABLE `allottees_contact_details`
 -- AUTO_INCREMENT for table `allottee_documents`
 --
 ALTER TABLE `allottee_documents`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `allottee_emi_ledger`
+--
+ALTER TABLE `allottee_emi_ledger`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `allottee_file_details`

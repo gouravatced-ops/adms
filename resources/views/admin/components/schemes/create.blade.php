@@ -375,7 +375,7 @@
 
                                 <option value="">-- Select Initiation Year --</option>
 
-                                @for ($year = 1950; $year <= $currentYear; $year++)
+                                @for ($year = 1960; $year <= $currentYear; $year++)
                                     <option value="{{ $year }}"
                                         {{ old('initiation_year') == $year ? 'selected' : '' }}>
                                         {{ $year }}

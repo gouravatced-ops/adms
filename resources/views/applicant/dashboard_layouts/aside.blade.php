@@ -160,7 +160,7 @@
                         </a>
 
                         <!-- Completed Lots List -->
-                        <a href="#"
+                        <a href="{{ route('applicant.dataentry.completed.lot') }}"
                             class="sidebar-item submenu-item flex items-center">
 
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

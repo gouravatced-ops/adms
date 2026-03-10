@@ -62,4 +62,9 @@ class RegisterAllottee extends Model
     {
         return $this->belongsTo(User::class, 'scanned_by');
     }
+    
+    public function allottee()
+    {
+        return $this->hasOne(\App\Models\Allottee::class, 'register_file_id', 'id');
+    }
 }

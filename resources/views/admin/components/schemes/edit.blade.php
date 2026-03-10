@@ -420,7 +420,7 @@
                                 class="form-select @error('initiation_year') is-invalid @enderror" required>
 
                                 <option value="">-- Select Initiation Year --</option>
-                                @for ($year = 1950; $year <= date('Y'); $year++)
+                                @for ($year = 1960; $year <= date('Y'); $year++)
                                     <option value="{{ $year }}"
                                         {{ $scheme->initiation_year == $year ? 'selected' : '' }}>
                                         {{ $year }}

@@ -36,6 +36,14 @@ if (!function_exists('getSubDivisions')) {
     }
 }
 
+if (!function_exists('getSubDivisionById')) {
+    function getSubDivisionById($subDivisionId)
+    {
+        return SubDivision::where('id', $subDivisionId)
+            ->where('status', 1)->first();
+    }
+}
+
 if (!function_exists('getQuarterType')) {
     function getQuarterType()
     {
@@ -92,6 +100,14 @@ if (!function_exists('getSchemeList')) {
     }
 }
 
+if (!function_exists('getSchemeName')) {
+    function getSchemeName($schemeId)
+    {
+        return Scheme::where('id', $schemeId)
+            ->value('scheme_name');
+    }
+}
+
 if (!function_exists('getPropertyType')) {
     function getPropertyType($category_id)
     {
@@ -109,6 +125,36 @@ if (!function_exists('getPropertySubType')) {
             ->where('status', 1)
             ->orderBy('name', 'asc')
             ->get();
+    }
+}
+
+if (!function_exists('getStates')) {
+    function getStates()
+    {
+        return DB::table('states')->get();
+    }
+}
+
+if (!function_exists('getDistrict')) {
+    function getDistrict($stateId)
+    {
+        return DB::table('districts')->where('state_id', $stateId)->get();
+    }
+}
+
+
+if (!function_exists('getStateName')) {
+    function getStateName($stateId)
+    {
+        return DB::table('states')->where('id', $stateId)->value('name_en');
+    }
+}
+
+
+if (!function_exists('getDistrictName')) {
+    function getDistrictName($distId)
+    {
+        return DB::table('districts')->where('id', $distId)->value('name_en');
     }
 }
 

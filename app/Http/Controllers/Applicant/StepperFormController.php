@@ -13,7 +13,9 @@ use App\Models\SubDivision;
 use App\Models\StepSkip;
 use App\Models\AllotteePropertyFinDetail;
 use App\Models\AllotteeNomineeBankDetail;
+use App\Models\AllotteeEmiLedger;
 use App\Models\AllotteeDocument;
+use App\Models\AllotteeRegistration;
 use App\Models\DocumentMaster;
 use Illuminate\Support\Facades\File;
 // use Illuminate\Support\Str;
@@ -65,169 +67,388 @@ class StepperFormController extends Controller
     public function index(Request $request)
     {
         try {
-            $search = $request->query('search', '');
-            $query = RegistrationFile::with(['allottees', 'scannedBy'])
-                ->where('created_by', auth()->id())
-                ->whereDoesntHave('allottees', function ($q) {
-                    $q->where('allottee_status', '!=', 'scanned');
-                })
-                ->whereHas('allottees')
-                ->orderBy('created_at', 'desc');
 
-            // Search filter
-            if (!empty($search)) {
-                $query->where('register_no', 'like', '%' . $search . '%');
+            $search = $request->query('search');
+
+            $query = RegistrationFile::query()
+                ->with(['allottees', 'scannedBy'])
+
+                ->where('created_by', auth()->id())
+
+                ->where('status', 'scanned')
+
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', 'scanned');
+                })
+
+                ->latest();
+
+            if ($search) {
+                $query->where('register_no', 'like', "%{$search}%");
             }
 
-            // return $query->get();
+            $registrations = $query->paginate(25)
+                ->through(function ($item) {
 
-            $registrations = $query->paginate(25)->through(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
 
-                $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->total_files = $item->allottees->count();
 
-                $item->total_allottees = $item->allottees->count();
-                $item->scanned_count = $item->allottees
-                    ->where('allottee_status', 'scanned')
-                    ->count();
+                    $item->scanned_files = $item->allottees
+                        ->where('allottee_status', 'scanned')
+                        ->count();
 
-                return $item;
-            });
-            // return $registrations;
+                    $item->completed_files = $item->allottees
+                        ->where('allottee_status', 'dataentry')
+                        ->count();
+
+                    return $item;
+                });
+
             if ($request->ajax()) {
                 return response()->json([
                     'registrations' => $registrations,
                     'pagination' => $registrations->links()->toHtml(),
-                    'search_term' => $search,
+                    'search_term' => $search
                 ]);
             }
+
             return view(
                 'applicant.components.stepper-form.completed',
                 compact('registrations', 'search')
             );
         } catch (\Throwable $e) {
 
-            Log::error('Completed scanned list failed', [
-                'error' => $e->getMessage(),
+            Log::error('Register list failed', [
+                'error' => $e->getMessage()
             ]);
 
-            return redirect()
-                ->back()
-                ->with('error', 'Failed to load completed scanned list.');
+            return back()->with(
+                'error',
+                'Failed to load register list.'
+            );
+        }
+    }
+
+    public function completedIndex(Request $request)
+    {
+        try {
+
+            $search = $request->query('search');
+
+            $query = RegistrationFile::query()
+                ->with(['scannedBy'])
+
+                ->where('created_by', auth()->id())
+
+                ->whereHas('allottees')
+
+                ->whereDoesntHave('allottees', function ($q) {
+                    $q->where('allottee_status', '!=', 'dataentry');
+                })
+
+                ->withCount([
+                    'allottees as total_files',
+                    'allottees as completed_files' => function ($q) {
+                        $q->where('allottee_status', 'dataentry');
+                    }
+                ])
+
+                ->latest();
+
+            if ($search) {
+                $query->where('register_no', 'like', "%{$search}%");
+            }
+
+            $registrations = $query->paginate(25);
+
+            // encode register no
+            $registrations->getCollection()->transform(function ($item) {
+                $item->encoded_register_no = base64_encode($item->register_no);
+                return $item;
+            });
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'registrations' => $registrations,
+                    'pagination' => $registrations->links()->toHtml(),
+                    'search_term' => $search
+                ]);
+            }
+
+            return view(
+                'applicant.components.stepper-form.completedLots',
+                compact('registrations', 'search')
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('Register list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with(
+                'error',
+                'Failed to load register list.'
+            );
         }
     }
 
     public function fileIndex($registerId, Request $request)
     {
         try {
-            // encrypt to decrypt  register number safely
+
             $registerNo = decrypt($registerId, true);
 
-            if (! $registerNo) {
-                return redirect()
-                    ->back()
-                    ->with('error', 'Invalid register reference.');
+            if (!$registerNo) {
+                return back()->with('error', 'Invalid register reference.');
             }
 
-            // Get search parameters
-            $searchAllottee = $request->query('allottee', '');
-            $searchPropertyNo = $request->query('property_no', '');
-            $searchArea = $request->query('area', '');
-            $searchDivision = $request->query('division', '');
+            $searchAllottee   = $request->query('allottee');
+            $searchPropertyNo = $request->query('property_no');
+            $searchArea       = $request->query('area');
+            $searchDivision   = $request->query('division');
 
-            // Build query
             $query = RegisterAllottee::query()
                 ->with('scannedBy')
                 ->from('register_allottees as ra')
+
+                ->leftJoin('allottees as a', 'a.register_file_id', '=', 'ra.id')
                 ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
                 ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
                 ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
                 ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
                 ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
-                ->where('ra.register_id', $registerNo)
-                ->where('ra.allottee_status', 'scanned')
-                ->where('ra.is_active', 1)
-                ->orderByDesc('ra.created_at')
-                ->where('created_by', auth()->id())
+
+                ->where([
+                    ['ra.register_id', $registerNo],
+                    ['ra.allottee_status', 'scanned'],
+                    ['ra.is_active', 1],
+                    ['ra.created_by', auth()->id()]
+                ])
+
+                // Hide completed files
+                ->where(function ($q) {
+                    $q->whereNull('a.id')
+                        ->orWhere('a.is_step_completed', '!=', 1);
+                })
+
                 ->select([
                     'ra.*',
-                    'd.name  as dname',
+                    'd.name as dname',
                     'sd.name as subname',
                     'pc.name as cname',
                     'pt.name as pname',
-                    'qt.quarter_code as quarter_code',
+                    'qt.quarter_code',
                     DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files')
-                ]);
+                ])
 
-            // Apply search filters
-            if (! empty($searchAllottee)) {
-                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%')
-                    ->orWhere('ra.allottee_middle_name', 'like', '%' . $searchAllottee . '%')
-                    ->orWhere('ra.allottee_surname', 'like', '%' . $searchAllottee . '%');
+                ->orderByDesc('ra.created_at');
+
+            /*
+        |--------------------------------------------------------------------------
+        | Search Filters
+        |--------------------------------------------------------------------------
+        */
+
+            if ($searchAllottee) {
+                $query->where(function ($q) use ($searchAllottee) {
+                    $q->where('ra.allottee_name', 'like', "%$searchAllottee%")
+                        ->orWhere('ra.allottee_middle_name', 'like', "%$searchAllottee%")
+                        ->orWhere('ra.allottee_surname', 'like', "%$searchAllottee%");
+                });
             }
 
-            if (! empty($searchPropertyNo)) {
-                $query->where('ra.property_number', 'like', '%' . $searchPropertyNo . '%');
+            if ($searchPropertyNo) {
+                $query->where('ra.property_number', 'like', "%$searchPropertyNo%");
             }
 
-            if (! empty($searchArea)) {
-                $query->where('ra.area', 'like', '%' . $searchArea . '%');
+            if ($searchArea) {
+                $query->where('ra.area', 'like', "%$searchArea%");
             }
 
-            if (! empty($searchDivision)) {
+            if ($searchDivision) {
                 $query->where('ra.division_id', $searchDivision);
             }
 
-            // Get divisions for dropdown (only if needed for non-AJAX request)
-            if (! $request->ajax()) {
-                $divisions = \App\Models\Division::orderBy('name')->get();
-            }
-
-            // Paginate results
             $registerAllottee = $query->paginate(25);
 
-            // Prepare data for response
+            /*
+        |--------------------------------------------------------------------------
+        | Encode Values
+        |--------------------------------------------------------------------------
+        */
+
             $encodedRegisterNo = base64_encode($registerNo);
-            $registerAllottee->each(function ($item) use ($encodedRegisterNo) {
+
+            $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo) {
+
                 $item->encoded_register_no = $encodedRegisterNo;
-                $encodedallotteeId = base64_encode($item->id);
-                $item->allotteeId = $encodedallotteeId;
+                $item->allotteeId = base64_encode($item->id);
+
+                return $item;
             });
 
-            // If AJAX request, return JSON
+            /*
+        |--------------------------------------------------------------------------
+        | AJAX Response
+        |--------------------------------------------------------------------------
+        */
+
             if ($request->ajax()) {
+
                 return response()->json([
                     'registerAllottee' => $registerAllottee,
-                    'pagination' => $registerAllottee->links()->toHtml(),
-                    'register_number' => $registerNo,
+                    'pagination'       => $registerAllottee->links()->toHtml(),
+                    'register_number'  => $registerNo,
                     'search_params' => [
-                        'allottee' => $searchAllottee,
+                        'allottee'   => $searchAllottee,
                         'property_no' => $searchPropertyNo,
-                        'area' => $searchArea,
-                        'division' => $searchDivision,
+                        'area'       => $searchArea,
+                        'division'   => $searchDivision,
                     ],
                 ]);
             }
+
+            $divisions = Division::orderBy('name')->get();
 
             return view(
                 'applicant.components.stepper-form.filesindex',
                 compact('registerAllottee', 'registerNo', 'divisions', 'registerId')
             );
         } catch (\Throwable $e) {
+
             Log::error('File index load failed', [
                 'register_id' => $registerId,
-                'error' => $e->getMessage(),
+                'error'       => $e->getMessage(),
             ]);
 
             if ($request->ajax()) {
                 return response()->json([
-                    'error' => 'Failed to load files.',
+                    'error'   => 'Failed to load files.',
                     'message' => $e->getMessage(),
                 ], 500);
             }
 
-            return redirect()
-                ->back()
-                ->with('error', 'Failed to load files.');
+            return back()->with('error', 'Failed to load files.');
+        }
+    }
+
+    public function CompletedfileIndex($registerId, Request $request)
+    {
+        try {
+
+            $registerNo = decrypt($registerId, true);
+
+            if (!$registerNo) {
+                return back()->with('error', 'Invalid register reference.');
+            }
+
+            $searchAllottee   = $request->query('allottee');
+            $searchPropertyNo = $request->query('property_no');
+            $searchArea       = $request->query('area');
+            $searchDivision   = $request->query('division');
+
+            $query = RegisterAllottee::query()
+                ->with('scannedBy')
+                ->from('register_allottees as ra')
+
+                // only completed
+                ->join('allottees as a', 'a.register_file_id', '=', 'ra.id')
+
+                ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+                ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
+                ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
+                ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
+                ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
+
+                ->where([
+                    ['ra.register_id', $registerNo],
+                    ['ra.allottee_status', 'scanned'],
+                    ['ra.is_active', 1],
+                    ['ra.created_by', auth()->id()],
+                    ['a.is_step_completed', 1]
+                ])
+
+                ->select([
+                    'ra.*',
+                    'd.name as dname',
+                    'sd.name as subname',
+                    'pc.name as cname',
+                    'pt.name as pname',
+                    'qt.quarter_code',
+                    DB::raw('(COALESCE(ra.no_of_files,0)+COALESCE(ra.no_of_supplement,0)) as total_files')
+                ])
+
+                ->orderByDesc('ra.created_at');
+
+
+            if ($searchAllottee) {
+                $query->where(function ($q) use ($searchAllottee) {
+                    $q->where('ra.allottee_name', 'like', "%$searchAllottee%")
+                        ->orWhere('ra.allottee_middle_name', 'like', "%$searchAllottee%")
+                        ->orWhere('ra.allottee_surname', 'like', "%$searchAllottee%");
+                });
+            }
+
+            if ($searchPropertyNo) {
+                $query->where('ra.property_number', 'like', "%$searchPropertyNo%");
+            }
+
+            if ($searchArea) {
+                $query->where('ra.area', 'like', "%$searchArea%");
+            }
+
+            if ($searchDivision) {
+                $query->where('ra.division_id', $searchDivision);
+            }
+
+            $registerAllottee = $query->paginate(25);
+
+            $encodedRegisterNo = base64_encode($registerNo);
+
+            $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo) {
+
+                $item->encoded_register_no = $encodedRegisterNo;
+                $item->allotteeId = base64_encode($item->id);
+
+                return $item;
+            });
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'registerAllottee' => $registerAllottee,
+                    'pagination'       => $registerAllottee->links()->toHtml(),
+                    'register_number'  => $registerNo,
+                    'search_params' => [
+                        'allottee'   => $searchAllottee,
+                        'property_no' => $searchPropertyNo,
+                        'area'       => $searchArea,
+                        'division'   => $searchDivision,
+                    ],
+                ]);
+            }
+
+            $divisions = Division::orderBy('name')->get();
+
+            return view(
+                'applicant.components.stepper-form.completefilesindex',
+                compact('registerAllottee', 'registerNo', 'divisions', 'registerId')
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('File index load failed', [
+                'register_id' => $registerId,
+                'error'       => $e->getMessage(),
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'error'   => 'Failed to load files.',
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->with('error', 'Failed to load files.');
         }
     }
 
@@ -364,7 +585,8 @@ class StepperFormController extends Controller
                 'division',
                 'subDivision',
                 'propertyCategory',
-                'propertyType'
+                'propertyType',
+                'AllotProFinDetail',
             ])->findOrFail($applicantId);
             // Completed documents
             $completedDocuments = AllotteeDocument::where('allottee_id', $applicant->id)
@@ -377,7 +599,24 @@ class StepperFormController extends Controller
                     'allottee_documents.file_name',
                     'allottee_documents.file_path'
                 ]);
-            return view($view, compact('applicant' , 'completedDocuments'));
+            return view($view, compact('applicant', 'completedDocuments'));
+        }
+
+        if ($step == 6) {
+
+            $applicant = Allottee::with([
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'allotProFinDetail',
+                'alloteeAdresses',
+                'nomineesBank',
+                'accountLedger',
+                'documentData'
+            ])->findOrFail($applicantId);
+
+            return view($view, compact('applicant'));
         }
 
         // Default Applicant Load (Step 1 / Step 2 fallback / Other Steps)
@@ -497,6 +736,7 @@ class StepperFormController extends Controller
                 'date_of_birth_day' => $request->date_of_birth_day,
                 'date_of_birth_month' => $request->date_of_birth_month,
                 'date_of_birth_year' => $request->date_of_birth_year,
+                'remarks_for_dob' => $request->remarks_for_dob,
                 'update_ip_address' => $request->ip() ?? NULL,
                 'updated_by' => auth()->id(),
             ]);
@@ -560,7 +800,8 @@ class StepperFormController extends Controller
         $applicant->date_of_birth_day = $request->date_of_birth_day;
         $applicant->date_of_birth_month = $request->date_of_birth_month;
         $applicant->date_of_birth_year = $request->date_of_birth_year;
-        $applicant->no_of_files = $registerAllottee->no_of_files;
+        $applicant->date_of_birth_year = $request->date_of_birth_year;
+        $applicant->remarks_for_dob = $registerAllottee->remarks_for_dob;
         $applicant->no_of_supplement = $registerAllottee->no_of_supplement;
         $applicant->json_pages = $registerAllottee->json_pages;
         $applicant->total_pages = $registerAllottee->total_pages;
@@ -743,49 +984,60 @@ class StepperFormController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Documents uploads saved successfully',
+            'message' => 'All Documents uploaded',
             'next_step' => 6
         ]);
     }
 
-
     public function saveStep6(Request $request)
     {
-        // $applicant = Applicant::where('user_id', auth()->id())
-        //     ->where('is_completed', false)
-        //     ->latest()
-        //     ->first();
+        if (!$request->final_submission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something Went Wrong',
+            ]);
+        }
 
-        // if (!$applicant) {
-        //     return response()->json(['error' => 'No application found'], 404);
-        // }
+        try {
 
-        // $validator = Validator::make($request->all(), [
-        //     'division_office' => 'required',
-        //     'property_location' => 'required',
-        //     'yojana_name' => 'required',
-        //     'property_area' => 'required',
-        //     'payment_details' => 'required|array',
-        // ]);
+            DB::beginTransaction();
 
-        // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
-        // }
+            $allottee = Allottee::find($request->applicant_id);
 
-        // $applicant->update([
-        //     'division_office' => $request->division_office,
-        //     'property_location' => $request->property_location,
-        //     'yojana_name' => $request->yojana_name,
-        //     'property_area' => $request->property_area,
-        //     'payment_details' => json_encode($request->payment_details),
-        //     'current_step' => 4,
-        //     'is_completed' => true
-        // ]);
+            if (!$allottee) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Applicant not found',
+                ]);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Application Submit SuccessFully',
-        ]);
+            // Step Completed
+            $allottee->update([
+                'is_step_completed' => 1
+            ]);
+
+            // Update RegisterAllottee
+            RegisterAllottee::where('id', $allottee->register_file_id)
+                ->update([
+                    'allottee_status' => 'dataentry',
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application Submit Successfully',
+            ]);
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit application',
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function store(Request $request)
@@ -881,24 +1133,85 @@ class StepperFormController extends Controller
         ]);
     }
 
-    public function saveEmiDetails(Request $request)
+    public function saveEmiLedger(Request $request)
     {
-        // return $request;
-        // Return success response
-        return response()->json([
-            'success' => true,
-            'message' => 'Document uploaded successfully',
-            'document' => [
-                'id' => 1,
-                'document_id' => 1,
-                'document_type' => 'pdf',
-                'file_name' => 'applicant fee',
-                'has_file' => 'admin/upoads',
-                'doc_no' => '4234',
-                'document_date' => '4234',
-                'remarks' => '4324'
-            ]
-        ]);
+        try {
+
+            $payload = $request->all();
+
+            $config = json_decode($payload['emi_config'], true) ?? [];
+            $inputs   = json_decode($payload['emi_inputs'], true) ?? [];
+            $timeline = json_decode($payload['emi_timeline'], true) ?? [];
+            $calc     = json_decode($payload['emi_calculated'], true) ?? [];
+
+            $data = [
+
+                'allottee_id' => $payload['allottee_id'] ?? null,
+
+                // CONFIG
+                'total_amount' => $config['totalAmount'] ?? 0,
+                'total_emi_count' => $config['totalCount'] ?? 0,
+
+                'start_month' => $config['startMonth'] ?? null,
+                'start_year'  => $config['startYear'] ?? null,
+
+                'last_emi_month' => $config['lastEmiMonth'] ?? null,
+                'last_emi_year'  => $config['lastEmiYear'] ?? null,
+
+                'amount_without_penalty' => $config['amountWithoutPenalty'] ?? 0,
+                'amount_with_penalty'    => $config['amountWithPenalty'] ?? 0,
+
+                // INPUTS
+                'without_penalty_count' => $inputs['withoutPenaltyCount'] ?? 0,
+                'with_penalty_count'    => $inputs['withPenaltyCount'] ?? 0,
+
+                // CALCULATED
+                'completed_emi' => $calc['completedCount'] ?? 0,
+                'late_emi'      => $calc['lateCount'] ?? 0,
+                'remaining_emi' => $calc['remainingCount'] ?? 0,
+
+                'total_paid'      => $calc['totalPaid'] ?? 0,
+                'total_remaining' => $calc['totalRemaining'] ?? 0,
+                'current_balance' => $calc['currentBalance'] ?? 0,
+
+                'emi_status' => $calc['status'] ?? null,
+
+                'expected_emi' => $calc['expectedCount'] ?? 0,
+                'payment_gap'  => $calc['paymentGap'] ?? 0,
+
+                'emi_active' => $payload['emi_active'] ?? false,
+
+                // RAW JSON STORE
+                'emi_config'     => json_encode($config),
+                'emi_inputs'     => json_encode($inputs),
+                'emi_timeline'   => json_encode($timeline),
+                'emi_calculated' => json_encode($calc),
+
+            ];
+            // INSERT OR UPDATE
+            $ledger = AllotteeEmiLedger::updateOrCreate(
+                ['allottee_id' => $payload['allottee_id']],
+                $data
+            );
+
+            Allottee::where('id', $payload['allottee_id'])->update([
+                'is_emi_active' => $payload['emi_active'] ?? false
+            ]);
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'EMI ledger saved successfully',
+                'data' => $ledger
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function saveAllotteeDetails(Request $request)

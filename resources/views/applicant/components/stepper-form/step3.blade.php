@@ -253,7 +253,7 @@
                                 <option value="">वर्ष / Year</option>
                                 <?php 
                                     $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                    for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
                                 <option value="<?= $y ?>" {{ $applicant->maav_year == $y ? 'selected' : '' }}><?= $y ?>
                                 </option>
@@ -477,7 +477,7 @@
                                 <option value="">वर्ष / Year</option>
                                 <?php 
                                     $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                    for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
                                 <option value="<?= $y ?>" {{ $applicant->allot_year == $y ? 'selected' : '' }}>
                                     <?= $y ?></option>
@@ -687,7 +687,7 @@
                                 <option value="">वर्ष / Year</option>
                                 <?php 
                                     $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= 1970; $y--): 
+                                    for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
                                 <option value="<?= $y ?>" {{ $applicant->last_year == $y ? 'selected' : '' }}><?= $y ?></option>
                                 <?php endfor; ?>

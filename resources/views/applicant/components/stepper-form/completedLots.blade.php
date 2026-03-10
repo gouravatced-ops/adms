@@ -24,7 +24,7 @@
             <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--gray-border);">
                 <h3 class="flex items-center gap-2 text-sm font-semibold">
                     <i class="fas fa-folder-open"></i>
-                    Data Entry >> Completed Scanned Lots
+                    Data Entry >> Completed Data Entry Lots
                 </h3>
 
                 <!-- Search Box -->
@@ -62,7 +62,7 @@
                             <th class="text-left text-xs font-semibold">Register No.</th>
                             <th class="text-left text-xs font-semibold">No. of Files</th>
                             <th class="text-left text-xs font-semibold">Status</th>
-                            <th class="text-left text-xs font-semibold">Scanned on (Date & Time)</th>
+                            <th class="text-left text-xs font-semibold">Data Entry on (Date & Time)</th>
                             <th class="text-left text-xs font-semibold">View Files</th>
                         </tr>
                     </thead>
@@ -92,7 +92,8 @@
                                     {{ formatDateTime($registration->updated_at) }}
                                 </td>
                                 <td>
-                                    <a href="{{ route('applicant.dataentry.scanned.lots.files', encrypt($registration->register_no)) }}" class="action-btn action-btn-info" title="View Files">
+                                    <a href="{{ route('applicant.dataentry.completed.lots.files', encrypt($registration->register_no)) }}"
+                                        class="action-btn action-btn-info" title="View Files">
                                         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

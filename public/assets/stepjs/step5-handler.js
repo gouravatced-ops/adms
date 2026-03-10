@@ -36,6 +36,13 @@ const Step5Handler = (function () {
                 progressBar: "#progressBar",
                 finalSubmitBtn: "#finalSubmitBtn",
                 applicantId: "#applicant_id",
+                totalEmiAmount: "#remaining_amount",
+                emiMonthCount: "#emi_month_count",
+                emiStartMonth: "#payment_start_month",
+                emiStartYear: "#payment_start_year",
+                emiLastDueDate: "#last_payment_due_date",
+                emiAmount: "#pre_interest_amount",
+                emiAmountLateAmount: "#late_interest_amount",
                 csrfToken: 'meta[name="csrf-token"]',
             },
         },
@@ -43,7 +50,7 @@ const Step5Handler = (function () {
 
     // Document configurations - RECEIVE from global variable
     const DOCUMENT_CONFIGS = {
-        basic: window.documentBasicList || [], // Fallback to empty array if not set
+        basic: window.documentBasicList || [],
         nameTransfer: [
             {
                 id: 9,
@@ -61,11 +68,8 @@ const Step5Handler = (function () {
         ],
     };
 
-        // Completed documents from server
+    // Completed documents from server
     const COMPLETED_DOCUMENTS = window.completedDocumentsList || [];
-    console.log("Pending Documents:", DOCUMENT_CONFIGS.basic);
-    console.log("Completed Documents:", COMPLETED_DOCUMENTS);
-    console.log("Name Transfer Documents:", DOCUMENT_CONFIGS.nameTransfer);
 
     // State management (encapsulated)
     const state = {
@@ -74,10 +78,48 @@ const Step5Handler = (function () {
         completedBasicDocs: [],
         completedNameTransferDocs: [],
         emiFormSaved: false,
-        allotteeDetailsSaved: false,
         applicantId: null,
         documentConfigs: DOCUMENT_CONFIGS,
         isLoading: false,
+        // EMI Status Question
+        isEmiActive: null, // true = yes, false = no, null = not answered
+        // EMI Configuration
+        emiConfig: {
+            totalAmount: 0,
+            totalCount: 60,
+            startMonth: "",
+            startYear: "",
+            endDate: "",
+            amountWithoutPenalty: 0,
+            amountWithPenalty: 0,
+            lastEmiMonth: "",
+            lastEmiYear: "",
+        },
+        // EMI Inputs (Only these two are user-entered)
+        emiInputs: {
+            withoutPenaltyCount: 0,
+            withPenaltyCount: 0,
+        },
+        // EMI Timeline Calculations
+        emiTimeline: {
+            expectedCount: 0,
+            paymentGap: 0,
+            isEndDatePassed: false,
+            penaltyApplied: false,
+            penaltyReason: "",
+        },
+        // EMI Calculated Values
+        emiCalculated: {
+            completedCount: 0,
+            lateCount: 0,
+            remainingCount: 0,
+            totalPaid: 0,
+            totalRemaining: 0,
+            currentBalance: 0,
+            status: "Pending",
+            expectedCount: 0,
+            paymentGap: 0,
+        },
     };
 
     // Cache DOM elements
@@ -93,6 +135,9 @@ const Step5Handler = (function () {
 
         bindEvents();
         initializeUI();
+
+        // Load EMI configuration from DOM
+        loadEmiConfiguration();
     }
 
     function cacheElements() {
@@ -165,6 +210,26 @@ const Step5Handler = (function () {
                 showPreviewModal(doc, row);
             }
         }
+
+        // EMI Status Question handler
+        if (target.classList.contains("emi-status-btn")) {
+            handleEmiStatusResponse(target.dataset.status);
+        }
+
+        // Change Selection button handler
+        if (target.id === "changeEmiSelectionBtn") {
+            resetEmiSelection();
+        }
+
+        // Calculate EMI button handler
+        if (target.id === "calculateEmiBtn") {
+            calculateEmiSummary();
+        }
+
+        // Save EMI button handler
+        if (target.id === "saveEmiDetailsBtn") {
+            saveEmiDetails();
+        }
     }
 
     function handleNameTransferChange(e) {
@@ -176,12 +241,10 @@ const Step5Handler = (function () {
         }
 
         if (isTransfer) {
-            // showNewAllotteeForm();
             hideElement("#additionalDocumentsSection");
             state.completedNameTransferDocs = [];
         } else {
             hideElement("#additionalDocumentsSection");
-            removeElement("#newAllotteeForm");
             state.completedNameTransferDocs = [];
 
             if (elements.additionalRows) {
@@ -192,15 +255,91 @@ const Step5Handler = (function () {
         updateProgress();
     }
 
+    function handleEmiStatusResponse(status) {
+        state.isEmiActive = status === "yes";
+
+        // Hide the question section
+        const questionSection = document.getElementById("emiStatusQuestion");
+        if (questionSection) {
+            questionSection.style.display = "none";
+        }
+
+        // Remove any existing content
+        removeElement("#emiLedgerSystem");
+        removeElement("#emiClosedMessage");
+
+        if (state.isEmiActive) {
+            // Show EMI configuration form and ledger
+            showEmiConfigurationSection();
+        } else {
+            // Show only the financial ledger
+            showLedgerOnlySection();
+        }
+    }
+
+    function resetEmiSelection() {
+        // Reset state
+        state.isEmiActive = null;
+        state.emiFormSaved = false;
+
+        // Remove all EMI related sections
+        removeElement("#emiLedgerSystem");
+        removeElement("#emiClosedMessage");
+        removeElement("#emiConfigurationForm");
+
+        // Show the status question again
+        const questionSection = document.getElementById("emiStatusQuestion");
+        if (questionSection) {
+            questionSection.style.display = "block";
+        } else {
+            // If question section was removed, recreate it
+            const basicTable = elements.basicRows?.closest("table");
+            if (basicTable) {
+                basicTable.insertAdjacentHTML("afterend", EMI_STATUS_TEMPLATE);
+            }
+        }
+
+        // Scroll to question
+        setTimeout(() => {
+            const questionEl = document.getElementById("emiStatusQuestion");
+            if (questionEl) {
+                questionEl.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }
+        }, 100);
+    }
+
     // ==================== UTILITY FUNCTIONS ====================
 
     function num(v) {
         return parseFloat(v) || 0;
     }
 
+    function formatNumber(num) {
+        if (num === 0) return "0.00";
+        return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    }
+
     function hideElement(selector) {
         const element = document.querySelector(selector);
         if (element) element.style.display = "none";
+    }
+
+    function showElement(selector) {
+        const element = document.querySelector(selector);
+        if (element) element.style.display = "block";
     }
 
     function removeElement(selector) {
@@ -404,229 +543,238 @@ const Step5Handler = (function () {
         elements.nameTransferSection.style.display = "none";
     }
 
-    function showNewAllotteeForm() {
-        if (document.getElementById("newAllotteeForm")) return;
+    // ==================== EMI STATUS QUESTION ====================
 
-        const formHtml = `
-            <div id="newAllotteeForm" style="margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #aa7700; border-radius: 4px;">
-                <h4 style="margin: 0 0 15px; color: #aa7700;">New Allottee Details</h4>
-                <div id="allotteeDetailsForm" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                    ${generateAllotteeFormFields()}
-                </div>
-                <div style="margin-top: 15px; text-align: right;">
-                    <button type="button" class="btn-submit" id="saveAllotteeBtn" style="width: auto; padding: 8px 20px;">Save Allottee Details</button>
-                </div>
-            </div>
-        `;
-
-        elements.nameTransferSection.insertAdjacentHTML("afterend", formHtml);
-        document
-            .getElementById("saveAllotteeBtn")
-            .addEventListener("click", saveAllotteeDetails);
-    }
-
-    function generateAllotteeFormFields() {
-        return `
-            <div>
-                <label style="font-size: 12px;">Allottee Name *</label>
-                <input type="text" name="allottee_name" class="compact-input" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Father/Husband Name *</label>
-                <input type="text" name="father_name" class="compact-input" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Gender *</label>
-                <select name="gender" class="compact-input" required>
-                    <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Date of Birth *</label>
-                <input type="date" name="dob" class="compact-input" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Marital Status *</label>
-                <select name="marital_status" class="compact-input" required>
-                    <option value="">Select</option>
-                    <option value="married">Married</option>
-                    <option value="unmarried">Unmarried</option>
-                    <option value="divorced">Divorced</option>
-                    <option value="widowed">Widowed</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Category *</label>
-                <select name="category" class="compact-input" required>
-                    <option value="">Select</option>
-                    <option value="general">General</option>
-                    <option value="obc">OBC</option>
-                    <option value="sc">SC</option>
-                    <option value="st">ST</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Religion *</label>
-                <input type="text" name="religion" class="compact-input" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Nationality *</label>
-                <input type="text" name="nationality" class="compact-input" value="Indian" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Address for Correspondence *</label>
-                <textarea name="correspondence_address" class="compact-input" rows="2" required></textarea>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Full Permanent Address *</label>
-                <textarea name="permanent_address" class="compact-input" rows="2" required></textarea>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Mobile No. *</label>
-                <input type="tel" name="mobile" class="compact-input" pattern="[0-9]{10}" required>
-            </div>
-            <div>
-                <label style="font-size: 12px;">Alternate Mobile No.</label>
-                <input type="tel" name="alternate_mobile" class="compact-input" pattern="[0-9]{10}">
-            </div>
-            <div>
-                <label style="font-size: 12px;">WhatsApp No.</label>
-                <input type="tel" name="whatsapp" class="compact-input" pattern="[0-9]{10}">
-            </div>
-            <div>
-                <label style="font-size: 12px;">Email ID *</label>
-                <input type="email" name="email" class="compact-input" required>
-            </div>
-        `;
-    }
-
-    async function saveAllotteeDetails() {
-        const form = document.getElementById("allotteeDetailsForm");
-        const inputs = form.querySelectorAll("input, select, textarea");
-
-        // Basic validation
-        if (!validateAllotteeForm(inputs)) return;
-
-        const formData = new FormData();
-        formData.append("_token", elements.csrfToken);
-        formData.append("allottee_id", state.applicantId);
-
-        inputs.forEach((input) => {
-            formData.append(input.name, input.value);
-        });
-
-        const saveBtn = document.getElementById("saveAllotteeBtn");
-        const originalText = saveBtn.textContent;
-
-        setButtonLoading(saveBtn, true, "Saving...");
-
-        try {
-            const response = await fetch("/applicant/save-allottee-details", {
-                method: "POST",
-                headers: { Accept: "application/json" },
-                body: formData,
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                document.getElementById("newAllotteeForm").style.opacity =
-                    "0.7";
-                inputs.forEach((el) => (el.disabled = true));
-                saveBtn.textContent = "Saved";
-                state.allotteeDetailsSaved = true;
-            } else {
-                throw new Error(data.message || "Error saving details");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert(error.message);
-            setButtonLoading(saveBtn, false, originalText);
-        }
-    }
-
-    function validateAllotteeForm(inputs) {
-        let isValid = true;
-        inputs.forEach((input) => {
-            if (input.hasAttribute("required") && !input.value) {
-                isValid = false;
-                input.classList.add("error");
-            } else {
-                input.classList.remove("error");
-            }
-        });
-
-        if (!isValid) {
-            alert("Please fill all required fields");
-        }
-
-        return isValid;
-    }
-
-    function setButtonLoading(button, isLoading, text) {
-        button.disabled = isLoading;
-        button.textContent = text;
-    }
-
-    // ==================== EMI FORM ====================
-
-    const EMI_FORM_TEMPLATE = `
-        <div id="emiPaymentForm" style="margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #b11226; border-radius: 4px;">
-            <h4 style="margin: 0 0 15px; color: #b11226;">EMI Payment Status</h4>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Is EMI still being paid?</label>
-                <select id="emiPaymentStatus" class="compact-input" style="width: 200px;" required>
-                    <option value="">Select</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                </select>
-            </div>
-
-            <div id="emiCountSection" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Without Penalty EMI Count</label>
-                        <input type="number" id="withoutPenaltyEmi" class="compact-input" min="0" placeholder="Enter count">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">With Penalty EMI Count</label>
-                        <input type="number" id="withPenaltyEmi" class="compact-input" min="0" placeholder="Enter count">
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 15px; text-align: right;">
-                <button type="button" class="btn-submit" id="saveEmiBtn" style="width: auto; padding: 8px 20px;">Save EMI Details</button>
+    const EMI_STATUS_TEMPLATE = `
+        <div id="emiStatusQuestion" style="margin: 20px 0; padding: 30px; background: #fff; border: 1px solid #b11226; border-radius: 4px; text-align: center;">
+            <h4 style="margin: 0 0 20px; color: #b11226;">EMI Payment Status</h4>
+            <div style="font-size: 16px; margin-bottom: 25px;">Is the allottee currently paying EMI?</div>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button type="button" class="btn-submit emi-status-btn" data-status="yes" style="padding: 12px 40px; background: #4caf50; font-size: 16px;">Yes</button>
+                <button type="button" class="btn-submit emi-status-btn" data-status="no" style="padding: 12px 40px; background: #f44336; font-size: 16px;">No</button>
             </div>
         </div>
     `;
 
+    // ==================== EMI CONFIGURATION FORM ====================
+
+    const EMI_CONFIG_TEMPLATE = `
+        <div id="emiConfigurationForm" style="margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #b11226; border-radius: 4px;">
+            <input type="hidden" id="emi_active_hidden" value="1">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; color: #b11226;">EMI Configuration Form</h4>
+                <button type="button" id="changeEmiSelectionBtn" class="btn-submit" style="background: #ff9800; padding: 5px 15px; font-size: 12px;width: 10%;">Change Selection</button>
+            </div>
+            
+            <!-- EMI Configuration Summary -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                <div>
+                    <label style="font-size: 12px; color: #666;">Total EMI Amount</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_total_emi_amount">₹0</div>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">Total EMI Count</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_total_emi_count">0</div>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">EMI Period</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_emi_period">-</div>
+                </div>
+            </div>
+
+            <!-- EMI Input Form - ONLY TWO FIELDS -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #f0f2f5; border-radius: 4px;">
+                <h5 style="margin: 0 0 15px; color: #333;">Enter EMI Payment Details</h5>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: end;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">EMI Paid Without Penalty</label>
+                        <input type="number" id="withoutPenaltyCount" class="compact-input" min="0" placeholder="Enter count" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">EMI Paid With Penalty (Late)</label>
+                        <input type="number" id="withPenaltyCount" class="compact-input" min="0" placeholder="Enter count" style="width: 100%;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-submit" id="calculateEmiBtn" style="padding: 8px 20px;">Calculate</button>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    <small>* Only these two values need to be entered. Everything else auto-calculates based on timeline.</small>
+                </div>
+            </div>
+    `;
+
+    // ==================== FINANCIAL LEDGER (Shared between both paths) ====================
+
+    const FINANCIAL_LEDGER_TEMPLATE = `
+            <!-- Timeline Validation Summary -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="padding: 15px; background: #e3f2fd; border-radius: 4px;">
+                    <div style="font-size: 12px; color: #01579b;">EXPECTED EMI COUNT</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #01579b;" id="expected_count">0</div>
+                    <div style="font-size: 12px;">As of current date</div>
+                </div>
+                <div style="padding: 15px; background: #fff3e0; border-radius: 4px;">
+                    <div style="font-size: 12px; color: #e65100;">PAYMENT GAP</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #e65100;" id="payment_gap">0</div>
+                    <div style="font-size: 12px;">Expected - Paid</div>
+                </div>
+                <div style="padding: 15px; background: #f3e5f5; border-radius: 4px;">
+                    <div style="font-size: 12px; color: #6a1b9a;">PENALTY STATUS</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #6a1b9a;" id="penalty_status">No Penalty</div>
+                </div>
+            </div>
+
+            <!-- EMI Summary Cards -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="padding: 15px; background: #e8f5e9; border-radius: 4px; text-align: center;">
+                    <div style="font-size: 12px; color: #2e7d32;">COMPLETED EMI COUNT</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #2e7d32;" id="completed_count">0</div>
+                    <div style="font-size: 14px;" id="completed_breakdown">(0 + 0)</div>
+                </div>
+                <div style="padding: 15px; background: #ffebee; border-radius: 4px; text-align: center;">
+                    <div style="font-size: 12px; color: #c62828;">LATE EMI COUNT</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #c62828;" id="late_count">0</div>
+                    <div style="font-size: 14px;">With Penalty</div>
+                </div>
+                <div style="padding: 15px; background: #e3f2fd; border-radius: 4px; text-align: center;">
+                    <div style="font-size: 12px; color: #1565c0;">REMAINING EMI COUNT</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #1565c0;" id="remaining_count">0</div>
+                    <div style="font-size: 14px;" id="remaining_out_of">Out of 60</div>
+                </div>
+            </div>
+
+            <!-- Financial Ledger - Accounting Style -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                <h5 style="margin: 0 0 15px; color: #333;">Financial Ledger</h5>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                    <!-- Left Column - Counts -->
+                    <div>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Total EMI Count:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;" id="ledger_total_count">60</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Expected EMI Count:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;" id="ledger_expected_count">0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Completed EMI Count:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;" id="ledger_completed_count">0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Late EMI Count:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #c62828; text-align: right;" id="ledger_late_count">0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Remaining EMI Count:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #2e7d32; text-align: right;" id="ledger_remaining_count">0</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <!-- Right Column - Amounts -->
+                    <div>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>EMI Amount (Without Penalty):</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;" id="display_emi_amount">₹0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>EMI Amount (With Penalty):</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #c62828; text-align: right;" id="display_emi_late_amount">₹0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Total Paid Amount:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; text-align: right;" id="total_paid_amount">₹0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Remaining Balance:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #2e7d32; text-align: right;" id="remaining_balance">₹0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Current Account Balance:</strong></td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; color: #b11226; text-align: right;" id="current_balance">₹0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMI Status -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="padding: 15px; background: #fff3e0; border-radius: 4px;">
+                    <div style="font-size: 12px; color: #e65100;">LAST EMI DATE</div>
+                    <div style="font-size: 20px; font-weight: bold;" id="last_emi_date">-</div>
+                </div>
+                <div style="padding: 15px; background: #e1f5fe; border-radius: 4px;">
+                    <div style="font-size: 12px;color: #01579b;margin-bottom: 10px;">CURRENT EMI STATUS</div>
+                    <div style="font-size: 20px; font-weight: bold;">
+                        <span id="current_emi_status" style="padding: 5px 15px; border-radius: 20px; display: inline-block;">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Logic Display -->
+            <div style="margin-top: 20px; padding: 15px; background: #fafafa; border: 1px dashed #ccc; border-radius: 4px; font-size: 13px;">
+                <strong>Calculation Logic:</strong>
+                <div id="calculation_logic" style="margin-top: 10px; color: #555;">
+                    <span id="logic_text">Enter values above and click Calculate</span>
+                </div>
+            </div>
+            
+            <!-- Save Button (Always visible) -->
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="btn-submit" id="saveEmiDetailsBtn" style="padding: 10px 30px; background: #4caf50; font-size: 16px;">Save EMI Details</button>
+            </div>
+        </div>
+    `;
+
+    const EMI_CLOSED_LEDGER_TEMPLATE = `
+        <div id="emiLedgerSystem" style="margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #b11226; border-radius: 4px;">
+            <input type="hidden" id="emi_closed_hidden" value="1">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; color: #b11226;">Financial Ledger (EMI Closed)</h4>
+                <button type="button" id="changeEmiSelectionBtn" class="btn-submit" style="background: #ff9800; padding: 5px 15px; font-size: 12px;width:10%;">Change Selection</button>
+            </div>
+            
+            <!-- Message indicating EMI is closed -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #fff3e0; border: 1px solid #ff9800; border-radius: 4px; text-align: center;">
+                <div style="font-size: 14px; color: #e65100;">
+                    <strong>EMI payments are closed for this allotment.</strong> Below is the final ledger summary.
+                </div>
+            </div>
+            
+            <!-- EMI Configuration Summary (Read-only) -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                <div>
+                    <label style="font-size: 12px; color: #666;">Total EMI Amount</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_total_emi_amount">₹0</div>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">Total EMI Count</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_total_emi_count">0</div>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">EMI Period</label>
+                    <div style="font-size: 16px; font-weight: bold;" id="display_emi_period">-</div>
+                </div>
+            </div>
+    `;
+
+    // Update the displayEmiForm function to show status question first
     function displayEmiForm() {
-        if (document.getElementById("emiPaymentForm") || state.emiFormSaved)
+        if (document.getElementById("emiStatusQuestion") || state.emiFormSaved)
             return;
 
         const basicTable = elements.basicRows?.closest("table");
         if (basicTable) {
-            basicTable.insertAdjacentHTML("afterend", EMI_FORM_TEMPLATE);
-
-            const emiStatus = document.getElementById("emiPaymentStatus");
-            const emiCountSection = document.getElementById("emiCountSection");
-
-            emiStatus.addEventListener("change", (e) => {
-                emiCountSection.style.display =
-                    e.target.value === "yes" ? "block" : "none";
-            });
-
-            document
-                .getElementById("saveEmiBtn")
-                .addEventListener("click", saveEmiDetails);
+            // First show the status question
+            basicTable.insertAdjacentHTML("afterend", EMI_STATUS_TEMPLATE);
 
             setTimeout(() => {
-                document.getElementById("emiPaymentForm").scrollIntoView({
+                document.getElementById("emiStatusQuestion").scrollIntoView({
                     behavior: "smooth",
                     block: "center",
                 });
@@ -634,46 +782,697 @@ const Step5Handler = (function () {
         }
     }
 
-    async function saveEmiDetails() {
-        const emiStatus = document.getElementById("emiPaymentStatus").value;
+    function showEmiConfigurationSection() {
+        console.log("load time");
+        const statusQuestion = document.getElementById("emiStatusQuestion");
+        const insertAfter =
+            statusQuestion || elements.basicRows?.closest("table");
 
-        if (!emiStatus) {
-            alert("Please select EMI payment status");
+        if (insertAfter) {
+            // Insert configuration form (without closing div)
+            insertAfter.insertAdjacentHTML("afterend", EMI_CONFIG_TEMPLATE);
+
+            // Then append the ledger part FIRST
+            const configForm = document.getElementById("emiConfigurationForm");
+            if (configForm) {
+                configForm.insertAdjacentHTML(
+                    "beforeend",
+                    FINANCIAL_LEDGER_TEMPLATE,
+                );
+            }
+
+            // NOW update configuration display AFTER all elements are in DOM
+            setTimeout(() => {
+                updateEmiConfigurationDisplay();
+
+                // Update the remaining_out_of text
+                const remainingOutOf =
+                    document.getElementById("remaining_out_of");
+                if (remainingOutOf) {
+                    remainingOutOf.textContent = `Out of ${state.emiConfig.totalCount}`;
+                }
+
+                // Bind events
+                const calculateBtn = document.getElementById("calculateEmiBtn");
+                if (calculateBtn) {
+                    calculateBtn.addEventListener("click", calculateEmiSummary);
+                }
+
+                const saveBtn = document.getElementById("saveEmiDetailsBtn");
+                if (saveBtn) {
+                    saveBtn.addEventListener("click", saveEmiDetails);
+                }
+
+                const changeBtn = document.getElementById(
+                    "changeEmiSelectionBtn",
+                );
+                if (changeBtn) {
+                    changeBtn.addEventListener("click", resetEmiSelection);
+                }
+
+                // Add input validation
+                const withoutPenaltyInput = document.getElementById(
+                    "withoutPenaltyCount",
+                );
+                const withPenaltyInput =
+                    document.getElementById("withPenaltyCount");
+
+                if (withoutPenaltyInput) {
+                    withoutPenaltyInput.addEventListener(
+                        "input",
+                        validateEmiInputs,
+                    );
+                }
+                if (withPenaltyInput) {
+                    withPenaltyInput.addEventListener(
+                        "input",
+                        validateEmiInputs,
+                    );
+                }
+
+                // Check for pre-filled values from server
+                checkForPrefilledEmiData();
+
+                // Auto-calculate if there are pre-filled values
+                if (withoutPenaltyInput && withoutPenaltyInput.value) {
+                    calculateEmiSummary();
+                }
+            }, 100); // Small delay to ensure DOM is ready
+
+            setTimeout(() => {
+                const form = document.getElementById("emiConfigurationForm");
+                if (form) {
+                    form.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }
+            }, 200);
+        } else {
+            console.log("green");
+        }
+    }
+
+    function showLedgerOnlySection() {
+        const statusQuestion = document.getElementById("emiStatusQuestion");
+        const insertAfter =
+            statusQuestion || elements.basicRows?.closest("table");
+
+        if (insertAfter) {
+            // Insert closed ledger template
+            insertAfter.insertAdjacentHTML(
+                "afterend",
+                EMI_CLOSED_LEDGER_TEMPLATE,
+            );
+
+            // Update configuration display
+            updateEmiConfigurationDisplay();
+
+            // Then append the ledger part (without input fields)
+            const ledgerContainer = document.getElementById("emiLedgerSystem");
+            if (ledgerContainer) {
+                ledgerContainer.insertAdjacentHTML(
+                    "beforeend",
+                    FINANCIAL_LEDGER_TEMPLATE,
+                );
+            }
+
+            // Update the remaining_out_of text
+            const remainingOutOf = document.getElementById("remaining_out_of");
+            if (remainingOutOf) {
+                remainingOutOf.textContent = `Out of ${state.emiConfig.totalCount}`;
+            }
+
+            // Update ledger total count
+            const ledgerTotalCount =
+                document.getElementById("ledger_total_count");
+            if (ledgerTotalCount) {
+                ledgerTotalCount.textContent = state.emiConfig.totalCount;
+            }
+
+            // Bind change selection button
+            document
+                .getElementById("changeEmiSelectionBtn")
+                .addEventListener("click", resetEmiSelection);
+
+            // Bind save button
+            document
+                .getElementById("saveEmiDetailsBtn")
+                .addEventListener("click", saveEmiDetails);
+
+            // Check for pre-filled values from server
+            checkForPrefilledEmiData();
+
+            // Calculate with existing values if any
+            calculateEmiSummary(true);
+
+            setTimeout(() => {
+                document.getElementById("emiLedgerSystem").scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }, 100);
+        }
+    }
+
+    function checkForPrefilledEmiData() {
+        console.log("Checking for pre-filled EMI data...");
+
+        // Check if there are pre-filled values from server
+        const withoutPenaltyInput = document.getElementById(
+            "withoutPenaltyCount",
+        );
+        const withPenaltyInput = document.getElementById("withPenaltyCount");
+
+        console.log("Without Penalty Input:", withoutPenaltyInput);
+        console.log("With Penalty Input:", withPenaltyInput);
+
+        // Check if inputs have values (pre-filled by server)
+        if (withoutPenaltyInput) {
+            const withoutVal = parseInt(withoutPenaltyInput.value) || 0;
+            const withVal = parseInt(withPenaltyInput?.value) || 0;
+
+            console.log("Pre-filled values:", { withoutVal, withVal });
+
+            if (withoutVal > 0 || withVal > 0) {
+                console.log("Found pre-filled EMI data:", {
+                    withoutVal,
+                    withVal,
+                });
+
+                // Set EMI as active
+                state.isEmiActive = true;
+
+                // Auto-calculate with these values
+                setTimeout(() => {
+                    calculateEmiSummary();
+                }, 200);
+            }
+        }
+
+        // Check if there's a hidden field indicating EMI is closed
+        const emiClosedHidden = document.getElementById("emi_closed_hidden");
+        if (emiClosedHidden && emiClosedHidden.value === "1") {
+            state.isEmiActive = false;
+        }
+    }
+
+    function loadEmiConfiguration() {
+        const totalAmountEl = document.querySelector(
+            CONFIG.ui.selectors.totalEmiAmount,
+        );
+        const emiCountEl = document.querySelector(
+            CONFIG.ui.selectors.emiMonthCount,
+        );
+        const startMonthEl = document.querySelector(
+            CONFIG.ui.selectors.emiStartMonth,
+        );
+        const startYearEl = document.querySelector(
+            CONFIG.ui.selectors.emiStartYear,
+        );
+        const amountWithoutPenaltyEl = document.querySelector(
+            CONFIG.ui.selectors.emiAmount,
+        );
+        // FIX: Remove the duplicate declaration - use the correct selector
+        const amountWithPenaltyEl = document.querySelector(
+            CONFIG.ui.selectors.emiAmountLateAmount, // This is "#late_interest_amount"
+        );
+
+        console.log("Without Penalty Element:", amountWithoutPenaltyEl);
+        console.log("With Penalty Element:", amountWithPenaltyEl);
+        console.log("Without Penalty Value:", amountWithoutPenaltyEl?.value);
+        console.log("With Penalty Value:", amountWithPenaltyEl?.value);
+
+        state.emiConfig = {
+            totalAmount: parseFloat(totalAmountEl?.value || 0),
+            totalCount: parseInt(emiCountEl?.value || 60),
+            startMonth: startMonthEl?.value || "",
+            startYear: startYearEl?.value || "",
+            amountWithoutPenalty: parseFloat(
+                amountWithoutPenaltyEl?.value || 0,
+            ),
+            amountWithPenalty: parseFloat(amountWithPenaltyEl?.value || 0),
+        };
+
+        console.log("Loaded EMI Config:", state.emiConfig);
+
+        // Calculate last EMI month and year
+        if (state.emiConfig.startMonth && state.emiConfig.startYear) {
+            const startDate = new Date(
+                state.emiConfig.startYear,
+                parseInt(state.emiConfig.startMonth) - 1,
+                1,
+            );
+            const lastDate = new Date(startDate);
+            lastDate.setMonth(
+                startDate.getMonth() + state.emiConfig.totalCount - 1,
+            );
+            state.emiConfig.lastEmiMonth =
+                CONFIG.monthNames[lastDate.getMonth() + 1];
+            state.emiConfig.lastEmiYear = lastDate.getFullYear().toString();
+            state.emiConfig.endDate =
+                state.emiConfig.lastEmiMonth +
+                " " +
+                state.emiConfig.lastEmiYear;
+        }
+    }
+
+    function updateEmiConfigurationDisplay() {
+        console.log("Updating display with:", state.emiConfig);
+
+        // Wait for elements to exist
+        const displayTotalAmount = document.getElementById(
+            "display_total_emi_amount",
+        );
+        const displayTotalCount = document.getElementById(
+            "display_total_emi_count",
+        );
+        const displayEmiPeriod = document.getElementById("display_emi_period");
+        const displayEmiAmount = document.getElementById("display_emi_amount");
+        const displayEmiLateAmount = document.getElementById(
+            "display_emi_late_amount",
+        );
+        const lastEmiDate = document.getElementById("last_emi_date");
+        const ledgerTotalCount = document.getElementById("ledger_total_count");
+
+        // Only update if elements exist
+        if (displayTotalAmount) {
+            displayTotalAmount.textContent =
+                "₹" + formatNumber(state.emiConfig.totalAmount);
+            console.log(
+                "Updated total amount:",
+                displayTotalAmount.textContent,
+            );
+        } else {
+            console.log("display_total_emi_amount not found");
+        }
+
+        if (displayTotalCount) {
+            displayTotalCount.textContent = state.emiConfig.totalCount;
+        }
+
+        if (ledgerTotalCount) {
+            ledgerTotalCount.textContent = state.emiConfig.totalCount;
+        }
+
+        if (
+            displayEmiPeriod &&
+            state.emiConfig.startMonth &&
+            state.emiConfig.startYear
+        ) {
+            const startMonthName =
+                CONFIG.monthNames[parseInt(state.emiConfig.startMonth)];
+            displayEmiPeriod.textContent = `${startMonthName} ${state.emiConfig.startYear} to ${state.emiConfig.endDate}`;
+        }
+
+        if (displayEmiAmount) {
+            console.log(
+                "Setting EMI Without Penalty:",
+                state.emiConfig.amountWithoutPenalty,
+            );
+            displayEmiAmount.textContent =
+                "₹" + formatNumber(state.emiConfig.amountWithoutPenalty);
+        } else {
+            console.log("display_emi_amount not found");
+        }
+
+        if (displayEmiLateAmount) {
+            console.log(
+                "Setting EMI With Penalty:",
+                state.emiConfig.amountWithPenalty,
+            );
+            displayEmiLateAmount.textContent =
+                "₹" + formatNumber(state.emiConfig.amountWithPenalty);
+        } else {
+            console.log("display_emi_late_amount not found");
+        }
+
+        if (lastEmiDate) {
+            lastEmiDate.textContent = state.emiConfig.endDate || "-";
+        }
+    }
+
+    function validateEmiInputs() {
+        if (!state.isEmiActive) return true; // Skip validation if EMI is closed
+
+        const withoutPenalty =
+            parseInt(document.getElementById("withoutPenaltyCount")?.value) ||
+            0;
+        const withPenalty =
+            parseInt(document.getElementById("withPenaltyCount")?.value) || 0;
+        const total = withoutPenalty + withPenalty;
+
+        if (total > state.emiConfig.totalCount) {
+            alert(
+                `Total EMIs paid (${total}) cannot exceed total EMI count (${state.emiConfig.totalCount})`,
+            );
+            return false;
+        }
+        return true;
+    }
+
+    function calculateExpectedEmiCount() {
+        if (!state.emiConfig.startMonth || !state.emiConfig.startYear) return 0;
+
+        const startDate = new Date(
+            state.emiConfig.startYear,
+            parseInt(state.emiConfig.startMonth) - 1,
+            1,
+        );
+        const currentDate = new Date();
+
+        // Calculate months between start date and current date
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
+
+        let monthsDiff =
+            (currentYear - startYear) * 12 + (currentMonth - startMonth);
+
+        // Add 1 to include current month if we're past the start day
+        if (currentDate.getDate() >= startDate.getDate()) {
+            monthsDiff += 1;
+        }
+
+        // Can't be less than 0 or more than total count
+        return Math.min(Math.max(monthsDiff, 0), state.emiConfig.totalCount);
+    }
+
+    function checkEndDatePassed() {
+        if (!state.emiConfig.lastEmiYear || !state.emiConfig.lastEmiMonth)
+            return false;
+
+        const lastEmiDate = new Date(
+            parseInt(state.emiConfig.lastEmiYear),
+            CONFIG.monthNames.indexOf(state.emiConfig.lastEmiMonth) - 1,
+            1,
+        );
+        const currentDate = new Date();
+
+        return currentDate > lastEmiDate;
+    }
+
+    function calculateEmiSummary(isClosed = false) {
+        // Get user inputs
+        let withoutPenalty =
+            parseInt(document.getElementById("withoutPenaltyCount")?.value) ||
+            0;
+        let withPenalty =
+            parseInt(document.getElementById("withPenaltyCount")?.value) || 0;
+
+        const {
+            totalCount,
+            amountWithoutPenalty,
+            amountWithPenalty,
+            totalAmount,
+            endDate,
+        } = state.emiConfig;
+
+        console.log("Using EMI amounts:", {
+            withoutPenalty: amountWithoutPenalty,
+            withPenalty: amountWithPenalty,
+            totalCount,
+            totalAmount,
+        });
+
+        const total = withoutPenalty + withPenalty;
+
+        // Validate
+        if (total > totalCount) {
+            alert(
+                `Total EMIs paid (${total}) cannot exceed total EMI count (${totalCount})`,
+            );
             return;
         }
 
-        if (emiStatus === "yes") {
-            const withoutPenalty =
-                document.getElementById("withoutPenaltyEmi").value;
-            const withPenalty = document.getElementById("withPenaltyEmi").value;
+        // Store input
+        state.emiInputs = {
+            withoutPenaltyCount: withoutPenalty,
+            withPenaltyCount: withPenalty,
+        };
 
-            if (!withoutPenalty || !withPenalty) {
-                alert("Please enter both EMI counts");
-                return;
+        // Timeline calculations
+        const expectedCount = calculateExpectedEmiCount();
+        const isEndDatePassed = checkEndDatePassed();
+        const paymentGap = Math.max(expectedCount - total, 0);
+
+        let penaltyApplied = false;
+        let penaltyReason = "";
+
+        if (isClosed) {
+            penaltyReason = "EMI payments are closed. No remaining EMIs.";
+        } else if (isEndDatePassed) {
+            penaltyApplied = true;
+            penaltyReason = `EMI end date (${endDate}) has passed. All remaining EMIs include penalty.`;
+        } else if (paymentGap > 0) {
+            penaltyApplied = true;
+            penaltyReason = `Payment gap detected: Expected ${expectedCount} EMIs, but only ${total} paid. Remaining EMIs include penalty.`;
+        } else {
+            penaltyReason = `Payments are on schedule (${total} paid out of ${expectedCount} expected). Remaining EMIs are without penalty.`;
+        }
+
+        state.emiTimeline = {
+            expectedCount,
+            paymentGap,
+            isEndDatePassed,
+            penaltyApplied,
+            penaltyReason,
+        };
+
+        // -------- EMI Calculation --------
+
+        // For "Yes" (active EMI): completedCount = total paid EMIs
+        // For "No" (closed EMI): completedCount = 0 (no payments made)
+        let completedCount = state.isEmiActive ? total : totalCount;
+        let remainingCount = totalCount - completedCount;
+        console.log("c" + completedCount);
+        console.log("r" + remainingCount);
+
+        // Calculate paid amount based on actual payments
+        let paidAmount = 0;
+        if (state.isEmiActive) {
+            // Active EMI: calculate based on user inputs
+            paidAmount =
+                withoutPenalty * amountWithoutPenalty +
+                withPenalty * amountWithPenalty;
+        } else {
+            // Closed EMI: no payments made
+            paidAmount = completedCount * amountWithPenalty;
+        }
+
+        // Calculate remaining amount based on penalty logic
+        let remainingAmount =
+            remainingCount *
+            (penaltyApplied ? amountWithPenalty : amountWithoutPenalty);
+
+        let currentBalance = 0;
+        if (total == totalCount) {
+            currentBalance = 0;
+        } else {
+            currentBalance = state.isEmiActive ? totalAmount - paidAmount : 0;
+        }
+
+        // Determine status
+        let status = "Pending";
+        if (!state.isEmiActive) {
+            status = "Completed"; // EMI is closed
+        } else if (completedCount === totalCount) {
+            status = "Completed";
+        } else if (completedCount > 0) {
+            status =
+                paymentGap > 0 || isEndDatePassed
+                    ? "Late Payment"
+                    : "On Schedule";
+        }
+
+        // Store results
+        state.emiCalculated = {
+            completedCount,
+            lateCount: withPenalty,
+            remainingCount,
+            totalPaid: paidAmount,
+            totalRemaining: remainingAmount,
+            currentBalance,
+            status,
+            expectedCount,
+            paymentGap,
+        };
+
+        console.log("Calculated Results:", state.emiCalculated);
+
+        // Update UI
+        updateEmiDisplays(penaltyReason);
+    }
+
+    function updateEmiDisplays(logicText) {
+        // Always show the static EMI amounts from config
+        const displayEmiAmount = document.getElementById("display_emi_amount");
+        const displayEmiLateAmount = document.getElementById(
+            "display_emi_late_amount",
+        );
+
+        if (displayEmiAmount) {
+            // Always show the static amount, never change it
+            displayEmiAmount.textContent =
+                "₹" + formatNumber(state.emiConfig.amountWithoutPenalty);
+            console.log(
+                "Setting EMI Without Penalty to:",
+                displayEmiAmount.textContent,
+            );
+        }
+
+        if (displayEmiLateAmount) {
+            // Always show the static amount, never change it
+            displayEmiLateAmount.textContent =
+                "₹" + formatNumber(state.emiConfig.amountWithPenalty);
+            console.log(
+                "Setting EMI With Penalty to:",
+                displayEmiLateAmount.textContent,
+            );
+        }
+
+        // Update timeline summary
+        const expectedCountEl = document.getElementById("expected_count");
+        const paymentGapEl = document.getElementById("payment_gap");
+        const penaltyStatusEl = document.getElementById("penalty_status");
+
+        if (expectedCountEl)
+            expectedCountEl.textContent = state.emiTimeline.expectedCount;
+        if (paymentGapEl)
+            paymentGapEl.textContent = state.emiTimeline.paymentGap;
+
+        if (penaltyStatusEl) {
+            penaltyStatusEl.textContent = state.emiTimeline.penaltyApplied
+                ? "Penalty Applied"
+                : "No Penalty";
+            penaltyStatusEl.style.color = state.emiTimeline.penaltyApplied
+                ? "#c62828"
+                : "#2e7d32";
+        }
+
+        // Update summary cards
+        const completedCountEl = document.getElementById("completed_count");
+        const lateCountEl = document.getElementById("late_count");
+        const remainingCountEl = document.getElementById("remaining_count");
+        const completedBreakdownEl = document.getElementById(
+            "completed_breakdown",
+        );
+
+        if (completedCountEl)
+            completedCountEl.textContent = state.emiCalculated.completedCount;
+        if (lateCountEl)
+            lateCountEl.textContent = state.emiCalculated.lateCount;
+        if (remainingCountEl)
+            remainingCountEl.textContent = state.emiCalculated.remainingCount;
+
+        if (completedBreakdownEl) {
+            completedBreakdownEl.textContent = `(${state.emiInputs.withoutPenaltyCount} + ${state.emiInputs.withPenaltyCount})`;
+        }
+
+        // Update ledger counts
+        const ledgerExpectedCountEl = document.getElementById(
+            "ledger_expected_count",
+        );
+        const ledgerCompletedCountEl = document.getElementById(
+            "ledger_completed_count",
+        );
+        const ledgerLateCountEl = document.getElementById("ledger_late_count");
+        const ledgerRemainingCountEl = document.getElementById(
+            "ledger_remaining_count",
+        );
+
+        if (ledgerExpectedCountEl)
+            ledgerExpectedCountEl.textContent = state.emiTimeline.expectedCount;
+        if (ledgerCompletedCountEl)
+            ledgerCompletedCountEl.textContent =
+                state.emiCalculated.completedCount;
+        if (ledgerLateCountEl)
+            ledgerLateCountEl.textContent = state.emiCalculated.lateCount;
+        if (ledgerRemainingCountEl)
+            ledgerRemainingCountEl.textContent =
+                state.emiCalculated.remainingCount;
+
+        // Update financial values
+        const totalPaidEl = document.getElementById("total_paid_amount");
+        const remainingBalanceEl = document.getElementById("remaining_balance");
+        const currentBalanceEl = document.getElementById("current_balance");
+
+        if (totalPaidEl)
+            totalPaidEl.textContent =
+                "₹" + formatNumber(state.emiCalculated.totalPaid);
+        if (remainingBalanceEl)
+            remainingBalanceEl.textContent =
+                "₹" + formatNumber(state.emiCalculated.totalRemaining);
+        if (currentBalanceEl)
+            currentBalanceEl.textContent =
+                "₹" + formatNumber(state.emiCalculated.currentBalance);
+
+        // Update status with color
+        const statusEl = document.getElementById("current_emi_status");
+        if (statusEl) {
+            statusEl.textContent = state.emiCalculated.status;
+
+            // Apply color based on status
+            let bgColor, textColor;
+            switch (state.emiCalculated.status) {
+                case "Completed":
+                    bgColor = "#4caf50";
+                    textColor = "white";
+                    break;
+                case "Late Payment":
+                    bgColor = "#f44336";
+                    textColor = "white";
+                    break;
+                case "On Schedule":
+                    bgColor = "#2196f3";
+                    textColor = "white";
+                    break;
+                default:
+                    bgColor = "#ff9800";
+                    textColor = "white";
             }
+            statusEl.style.background = bgColor;
+            statusEl.style.color = textColor;
+            statusEl.style.padding = "5px 15px";
+            statusEl.style.borderRadius = "20px";
+        }
+
+        // Update calculation logic display
+        const logicTextEl = document.getElementById("logic_text");
+        if (logicTextEl) {
+            logicTextEl.innerHTML =
+                logicText || "Enter values above and click Calculate";
+        }
+    }
+
+    async function saveEmiDetails() {
+        // Validate if calculation was done for active EMI
+        if (
+            state.isEmiActive &&
+            state.emiCalculated.completedCount === 0 &&
+            (state.emiInputs.withoutPenaltyCount > 0 ||
+                state.emiInputs.withPenaltyCount > 0)
+        ) {
+            alert("Please click Calculate button first");
+            return;
         }
 
         const formData = new FormData();
         formData.append("_token", elements.csrfToken);
         formData.append("allottee_id", state.applicantId);
-        formData.append("emi_status", emiStatus);
+        formData.append("emi_config", JSON.stringify(state.emiConfig));
+        formData.append("emi_inputs", JSON.stringify(state.emiInputs));
+        formData.append("emi_timeline", JSON.stringify(state.emiTimeline));
+        formData.append("emi_calculated", JSON.stringify(state.emiCalculated));
+        formData.append("emi_active", state.isEmiActive);
 
-        if (emiStatus === "yes") {
-            formData.append(
-                "without_penalty_emi",
-                document.getElementById("withoutPenaltyEmi").value,
-            );
-            formData.append(
-                "with_penalty_emi",
-                document.getElementById("withPenaltyEmi").value,
-            );
-        }
-
-        const saveBtn = document.getElementById("saveEmiBtn");
+        const saveBtn = document.getElementById("saveEmiDetailsBtn");
+        const originalText = saveBtn.textContent;
         setButtonLoading(saveBtn, true, "Saving...");
 
         try {
-            const response = await fetch("/applicant/save-emi-details", {
+            const response = await fetch("/applicant/save-emi-ledger", {
                 method: "POST",
                 headers: { Accept: "application/json" },
                 body: formData,
@@ -683,14 +1482,30 @@ const Step5Handler = (function () {
 
             if (data.success) {
                 state.emiFormSaved = true;
-                document.getElementById("emiPaymentForm").style.opacity = "0.7";
-                document
-                    .querySelectorAll(
-                        "#emiPaymentForm input, #emiPaymentForm select",
-                    )
-                    .forEach((el) => (el.disabled = true));
-                saveBtn.textContent = "Saved";
+                saveBtn.textContent = "Saved ✓";
+                saveBtn.style.background = "#4caf50";
 
+                // Disable inputs and calculate button after save
+                if (state.isEmiActive) {
+                    const withoutPenaltyInput = document.getElementById(
+                        "withoutPenaltyCount",
+                    );
+                    const withPenaltyInput =
+                        document.getElementById("withPenaltyCount");
+                    const calculateBtn =
+                        document.getElementById("calculateEmiBtn");
+
+                    if (withoutPenaltyInput)
+                        withoutPenaltyInput.disabled = true;
+                    if (withPenaltyInput) withPenaltyInput.disabled = true;
+                    if (calculateBtn) calculateBtn.disabled = true;
+                }
+
+                saveBtn.disabled = true;
+
+                alert("EMI details saved successfully");
+
+                // Check if all documents completed
                 loadNextDocument(CONFIG.documentTypes.basic);
             } else {
                 throw new Error(data.message || "Error saving EMI details");
@@ -698,7 +1513,7 @@ const Step5Handler = (function () {
         } catch (error) {
             console.error("Error:", error);
             alert(error.message);
-            setButtonLoading(saveBtn, false, "Save EMI Details");
+            setButtonLoading(saveBtn, false, originalText);
         }
     }
 
@@ -1013,6 +1828,11 @@ const Step5Handler = (function () {
         }
     }
 
+    function setButtonLoading(button, isLoading, text) {
+        button.disabled = isLoading;
+        button.textContent = text;
+    }
+
     // ==================== CLEANUP ====================
 
     function destroy() {
@@ -1031,7 +1851,6 @@ const Step5Handler = (function () {
     return {
         init,
         destroy,
-        // Expose for debugging if needed
         getState: () => ({ ...state }),
     };
 })();

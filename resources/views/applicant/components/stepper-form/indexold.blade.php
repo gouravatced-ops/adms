@@ -1314,7 +1314,7 @@
                     }
 
                     const currentYear = new Date().getFullYear();
-                    const minYear = 1950;
+                    const minYear = 1960;
                     const appYear = parseInt(applicationYearSelect?.value || 0);
                     const allotYear = parseInt(value);
 

@@ -130,7 +130,9 @@ Route::middleware('auth:web')->group(function () {
 
         // AJAX Save Routes
         Route::get('/scanned/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('dataentry.scanned.files');
+        Route::get('/completed/lot/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'completedIndex'])->name('dataentry.completed.lot');
         Route::get('/scanned/lots/files/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'fileIndex'])->name('dataentry.scanned.lots.files');
+        Route::get('/completed/lots/files/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'CompletedfileIndex'])->name('dataentry.completed.lots.files');
         Route::post('/apply/step1/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep1'])->name('apply.step1.save');
         Route::post('/apply/step2/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep2'])->name('apply.step2.save');
         Route::post('/apply/step3/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep3'])->name('apply.step3.save');
@@ -140,7 +142,7 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/apply/step7/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
         Route::post('/documents/store', [App\Http\Controllers\Applicant\StepperFormController::class, 'store'])->name('documents.store');
         Route::post('/save-allottee-details', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveAllotteeDetails'])->name('save.new.store');
-        Route::post('/save-emi-details', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveEmiDetails'])->name('applicant.save.emi.details');
+        Route::post('/save-emi-ledger', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
         Route::post('/skip-step', [App\Http\Controllers\Applicant\StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
         Route::get('/documents/configs', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');

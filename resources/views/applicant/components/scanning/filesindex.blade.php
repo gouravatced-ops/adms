@@ -178,7 +178,7 @@
 
                                 <td>
                                     <strong class="fw-semibold">
-                                        {{ $file->total_files }}
+                                        {{ $file->no_of_files }}
                                     </strong>
                                 </td>
                                 <td style="background: #7fffd4 !important;">
@@ -187,7 +187,7 @@
                             </tr>
 
                             {{-- File Pages Inputs Row --}}
-                            @if ($file->total_files > 0)
+                            @if ($file->no_of_files > 0)
                                 <tr style="background:#f3efe5;">
                                     <td colspan="7">
                                         <form action="{{ route('applicant.scanning.store') }}" method="post"

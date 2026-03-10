@@ -26,7 +26,7 @@
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
                             <i class="fas fa-folder-open"></i>
-                            Data Entry >> Make Data Entry for Scanned Files
+                            Data Entry >> Allottee List Have Data Entry
                         </h3>
 
                         <!-- Title BELOW subtitle -->
@@ -107,7 +107,7 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            <th class="text-center">Data Entry</th>
+                            {{-- <th class="text-center">Data Entry</th> --}}
                         </tr>
                     </thead>
                     
@@ -170,7 +170,7 @@
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="py-2">
+                                {{-- <td class="py-2">
                                     <div class="flex gap-2">
                                         <!-- View -->
                                         <a href="{{ route('applicant.apply.index', encrypt($file->id)) }}"
@@ -192,7 +192,7 @@
                                             </svg>
                                         </a>
                                     </div>
-                                </td>
+                                </td> --}}
                             </tr>
                         @empty
                             <tr id="noDataRow">

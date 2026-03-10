@@ -124,7 +124,7 @@
                                 <!-- Dates -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        {{ formatDateTime($file->updated_at)}}
+                                        {{ formatDateTime($file->updated_at) }}
                                     </div>
                                 </td>
                             </tr>
@@ -151,6 +151,11 @@
                                                     {{-- Total Column (colspan 2 + different background) --}}
                                                     <td colspan="2" style="background:#e6f4ea; font-weight:600;">
                                                         Total : {{ $totalPages }}
+                                                    </td>
+
+                                                    <td style="background: #faee4e3b;">
+                                                        <strong>Supplements Files </strong> :
+                                                        {{ $file->no_of_supplement }}
                                                     </td>
                                                 </tr>
                                             </tbody>
