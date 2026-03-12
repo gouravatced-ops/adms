@@ -16,7 +16,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
 
@@ -85,8 +84,8 @@
                                 </td>
 
                                 <td class="py-2">
-                                    {{ ucfirst($registration->status ?? 'Unknown') }} by <br>
-                                    {{ $registration->scannedBy->name ?? 'System' }}
+                                    Data Entry by <br>
+                                    {{ $registration->registerAllottee->first()?->Usercreator?->name ?? 'System' }}
                                 </td>
                                 <td class="py-2">
                                     {{ formatDateTime($registration->updated_at) }}

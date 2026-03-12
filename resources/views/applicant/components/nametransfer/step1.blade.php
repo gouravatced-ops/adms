@@ -1,7 +1,4 @@
 {{-- resources/views/applicant/components/stepper-form/step1.blade.php --}}
-@php
-    #return getDebugIndex($applicant);
-@endphp
 <style>
     .allotment-group {
         display: flex;
@@ -38,8 +35,14 @@
 @endphp
 <form id="step1Form" method="POST">
     @csrf
-    <input type="hidden" name="allottee_id" value="{{ $applicant->register_file_id ?? '' }}">
+    <input type="hidden" name="allottee_id" value="{{ $applicant->id ?? '' }}">
     <input type="hidden" name="register_id" value="{{ $applicant->register_id ?? '' }}">
+    <input type="hidden" name="division_id" value="{{ $applicant->division_id ?? '' }}">
+    <input type="hidden" name="subdivision_id" value="{{ $applicant->subdivision_id ?? '' }}">
+    <input type="hidden" name="pcategory_id" value="{{ $applicant->pcategory_id ?? '' }}">
+    <input type="hidden" name="property_type_id" value="{{ $applicant->property_type_id ?? '' }}">
+    <input type="hidden" name="quarter_id" value="{{ $applicant->quarter_id ?? '' }}">
+    <input type="hidden" name="old_application_year" value="{{ $applicant->application_year ?? '' }}">
     {{-- Property summary pill --}}
     <div class="property-summary">
         <div class="prop-pill">
@@ -214,7 +217,7 @@
                 </label>
                 <div class="input-group">
                     @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/s.']; @endphp
-                    <select name="prefix" class="prefix-select" disabled>
+                    <select name="prefix" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"
                                 {{ ($applicant->prefix ?? '') === $prefix ? 'selected' : '' }}>
@@ -223,10 +226,8 @@
                         @endforeach
                     </select>
                     <input type="text" name="allottee_name" class="custom-input only-alphabet"
-                        value="{{ $applicant->allottee_name ?? '' }}" placeholder="e.g. Rajesh" disabled>
+                        value="{{ $applicant->allottee_name ?? '' }}" placeholder="e.g. Rajesh">
                     <input type="hidden" name="">
-                    <input type="hidden" name="prefix" value="{{ $applicant->prefix ?? '' }}">
-                    <input type="hidden" name="allottee_name" value="{{ $applicant->allottee_name ?? '' }}">
                 </div>
             </div>
 
@@ -234,8 +235,6 @@
                 <label class="field-label">Middle Name</label>
                 <input type="text" name="allottee_middle_name" class="custom-input only-alphabet"
                     value="{{ $applicant->allottee_middle_name ?? '' }}" placeholder="Optional">
-                <input type="hidden" name="allottee_middle_name"
-                    value="{{ $applicant->allottee_middle_name ?? '' }}">
             </div>
 
             <div class="field">
@@ -244,7 +243,6 @@
                 </label>
                 <input type="text" name="allottee_surname" class="custom-input only-alphabet"
                     value="{{ $applicant->allottee_surname ?? '' }}" placeholder="e.g. Kumar">
-                <input type="hidden" name="allottee_surname" value="{{ $applicant->allottee_surname ?? '' }}">
             </div>
 
             <div class="field">

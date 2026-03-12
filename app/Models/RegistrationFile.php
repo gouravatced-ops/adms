@@ -21,6 +21,14 @@ class RegistrationFile extends Model
         );
     }
 
+    public function registerAllottee() {
+        return $this->hasMany(
+            Allottee::class,
+            'register_id',     // Foreign key in register_allottees
+            'register_no'      // Local key in registration_files
+        );
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

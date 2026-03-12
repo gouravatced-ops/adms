@@ -1148,6 +1148,18 @@ a {
     letter-spacing: 0.4px;
 }
 
+.modern-card-header-new {
+    width: 100%;
+    background: linear-gradient(90deg, #4180e7 60%, rgb(57 74 104) 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.55rem 1rem;
+    margin: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    letter-spacing: 0.4px;
+}
+
 /* Grid utilities - NEW */
 .grid {
     display: grid;

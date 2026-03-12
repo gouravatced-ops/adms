@@ -380,7 +380,7 @@
                                 <option value="">-- वर्ष / Year --</option>
                                 <?php 
                                     $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960' ; $y--): 
+                                    for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
                                 <option value="<?= $y ?>"
                                     {{ $applicant->payment_start_year == $y ? 'selected' : '' }}><?= $y ?></option>
@@ -477,7 +477,7 @@
                                 <option value="">वर्ष / Year</option>
                                 <?php 
                                     $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960'; $y--): 
+                                    for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
                                 <option value="<?= $y ?>" {{ $applicant->allot_year == $y ? 'selected' : '' }}>
                                     <?= $y ?></option>

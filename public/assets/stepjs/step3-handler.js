@@ -18,20 +18,20 @@ const Step3Handler = {
     // Disable all financial fields
     disableAllFields: function () {
         const ids = [
-            "high_income_percent",
-            "low_income_percent",
-            "deposited_amount",
-            "legal_fee",
-            "legal_document_fee",
-            "total_payment",
-            "interim_price",
-            "remaining_amount",
-            "payment_months",
-            "interest_type",
-            "pre_interest",
-            "late_interest",
-            "pre_interest_amount",
-            "late_interest_amount",
+            // "high_income_percent",
+            // "low_income_percent",
+            // "deposited_amount",
+            // "legal_fee",
+            // "legal_document_fee",
+            // "total_payment",
+            // "interim_price",
+            // "remaining_amount",
+            // "payment_months",
+            // "interest_type",
+            // "pre_interest",
+            // "late_interest",
+            // "pre_interest_amount",
+            // "late_interest_amount",
         ];
 
         ids.forEach((id) => {
@@ -400,6 +400,35 @@ const Step3Handler = {
             });
         });
 
+        document.querySelectorAll(".only-number-amount").forEach((input) => {
+            // Allow numbers and one dot
+            input.addEventListener("input", function () {
+                let value = this.value;
+
+                // Remove invalid characters
+                value = value.replace(/[^0-9.]/g, "");
+
+                // Allow only one dot
+                const parts = value.split(".");
+                if (parts.length > 2) {
+                    value = parts[0] + "." + parts.slice(1).join("");
+                }
+
+                this.value = value;
+            });
+
+            // On blur convert to .00 format
+            input.addEventListener("blur", function () {
+                let num = parseFloat(this.value);
+
+                if (!isNaN(num)) {
+                    this.value = num.toFixed(2); // always .00
+                } else {
+                    this.value = "";
+                }
+            });
+        });
+
         // Only Alphabets (A-Z + space)
         document.querySelectorAll(".only-alphabet").forEach((input) => {
             input.addEventListener("input", function () {
@@ -418,14 +447,16 @@ const Step3Handler = {
         });
 
         // English + Hindi + Number + / -
-        document.querySelectorAll(".only-eng-hindi-special").forEach((input) => {
-            input.addEventListener("input", function () {
-                this.value = this.value.replace(
-                    /[^a-zA-Z0-9\u0900-\u097F\s\/-]/g,
-                    "",
-                );
+        document
+            .querySelectorAll(".only-eng-hindi-special")
+            .forEach((input) => {
+                input.addEventListener("input", function () {
+                    this.value = this.value.replace(
+                        /[^a-zA-Z0-9\u0900-\u097F\s\/-]/g,
+                        "",
+                    );
+                });
             });
-        });
 
         // Float values between 0-100
         document.querySelectorAll(".only-float-100").forEach((input) => {
@@ -450,73 +481,73 @@ const Step3Handler = {
         });
     },
 
-    // validate: function () {
-    //     const form = document.querySelector("#step3Form");
-    //     if (!form) return true;
+    validate: function () {
+        const form = document.querySelector("#step3Form");
+        if (!form) return true;
 
-    //     let valid = true;
-    //     let firstInvalid = null;
+        let valid = true;
+        let firstInvalid = null;
 
-    //     // Required fields validation
-    //     const requiredFields = [
-    //         "tentative_price",
-    //         "payment_type",
-    //         "high_income_percent",
-    //     ];
+        // Required fields validation
+        const requiredFields = [
+            "tentative_price",
+            "payment_type",
+            "high_income_percent",
+        ];
 
-    //     requiredFields.forEach((fieldName) => {
-    //         const field = form.querySelector(`[name="${fieldName}"]`);
-    //         if (field && !field.value.trim()) {
-    //             field.classList.add("is-invalid");
-    //             valid = false;
-    //             if (!firstInvalid) firstInvalid = field;
-    //         }
-    //     });
+        requiredFields.forEach((fieldName) => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field && !field.value.trim()) {
+                field.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = field;
+            }
+        });
 
-    //     // Validate that either high_income_percent or low_income_percent is filled
-    //     const highPercent = document.getElementById("high_income_percent");
-    //     const lowPercent = document.getElementById("low_income_percent");
+        // Validate that either high_income_percent or low_income_percent is filled
+        const highPercent = document.getElementById("high_income_percent");
+        const lowPercent = document.getElementById("low_income_percent");
 
-    //     if (highPercent && lowPercent) {
-    //         const hasHigh = highPercent.value.trim();
-    //         const hasLow = lowPercent.value.trim();
+        if (highPercent && lowPercent) {
+            const hasHigh = highPercent.value.trim();
+            const hasLow = lowPercent.value.trim();
 
-    //         if (!hasHigh && !hasLow) {
-    //             highPercent.classList.add("is-invalid");
-    //             lowPercent.classList.add("is-invalid");
-    //             valid = false;
-    //             if (!firstInvalid) firstInvalid = highPercent;
-    //         }
-    //     }
+            if (!hasHigh && !hasLow) {
+                highPercent.classList.add("is-invalid");
+                lowPercent.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = highPercent;
+            }
+        }
 
-    //     // Validate payment months if remaining amount > 0
-    //     const remainingAmount = document.getElementById("remaining_amount");
-    //     if (remainingAmount && this.num(remainingAmount.value) > 0) {
-    //         const paymentMonths = document.getElementById("payment_months");
-    //         const interestType = document.getElementById("interest_type");
+        // Validate payment months if remaining amount > 0
+        const remainingAmount = document.getElementById("remaining_amount");
+        if (remainingAmount && this.num(remainingAmount.value) > 0) {
+            const paymentMonths = document.getElementById("payment_months");
+            const interestType = document.getElementById("interest_type");
 
-    //         if (paymentMonths && !paymentMonths.value) {
-    //             paymentMonths.classList.add("is-invalid");
-    //             valid = false;
-    //             if (!firstInvalid) firstInvalid = paymentMonths;
-    //         }
+            if (paymentMonths && !paymentMonths.value) {
+                paymentMonths.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = paymentMonths;
+            }
 
-    //         if (interestType && !interestType.value) {
-    //             interestType.classList.add("is-invalid");
-    //             valid = false;
-    //             if (!firstInvalid) firstInvalid = interestType;
-    //         }
-    //     }
+            if (interestType && !interestType.value) {
+                interestType.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = interestType;
+            }
+        }
 
-    //     if (firstInvalid) {
-    //         firstInvalid.scrollIntoView({
-    //             behavior: "smooth",
-    //             block: "center",
-    //         });
-    //     }
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+        }
 
-    //     return valid;
-    // },
+        return valid;
+    },
 
     destroy: function () {
         console.log("Step 3 Handler Destroyed");

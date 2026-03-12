@@ -16,9 +16,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-    @php
-        #return getDebugIndex($registerAllottee);
-    @endphp
+
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
             <!-- Header with Search -->
@@ -28,7 +26,7 @@
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
                             <i class="fas fa-folder-open"></i>
-                            Data Entry >> Make Data Entry for Scanned Files
+                            Data Entry >> Allottee List Have Data Entry
                         </h3>
 
                         <!-- Title BELOW subtitle -->
@@ -39,8 +37,7 @@
 
                     <div class="flex items-center gap-2">
                         <a href="{{ route('applicant.dataentry.scanned.files') }}">
-                            <button class="btn btn-info"
-                                style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important; color:white;">
+                            <button class="btn btn-info" style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important; color:white;">
                                 Back
                             </button>
                         </a>
@@ -110,10 +107,10 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            <th class="text-center">Data Entry</th>
+                            {{-- <th class="text-center">Data Entry</th> --}}
                         </tr>
                     </thead>
-
+                    
                     <tbody id="tableBody">
                         @forelse ($registerAllottee as $key => $file)
                             <tr>
@@ -132,15 +129,6 @@
                                         <small class="text-muted">
                                             <strong>No.of Files: </strong>{{ $file->total_files }}
                                         </small>
-                                        <div class="row" style="gap: 10px;margin-top:3px;">
-                                            <?php if($file->is_step_completed == 0) { ?>
-                                            <span class="custom-badge badge-not-started"> Incompleted </span>
-                                            <?php } ?>
-                                            <?php if($file->current_step) { ?>
-                                            <span class="custom-badge badge-progress"> Current Step
-                                                {{ $file->current_step }} </span>
-                                            <?php } ?>
-                                        </div>
                                     </div>
                                 </td>
 
@@ -182,14 +170,14 @@
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="py-2">
+                                {{-- <td class="py-2">
                                     <div class="flex gap-2">
                                         <!-- View -->
                                         <a href="{{ route('applicant.apply.index', encrypt($file->id)) }}"
                                             class="action-btn action-btn-info" title="Data Entry for this file">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
 
                                                 <!-- Document/Form -->
                                                 <rect x="3" y="3" width="14" height="18" rx="2"></rect>
@@ -204,7 +192,7 @@
                                             </svg>
                                         </a>
                                     </div>
-                                </td>
+                                </td> --}}
                             </tr>
                         @empty
                             <tr id="noDataRow">

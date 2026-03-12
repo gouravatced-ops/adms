@@ -7,6 +7,8 @@ use App\Http\Controllers\Applicant\DashboardController;
 use App\Http\Controllers\Applicant\StudentApplicationController;
 use App\Http\Controllers\Applicant\FileRecevingController;
 use App\Http\Controllers\Applicant\ScannedController;
+use App\Http\Controllers\Applicant\StepperFormController;
+use App\Http\Controllers\Applicant\NameTransferController;
 
 
 Route::middleware('guest')->group(function () {
@@ -125,27 +127,49 @@ Route::middleware('auth:web')->group(function () {
     // data entry 
     Route::prefix('applicant')->name('applicant.')->group(function () {
         // Stepper Form Routes
-        Route::get('/dataentry/start/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'indexStart'])->name('apply.index');
-        Route::get('/apply/step/{step}/{applicantId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getStep'])->name('apply.step');
+        Route::get('/dataentry/start/{encodedId}', [StepperFormController::class, 'indexStart'])->name('apply.index');
+        Route::get('/apply/step/{step}/{applicantId}', [StepperFormController::class, 'getStep'])->name('apply.step');
 
         // AJAX Save Routes
-        Route::get('/scanned/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'index'])->name('dataentry.scanned.files');
-        Route::get('/completed/lot/list', [App\Http\Controllers\Applicant\StepperFormController::class, 'completedIndex'])->name('dataentry.completed.lot');
-        Route::get('/scanned/lots/files/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'fileIndex'])->name('dataentry.scanned.lots.files');
-        Route::get('/completed/lots/files/{encodedId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'CompletedfileIndex'])->name('dataentry.completed.lots.files');
-        Route::post('/apply/step1/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep1'])->name('apply.step1.save');
-        Route::post('/apply/step2/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep2'])->name('apply.step2.save');
-        Route::post('/apply/step3/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep3'])->name('apply.step3.save');
-        Route::post('/apply/step4/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep4'])->name('apply.step4.save');
-        Route::post('/apply/step5/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep5'])->name('apply.step5.save');
-        Route::post('/apply/step6/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep6'])->name('apply.step6.save');
-        Route::post('/apply/step7/save', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
-        Route::post('/documents/store', [App\Http\Controllers\Applicant\StepperFormController::class, 'store'])->name('documents.store');
-        Route::post('/save-allottee-details', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveAllotteeDetails'])->name('save.new.store');
-        Route::post('/save-emi-ledger', [App\Http\Controllers\Applicant\StepperFormController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
-        Route::post('/skip-step', [App\Http\Controllers\Applicant\StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
-        Route::get('/documents/configs', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
-        Route::get('/documents/list/{allotteeId}', [App\Http\Controllers\Applicant\StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
+        Route::get('/scanned/list', [StepperFormController::class, 'index'])->name('dataentry.scanned.files');
+        Route::get('/completed/lot/list', [StepperFormController::class, 'completedIndex'])->name('dataentry.completed.lot');
+        Route::get('/scanned/lots/files/{encodedId}', [StepperFormController::class, 'fileIndex'])->name('dataentry.scanned.lots.files');
+        Route::get('/completed/lots/files/{encodedId}', [StepperFormController::class, 'CompletedfileIndex'])->name('dataentry.completed.lots.files');
+        Route::post('/apply/step1/save', [StepperFormController::class, 'saveStep1'])->name('apply.step1.save');
+        Route::post('/apply/step2/save', [StepperFormController::class, 'saveStep2'])->name('apply.step2.save');
+        Route::post('/apply/step3/save', [StepperFormController::class, 'saveStep3'])->name('apply.step3.save');
+        Route::post('/apply/step4/save', [StepperFormController::class, 'saveStep4'])->name('apply.step4.save');
+        Route::post('/apply/step5/save', [StepperFormController::class, 'saveStep5'])->name('apply.step5.save');
+        Route::post('/apply/step6/save', [StepperFormController::class, 'saveStep6'])->name('apply.step6.save');
+        Route::post('/apply/step7/save', [StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
+        Route::post('/documents/store', [StepperFormController::class, 'store'])->name('documents.store');
+        Route::post('/save-allottee-details', [StepperFormController::class, 'saveAllotteeDetails'])->name('save.new.store');
+        Route::post('/save-emi-ledger', [StepperFormController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
+        Route::post('/skip-step', [StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
+        Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
+        Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
+    });
+
+    // data entry of file transfer
+    Route::prefix('nametransfer')->name('nametransfer.')->group(function () {
+        // AJAX Save Routes
+        Route::get('/start/{encodedId}', [NameTransferController::class, 'indexStart'])->name('apply.index');
+        Route::get('/apply/step/{step}/{applicantId}', [NameTransferController::class, 'getStep'])->name('apply.step');
+        Route::get('/files/list', [NameTransferController::class, 'index'])->name('dataentry.files');
+        Route::get('/completed/files', [NameTransferController::class, 'completedIndex'])->name('dataentry.completed');
+        Route::post('/apply/step1/save', [NameTransferController::class, 'saveStep1'])->name('apply.step1.save');
+        Route::post('/apply/step1/update', [NameTransferController::class, 'updateStep1'])->name('apply.step1.update');
+        Route::post('/apply/step2/save', [NameTransferController::class, 'saveStep2'])->name('apply.step2.save');
+        Route::post('/apply/step3/save', [NameTransferController::class, 'saveStep3'])->name('apply.step3.save');
+        Route::post('/apply/step4/save', [NameTransferController::class, 'saveStep4'])->name('apply.step4.save');
+        Route::post('/apply/step5/save', [NameTransferController::class, 'saveStep5'])->name('apply.step5.save');
+        Route::post('/apply/step6/save', [NameTransferController::class, 'saveStep6'])->name('apply.step6.save');
+        Route::post('/apply/step7/save', [NameTransferController::class, 'saveStep7'])->name('apply.step7.save');
+        Route::post('/documents/store', [NameTransferController::class, 'store'])->name('documents.store');
+        Route::post('/save-emi-ledger', [NameTransferController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
+        Route::post('/skip-step', [NameTransferController::class, 'skipStep'])->name('applicant.skip.step');
+        Route::get('/documents/configs', [NameTransferController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
+        Route::get('/documents/list/{allotteeId}', [NameTransferController::class, 'getDocumentsList'])->name('applicant.document.list');
     });
 
     // Add to your routes file

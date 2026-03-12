@@ -310,9 +310,9 @@
         <form action="{{ route('admin.filereceving.limitset') }}" method="POST" class="form-body">
             @csrf
             <input type="hidden" name="register_id" value="{{ $register->register_no }}">
-            <p class="mb-3"> Select how many files are allowed in this registration (Max 20): </p>
+            <p class="mb-3"> Select how many files are allowed in this registration (Max 35): </p>
             <div class="field"> <label class="label required">Allowed Files</label> 
-                <input type="number" name="allowed_files" id="allowed_files" class="form-control mt-2" placeholder="Enter number manually (1-20)" min="1" max="20">
+                <input type="number" name="allowed_files" id="allowed_files" class="form-control mt-2" placeholder="Enter number manually (1-35)" min="1" max="35">
             </div>
             <!-- Form Footer with Submit Button -->
             <div class="form-footer">

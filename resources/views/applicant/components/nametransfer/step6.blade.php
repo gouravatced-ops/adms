@@ -21,7 +21,7 @@
 
     <!-- Personal Details Table -->
     <div class="review-table-container">
-        <div class="table-header" style="background: linear-gradient(90deg, #aa7700, #ffb703);">
+        <div class="table-header" style="background: linear-gradient(90deg, #1a7a3f, #207142);">
             <div class="header-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">

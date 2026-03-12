@@ -77,7 +77,8 @@
                                     {{ $registration->lot_no }}
                                 </td>
                                 <td class="py-2">
-                                    <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}" style="text-decoration: underline;color: blue;">
+                                    <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}"
+                                        style="text-decoration: underline;color: blue;">
                                         {{ $registration->register_no }}
                                     </a>
                                 </td>
@@ -86,7 +87,8 @@
                                     {{ $registration->total_files }}
                                 </td>
 
-                                <td class="py-2">{{ ucfirst($registration->status) }} by <br> {{ $registration->creator->name ?? 'System' }}
+                                <td class="py-2">{{ ucfirst($registration->status) }} by <br>
+                                    {{ $registration->creator->name ?? 'System' }}
                                 </td>
 
                                 <td class="py-2">
@@ -95,7 +97,19 @@
                                 <!-- ACTION BUTTONS -->
                                 <td class="py-2">
                                     <div class="flex gap-2">
-                                             <!-- View Files -->
+                                        {{-- @php
+                                            $total = (int) ($registration->total_files ?? 0);
+                                            $allowed = (int) ($registration->allowed_files ?? 0);
+                                        @endphp
+
+                                        @if ($total < $allowed)
+                                            <!-- Add File -->
+                                            <a href="{{ route('admin.filereceving.addmore', $registration->encoded_register_no) }}"
+                                                class="action-btn action-btn-success" title="Add File">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        @endif --}}
+                                        <!-- View Files -->
                                         <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}"
                                             class="action-btn action-btn-info" title="View Files">
                                             <i class="fas fa-eye"></i>

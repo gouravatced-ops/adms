@@ -12,6 +12,7 @@ class Allottee extends Model
     public $timestamps = true;
 
     protected $fillable = [
+        'register_id',
         'register_file_id',
         'division_id',
         'subdivision_id',
@@ -60,7 +61,9 @@ class Allottee extends Model
         'no_of_supplement',
         'json_pages',
         'total_pages',
+        'parent_id',
         'current_step',
+        'is_trans_entry_completed',
         'allottee_create_date',
         'create_ip_address',
         'update_ip_address',
@@ -126,6 +129,16 @@ class Allottee extends Model
     public function creator()
     {
         return $this->belongsTo(Admin::class, 'created_by');
+    }
+
+    public function Usercreator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function Userupdater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function updater()

@@ -199,7 +199,7 @@
 
                                             <div class="d-flex gap-2 flex-wrap align-items-center">
 
-                                                @for ($i = 1; $i <= $file->total_files; $i++)
+                                                @for ($i = 1; $i <= $file->no_of_files; $i++)
                                                     <input type="number" name="file_pages[]" value="0"
                                                         class="form-control w-auto page-input"
                                                         style="width: 80px !important;"

@@ -26,6 +26,8 @@ class ScannedController extends Controller
                 ->whereHas('allottees', function ($q) {
                     // At least one allottee NOT scanned
                     $q->where('allottee_status', '!=', 'scanned');
+                    $q->where('allottee_status', '!=', 'dataentry');
+                    $q->where('allottee_status', '!=', 'handover');
                 })
                 ->orderBy('created_at', 'desc');
 
@@ -106,11 +108,10 @@ class ScannedController extends Controller
             $search = $request->query('search', '');
             $query = RegistrationFile::with(['allottees', 'scannedBy'])
                 ->where('created_by', auth()->id())
-                ->whereDoesntHave('allottees', function ($q) {
-                    $q->where('allottee_status', '!=', 'scanned');
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', 'scanned');
                 })
-                ->whereHas('allottees')
-                ->orderBy('created_at', 'desc');
+                ->orderByDesc('created_at');
 
             // Search filter
             if (!empty($search)) {

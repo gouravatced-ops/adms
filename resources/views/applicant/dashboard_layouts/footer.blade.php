@@ -177,7 +177,8 @@
 
         if (!e.target.classList.contains("num-input")) return;
 
-        let number = e.target.value.replace(/[^0-9]/g, "");
+        let value = e.target.value.trim();
+
         let targetId = e.target.getAttribute("data-word-target");
         let postfix = e.target.getAttribute("data-word-postfix") || "";
 
@@ -186,12 +187,22 @@
         let targetField = document.getElementById(targetId);
         if (!targetField) return;
 
-        number = parseInt(number) || 0;
+        let parts = value.split(".");
 
-        targetField.value = convertToWords(number, postfix);
+        let rupees = parseInt(parts[0]) || 0;
+        let paisa = parts[1] ? parseInt(parts[1].substring(0, 2)) : 0;
+
+        let words = convertToWords(rupees);
+
+        if (paisa > 0) {
+            words += " and " + convertToWords(paisa) + " Paisa";
+        }
+
+        targetField.value = words + postfix;
+
     });
 
-    function convertToWords(num, postfix = '') {
+    function convertToWords(num) {
 
         if (num === 0) return "Zero" + postfix;
 
@@ -243,6 +254,6 @@
             result += convertHundreds(num);
         }
 
-        return result.trim() + postfix;
+        return result.trim();
     }
 </script>

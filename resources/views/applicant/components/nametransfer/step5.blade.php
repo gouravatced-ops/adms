@@ -5,15 +5,6 @@
 <form id="step5Form" method="POST" enctype="multipart/form-data">
     @csrf
     <input type="hidden" name="allottee_id" id="applicant_id" value="{{ $applicant->id ?? '' }}">
-    <input type="hidden" name="remaining_amount" id="remaining_amount" value="{{ $applicant->AllotProFinDetail->remaining_amount ?? '' }}">
-    <input type="hidden" name="emi_month_count" id="emi_month_count" value="{{ $applicant->AllotProFinDetail->payment_months ?? '' }}">
-    <input type="hidden" name="payment_start_month" id="payment_start_month" value="{{ $applicant->AllotProFinDetail->payment_start_month ?? '' }}">
-    <input type="hidden" name="payment_start_year" id="payment_start_year" value="{{ $applicant->AllotProFinDetail->payment_start_year ?? '' }}">
-    {{-- January 2020 --}}
-    <input type="hidden" name="last_payment_due_date" id="last_payment_due_date" value="{{ $applicant->AllotProFinDetail->last_payment_due_date ?? '' }}">
-    <input type="hidden" name="pre_interest_amount" id="pre_interest_amount" value="{{ $applicant->AllotProFinDetail->pre_interest_amount ?? '' }}">
-    <input type="hidden" name="late_interest_amount" id="late_interest_amount" value="{{ $applicant->AllotProFinDetail->late_interest_amount ?? '' }}">
-    <input type="hidden" name="nametransferValue" id="nametransferValue" value="{{ $applicant->name_transfer_status ?? 'no' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </form>
 
@@ -119,7 +110,7 @@
         <div class="documents-section" style="margin-bottom: 20px;">
             <h4
                 style="margin: 0 0 10px; font-size:14px; color:#aa7700; border-bottom:1px solid #aa7700; padding-bottom:5px;">
-                Basic Documents
+                Name Transfer Document
             </h4>
             <table class="document-table" style="width:100%; border-collapse:collapse; font-size:13px;">
                 <thead>
@@ -134,43 +125,22 @@
                         <th style="padding:8px 5px; border:1px solid #ddd; width:10%;">Action</th>
                     </tr>
                 </thead>
-                <tbody id="basicDocumentRows"></tbody>
+                <tbody id="nameTransferDocumentRows"></tbody>
             </table>
         </div>
 
         {{-- Name Transfer Question --}}
         <div id="nameTransferSection"
-            style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px; display:none;">
+            style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px;">
             <div style="display:flex; align-items:center; gap:15px;">
                 <label style="font-weight:600; font-size:13px;">Is this a Name Transfer case?</label>
-                <select id="nameTransfer" class="custom-select"
+                <select id="nametransferValue" class="custom-select"
                     style="width:150px; padding:5px; border:1px solid #ddd; border-radius:4px;">
                     <option value="no">No</option>
                     <option value="yes">Yes</option>
                 </select>
             </div>
         </div>
-
-        {{-- Additional Documents Table for Name Transfer --}}
-        {{-- <div id="additionalDocumentsSection" style="display:none;">
-            <h4 style="margin:15px 0 10px; font-size:14px; color:#aa7700; border-bottom:1px solid #aa7700; padding-bottom:5px;"
-                id="additionalSectionTitle">Name Transfer Documents</h4>
-            <table class="document-table" style="width:100%; border-collapse:collapse; font-size:13px;">
-                <thead>
-                    <tr>
-                        <th style="padding:8px 5px; border:1px solid #ddd; width:5%;">Sl.</th>
-                        <th style="padding:8px 5px;border:1px solid #ddd;width: 11%;">Document</th>
-                        <th style="padding:8px 5px; border:1px solid #ddd; width:12%;">Doc No.</th>
-                        <th style="padding:8px 5px;border:1px solid #ddd;width: 10%;">Date</th>
-                        <th style="padding:8px 5px;border:1px solid #ddd;width: 15%;">Additional Information</th>
-                        <th style="padding:8px 5px; border:1px solid #ddd; width:18%;">File</th>
-                        <th style="padding:8px 5px;border:1px solid #ddd;width: 25%;">Remarks</th>
-                        <th style="padding:8px 5px; border:1px solid #ddd; width:10%;">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="additionalDocumentRows"></tbody>
-            </table>
-        </div> --}}
     </div>
 </div>
 

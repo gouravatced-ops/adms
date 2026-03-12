@@ -16,9 +16,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-    @php
-        #return getDebugIndex($registerAllottee);
-    @endphp
+
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
             <!-- Header with Search -->
@@ -28,7 +26,7 @@
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
                             <i class="fas fa-folder-open"></i>
-                            Data Entry >> Make Data Entry for Scanned Files
+                            Scanned >> View of Scanned Files
                         </h3>
 
                         <!-- Title BELOW subtitle -->
@@ -38,7 +36,7 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('applicant.dataentry.scanned.files') }}">
+                        <a href="{{ route('applicant.scanning.completed') }}">
                             <button class="btn btn-info"
                                 style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important; color:white;">
                                 Back
@@ -46,57 +44,6 @@
                         </a>
                     </div>
                 </div>
-
-                <!-- Search Box with Filters -->
-                <div class="search-container" style="margin-top: 10px;">
-                    <div class="row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-                        <div class="col" style="flex: 1; min-width: 200px;">
-                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Search
-                                Allottee</label>
-                            <input type="text" id="searchAllottee" class="form-control search-input"
-                                placeholder="Search by allottee name..." style="padding: 8px 12px;" autocomplete="off">
-                        </div>
-
-                        <div class="col" style="flex: 1; min-width: 150px;">
-                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Property
-                                No</label>
-                            <input type="text" id="searchPropertyNo" class="form-control search-input"
-                                placeholder="Search property number..." style="padding: 8px 12px;" autocomplete="off">
-                        </div>
-
-                        <div class="col" style="flex: 1; min-width: 150px;">
-                            <label
-                                style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
-                            <select id="searchDivision" class="form-control search-select" style="padding: 8px 12px;">
-                                <option value="">All Divisions</option>
-                                @if (isset($divisions) && $divisions->count())
-                                    @foreach ($divisions as $division)
-                                        <option value="{{ $division->id }}">{{ $division->name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-
-                        <div class="col" style="width: auto;">
-                            <button id="searchButton" class="btn"
-                                style="padding: 8px 16px; white-space: nowrap; background:linear-gradient(135deg, #3b82f6, #2563eb) !important; color:white;">
-                                <i class="fas fa-search"></i> Search
-                            </button>
-                            <button id="clearSearch" class="btn btn-secondary"
-                                style="padding: 8px 16px; white-space: nowrap; display: none;">
-                                <i class="fas fa-times"></i> Clear
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div id="loadingIndicator" style="display: none; text-align: center; padding: 20px;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p style="margin-top: 10px; color: #6c757d;">Loading data...</p>
             </div>
 
             <!-- Table -->
@@ -104,16 +51,20 @@
                 <table id="studentListTable" class="table table-striped table-bordered align-middle w-full">
                     <thead style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important;">
                         <tr>
-                            <th width="50">Sl. no.</th>
+                            <th width="50">Sl. No.</th>
                             <th>Allottee & Property</th>
                             <th>Division Details</th>
                             <th>Property Details</th>
                             <th>Remarks</th>
-                            <th>Dates</th>
-                            <th class="text-center">Data Entry</th>
+                            <th>Status</th>
+                            <th>Scanned On (Date & Time)</th>
                         </tr>
                     </thead>
-
+                    @php
+                        #return getDebugIndex($registerAllottee);
+                        //                         [json_pages] => [{"file_name":"File-1","pages":8},{"file_name":"File-2","pages":36},{"file_name":"File-3","pages":48}]
+                        // [total_pages] => 92
+                    @endphp
                     <tbody id="tableBody">
                         @forelse ($registerAllottee as $key => $file)
                             <tr>
@@ -132,15 +83,6 @@
                                         <small class="text-muted">
                                             <strong>No.of Files: </strong>{{ $file->total_files }}
                                         </small>
-                                        <div class="row" style="gap: 10px;margin-top:3px;">
-                                            <?php if($file->is_step_completed == 0) { ?>
-                                            <span class="custom-badge badge-not-started"> Incompleted </span>
-                                            <?php } ?>
-                                            <?php if($file->current_step) { ?>
-                                            <span class="custom-badge badge-progress"> Current Step
-                                                {{ $file->current_step }} </span>
-                                            <?php } ?>
-                                        </div>
                                     </div>
                                 </td>
 
@@ -174,35 +116,45 @@
                                     @endif
                                 </td>
 
+                                <!-- Status -->
+                                <td>
+                                    Scanned By <br> {{ $file->scannedBy->name }}
+                                </td>
+
                                 <!-- Dates -->
                                 <td>
                                     <div class="d-flex flex-column">
-                                        {{ \Carbon\Carbon::parse($file->created_at)->format('d M Y') }}
+                                        {{ formatDateTime($file->updated_at) }}
                                     </div>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td colspan="7" class="p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered mb-0">
+                                            <tbody>
+                                                @php
+                                                    $filesData = json_decode($file->json_pages, true) ?? [];
+                                                    $totalPages = 0;
+                                                @endphp
 
-                                <!-- Actions -->
-                                <td class="py-2">
-                                    <div class="flex gap-2">
-                                        <!-- View -->
-                                        <a href="{{ route('applicant.apply.index', encrypt($file->id)) }}"
-                                            class="action-btn action-btn-info" title="Data Entry for this file">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <tr>
+                                                    {{-- Files Loop --}}
+                                                    @foreach ($filesData as $index => $fileInfo)
+                                                        @php $totalPages += $fileInfo['pages']; @endphp
+                                                        <td style="background: #2969ed3b;">
+                                                            <strong>File {{ $index + 1 }}</strong> :
+                                                            {{ $fileInfo['pages'] }}
+                                                        </td>
+                                                    @endforeach
 
-                                                <!-- Document/Form -->
-                                                <rect x="3" y="3" width="14" height="18" rx="2"></rect>
-                                                <path d="M6 7h8"></path>
-                                                <path d="M6 11h6"></path>
-                                                <path d="M6 15h4"></path>
-
-                                                <!-- Plus Icon -->
-                                                <circle cx="18" cy="17" r="4"></circle>
-                                                <path d="M18 15v4"></path>
-                                                <path d="M16 17h4"></path>
-                                            </svg>
-                                        </a>
+                                                    {{-- Total Column (colspan 2 + different background) --}}
+                                                    <td colspan="2" style="background:#e6f4ea; font-weight:600;">
+                                                        Total : {{ $totalPages }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </td>
                             </tr>
