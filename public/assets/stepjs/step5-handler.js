@@ -190,7 +190,7 @@ const Step5Handler = (function () {
             elements.basicRows.innerHTML = "";
             loadNextDocument(CONFIG.documentTypes.basic);
         }
-
+        console.log("EMI" + state.isEmiActive);
         setupNameTransfer();
         updateProgress();
     }
@@ -1678,7 +1678,9 @@ const Step5Handler = (function () {
 
             if (state.completedBasicDocs.length >= totalBasicDocs) {
                 if (elements.nameTransferSection) {
-                    elements.nameTransferSection.style.display = "block";
+                    if(!state.isEmiActive){
+                        elements.nameTransferSection.style.display = "block";
+                    }
                 }
             }
 

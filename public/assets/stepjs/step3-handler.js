@@ -493,6 +493,17 @@ const Step3Handler = {
             "tentative_price",
             "payment_type",
             "high_income_percent",
+            "late_interest_amount",
+            "payment_months",
+            "payment_start_month",
+            "payment_start_year",
+            "last_payment_due_date",
+            "interest_type",
+            "pre_interest",
+            "late_interest",
+            "pre_interest_amount",
+            "late_interest_amount",
+            "remaining_amount",
         ];
 
         requiredFields.forEach((fieldName) => {

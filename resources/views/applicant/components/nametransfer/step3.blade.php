@@ -212,7 +212,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">भूखंड के अंतरिम (टेन्टेटिव) कीमत (Tentative Plot Price)</td>
-                        <td><input name="tentative_price" id="tentative_price" class="only-number-amount num-input"
+                        <td><input name="tentative_price" id="tentative_price" class="only-number-amount num-input custom-input"
                                 data-word-target="amount_words" data-word-postfix=" Only"
                                 value="{{ old('tentative_price', $applicant->tentative_price) }}"
                                 placeholder="राशि दर्ज करें / Enter Amount"></td>
@@ -266,7 +266,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">उच्चतम आय वर्ग, अंतरिम कीमत का (%) (High Income % of Tentative Price)</td>
-                        <td><input name="high_income_percent" id="high_income_percent" class="only-float-100"
+                        <td><input name="high_income_percent" id="high_income_percent" class="only-float-100 custom-input"
                                 value="{{ old('high_income_percent', $applicant->high_income_percent) }}"
                                 placeholder="प्रतिशत / Percentage"></td>
                     </tr>
@@ -325,7 +325,7 @@
                         <td><input name="remaining_amount" id="remaining_amount"
                                 placeholder="शेष राशि / Remaining Amount"
                                 value="{{ old('remaining_amount', $applicant->remaining_amount) }}"
-                                class="only-number-amount" autocomplete="off"></td>
+                                class="only-number-amount custom-input" autocomplete="off"></td>
                     </tr>
 
                     <tr>
@@ -333,7 +333,7 @@
                         <td class="term">भुगतान मास (किस्तों में) (Payment Months in Instalments)</td>
                         <td><input name="payment_months" id="payment_months"
                                 placeholder="महीनों की संख्या / Number of EMI Counts"
-                                value="{{ old('payment_months', $applicant->payment_months) }}" class="only-number">
+                                value="{{ old('payment_months', $applicant->payment_months) }}" class="only-number custom-input">
                         </td>
                     </tr>
 
@@ -343,7 +343,7 @@
                         <td class="value date-group">
                             <!-- Month Dropdown -->
                             <select name="payment_start_month" id="payment_start_month"
-                                class="custom-select small-select">
+                                class="custom-select small-select custom-input">
                                 <option value="">-- माह / Month --</option>
 
                                 <?php
@@ -376,7 +376,7 @@
                             /
                             <!-- Year Dropdown -->
                             <select name="payment_start_year" id="payment_start_year"
-                                class="custom-select small-select">
+                                class="custom-select small-select custom-input">
                                 <option value="">-- वर्ष / Year --</option>
                                 <?php 
                                     $currentYear = date('Y');
@@ -394,7 +394,7 @@
                         <td class="sl"></td>
                         <td class="term">अंतिम ईएमआई देय महीना (Last EMI Due Month)</td>
                         <td><input name="last_payment_due_date" id="last_payment_due_date" readonly
-                                placeholder="अंतिम ईएमआई देय महीना / Last EMI Due Month"
+                                placeholder="अंतिम ईएमआई देय महीना / Last EMI Due Month" class="custom-input"
                                 value="{{ old('last_payment_due_date', $applicant->last_payment_due_date) }}"></td>
                     </tr>
 
@@ -402,7 +402,7 @@
                         <td class="sl"></td>
                         <td class="term">ब्याज का प्रकार (Type of Interest)</td>
                         <td class="value">
-                            <select name="interest_type" id="interest_type" class="custom-select">
+                            <select name="interest_type" id="interest_type" class="custom-select custom-input">
                                 <option value="">-- चयन करें / Select --</option>
                                 <option value="simple" {{ $applicant->interest_type == 'simple' ? 'selected' : '' }}>
                                     साधारण ब्याज / Simple Interest</option>
@@ -416,7 +416,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">पूर्व भुगतान पर वृद्धि व्याज (%) (Prepayment Interest %)</td>
-                        <td><input name="pre_interest" id="pre_interest" class="only-float-100"
+                        <td><input name="pre_interest" id="pre_interest" class="only-float-100 custom-input"
                                 placeholder="प्रतिशत / Percentage"
                                 value="{{ old('pre_interest', $applicant->pre_interest) }}"></td>
                     </tr>
@@ -424,7 +424,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">विलंब पर वृद्धि व्याज (%) (Late Payment Interest %)</td>
-                        <td><input name="late_interest" id="late_interest" class="only-float-100"
+                        <td><input name="late_interest" id="late_interest" class="only-float-100 custom-input"
                                 placeholder="प्रतिशत / Percentage"
                                 value="{{ old('late_interest', $applicant->late_interest) }}"></td>
                     </tr>
@@ -432,7 +432,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">व्याज राशि (₹) (Interest Amount)</td>
-                        <td><input name="pre_interest_amount" id="pre_interest_amount" class="only-number-amount" autocomplete="off"
+                        <td><input name="pre_interest_amount" id="pre_interest_amount" class="only-number-amount custom-input" autocomplete="off"
                                 placeholder="ब्याज राशि / Interest Amount"
                                 value="{{ old('pre_interest_amount', $applicant->pre_interest_amount) }}"></td>
                     </tr>
@@ -440,7 +440,7 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">दंड वृद्धि व्याज (₹) (Penalty increase interest)</td>
-                        <td><input name="late_interest_amount" id="late_interest_amount" class="only-number-amount" autocomplete="off"
+                        <td><input name="late_interest_amount" id="late_interest_amount" class="only-number-amount custom-input" autocomplete="off"
                                 placeholder="दंड ब्याज राशि / Penalty Interest Amount"
                                 value="{{ old('late_interest_amount', $applicant->late_interest_amount) }}"></td>
                     </tr>

@@ -30,14 +30,14 @@ class NameTransferController extends Controller
         $this->middleware('admin.auth');
     }
 
-    private function generateUniqueUsername($division, $subDivision, $date)
+    private function generateUniqueUsername($division, $quarterCode, $subDivision, $date)
     {
         $divisionCode = Division::where('id', $division)->value('division_code');
         $subDivisionCode = SubDivision::where('id', $subDivision)->value('subdivision_code');
         $dateYear = $date;
-        $randomString = substr(str_shuffle('0123456789'), 0, 6);
+        $randomString = substr(str_shuffle('0123456789'), 0, 5);
 
-        return "{$divisionCode}{$dateYear}{$subDivisionCode}{$randomString}";
+        return "{$divisionCode}{$quarterCode}{$dateYear}{$subDivisionCode}{$randomString}";
     }
 
     private function generatePassword($length = 12)
@@ -86,7 +86,7 @@ class NameTransferController extends Controller
             ];
 
             // Optimized query with selective loading
-            $query = Allottee::with($baseRelations)->where('is_step_completed', 1)
+            $query = Allottee::with($baseRelations)->where('is_trans_entry_completed', 0)
                 ->where('name_transfer_status', 'yes');
 
             // Apply search filters
@@ -549,19 +549,19 @@ class NameTransferController extends Controller
             'property_number',
             'current_step',
             'is_trans_entry_completed',
-            'application_year'
         ])
             ->with([
                 'division:id,name',
                 'subDivision:id,name',
                 'propertyCategory:id,name',
-                'propertyType:id,name'
+                'propertyType:id,name',
+                'quarterType:quarter_id,quarter_code'
             ])
             ->findOrFail($id);
         $applicant = $existingapplicant;
 
         if ($existingapplicant->is_trans_entry_completed == 1) {
-
+            return [1];
             $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
                 ->latest('id')
                 ->first();
@@ -584,6 +584,8 @@ class NameTransferController extends Controller
             $existingapplicant->p_type_id ?? $existingapplicant->property_type_id,
             $existingapplicant->quarter_type ?? $existingapplicant->quarter_id
         );
+
+        $this->trackStepStart($applicant->id, 1);
 
         $completedDocuments = AllotteeDocument::where('allottee_id', $applicant->id)
             ->join('document_master', 'document_master.id', '=', 'allottee_documents.document_id')
@@ -681,6 +683,10 @@ class NameTransferController extends Controller
             }
             $this->trackStepStart($applicantId, $step);
             $applicant = Allottee::with($baseRelations)->findOrFail($applicantId);
+                        $applicant->plot_number = $applicant->property_number;
+            $applicant->allot_day = $applicant->allotment_day;
+            $applicant->allot_month = $applicant->allotment_month;
+            $applicant->allot_year = $applicant->allotment_year;
 
             return view($view, compact('applicant'));
         }
@@ -799,7 +805,8 @@ class NameTransferController extends Controller
     }
 
     public function saveStep1(Request $request)
-    {
+    {   
+        // return $request;
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
             $allottmentNumber = $request->allotment_no . '/' . $request->year;
@@ -853,11 +860,13 @@ class NameTransferController extends Controller
         ];
 
         // return $data;
-
+        $code = preg_replace('/[^A-Za-z]/', '', $request->quarter_income_code);
+        $quarterCode = strtoupper(substr($code, 0, 2));
         $username = $this->generateUniqueUsername(
             $request->division_id,
+            $quarterCode,
             $request->subdivision_id,
-            $request->application_year ?? $request->old_application_year
+            $request->allotment_year
         );
 
         $password = $this->generatePassword();
@@ -869,6 +878,7 @@ class NameTransferController extends Controller
             'pcategory_id' => $request->pcategory_id,
             'property_type_id' => $request->property_type_id,
             'quarter_id' => $request->quarter_id,
+            'property_number' => $request->property_number,
 
             'username' => $username,
             'password' => Hash::make($password),
@@ -894,7 +904,7 @@ class NameTransferController extends Controller
 
         // step duration update
         $row = AllotteeStepDuration::where([
-            'allottee_id' => $applicant->id,
+            'allottee_id' => $request->allottee_id,
             'step_no' => 1
         ])->first();
 
@@ -905,7 +915,8 @@ class NameTransferController extends Controller
 
             $row->update([
                 'completed_at' => $end,
-                'duration_min' => $duration
+                'duration_min' => $duration,
+                'allottee_id' => $applicant->id
             ]);
         }
 
@@ -1245,7 +1256,7 @@ class NameTransferController extends Controller
         $incomeType = $applicant->quarterType->quarter_code ?? '';
         $year = $applicant->allotment_year;
         $month = str_pad($applicant->allotment_month, 2, '0', STR_PAD_LEFT);
-        $propertyNo = $applicant->property_number;
+        $propertyNo = preg_replace('/[^A-Za-z0-9]/', '-', $applicant->property_number);
 
         $documentKey = DocumentMaster::where('id', $request->document_id)->value('document_key');
 

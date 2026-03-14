@@ -36,7 +36,7 @@ class FileRecevingController extends Controller
             $query = RegistrationFile::with('creator')
                 ->where('created_by', auth()->id())
                 ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', '!=', 'scanned');
+                    $q->where('allottee_status', '=', 'received');
                 })
                 ->orderBy('created_at', 'desc');
 
@@ -225,7 +225,7 @@ class FileRecevingController extends Controller
     public function generateRgistrationFileLimit(Request $request)
     {
         $request->validate([
-            'allowed_files' => 'required|integer|min:1|max:20',
+            'allowed_files' => 'required|integer|min:1|max:35',
             'register_id' => 'required'
         ]);
 
@@ -339,10 +339,10 @@ class FileRecevingController extends Controller
             } else {
                 // Prevent creating if already 2
                 $finalRegistration = RegistrationFile::where('register_no', $request->register_id)->first();
-                if ($finalRegistration->total_files >= 20) {
+                if ($finalRegistration->total_files >= 35) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Maximum file limit (20) reached for this register.',
+                        'message' => 'Maximum file limit (35) reached for this register.',
                     ], 400);
                 }
                 $finalRegistration->total_files = $finalRegistration->total_files + 1;

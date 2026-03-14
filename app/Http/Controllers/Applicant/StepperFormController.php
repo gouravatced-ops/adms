@@ -17,6 +17,7 @@ use App\Models\AllotteeEmiLedger;
 use App\Models\AllotteeDocument;
 use App\Models\AllotteeStepDuration;
 use App\Models\DocumentMaster;
+use App\Models\QuarterType;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 // use Illuminate\Support\Str;
@@ -34,13 +35,16 @@ class StepperFormController extends Controller
         $this->middleware('admin.auth');
     }
 
-    private function generateUniqueUsername($division, $subDivision, $date)
+    private function generateUniqueUsername($division, $incomeTypeId, $subDivision, $date)
     {
         $divisionCode = Division::where('id', $division)->value('division_code');
         $subDivisionCode = SubDivision::where('id', $subDivision)->value('subdivision_code');
+        $incomeCode = QuarterType::where('quarter_id', $incomeTypeId)->value('quarter_code');
+        $code = preg_replace('/[^A-Za-z]/', '', $incomeCode);
+        $quarterCode = strtoupper(substr($code, 0, 2));
         $dateYear = $date;
-        $randomString = substr(str_shuffle('0123456789'), 0, 6);
-        return "{$divisionCode}{$dateYear}{$subDivisionCode}{$randomString}";
+        $randomString = substr(str_shuffle('0123456789'), 0, 5);
+        return "{$divisionCode}{$quarterCode}{$dateYear}{$subDivisionCode}{$randomString}";
     }
 
     private function generatePassword($length = 12)
@@ -508,7 +512,6 @@ class StepperFormController extends Controller
             'propertyCategory',
             'propertyType',
         ];
-
         // STEP 2
         if ($step == 2) {
 
@@ -739,7 +742,7 @@ class StepperFormController extends Controller
             }
         }
 
-        $usersname = $this->generateUniqueUsername($registerAllottee->division_id, $registerAllottee->sub_division_id, $registerAllottee->application_year);
+        $usersname = $this->generateUniqueUsername($registerAllottee->division_id, $registerAllottee->quarter_type, $registerAllottee->sub_division_id, $request->allotment_year);
         $password = $this->generatePassword();
 
         $applicant = new Allottee();
@@ -1075,7 +1078,7 @@ class StepperFormController extends Controller
         $incomeType    = $applicant->quarterType->quarter_code ?? '';
         $year          = $applicant->allotment_year;
         $month         = str_pad($applicant->allotment_month, 2, '0', STR_PAD_LEFT);
-        $propertyNo    = $applicant->property_number;
+        $propertyNo    = preg_replace('/[^A-Za-z0-9]/', '-', $applicant->property_number);
 
         $documentKey = DocumentMaster::where('id', $request->document_id)->value('document_key');
 

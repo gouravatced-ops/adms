@@ -42,7 +42,7 @@
     <input type="hidden" name="pcategory_id" value="{{ $applicant->pcategory_id ?? '' }}">
     <input type="hidden" name="property_type_id" value="{{ $applicant->property_type_id ?? '' }}">
     <input type="hidden" name="quarter_id" value="{{ $applicant->quarter_id ?? '' }}">
-    <input type="hidden" name="old_application_year" value="{{ $applicant->application_year ?? '' }}">
+    <input type="hidden" name="quarter_income_code" value="{{ $applicant->quarterType->quarter_code ?? '' }}">
     {{-- Property summary pill --}}
     <div class="property-summary">
         <div class="prop-pill">
@@ -157,7 +157,7 @@
 
                     <span class="slash">/</span>
 
-                    <input type="text" name="year" id="allotmentYear" class="year-input only-number"
+                    <input type="text" name="year" id="allotmentYear" class="year-input only-number" required
                         value="{{ $year ?? '' }}" placeholder="YYYY" maxlength="4" />
                 </div>
 
@@ -489,7 +489,7 @@
             <div class="field">
                 <label class="field-label">Current Age</label>
                 <input type="text" name="current_age" class="custom-input" id="current_age"
-                    value="{{ $applicant->current_age ?? '' }}" placeholder="e.g. 99 year old">
+                    value="{{ $applicant->current_age ?? '' }}" disabled placeholder="e.g. 99 year old">
             </div>
             <?php
                 }

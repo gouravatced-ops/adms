@@ -74,7 +74,7 @@
                 <div class="field-inline">
                     <label>
                         <input type="radio" name="relation_type_hindi" value="पिता"
-                            {{ ($applicant->relation_type_hindi ?? '') == 'पिता' ? 'checked' : '' }}>
+                            {{ ($applicant->relation_type_hindi ?? 'पिता') == 'पिता' ? 'checked' : '' }}>
                         पिता
                     </label>
 
