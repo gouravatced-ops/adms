@@ -97,7 +97,7 @@
                                 <!-- ACTION BUTTONS -->
                                 <td class="py-2">
                                     <div class="flex gap-2">
-                                        {{-- @php
+                                        @php
                                             $total = (int) ($registration->total_files ?? 0);
                                             $allowed = (int) ($registration->allowed_files ?? 0);
                                         @endphp
@@ -108,7 +108,7 @@
                                                 class="action-btn action-btn-success" title="Add File">
                                                 <i class="fas fa-plus"></i>
                                             </a>
-                                        @endif --}}
+                                        @endif
                                         <!-- View Files -->
                                         <a href="{{ route('admin.filereceving.fileindex', $registration->encoded_register_no) }}"
                                             class="action-btn action-btn-info" title="View Files">

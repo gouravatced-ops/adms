@@ -211,9 +211,10 @@
                 <tbody>
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">भूखंड के अंतरिम (टेन्टेटिव) कीमत (Tentative Plot Price)</td>
-                        <td><input name="tentative_price" id="tentative_price" class="only-number-amount num-input custom-input"
-                                data-word-target="amount_words" data-word-postfix=" Only"
+                        <td class="term">सम्पदा के अंतरिम (टेन्टेटिव) कीमत (Tentative Price)</td>
+                        <td><input name="tentative_price" id="tentative_price"
+                                class="only-number-amount num-input custom-input" data-word-target="amount_words"
+                                data-word-postfix=" Only"
                                 value="{{ old('tentative_price', $applicant->tentative_price) }}"
                                 placeholder="राशि दर्ज करें / Enter Amount"></td>
                     </tr>
@@ -225,47 +226,20 @@
                     </tr>
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">मूल्यांकन दिनांक (Valuation Date)</td>
-                        <td class="value date-group">
-                            <!-- Day Dropdown -->
-                            <select name="maav_day" class="custom-select small-select">
-                                <option value="">दिन / Day</option>
-                                <?php for ($d = 1; $d <= 31; $d++): ?>
-                                <option value="{{ $d }}" {{ $applicant->maav_day == $d ? 'selected' : '' }}>
-                                    {{ str_pad($d, 2, '0', STR_PAD_LEFT) }}
-                                </option>
-                                <?php endfor; ?>
+                        <td class="term">Agreement हेतु शेष राशि प्रकार</td>
+                        <td>
+                            <select id="deposit_type" class="custom-input">
+                                <option value="amount" {{ $applicant->deposit_type == 'amount' ? 'selected' : '' }}>
+                                    Direct Amount</option>
+                                <option value="percent" {{ $applicant->deposit_type == 'percent' ? 'selected' : '' }}>
+                                    Percentage (%)</option>
                             </select>
-                            /
-                            <!-- Month Dropdown -->
-                            <select name="maav_month" class="custom-select small-select">
-                                <option value="">माह / Month</option>
-                                <?php for ($m = 1; $m <= 12; $m++): ?>
-                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->maav_month == $m ? 'selected' : '' }}>
-                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
-                                </option>
-                                <?php endfor; ?>
-                            </select>
-                            /
-                            <!-- Year Dropdown -->
-                            <select name="maav_year" class="custom-select small-select">
-                                <option value="">वर्ष / Year</option>
-                                <?php 
-                                    $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= 1960; $y--): 
-                                ?>
-                                <option value="<?= $y ?>" {{ $applicant->maav_year == $y ? 'selected' : '' }}><?= $y ?>
-                                </option>
-                                <?php endfor; ?>
-                            </select>
-
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr id="percent_row" style="display:none;">
                         <td class="sl"></td>
-                        <td class="term">उच्चतम आय वर्ग, अंतरिम कीमत का (%) (High Income % of Tentative Price)</td>
+                        <td class="term">प्रतिशत / Percentage</td>
                         <td><input name="high_income_percent" id="high_income_percent" class="only-float-100 custom-input"
                                 value="{{ old('high_income_percent', $applicant->high_income_percent) }}"
                                 placeholder="प्रतिशत / Percentage"></td>
@@ -273,49 +247,12 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">अल्प/कमजोर वर्ग, अंतरिम कीमत का (%) (Low Income % of Tentative Price)</td>
-                        <td><input name="low_income_percent" id="low_income_percent" placeholder="प्रतिशत / Percentage"
-                                value="{{ old('low_income_percent', $applicant->low_income_percent) }}"
-                                class="only-float-100">
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="sl"></td>
-                        <td class="term">जमा की गयी राशि (Deposited Amount)</td>
-                        <td><input name="deposited_amount" id="deposited_amount" class="only-number-amount" autocomplete="off"
-                                placeholder="जमा राशि / Deposited Amount"
-                                value="{{ old('deposited_amount', $applicant->deposited_amount) }}"></td>
-                    </tr>
-
-                    <tr>
-                        <td class="sl"></td>
-                        <td class="term">विधि एवं अनुशासन शुल्क (-) (Legal & Discipline Fee)</td>
-                        <td><input name="legal_fee" id="legal_fee" placeholder="शुल्क दर्ज करें / Enter Fee"
-                                class="only-number-amount" autocomplete="off" value="{{ old('legal_fee', $applicant->legal_fee) }}"></td>
-                    </tr>
-
-                    <tr>
-                        <td class="sl"></td>
-                        <td class="term">विधि एवं अभिलेखन शुल्क (+) (Legal and Documentation Charges)</td>
-                        <td><input name="legal_document_fee" id="legal_document_fee" class="only-number-amount" autocomplete="off"
-                                placeholder="शुल्क दर्ज करें / Enter Fee"
-                                value="{{ old('legal_document_fee', $applicant->legal_document_fee) }}"></td>
-                    </tr>
-
-                    <tr>
-                        <td class="sl"></td>
-                        <td class="term">कुल भुक्तान राशि (Total Payment Amount)</td>
-                        <td><input name="total_payment" id="total_payment" placeholder="कुल राशि / Total Amount"
-                                value="{{ old('total_payment', $applicant->total_payment) }}" class="only-number-amount" autocomplete="off"></td>
-                    </tr>
-
-
-                    <tr>
-                        <td class="sl"></td>
-                        <td class="term">अंतरिम कीमत (Tentative Price)</td>
-                        <td><input name="interim_price" id="interim_price" placeholder="अंतरिम कीमत / Tentative Price"
-                                value="{{ old('interim_price', $applicant->interim_price) }}" class="only-number-amount" autocomplete="off">
+                        <td class="term">Agreement हेतु शेष राशि</td>
+                        <td>
+                            <input type="text" name="deposited_amount" id="deposited_amount"
+                                class="only-number-amount custom-input" autocomplete="off"
+                                placeholder="शेष राशि / Amount"
+                                value="{{ old('deposited_amount', $applicant->deposited_amount) }}">
                         </td>
                     </tr>
 
@@ -330,10 +267,11 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">भुगतान मास (किस्तों में) (Payment Months in Instalments)</td>
+                        <td class="term">मासिक किस्तों की संख्या (Number of Monthly Installments)</td>
                         <td><input name="payment_months" id="payment_months"
                                 placeholder="महीनों की संख्या / Number of EMI Counts"
-                                value="{{ old('payment_months', $applicant->payment_months) }}" class="only-number custom-input">
+                                value="{{ old('payment_months', $applicant->payment_months) }}"
+                                class="only-number custom-input">
                         </td>
                     </tr>
 
@@ -382,8 +320,8 @@
                                     $currentYear = date('Y');
                                     for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960' ; $y--): 
                                 ?>
-                                <option value="<?= $y ?>"
-                                    {{ $applicant->payment_start_year == $y ? 'selected' : '' }}><?= $y ?></option>
+                                <option value="<?= $y ?>" {{ $applicant->payment_start_year == $y ? 'selected' : '' }}>
+                                    <?= $y ?></option>
                                 <?php endfor; ?>
                             </select>
                         </td>
@@ -415,7 +353,7 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">पूर्व भुगतान पर वृद्धि व्याज (%) (Prepayment Interest %)</td>
+                        <td class="term">मासिक किस्त पर ब्याज (%) (EMI Interest %)</td>
                         <td><input name="pre_interest" id="pre_interest" class="only-float-100 custom-input"
                                 placeholder="प्रतिशत / Percentage"
                                 value="{{ old('pre_interest', $applicant->pre_interest) }}"></td>
@@ -423,7 +361,7 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">विलंब पर वृद्धि व्याज (%) (Late Payment Interest %)</td>
+                        <td class="term">विलंब ब्याज (%) (Late Payment Interest %)</td>
                         <td><input name="late_interest" id="late_interest" class="only-float-100 custom-input"
                                 placeholder="प्रतिशत / Percentage"
                                 value="{{ old('late_interest', $applicant->late_interest) }}"></td>
@@ -431,16 +369,18 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">व्याज राशि (₹) (Interest Amount)</td>
-                        <td><input name="pre_interest_amount" id="pre_interest_amount" class="only-number-amount custom-input" autocomplete="off"
+                        <td class="term">व्याज राशि (₹) EMI (Without Fine)</td>
+                        <td><input name="pre_interest_amount" id="pre_interest_amount"
+                                class="only-number-amount custom-input" autocomplete="off"
                                 placeholder="ब्याज राशि / Interest Amount"
                                 value="{{ old('pre_interest_amount', $applicant->pre_interest_amount) }}"></td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">दंड वृद्धि व्याज (₹) (Penalty increase interest)</td>
-                        <td><input name="late_interest_amount" id="late_interest_amount" class="only-number-amount custom-input" autocomplete="off"
+                        <td class="term">दंड व्याज (₹) EMI (With Late Fine)</td>
+                        <td><input name="late_interest_amount" id="late_interest_amount"
+                                class="only-number-amount custom-input" autocomplete="off"
                                 placeholder="दंड ब्याज राशि / Penalty Interest Amount"
                                 value="{{ old('late_interest_amount', $applicant->late_interest_amount) }}"></td>
                     </tr>
@@ -504,16 +444,18 @@
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">बोर्ड द्वारा आवंटीत भूखंड संख्या (Board Allotted Plot No.)</td>
-                        <td><input name="plot_number" placeholder="भूखंड संख्या / Plot Number" class="alpha-num-dash"
-                                value="{{ old('plot_number', $applicant->plot_number) }}"></td>
+                        <td class="term">बोर्ड द्वारा आवंटीत सम्पदा संख्या (Board Allotted Plot No.)</td>
+                        <td><input name="plot_number" placeholder="सम्पदा संख्या / Plot Number"
+                                class="alpha-num-dash" value="{{ old('plot_number', $applicant->plot_number) }}">
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">रकबा (वर्गफीट) (Area in Sq. Ft.)</td>
                         <td><input name="area_sqft" placeholder="क्षेत्रफल / Area"
-                                value="{{ old('area_sqft', $applicant->area_sqft) }}" class="only-number-amount" autocomplete="off"></td>
+                                value="{{ old('area_sqft', $applicant->area_sqft) }}" class="only-number-amount"
+                                autocomplete="off"></td>
                     </tr>
 
                     <tr>
@@ -542,7 +484,9 @@
                     <tr>
                         <td class="sl"></td>
                         <td class="term">थाना (Police Station)</td>
-                        <td><input name="police_station"  value="{{ old('police_station', $applicant->police_station) }}" placeholder="थाना / Police Station" class="only-eng-hindi">
+                        <td><input name="police_station"
+                                value="{{ old('police_station', $applicant->police_station) }}"
+                                placeholder="थाना / Police Station" class="only-eng-hindi">
                         </td>
                     </tr>
 
@@ -554,7 +498,9 @@
                                 data-target="district-hi">
                                 <option value="">-- राज्य चुनें --</option>
                                 @foreach ($states as $item)
-                                    <option value="{{ $item->id }}" {{ isset($applicant) && $applicant->state == $item->id ? 'selected' : '' }}>{{ $item->name_hi }}</option>
+                                    <option value="{{ $item->id }}"
+                                        {{ isset($applicant) && $applicant->state == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name_hi }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -584,55 +530,63 @@
                         <td class="sl"></td>
                         <td class="term">चौहद्दी - उत्तर सीमा (Boundary - North)</td>
                         <td><input name="north_boundary" placeholder="उत्तर सीमा / North Boundary"
-                                class="only-number" value="{{ old('north_boundary', $applicant->north_boundary) }}"></td>
+                                class="only-address" value="{{ old('north_boundary', $applicant->north_boundary) }}">
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">चौहद्दी - दक्षिण सीमा (Boundary - South)</td>
-                        <td><input name="south_boundary" placeholder="दक्षिण सीमा / South Boundary" value="{{ old('south_boundary', $applicant->south_boundary) }}"
-                                class="only-number"></td>
+                        <td><input name="south_boundary" placeholder="दक्षिण सीमा / South Boundary"
+                                value="{{ old('south_boundary', $applicant->south_boundary) }}" class="only-address">
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">चौहद्दी - पूरब सीमा (Boundary - East)</td>
-                        <td><input name="east_boundary" placeholder="पूरब सीमा / East Boundary" value="{{ old('east_boundary', $applicant->east_boundary) }}" class="only-number">
+                        <td><input name="east_boundary" placeholder="पूरब सीमा / East Boundary"
+                                value="{{ old('east_boundary', $applicant->east_boundary) }}" class="only-address">
                         </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">चौहद्दी - पश्चिम सीमा (Boundary - West)</td>
-                        <td><input name="west_boundary" placeholder="पश्चिम सीमा / West Boundary" value="{{ old('west_boundary', $applicant->west_boundary) }}"
-                                class="only-number"></td>
+                        <td><input name="west_boundary" placeholder="पश्चिम सीमा / West Boundary"
+                                value="{{ old('west_boundary', $applicant->west_boundary) }}" class="only-address">
+                        </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">पूरब से पश्चिम उत्तर तरफ (फीट) (East-West North Side in Ft.)</td>
-                        <td><input name="ew_north" placeholder="फीट में लंबाई / Length in Ft." value="{{ old('ew_north', $applicant->ew_north) }}" class="only-number">
+                        <td><input name="ew_north" placeholder="फीट में लंबाई / Length in Ft."
+                                value="{{ old('ew_north', $applicant->ew_north) }}" class="only-number">
                         </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">पूरब से पश्चिम दक्षिण तरफ (फीट) (East-West South Side in Ft.)</td>
-                        <td><input name="ew_south" placeholder="फीट में लंबाई / Length in Ft." value="{{ old('ew_south', $applicant->ew_south) }}" class="only-number">
+                        <td><input name="ew_south" placeholder="फीट में लंबाई / Length in Ft."
+                                value="{{ old('ew_south', $applicant->ew_south) }}" class="only-number">
                         </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">उत्तर से दक्षिण पूरब तरफ (फीट) (North-South East Side in Ft.)</td>
-                        <td><input name="ns_east" placeholder="फीट में लंबाई / Length in Ft." value="{{ old('ns_east', $applicant->ns_east) }}" class="only-number">
+                        <td><input name="ns_east" placeholder="फीट में लंबाई / Length in Ft."
+                                value="{{ old('ns_east', $applicant->ns_east) }}" class="only-number">
                         </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
                         <td class="term">उत्तर से दक्षिण पश्चिम तरफ (फीट) (North-South West Side in Ft.)</td>
-                        <td><input name="ns_west" placeholder="फीट में लंबाई / Length in Ft." value="{{ old('ns_west', $applicant->ns_west) }}" class="only-number">
+                        <td><input name="ns_west" placeholder="फीट में लंबाई / Length in Ft."
+                                value="{{ old('ns_west', $applicant->ns_west) }}" class="only-number">
                         </td>
                     </tr>
 
@@ -640,56 +594,70 @@
                         <td class="sl"></td>
                         <td class="term">निर्धारित अवधि (दिनों में) (Specified Period in Days)</td>
                         <td class="value">
-                            <select name="specified_days" class="custom-select">
+                            <select name="specified_days" id="specified_days" class="custom-select">
                                 <option value="">-- Select Days --</option>
-                                <option value="10 days" {{ $applicant->specified_days == '10 days' ? 'selected' : '' }}> 10 days</option>
-                                <option value="15 days" {{ $applicant->specified_days == '15 days' ? 'selected' : '' }}> 15 days</option>
-                                <option value="30 days" {{ $applicant->specified_days == '30 days' ? 'selected' : '' }}> 30 days</option>
-                                <option value="45 days" {{ $applicant->specified_days == '45 days' ? 'selected' : '' }}> 45 days</option>
-                                <option value="60 days" {{ $applicant->specified_days == '60 days' ? 'selected' : '' }}> 60 days</option>
-                                <option value="75 days" {{ $applicant->specified_days == '75 days' ? 'selected' : '' }}> 75 days</option>
-                                <option value="90 days" {{ $applicant->specified_days == '90 days' ? 'selected' : '' }}> 90 days</option>
-                                <option value="105 days" {{ $applicant->specified_days == '105 days' ? 'selected' : '' }}> 105 days</option>
-                                <option value="120 days" {{ $applicant->specified_days == '120 days' ? 'selected' : '' }}> 120 days</option>
-                                <option value="150 days" {{ $applicant->specified_days == '150 days' ? 'selected' : '' }}> 150 days</option>
-                                <option value="180 days" {{ $applicant->specified_days == '180 days' ? 'selected' : '' }}> 180 days</option>
+                                <option value="10 days"
+                                    {{ $applicant->specified_days == '10 days' ? 'selected' : '' }}> 10 days</option>
+                                <option value="15 days"
+                                    {{ $applicant->specified_days == '15 days' ? 'selected' : '' }}> 15 days</option>
+                                <option value="30 days"
+                                    {{ $applicant->specified_days == '30 days' ? 'selected' : '' }}> 30 days</option>
+                                <option value="45 days"
+                                    {{ $applicant->specified_days == '45 days' ? 'selected' : '' }}> 45 days</option>
+                                <option value="60 days"
+                                    {{ $applicant->specified_days == '60 days' ? 'selected' : '' }}> 60 days</option>
+                                <option value="75 days"
+                                    {{ $applicant->specified_days == '75 days' ? 'selected' : '' }}> 75 days</option>
+                                <option value="90 days"
+                                    {{ $applicant->specified_days == '90 days' ? 'selected' : '' }}> 90 days</option>
+                                <option value="105 days"
+                                    {{ $applicant->specified_days == '105 days' ? 'selected' : '' }}> 105 days</option>
+                                <option value="120 days"
+                                    {{ $applicant->specified_days == '120 days' ? 'selected' : '' }}> 120 days</option>
+                                <option value="150 days"
+                                    {{ $applicant->specified_days == '150 days' ? 'selected' : '' }}> 150 days</option>
+                                <option value="180 days"
+                                    {{ $applicant->specified_days == '180 days' ? 'selected' : '' }}> 180 days</option>
                             </select>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="sl"></td>
-                        <td class="term">अंतिम जमा करने की तिथि (Last date of the Payment as for the Agreement)</td>
+                        <td class="term">भुगतान की अंतिम तिथि (Payment Due Date)</td>
                         <td class="value date-group">
 
                             <!-- Day -->
-                            <select name="last_day" class="custom-select small-select">
+                            <select name="last_day" id="last_day" class="custom-select small-select">
                                 <option value="">दिन / Day</option>
                                 <?php for ($d = 1; $d <= 31; $d++): ?>
-                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>" {{ $applicant->last_day == $d ? 'selected' : '' }}>
+                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>"
+                                    {{ $applicant->last_day == $d ? 'selected' : '' }}>
                                     <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
                                 </option>
                                 <?php endfor; ?>
                             </select>
                             /
                             <!-- Month -->
-                            <select name="last_month" class="custom-select small-select">
+                            <select name="last_month" id="last_month" class="custom-select small-select">
                                 <option value="">माह / Month</option>
                                 <?php for ($m = 1; $m <= 12; $m++): ?>
-                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>" {{ $applicant->last_month == $m ? 'selected' : '' }}>
+                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
+                                    {{ $applicant->last_month == $m ? 'selected' : '' }}>
                                     <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
                                 </option>
                                 <?php endfor; ?>
                             </select>
                             /
                             <!-- Year -->
-                            <select name="last_year" class="custom-select small-select">
+                            <select name="last_year" id="last_year" class="custom-select small-select">
                                 <option value="">वर्ष / Year</option>
                                 <?php 
                                     $currentYear = date('Y');
                                     for ($y = $currentYear; $y >= 1960; $y--): 
                                 ?>
-                                <option value="<?= $y ?>" {{ $applicant->last_year == $y ? 'selected' : '' }}><?= $y ?></option>
+                                <option value="<?= $y ?>" {{ $applicant->last_year == $y ? 'selected' : '' }}>
+                                    <?= $y ?></option>
                                 <?php endfor; ?>
                             </select>
 

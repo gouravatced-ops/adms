@@ -226,7 +226,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="section-title">Address of your present place of Residance</h3>
+                    <h3 class="section-title">Communication Address</h3>
                 </div>
             </div>
             <div class="section-header gradient-header" style="background: linear-gradient(90deg, #f59e0b, #f97316);">
@@ -238,7 +238,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="section-title">आपका वर्तमान निवास स्थान का पता</h3>
+                    <h3 class="section-title">संचार पता</h3>
                 </div>
             </div>
 
@@ -405,7 +405,7 @@
                 <label class="field-label" for="same_as_present_place_residance"
                     style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:600;">
 
-                    Same as Present place of Residance
+                    Same as Communication Address
 
                     <input type="checkbox" id="same_as_present_place_residance"
                         name="same_as_present_place_residance"
@@ -533,7 +533,7 @@
         </div>
     </div>
 
-    <div class="form-section">
+    {{-- <div class="form-section">
         <div class="bilingual-grid member-card" style="background: #faf9f6 !important;">
             <div class="section-header gradient-header" style="background:linear-gradient(90deg,#11998e,#38ef7d)">
                 <div class="section-icon">
@@ -700,7 +700,7 @@
             </div>
 
         </div>
-    </div>
+    </div> --}}
 
     <div class="form-section">
 

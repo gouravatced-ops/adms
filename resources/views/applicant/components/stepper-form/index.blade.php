@@ -1109,14 +1109,7 @@
         <div class="stepper-wrapper">
             <div class="stepper" id="stepper">
                 <div class="stepper-track" id="stepperTrack"></div>
-                @foreach ([
-            1 => 'Allottee Details',
-            2 => 'Address Details',
-            3 => 'Property Financial Details',
-            4 => 'Nominee & Banking',
-            5 => 'Documents Uploads',
-            6 => 'Review & Submit',
-        ] as $step => $label)
+                @foreach ([1 => 'Allottee Details', 2 => 'Address Details', 3 => 'Property Financial Details', 4 => 'Nominee & Banking', 5 => 'Documents Uploads', 6 => 'Review & Submit'] as $step => $label)
                     <div class="step-item {{ $step === 1 ? 'active' : '' }}" data-step="{{ $step }}"
                         onclick="StepManager.goToStep({{ $step }})">
                         <div class="step-bubble">
@@ -1135,6 +1128,30 @@
 
         {{-- Body --}}
         <div class="app-body">
+            {{-- Property summary pill --}}
+            <div class="property-summary">
+                <div class="prop-pill">
+                    <span class="prop-pill-label">Division</span>
+                    <span class="prop-pill-value">{{ $applicant->division->name }}</span>
+                </div>
+                <div class="prop-pill">
+                    <span class="prop-pill-label">Sub Division</span>
+                    <span class="prop-pill-value">{{ $applicant->subDivision->name }}</span>
+                </div>
+                <div class="prop-pill">
+                    <span class="prop-pill-label">Property No.</span>
+                    <span class="prop-pill-value">{{ $applicant->property_number }}</span>
+                </div>
+                <div class="prop-pill">
+                    <span class="prop-pill-label">Property Type</span>
+                    <span class="prop-pill-value">{{ $applicant->propertyCategory->name }}-<span
+                            style="color: green;">{{ $applicant->propertyType->name }}</span></span>
+                </div>
+                <div class="prop-pill">
+                    <span class="prop-pill-label">Quarter Type</span>
+                    <span class="prop-pill-value">{{ $applicant->quarterType->quarter_code }}</span>
+                </div>
+            </div>
             {{-- Step Content --}}
             <div id="stepContent" class="step-content-area">
                 @include('applicant.components.stepper-form.step1')
@@ -1174,7 +1191,7 @@
     <script>
         // Pass PHP data to JavaScript
         window.documentBasicList = @json($documents);
-         window.completedDocumentsList = @json($completedDocuments); // Completed documents
+        window.completedDocumentsList = @json($completedDocuments); // Completed documents
     </script>
     <script>
         const StepManager = {

@@ -561,7 +561,6 @@ class NameTransferController extends Controller
         $applicant = $existingapplicant;
 
         if ($existingapplicant->is_trans_entry_completed == 1) {
-            return [1];
             $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
                 ->latest('id')
                 ->first();

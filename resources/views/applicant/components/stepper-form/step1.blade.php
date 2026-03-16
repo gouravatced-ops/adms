@@ -40,26 +40,7 @@
     @csrf
     <input type="hidden" name="allottee_id" value="{{ $applicant->register_file_id ?? '' }}">
     <input type="hidden" name="register_id" value="{{ $applicant->register_id ?? '' }}">
-    {{-- Property summary pill --}}
-    <div class="property-summary">
-        <div class="prop-pill">
-            <span class="prop-pill-label">Division</span>
-            <span class="prop-pill-value">{{ $applicant->division->name }}</span>
-        </div>
-        <div class="prop-pill">
-            <span class="prop-pill-label">Sub Division</span>
-            <span class="prop-pill-value">{{ $applicant->subDivision->name }}</span>
-        </div>
-        <div class="prop-pill">
-            <span class="prop-pill-label">Property No.</span>
-            <span class="prop-pill-value">{{ $applicant->property_number }}</span>
-        </div>
-        <div class="prop-pill">
-            <span class="prop-pill-label">Property Type</span>
-            <span class="prop-pill-value">{{ $applicant->propertyCategory->name }}-<span
-                    style="color: green;">{{ $applicant->propertyType->name }}</span></span>
-        </div>
-    </div>
+
     {{-- ── Allottee Details ── --}}
     <div class="form-section" style="margin-top:10px;">
         <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
@@ -240,7 +221,7 @@
 
             <div class="field">
                 <label class="field-label">
-                    Surname
+                    Last Name
                 </label>
                 <input type="text" name="allottee_surname" class="custom-input only-alphabet"
                     value="{{ $applicant->allottee_surname ?? '' }}" placeholder="e.g. Kumar">
@@ -274,7 +255,7 @@
 
             <div class="field">
                 <label class="field-label">
-                    Surname (Hindi) <span class="req-star">*</span>
+                    Last Name (Hindi) <span class="req-star">*</span>
                 </label>
                 <input type="text" name="allottee_surname_hindi" class="custom-input only-hindi"
                     value="{{ $applicant->allottee_surname_hindi ?? '' }}" placeholder="e.g. कुमार">
@@ -521,7 +502,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="section-title">Date of Birth of Applicant at the time of Application (In Numbers &
+                    <h3 class="section-title">Date of Birth at the time of Application (In Numbers &
                         Figures both)</h3>
                 </div>
             </div>

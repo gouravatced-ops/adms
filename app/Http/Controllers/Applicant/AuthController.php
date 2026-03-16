@@ -25,7 +25,6 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required',
             'password' => 'required|string|min:8',
-            'captcha'  => 'required|captcha',
         ]);
 
         if (Auth::guard('admin')->check()) {

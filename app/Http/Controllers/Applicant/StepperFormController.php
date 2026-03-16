@@ -440,7 +440,7 @@ class StepperFormController extends Controller
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
-        $applicant = Allottee::with(['division', 'subDivision', 'propertyCategory', 'propertyType'])
+        $applicant = Allottee::with(['division', 'subDivision', 'propertyCategory', 'propertyType' , 'quarterType'])
             ->where('register_file_id', $id)
             ->first();
 
@@ -451,7 +451,8 @@ class StepperFormController extends Controller
                 'division',
                 'subDivision',
                 'propertyCategory',
-                'propertyType'
+                'propertyType',
+                'quarterType'
             ])
                 ->where([
                     ['id', $id],

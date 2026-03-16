@@ -15,51 +15,46 @@ const Step3Handler = {
         return parseFloat(v) || 0;
     },
 
-    // Disable all financial fields
-    disableAllFields: function () {
-        const ids = [
-            // "high_income_percent",
-            // "low_income_percent",
-            // "deposited_amount",
-            // "legal_fee",
-            // "legal_document_fee",
-            // "total_payment",
-            // "interim_price",
-            // "remaining_amount",
-            // "payment_months",
-            // "interest_type",
-            // "pre_interest",
-            // "late_interest",
-            // "pre_interest_amount",
-            // "late_interest_amount",
-        ];
-
-        ids.forEach((id) => {
-            const el = document.getElementById(id);
-            if (el) el.disabled = true;
-        });
+    // Parse integer safely
+    int: function (v) {
+        return parseInt(v) || 0;
     },
 
-    // Enable specific fields
-    enableFields: function (fieldIds) {
-        fieldIds.forEach((id) => {
+    // Month names for display
+    monthNames: [
+        "", "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ],
+
+    // Disable auto-calculated fields
+    disableAutoFields: function () {
+        const autoFields = [
+            "deposited_amount",
+            "remaining_amount",
+            "pre_interest_amount",
+            "late_interest_amount",
+            "last_payment_due_date"
+        ];
+
+        autoFields.forEach((id) => {
             const el = document.getElementById(id);
-            if (el) el.disabled = false;
+            if (el) {
+                el.disabled = true;
+                el.readOnly = true;
+            }
         });
     },
 
     // Set auto-calculated field value
-    setAutoValue: function (id, value) {
+    setAutoValue: function (id, value, isFloat = true) {
         const input = document.getElementById(id);
         if (!input) return;
 
-        input.value = value.toFixed(2);
-        input.disabled = true;
+        const formattedValue = isFloat ? value.toFixed(2) : value;
+        input.value = formattedValue;
 
         // Create hidden input for form submission if not exists
-        let hidden = document.querySelector(
-            `input[type=hidden][name="${input.name}"]`,
-        );
+        let hidden = document.querySelector(`input[type=hidden][name="${input.name}"]`);
         if (!hidden && input.name) {
             hidden = document.createElement("input");
             hidden.type = "hidden";
@@ -67,7 +62,7 @@ const Step3Handler = {
             input.parentNode.appendChild(hidden);
         }
         if (hidden) {
-            hidden.value = value.toFixed(2);
+            hidden.value = formattedValue;
         }
     },
 
@@ -75,44 +70,30 @@ const Step3Handler = {
         // Tentative price input
         const tentative = document.getElementById("tentative_price");
         if (tentative) {
-            tentative.addEventListener("input", (e) =>
-                this.handleTentativePrice(e),
-            );
+            tentative.addEventListener("input", (e) => this.handleTentativePrice(e));
         }
 
-        // High/Low income percent inputs
+        // Deposit type toggle
+        const depositType = document.getElementById("deposit_type");
+        if (depositType) {
+            depositType.addEventListener("change", (e) => this.toggleDepositType(e));
+        }
+
+        // High income percent input
         const high = document.getElementById("high_income_percent");
-        const low = document.getElementById("low_income_percent");
-
         if (high) {
-            high.addEventListener("input", (e) =>
-                this.handlePercentInput(e, "high"),
-            );
-        }
-        if (low) {
-            low.addEventListener("input", (e) =>
-                this.handlePercentInput(e, "low"),
-            );
+            high.addEventListener("input", () => this.calculateFromPercentage());
         }
 
-        // Legal fee inputs
-        const legalFee = document.getElementById("legal_fee");
-        const legalDocFee = document.getElementById("legal_document_fee");
-
-        if (legalFee) {
-            legalFee.addEventListener("input", () => this.calculateTotal());
-        }
-        if (legalDocFee) {
-            legalDocFee.addEventListener("input", () => this.calculateTotal());
+        // Deposited amount direct input
+        const deposited = document.getElementById("deposited_amount");
+        if (deposited) {
+            deposited.addEventListener("input", () => this.calculateFromAmount());
+            deposited.addEventListener("blur", () => this.formatAmount(deposited));
         }
 
         // Interest calculation triggers
-        [
-            "payment_months",
-            "interest_type",
-            "pre_interest",
-            "late_interest",
-        ].forEach((id) => {
+        ["payment_months", "interest_type", "pre_interest", "late_interest"].forEach((id) => {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener("input", () => this.calculateInterest());
@@ -120,10 +101,11 @@ const Step3Handler = {
             }
         });
 
-        // EMI calculation
+        // EMI Last Date calculation triggers
         const emiInput = document.getElementById("payment_months");
         const monthInput = document.getElementById("payment_start_month");
         const yearInput = document.getElementById("payment_start_year");
+        const lastDueDate = document.getElementById("last_payment_due_date");
 
         [emiInput, monthInput, yearInput].forEach((el) => {
             if (el) {
@@ -132,70 +114,123 @@ const Step3Handler = {
             }
         });
 
-        // State-District cascading (if present in step 3)
-        document
-            .querySelectorAll(".state-select, .state-select-hindi")
-            .forEach((select) => {
-                select.addEventListener("change", this.loadDistricts);
-            });
+        // Final Payment Date calculation triggers (specified days)
+        const startMonth = document.getElementById("payment_start_month");
+        const startYear = document.getElementById("payment_start_year");
+        const specifiedDays = document.getElementById("specified_days");
+
+        [startMonth, startYear, specifiedDays].forEach((el) => {
+            if (el) {
+                el.addEventListener("change", () => this.calculateFinalPaymentDate());
+            }
+        });
+
+        // State-District cascading
+        document.querySelectorAll(".state-select, .state-select-hindi").forEach((select) => {
+            select.addEventListener("change", this.loadDistricts);
+        });
 
         // Input restrictions
         this.applyInputRestrictions();
+        
+        // Disable auto fields initially
+        this.disableAutoFields();
     },
 
     initializeCalculations: function () {
-        // Disable all fields initially
-        this.disableAllFields();
-
         // Check if tentative price has value and trigger calculations
         const tentative = document.getElementById("tentative_price");
+        const depositType = document.getElementById("deposit_type");
+        
         if (tentative && tentative.value) {
             this.handleTentativePrice({ target: tentative });
+            
+            // Trigger appropriate calculation based on deposit type
+            if (depositType && depositType.value === 'percent') {
+                this.toggleDepositType({ target: depositType });
+            }
         }
+
+        // Calculate EMI last date
+        this.calculateLastEMI();
+        
+        // Calculate final payment date
+        this.calculateFinalPaymentDate();
     },
 
     handleTentativePrice: function (e) {
         const value = e.target.value;
         if (value) {
-            this.enableFields(["high_income_percent", "low_income_percent"]);
-            this.setAutoValue("interim_price", this.num(value));
-        } else {
-            this.disableAllFields();
+            // Enable deposit type selection
+            const depositType = document.getElementById("deposit_type");
+            if (depositType) depositType.disabled = false;
+            
+            // Trigger recalculation of remaining amount
+            this.calculateRemaining();
         }
     },
 
-    handlePercentInput: function (e, type) {
-        // Clear the other percent field
-        if (type === "high") {
-            const low = document.getElementById("low_income_percent");
-            if (low) low.value = "";
-        } else {
-            const high = document.getElementById("high_income_percent");
-            if (high) high.value = "";
-        }
+    toggleDepositType: function (e) {
+        const type = e.target.value;
+        const percentRow = document.getElementById("percent_row");
+        const highPercent = document.getElementById("high_income_percent");
+        const depositedAmount = document.getElementById("deposited_amount");
 
-        this.calculateDeposit();
+        if (type === 'percent') {
+            percentRow.style.display = '';
+            highPercent.disabled = false;
+            depositedAmount.readOnly = true;
+            depositedAmount.disabled = true;
+            
+            // Calculate from percentage if percent field has value
+            if (highPercent.value) {
+                this.calculateFromPercentage();
+            }
+        } else {
+            percentRow.style.display = 'none';
+            highPercent.disabled = true;
+            depositedAmount.readOnly = false;
+            depositedAmount.disabled = false;
+            
+            // Calculate from amount if amount field has value
+            if (depositedAmount.value) {
+                this.calculateFromAmount();
+            }
+        }
     },
 
-    calculateDeposit: function () {
+    calculateFromPercentage: function () {
         const tentative = document.getElementById("tentative_price");
-        const high = document.getElementById("high_income_percent");
-        const low = document.getElementById("low_income_percent");
+        const highPercent = document.getElementById("high_income_percent");
 
-        if (!tentative) return;
+        if (!tentative || !highPercent) return;
 
         const P = this.num(tentative.value);
-        const percent = this.num(high?.value || low?.value);
+        const percent = this.num(highPercent.value);
 
-        if (percent > 0) {
-            this.enableFields(["legal_fee", "legal_document_fee"]);
+        if (P && percent) {
+            const deposit = (P * percent) / 100;
+            this.setAutoValue("deposited_amount", deposit);
+            this.calculateRemaining();
         }
+    },
 
-        const deposit = (P * percent) / 100;
-        this.setAutoValue("deposited_amount", deposit);
+    calculateFromAmount: function () {
+        const deposited = document.getElementById("deposited_amount");
+        const highPercent = document.getElementById("high_income_percent");
 
-        this.calculateRemaining();
-        this.calculateTotal();
+        if (deposited && deposited.value) {
+            // Clear percentage field when manually entering amount
+            if (highPercent) highPercent.value = '';
+            this.calculateRemaining();
+        }
+    },
+
+    formatAmount: function (input) {
+        if (input && input.value) {
+            const num = this.num(input.value);
+            input.value = num.toFixed(2);
+        }
     },
 
     calculateRemaining: function () {
@@ -207,34 +242,27 @@ const Step3Handler = {
         const P = this.num(tentative.value);
         const d = this.num(deposited.value);
 
-        const remaining = P - d;
-        this.setAutoValue("remaining_amount", remaining);
+        if (P && d <= P) {
+            const remaining = P - d;
+            this.setAutoValue("remaining_amount", remaining);
 
-        if (remaining > 0) {
-            this.enableFields([
+            // Enable interest fields if remaining > 0
+            const interestFields = [
                 "payment_months",
                 "interest_type",
                 "pre_interest",
-                "late_interest",
-            ]);
+                "late_interest"
+            ];
+            
+            interestFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = remaining <= 0;
+            });
+
+            if (remaining > 0) {
+                this.calculateInterest();
+            }
         }
-    },
-
-    calculateTotal: function () {
-        const deposited = document.getElementById("deposited_amount");
-        const legalFee = document.getElementById("legal_fee");
-        const legalDocFee = document.getElementById("legal_document_fee");
-
-        if (!deposited || !legalFee || !legalDocFee) return;
-
-        const d = this.num(deposited.value);
-        const l1 = this.num(legalFee.value);
-        const l2 = this.num(legalDocFee.value);
-
-        const total = d - l1 + l2;
-        this.setAutoValue("total_payment", total);
-
-        this.calculateRemaining();
     },
 
     calculateInterest: function () {
@@ -265,7 +293,7 @@ const Step3Handler = {
         const TY = T / 12;
 
         if (!P || !T || !type) {
-            console.log("❌ Missing Required Values");
+            console.log("Missing Required Values");
             return;
         }
 
@@ -283,12 +311,12 @@ const Step3Handler = {
             preInterestAmount = totalAmount / T;
 
             // Combined (Pre + Late)
-            let totalRate = R1 + R2;
+            let totalRate = R2;
             PSIAmount = (P * totalRate * TY) / 100;
             PtotalAmount = P + PSIAmount;
             lateInterestAmount = PtotalAmount / T;
 
-            console.log("Total Rate (R1+R2):", totalRate);
+            console.log("Total Rate R2:", totalRate);
         } else if (type === "compound") {
             // Normal EMI
             if (monthlyRate > 0 && T > 0) {
@@ -301,7 +329,7 @@ const Step3Handler = {
             }
 
             // Penalty EMI
-            let penaltyRate = (R1 + R2) / 12 / 100;
+            let penaltyRate = R2 / 12 / 100;
 
             if (penaltyRate > 0 && T > 0) {
                 let emiPen =
@@ -312,13 +340,14 @@ const Step3Handler = {
                 lateInterestAmount = T > 0 ? Math.ceil(P / T) : 0;
             }
 
-            console.log("Total Rate (R1+R2):", penaltyRate);
+            console.log("Total Rate R2:", penaltyRate);
         }
 
         this.setAutoValue("pre_interest_amount", preInterestAmount);
         this.setAutoValue("late_interest_amount", lateInterestAmount);
     },
 
+    // Calculate Last EMI Due Date (for monthly installments)
     calculateLastEMI: function () {
         const emiInput = document.getElementById("payment_months");
         const monthInput = document.getElementById("payment_start_month");
@@ -327,41 +356,81 @@ const Step3Handler = {
 
         if (!emiInput || !monthInput || !yearInput || !result) return;
 
-        const emi = parseInt(emiInput.value) || 0;
-        const month = parseInt(monthInput.value) || 0;
-        const year = parseInt(yearInput.value) || 0;
+        const emi = this.int(emiInput.value);
+        const month = this.int(monthInput.value);
+        const year = this.int(yearInput.value);
 
         if (!emi || !month || !year) {
             result.value = "";
             return;
         }
 
-        const monthNames = [
-            "",
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ];
-
-        const startDate = new Date(year, month - 1);
+        // Create start date (first day of the month)
+        const startDate = new Date(year, month - 1, 1);
+        
+        // Add EMI months - 1 to get the last EMI month
         startDate.setMonth(startDate.getMonth() + emi - 1);
 
-        const lastMonth = monthNames[startDate.getMonth() + 1];
+        const lastMonth = this.monthNames[startDate.getMonth() + 1];
         const lastYear = startDate.getFullYear();
 
         result.value = `${lastMonth} ${lastYear}`;
     },
 
-    // Load districts for state select (reused from step 2)
+    // Calculate Final Payment Date based on specified days
+    calculateFinalPaymentDate: function () {
+        const startMonth = document.getElementById("payment_start_month");
+        const startYear = document.getElementById("payment_start_year");
+        const specifiedDays = document.getElementById("specified_days");
+        
+        const lastDay = document.getElementById("last_day");
+        const lastMonth = document.getElementById("last_month");
+        const lastYear = document.getElementById("last_year");
+
+        if (!startMonth || !startYear || !specifiedDays || !lastDay || !lastMonth || !lastYear) 
+            return;
+
+        const month = this.int(startMonth.value);
+        const year = this.int(startYear.value);
+        
+        // Extract days from specified_days value (e.g., "30 days" -> 30)
+        const daysText = specifiedDays.value;
+        const days = daysText ? this.int(daysText.split(' ')[0]) : 0;
+
+        if (!month || !year || !days) {
+            // Clear last payment date fields if inputs are missing
+            lastDay.value = '';
+            lastMonth.value = '';
+            lastYear.value = '';
+            return;
+        }
+
+        // Create start date (first day of the month)
+        const startDate = new Date(year, month - 1, 1);
+        
+        // Add the specified days and subtract 1 to get the last day
+        // Example: If start is March 1 + 30 days = March 31 (correct)
+        startDate.setDate(startDate.getDate() + days - 1);
+
+        // Get the resulting date components
+        const resultDay = startDate.getDate();
+        const resultMonth = startDate.getMonth() + 1;
+        const resultYear = startDate.getFullYear();
+
+        // Set the values in the selects
+        lastDay.value = String(resultDay).padStart(2, '0');
+        lastMonth.value = String(resultMonth).padStart(2, '0');
+        lastYear.value = resultYear;
+
+        // Log for debugging
+        console.log(`Final Payment Date Calculation:
+            Start: ${month}/${year}
+            Days: ${days}
+            Result: ${resultDay}/${resultMonth}/${resultYear}
+        `);
+    },
+
+    // Load districts for state select
     loadDistricts: function () {
         const stateId = this.value;
         const targetId = this.dataset.target;
@@ -369,8 +438,7 @@ const Step3Handler = {
 
         if (!districtSelect) return;
 
-        districtSelect.innerHTML =
-            '<option value="">-- Select District --</option>';
+        districtSelect.innerHTML = '<option value="">-- Select District --</option>';
 
         if (!stateId) return;
 
@@ -400,31 +468,21 @@ const Step3Handler = {
             });
         });
 
+        // Amount with 2 decimal places
         document.querySelectorAll(".only-number-amount").forEach((input) => {
-            // Allow numbers and one dot
             input.addEventListener("input", function () {
-                let value = this.value;
-
-                // Remove invalid characters
-                value = value.replace(/[^0-9.]/g, "");
-
-                // Allow only one dot
+                let value = this.value.replace(/[^0-9.]/g, "");
                 const parts = value.split(".");
                 if (parts.length > 2) {
                     value = parts[0] + "." + parts.slice(1).join("");
                 }
-
                 this.value = value;
             });
 
-            // On blur convert to .00 format
             input.addEventListener("blur", function () {
                 let num = parseFloat(this.value);
-
                 if (!isNaN(num)) {
-                    this.value = num.toFixed(2); // always .00
-                } else {
-                    this.value = "";
+                    this.value = num.toFixed(2);
                 }
             });
         });
@@ -439,43 +497,43 @@ const Step3Handler = {
         // English + Hindi
         document.querySelectorAll(".only-eng-hindi").forEach((input) => {
             input.addEventListener("input", function () {
-                this.value = this.value.replace(
-                    /[^a-zA-Z\u0900-\u097F\s]/g,
-                    "",
-                );
+                this.value = this.value.replace(/[^a-zA-Z\u0900-\u097F\s]/g, "");
             });
         });
 
         // English + Hindi + Number + / -
-        document
-            .querySelectorAll(".only-eng-hindi-special")
-            .forEach((input) => {
-                input.addEventListener("input", function () {
-                    this.value = this.value.replace(
-                        /[^a-zA-Z0-9\u0900-\u097F\s\/-]/g,
-                        "",
-                    );
-                });
+        document.querySelectorAll(".only-eng-hindi-special").forEach((input) => {
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z0-9\u0900-\u097F\s\/-]/g, "");
             });
+        });
+
+        // English + Number + / - (for address fields)
+        document.querySelectorAll(".only-address").forEach((input) => {
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z0-9\s\/-]/g, "");
+            });
+        });
+
+        // Alpha-numeric with dash
+        document.querySelectorAll(".alpha-num-dash").forEach((input) => {
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^a-zA-Z0-9-]/g, "");
+            });
+        });
 
         // Float values between 0-100
         document.querySelectorAll(".only-float-100").forEach((input) => {
             input.addEventListener("input", function () {
-                // Remove invalid characters (allow digits + dot)
                 let value = this.value.replace(/[^0-9.]/g, "");
-
-                // Prevent multiple dots
                 let parts = value.split(".");
                 if (parts.length > 2) {
                     value = parts[0] + "." + parts[1];
                 }
-
-                // Convert to number and check max limit
                 let number = parseFloat(value);
                 if (!isNaN(number) && number > 100) {
                     value = "100";
                 }
-
                 this.value = value;
             });
         });
@@ -492,69 +550,45 @@ const Step3Handler = {
         const requiredFields = [
             "tentative_price",
             "payment_type",
-            "high_income_percent",
-            "late_interest_amount",
             "payment_months",
             "payment_start_month",
             "payment_start_year",
-            "last_payment_due_date",
             "interest_type",
             "pre_interest",
             "late_interest",
-            "pre_interest_amount",
-            "late_interest_amount",
-            "remaining_amount",
+            "specified_days"
         ];
 
         requiredFields.forEach((fieldName) => {
             const field = form.querySelector(`[name="${fieldName}"]`);
-            if (field && !field.value.trim()) {
+            if (field && !field.value) {
                 field.classList.add("is-invalid");
                 valid = false;
                 if (!firstInvalid) firstInvalid = field;
             }
         });
 
-        // Validate that either high_income_percent or low_income_percent is filled
+        // Validate either percentage or amount is filled
+        const depositType = document.getElementById("deposit_type")?.value;
         const highPercent = document.getElementById("high_income_percent");
-        const lowPercent = document.getElementById("low_income_percent");
+        const depositedAmount = document.getElementById("deposited_amount");
 
-        if (highPercent && lowPercent) {
-            const hasHigh = highPercent.value.trim();
-            const hasLow = lowPercent.value.trim();
-
-            if (!hasHigh && !hasLow) {
-                highPercent.classList.add("is-invalid");
-                lowPercent.classList.add("is-invalid");
+        if (depositType === 'percent') {
+            if (!highPercent?.value) {
+                highPercent?.classList.add("is-invalid");
                 valid = false;
                 if (!firstInvalid) firstInvalid = highPercent;
             }
-        }
-
-        // Validate payment months if remaining amount > 0
-        const remainingAmount = document.getElementById("remaining_amount");
-        if (remainingAmount && this.num(remainingAmount.value) > 0) {
-            const paymentMonths = document.getElementById("payment_months");
-            const interestType = document.getElementById("interest_type");
-
-            if (paymentMonths && !paymentMonths.value) {
-                paymentMonths.classList.add("is-invalid");
+        } else {
+            if (!depositedAmount?.value) {
+                depositedAmount?.classList.add("is-invalid");
                 valid = false;
-                if (!firstInvalid) firstInvalid = paymentMonths;
-            }
-
-            if (interestType && !interestType.value) {
-                interestType.classList.add("is-invalid");
-                valid = false;
-                if (!firstInvalid) firstInvalid = interestType;
+                if (!firstInvalid) firstInvalid = depositedAmount;
             }
         }
 
         if (firstInvalid) {
-            firstInvalid.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
+            firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
         }
 
         return valid;
@@ -562,8 +596,7 @@ const Step3Handler = {
 
     destroy: function () {
         console.log("Step 3 Handler Destroyed");
-        // Clean up any global event listeners if needed
-    },
+    }
 };
 
 // Register with StepManager
