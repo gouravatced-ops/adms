@@ -18,6 +18,7 @@ class AllotteePropertyFinDetail extends Model
         'maav_day',
         'maav_month',
         'maav_year',
+        'deposit_type',
 
         'high_income_percent',
         'low_income_percent',

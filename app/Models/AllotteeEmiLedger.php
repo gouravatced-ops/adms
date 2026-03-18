@@ -13,7 +13,7 @@ class AllotteeEmiLedger extends Model
     protected $fillable = [
 
         'allottee_id',
-
+        'calculation_type',
         'total_amount',
         'total_emi_count',
 

@@ -1450,6 +1450,7 @@
             },
 
             submitApplication: function() {
+                const stepRemarks = document.getElementById('step_remarks')?.value || '';
                 fetch('{{ route('applicant.apply.step6.save') }}', {
                         method: 'POST',
                         headers: {
@@ -1459,7 +1460,8 @@
                         },
                         body: JSON.stringify({
                             applicant_id: this.config.applicantId,
-                            final_submission: true
+                            final_submission: true,
+                            remarks: stepRemarks
                         })
                     })
                     .then(res => res.json())

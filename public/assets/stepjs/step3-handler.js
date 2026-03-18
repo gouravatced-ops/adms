@@ -29,7 +29,7 @@ const Step3Handler = {
     // Disable auto-calculated fields
     disableAutoFields: function () {
         const autoFields = [
-            "deposited_amount",
+            // "deposited_amount",
             "remaining_amount",
             "pre_interest_amount",
             "late_interest_amount",
@@ -549,7 +549,6 @@ const Step3Handler = {
         // Required fields validation
         const requiredFields = [
             "tentative_price",
-            "payment_type",
             "payment_months",
             "payment_start_month",
             "payment_start_year",

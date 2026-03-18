@@ -228,7 +228,7 @@
                         <td class="sl"></td>
                         <td class="term">Agreement हेतु शेष राशि प्रकार</td>
                         <td>
-                            <select id="deposit_type" class="custom-input">
+                            <select id="deposit_type" name="deposit_type" class="custom-input">
                                 <option value="amount" {{ $applicant->deposit_type == 'amount' ? 'selected' : '' }}>
                                     Direct Amount</option>
                                 <option value="percent" {{ $applicant->deposit_type == 'percent' ? 'selected' : '' }}>

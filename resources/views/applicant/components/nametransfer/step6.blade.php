@@ -704,6 +704,35 @@
     </div>
 </div>
 
+<form id="step6Form" method="POST">
+    @csrf
+    <input type="hidden" name="allottee_id" id="allottee_id" value="{{ $applicant->id ?? '' }}">
+
+    @php
+    $defaultRemarks = "
+Step 1 : -
+Step 2 : -
+Step 3 : -
+Step 4 : -
+Step 5 : -
+";
+@endphp
+
+{{-- ── Allottee Step Form Remarks ── --}}
+<div class="form-section" style="margin-top:10px;">
+    <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
+        <div class="field">
+            <label class="field-label">
+                Remarks of Step
+            </label>
+
+            <textarea name="step_remarks" id="step_remarks" rows="8" class="custom-input">{{ old('step_remarks', $applicant->step_remarks ?? $defaultRemarks) }}</textarea>
+
+        </div>
+    </div>
+</div>
+</form>
+
 <style>
     .review-section {
         margin: 0 auto;

@@ -1318,7 +1318,26 @@
                 const prev = document.getElementById('prevBtn');
                 const lbl = document.getElementById('btnLabel');
 
-                if (prev) prev.style.display = step === 1 ? 'none' : 'inline-flex';
+                if (prev) {
+                    // Hide on step 1
+                    if (step === 1) {
+                        prev.style.display = 'none';
+                    } else {
+                        prev.style.display = 'inline-flex';
+
+                        // Disable ONLY when coming back to step 2 (i.e. step 1 locked)
+                        if (step === 2) {
+                            prev.disabled = true;
+                            prev.style.pointerEvents = 'none';
+                            prev.style.opacity = '0.5';
+                        } else {
+                            prev.disabled = false;
+                            prev.style.pointerEvents = 'auto';
+                            prev.style.opacity = '1';
+                        }
+                    }
+                }
+
                 if (lbl) lbl.innerHTML = step === 6 ? 'Submit Application' : 'Save & Continue';
 
                 this.config.currentStep = step;
@@ -1546,6 +1565,11 @@
             },
 
             prevStep: function() {
+                if (this.config.currentStep === 2) {
+                    this.showAlert('You cannot go back to Step 1 once completed.', 'error');
+                    return;
+                }
+
                 if (this.config.currentStep > 1) {
                     this.loadStep(this.config.currentStep - 1);
                 }

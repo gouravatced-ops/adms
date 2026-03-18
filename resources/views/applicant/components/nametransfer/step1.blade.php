@@ -42,6 +42,7 @@
     <input type="hidden" name="pcategory_id" value="{{ $applicant->pcategory_id ?? '' }}">
     <input type="hidden" name="property_type_id" value="{{ $applicant->property_type_id ?? '' }}">
     <input type="hidden" name="quarter_id" value="{{ $applicant->quarter_id ?? '' }}">
+    <input type="hidden" name="property_number" value="{{ $applicant->property_number ?? '' }}">
     <input type="hidden" name="quarter_income_code" value="{{ $applicant->quarterType->quarter_code ?? '' }}">
     {{-- Property summary pill --}}
     <div class="property-summary">

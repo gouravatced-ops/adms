@@ -440,7 +440,7 @@ class StepperFormController extends Controller
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
-        $applicant = Allottee::with(['division', 'subDivision', 'propertyCategory', 'propertyType' , 'quarterType'])
+        $applicant = Allottee::with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
             ->where('register_file_id', $id)
             ->first();
 
@@ -988,11 +988,17 @@ class StepperFormController extends Controller
             'nametransferValue' => 'nullable|in:yes,no'
         ]);
 
-        Allottee::where('id', $request->allottee_id)
-            ->update([
-                'current_step' => 6,
-                'name_transfer_status' => $request->nametransferValue
-            ]);
+        $updateData = [
+            'current_step' => 6,
+            'name_transfer_status' => $request->nametransferValue
+        ];
+
+        // EMI status only if no_information
+        if ($request->emi_status == 'no_information') {
+            $updateData['is_emi_active'] = $request->emi_status;
+        }
+
+        Allottee::where('id', $request->allottee_id)->update($updateData);
 
         $this->trackStepEnd($request->allottee_id, 5);
 
@@ -1028,6 +1034,7 @@ class StepperFormController extends Controller
 
             // Step Completed
             $allottee->is_step_completed = 1;
+            $allottee->step_remarks = $request->remarks;
             $allottee->save();
 
             $this->trackStepEnd($request->applicant_id, 6);
@@ -1155,13 +1162,42 @@ class StepperFormController extends Controller
             $payload = $request->all();
 
             $config = json_decode($payload['emi_config'], true) ?? [];
-            $inputs   = json_decode($payload['emi_inputs'], true) ?? [];
-            $timeline = json_decode($payload['emi_timeline'], true) ?? [];
-            $calc     = json_decode($payload['emi_calculated'], true) ?? [];
+            $inputs   = json_decode($payload['emi_data'], true) ?? [];
 
+            if ($payload['emi_status'] == 'yes' && $payload['emi_mode'] == 'manual') {
+                $emiData = $inputs['manual'];
+                $emiData['withoutPenaltyCount'] = $emiData['completedCount'];
+                $emiData['withPenaltyAmount'] = $emiData['penaltyAmount'];
+                $emiData['totalRemaining'] = $emiData['totalBalance'];
+                $emiData['withPenaltyCount'] = $emiData['lateCount'];
+                $emiData['completedCount'] = $emiData['completedCount'] + $emiData['lateCount'];
+                $emiData['currentBalance'] = $emiData['totalPaid'];
+                $emiData['type'] = 'manual';
+            } else if ($payload['emi_status'] == 'yes' && $payload['emi_mode']  == 'auto') {
+                $emiData = $inputs['auto'];
+                $emiData['withoutPenaltyAmount'] = $config['amountWithoutPenalty'];
+                $emiData['withPenaltyAmount'] = $config['amountWithPenalty'];
+                $emiData['withoutPenaltyCount'] = $emiData['withoutPenaltyCount'];
+                $emiData['withPenaltyCount'] = $emiData['withPenaltyCount'];
+                $emiData['type'] = 'auto';
+            } else if ($payload['emi_status'] == 'no' && $payload['emi_mode'] == 'manual') {
+                $emiData['totalCount'] = $config['totalCount'];
+                $emiData['expectedCount'] = $config['totalCount'];
+                $emiData['completedCount'] = $config['totalCount'];
+                $emiData['lateCount'] = 0;
+                $emiData['remainingCount'] = 0;
+                $emiData['withPenaltyAmount'] = $config['amountWithPenalty'];
+                $emiData['withoutPenaltyAmount'] = $config['amountWithoutPenalty'];
+                $emiData['totalPaid'] = $config['totalCount'] * $config['amountWithoutPenalty'];
+                $emiData['currentBalance'] = $config['totalCount'] * $config['amountWithoutPenalty'];
+                $emiData['status'] = 'Close';
+            }
+
+            // return $emiData;
             $data = [
 
                 'allottee_id' => $payload['allottee_id'] ?? null,
+                'calculation_type' => $payload['emi_mode'],
 
                 // CONFIG
                 'total_amount' => $config['totalAmount'] ?? 0,
@@ -1173,34 +1209,32 @@ class StepperFormController extends Controller
                 'last_emi_month' => $config['lastEmiMonth'] ?? null,
                 'last_emi_year'  => $config['lastEmiYear'] ?? null,
 
-                'amount_without_penalty' => $config['amountWithoutPenalty'] ?? 0,
-                'amount_with_penalty'    => $config['amountWithPenalty'] ?? 0,
+                'amount_without_penalty' => $emiData['withoutPenaltyAmount'] ?? 0,
+                'amount_with_penalty'    => $emiData['withPenaltyAmount'] ?? 0,
 
                 // INPUTS
-                'without_penalty_count' => $inputs['withoutPenaltyCount'] ?? 0,
-                'with_penalty_count'    => $inputs['withPenaltyCount'] ?? 0,
+                'without_penalty_count' => $emiData['withoutPenaltyCount'] ?? 0,
+                'with_penalty_count'    => $emiData['withPenaltyCount'] ?? 0,
 
                 // CALCULATED
-                'completed_emi' => $calc['completedCount'] ?? 0,
-                'late_emi'      => $calc['lateCount'] ?? 0,
-                'remaining_emi' => $calc['remainingCount'] ?? 0,
+                'completed_emi' => $emiData['completedCount'] ?? 0,
+                'late_emi'      => $emiData['lateCount'] ?? 0,
+                'remaining_emi' => $emiData['remainingCount'] ?? 0,
 
-                'total_paid'      => $calc['totalPaid'] ?? 0,
-                'total_remaining' => $calc['totalRemaining'] ?? 0,
-                'current_balance' => $calc['currentBalance'] ?? 0,
+                'total_paid'      => $emiData['totalPaid'] ?? 0,
+                'total_remaining' => $emiData['totalRemaining'] ?? 0,
+                'current_balance' => $emiData['currentBalance'] ?? 0,
 
-                'emi_status' => $calc['status'] ?? null,
+                'emi_status' => $emiData['status'] ?? null,
 
                 'expected_emi' => $calc['expectedCount'] ?? 0,
                 'payment_gap'  => $calc['paymentGap'] ?? 0,
 
-                'emi_active' => $payload['emi_active'] ?? false,
+                'emi_active' => $payload['emi_status'] ?? false,
 
                 // RAW JSON STORE
                 'emi_config'     => json_encode($config),
                 'emi_inputs'     => json_encode($inputs),
-                'emi_timeline'   => json_encode($timeline),
-                'emi_calculated' => json_encode($calc),
 
             ];
             // INSERT OR UPDATE
@@ -1209,8 +1243,14 @@ class StepperFormController extends Controller
                 $data
             );
 
+            if ($payload['emi_status'] == 'yes') {
+                $emi_status = 'true';
+            } else {
+                $emi_status = 'false';
+            }
+
             Allottee::where('id', $payload['allottee_id'])->update([
-                'is_emi_active' => $payload['emi_active'] ?? false
+                'is_emi_active' => $emi_status
             ]);
 
             // Return success response

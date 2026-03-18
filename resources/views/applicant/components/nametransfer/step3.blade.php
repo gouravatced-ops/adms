@@ -228,7 +228,7 @@
                         <td class="sl"></td>
                         <td class="term">Agreement हेतु शेष राशि प्रकार</td>
                         <td>
-                            <select id="deposit_type" class="custom-input">
+                            <select id="deposit_type" name="deposit_type" class="custom-input">
                                 <option value="amount" {{ $applicant->deposit_type == 'amount' ? 'selected' : '' }}>
                                     Direct Amount</option>
                                 <option value="percent" {{ $applicant->deposit_type == 'percent' ? 'selected' : '' }}>
@@ -240,7 +240,8 @@
                     <tr id="percent_row" style="display:none;">
                         <td class="sl"></td>
                         <td class="term">प्रतिशत / Percentage</td>
-                        <td><input name="high_income_percent" id="high_income_percent" class="only-float-100 custom-input"
+                        <td><input name="high_income_percent" id="high_income_percent"
+                                class="only-float-100 custom-input"
                                 value="{{ old('high_income_percent', $applicant->high_income_percent) }}"
                                 placeholder="प्रतिशत / Percentage"></td>
                     </tr>
