@@ -41,21 +41,7 @@ const Step5Handler = (function() {
     // Document configurations - Including nameTransfer as requested
     const DOCUMENT_CONFIGS = {
         basic: window.documentBasicList || [],
-        nameTransfer: [
-            {
-                id: 9,
-                name: "Transfer Application",
-                key: "transfer_application",
-            },
-            { id: 10, name: "Indemnity Bond", key: "indemnity_bond" },
-            { id: 11, name: "Affidavit", key: "affidavit" },
-            { id: 12, name: "NOC from Original Allottee", key: "noc_original" },
-            {
-                id: 13,
-                name: "Succession Certificate",
-                key: "succession_certificate",
-            },
-        ]
+        nameTransfer: []
     };
 
     // Completed documents from server
@@ -141,7 +127,7 @@ const Step5Handler = (function() {
         checkExistingEmiStatus();
 
         // Set initial button state - DISABLED by default
-        setNextButtonState(false);
+        setNextButtonState(true);
     }
 
     function cacheElements() {
@@ -244,7 +230,7 @@ const Step5Handler = (function() {
 
         // Update progress and button state
         updateProgress();
-        validateAndUpdateNextButton();
+        // validateAndUpdateNextButton();
     }
 
     // ==================== NEXT BUTTON STATE MANAGEMENT ====================

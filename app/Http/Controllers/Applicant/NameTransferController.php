@@ -549,6 +549,7 @@ class NameTransferController extends Controller
             'property_number',
             'current_step',
             'is_trans_entry_completed',
+            'allotment_year',
         ])
             ->with([
                 'division:id,name',
@@ -673,42 +674,6 @@ class NameTransferController extends Controller
         // STEP 3
         if ($step == 3) {
 
-            $applicant = AllotteePropertyFinDetail::where('allottee_id', $applicantId)->first();
-
-            if ($applicant) {
-                $applicant->id = $applicant->allottee_id;
-
-                return view($view, compact('applicant'));
-            }
-            $this->trackStepStart($applicantId, $step);
-            $applicant = Allottee::with($baseRelations)->findOrFail($applicantId);
-                        $applicant->plot_number = $applicant->property_number;
-            $applicant->allot_day = $applicant->allotment_day;
-            $applicant->allot_month = $applicant->allotment_month;
-            $applicant->allot_year = $applicant->allotment_year;
-
-            return view($view, compact('applicant'));
-        }
-
-        // STEP 4
-        if ($step == 4) {
-
-            $applicant = AllotteeNomineeBankDetail::where('allottee_id', $applicantId)->first();
-
-            if ($applicant) {
-                $applicant->id = $applicant->allottee_id;
-
-                return view($view, compact('applicant'));
-            }
-            $this->trackStepStart($applicantId, $step);
-            $applicant = Allottee::with($baseRelations)->findOrFail($applicantId);
-
-            return view($view, compact('applicant'));
-        }
-
-        // STEP 5
-        if ($step == 5) {
-
             $applicant = Allottee::with(array_merge($baseRelations, ['AllotProFinDetail']))
                 ->findOrFail($applicantId);
 
@@ -727,8 +692,8 @@ class NameTransferController extends Controller
             return view($view, compact('applicant', 'completedDocuments'));
         }
 
-        // STEP 6
-        if ($step == 6) {
+        // STEP 4
+        if ($step == 4) {
 
             $relations = array_merge($baseRelations, [
                 'allotProFinDetail',
@@ -804,7 +769,7 @@ class NameTransferController extends Controller
     }
 
     public function saveStep1(Request $request)
-    {   
+    {
         // return $request;
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
@@ -1043,123 +1008,6 @@ class NameTransferController extends Controller
 
     public function saveStep3(Request $request)
     {
-        try {
-
-            $data = $request->except([
-                'created_ip',
-                'updated_ip',
-                'created_by',
-                'updated_by',
-            ]);
-
-            $record = AllotteePropertyFinDetail::where('allottee_id', $request->allottee_id)->first();
-
-            if ($record) {
-
-                // UPDATE
-                $data['updated_ip'] = $request->ip();
-                $data['updated_by'] = auth()->id();
-
-                $record->update($data);
-
-                $message = 'Property Financial updated successfully';
-            } else {
-
-                // CREATE
-                $data['created_ip'] = $request->ip();
-                $data['created_by'] = auth()->id();
-
-                AllotteePropertyFinDetail::create($data);
-
-                // Update applicant's current step (optional)
-                $applicant = Allottee::find($request->allottee_id);
-                if ($applicant) {
-                    $applicant->current_step = 4; // Move to next step
-                    $applicant->save();
-                }
-                $this->trackStepEnd($request->allottee_id, 3);
-                $message = 'Property Financial saved successfully';
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'next_step' => 4,
-            ]);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function saveStep4(Request $request)
-    {
-        $userId = auth()->id();
-        $ip = $request->ip();
-
-        $data = $request->only([
-            'nominee_prefix',
-            'nominee_name',
-            'nominee_relationship',
-            'nominee_pan_card',
-            'nominee_aadhaar',
-
-            'family_name_prefix',
-            'family_name',
-            'family_gender',
-            'family_dob',
-            'family_relationship',
-            'family_aadhaar',
-            'family_pan',
-
-            'bank_name',
-            'bank_account_no',
-            'bank_branch',
-            'bank_ifsc',
-            'bank_account_holder',
-        ]);
-
-        $allotteeId = $request->allottee_id;
-
-        $record = AllotteeNomineeBankDetail::where('allottee_id', $allotteeId)->first();
-
-        if ($record) {
-
-            // UPDATE
-            $data['updated_by'] = $userId;
-            $data['update_ip_address'] = $ip;
-
-            $record->update($data);
-        } else {
-
-            // CREATE
-            $data['allottee_id'] = $allotteeId;
-            $data['created_by'] = $userId;
-            $data['create_ip_address'] = $ip;
-
-            $record = AllotteeNomineeBankDetail::create($data);
-        }
-
-        StepSkip::where('applicant_id', $allotteeId)->delete();
-
-        Allottee::where('id', $allotteeId)->update([
-            'current_step' => 5,
-        ]);
-        $this->trackStepEnd($request->allottee_id, 4);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Nominee & Banking saved successfully',
-            'next_step' => 5,
-            'data' => $record,
-        ]);
-    }
-
-    public function saveStep5(Request $request)
-    {
         $request->validate([
             'allottee_id' => 'required|exists:allottees,id',
             'nametransferValue' => 'nullable|in:yes,no',
@@ -1176,11 +1024,11 @@ class NameTransferController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'All Documents uploaded',
-            'next_step' => 6,
+            'next_step' => 4,
         ]);
     }
 
-    public function saveStep6(Request $request)
+    public function saveStep4(Request $request)
     {
         if (! $request->final_submission) {
             return response()->json([
@@ -1321,86 +1169,5 @@ class NameTransferController extends Controller
             'success' => true,
             'message' => 'Document uploaded successfully',
         ]);
-    }
-
-    public function saveEmiLedger(Request $request)
-    {
-        try {
-
-            $payload = $request->all();
-
-            $config = json_decode($payload['emi_config'], true) ?? [];
-            $inputs = json_decode($payload['emi_inputs'], true) ?? [];
-            $timeline = json_decode($payload['emi_timeline'], true) ?? [];
-            $calc = json_decode($payload['emi_calculated'], true) ?? [];
-
-            $data = [
-
-                'allottee_id' => $payload['allottee_id'] ?? null,
-
-                // CONFIG
-                'total_amount' => $config['totalAmount'] ?? 0,
-                'total_emi_count' => $config['totalCount'] ?? 0,
-
-                'start_month' => $config['startMonth'] ?? null,
-                'start_year' => $config['startYear'] ?? null,
-
-                'last_emi_month' => $config['lastEmiMonth'] ?? null,
-                'last_emi_year' => $config['lastEmiYear'] ?? null,
-
-                'amount_without_penalty' => $config['amountWithoutPenalty'] ?? 0,
-                'amount_with_penalty' => $config['amountWithPenalty'] ?? 0,
-
-                // INPUTS
-                'without_penalty_count' => $inputs['withoutPenaltyCount'] ?? 0,
-                'with_penalty_count' => $inputs['withPenaltyCount'] ?? 0,
-
-                // CALCULATED
-                'completed_emi' => $calc['completedCount'] ?? 0,
-                'late_emi' => $calc['lateCount'] ?? 0,
-                'remaining_emi' => $calc['remainingCount'] ?? 0,
-
-                'total_paid' => $calc['totalPaid'] ?? 0,
-                'total_remaining' => $calc['totalRemaining'] ?? 0,
-                'current_balance' => $calc['currentBalance'] ?? 0,
-
-                'emi_status' => $calc['status'] ?? null,
-
-                'expected_emi' => $calc['expectedCount'] ?? 0,
-                'payment_gap' => $calc['paymentGap'] ?? 0,
-
-                'emi_active' => $payload['emi_active'] ?? false,
-
-                // RAW JSON STORE
-                'emi_config' => json_encode($config),
-                'emi_inputs' => json_encode($inputs),
-                'emi_timeline' => json_encode($timeline),
-                'emi_calculated' => json_encode($calc),
-
-            ];
-            // INSERT OR UPDATE
-            $ledger = AllotteeEmiLedger::updateOrCreate(
-                ['allottee_id' => $payload['allottee_id']],
-                $data
-            );
-
-            Allottee::where('id', $payload['allottee_id'])->update([
-                'is_emi_active' => $payload['emi_active'] ?? false,
-            ]);
-
-            // Return success response
-            return response()->json([
-                'success' => true,
-                'message' => 'EMI ledger saved successfully',
-                'data' => $ledger,
-            ]);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
     }
 }

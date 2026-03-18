@@ -162,9 +162,6 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/apply/step2/save', [NameTransferController::class, 'saveStep2'])->name('apply.step2.save');
         Route::post('/apply/step3/save', [NameTransferController::class, 'saveStep3'])->name('apply.step3.save');
         Route::post('/apply/step4/save', [NameTransferController::class, 'saveStep4'])->name('apply.step4.save');
-        Route::post('/apply/step5/save', [NameTransferController::class, 'saveStep5'])->name('apply.step5.save');
-        Route::post('/apply/step6/save', [NameTransferController::class, 'saveStep6'])->name('apply.step6.save');
-        Route::post('/apply/step7/save', [NameTransferController::class, 'saveStep7'])->name('apply.step7.save');
         Route::post('/documents/store', [NameTransferController::class, 'store'])->name('documents.store');
         Route::post('/save-emi-ledger', [NameTransferController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
         Route::post('/skip-step', [NameTransferController::class, 'skipStep'])->name('applicant.skip.step');

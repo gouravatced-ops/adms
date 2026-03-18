@@ -1113,8 +1113,10 @@
                 @foreach ([
             1 => 'Allottee Details',
             2 => 'Address Details',
-            3 => 'Documents Uploads',
-            4 => 'Review & Submit',
+            3 => 'Property Financial Details',
+            4 => 'Nominee & Banking',
+            5 => 'Documents Uploads',
+            6 => 'Review & Submit',
         ] as $step => $label)
                     <div class="step-item {{ $step === 1 ? 'active' : '' }}" data-step="{{ $step }}"
                         onclick="StepManager.goToStep({{ $step }})">
@@ -1142,7 +1144,7 @@
             {{-- Navigation --}}
             <div class="nav-bar">
                 <div class="nav-info">
-                    Step <strong id="stepNum">1</strong> of <strong>4</strong>
+                    Step <strong id="stepNum">1</strong> of <strong>6</strong>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center;">
                     <button type="button" class="btn btn-ghost" id="prevBtn" onclick="StepManager.prevStep()"
@@ -1191,6 +1193,8 @@
                     },
                     2: '{{ route('nametransfer.apply.step2.save') }}',
                     3: '{{ route('nametransfer.apply.step3.save') }}',
+                    4: '{{ route('nametransfer.apply.step4.save') }}',
+                    5: '{{ route('nametransfer.apply.step5.save') }}',
                 },
                 loadStepUrl: '{{ route('nametransfer.apply.step', ['step' => '__STEP__', 'applicantId' => '__ID__']) }}',
                 csrfToken: '{{ csrf_token() }}'
@@ -1334,7 +1338,7 @@
                     }
                 }
 
-                if (lbl) lbl.innerHTML = step === 4 ? 'Submit Application' : 'Save & Continue';
+                if (lbl) lbl.innerHTML = step === 6 ? 'Submit Application' : 'Save & Continue';
 
                 this.config.currentStep = step;
             },
@@ -1461,7 +1465,7 @@
                 if (spinner) spinner.style.display = 'block';
                 if (btnLabel) btnLabel.textContent = 'Saving...';
 
-                if (this.config.currentStep === 4) {
+                if (this.config.currentStep === 6) {
                     this.submitApplication();
                     return;
                 }
@@ -1556,7 +1560,7 @@
                 if (nextBtn) nextBtn.disabled = false;
                 if (spinner) spinner.style.display = 'none';
                 if (btnLabel) {
-                    btnLabel.innerHTML = this.config.currentStep === 4 ? 'Submit Application' : 'Save & Continue';
+                    btnLabel.innerHTML = this.config.currentStep === 6 ? 'Submit Application' : 'Save & Continue';
                 }
             },
 
@@ -1572,7 +1576,7 @@
             },
 
             submitApplication: function() {
-                fetch('{{ route('nametransfer.apply.step4.save') }}', {
+                fetch('{{ route('nametransfer.apply.step6.save') }}', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': this.config.csrfToken,
@@ -1620,5 +1624,7 @@
     {{-- Load Step Handlers --}}
     <script src="{{ asset('assets/stepjs/step1-handler-nt.js') }}"></script>
     <script src="{{ asset('assets/stepjs/step2-handler.js') }}"></script>
-    <script src="{{ asset('assets/stepjs/step3-handler-nt.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step3-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step4-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step5-handlernew.js') }}"></script>
 @endpush

@@ -66,7 +66,7 @@
     </div>
     {{-- ── Allottee Details ── --}}
     <div class="form-section" style="margin-top:10px;">
-        <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
+        {{-- <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
             <div class="field">
                 <label class="field-label">
                     Schemes
@@ -81,12 +81,12 @@
                     </option>
                 </select>
             </div>
-        </div>
+        </div> --}}
 
         <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
-              <div class="field">
+            <div class="field">
                 <label class="field-label">
-                    Allotment Date <span class="req-star">*</span>
+                    Name Transfer Date <span class="req-star">*</span>
                 </label>
                 <div class="date-group">
                     <!-- Day -->
@@ -121,7 +121,7 @@
                         <?php 
                             $selectedYear = $applicant->allotment_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1960; $y--): 
+                            for ($y = $currentYear; $y >= $applicant->allotment_year; $y--): 
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -160,7 +160,7 @@
 
             <div class="field">
                 <label class="field-label">
-                    Surname
+                    Last Name
                 </label>
                 <input type="text" name="allottee_surname" class="custom-input only-alphabet"
                     value="{{ $applicant->allottee_surname ?? '' }}" placeholder="e.g. Kumar">
@@ -193,7 +193,7 @@
 
             <div class="field">
                 <label class="field-label">
-                    Surname (Hindi) <span class="req-star">*</span>
+                    Last Name (Hindi)
                 </label>
                 <input type="text" name="allottee_surname_hindi" class="custom-input only-hindi"
                     value="{{ $applicant->allottee_surname_hindi ?? '' }}" placeholder="e.g. कुमार">
@@ -418,83 +418,8 @@
 
             <div class="field">
                 <label class="field-label">Remark (If Date of Birth Not Available)</label>
-                <input type="text" name="remarks_for_dob" value="{{ $applicant->remarks_for_dob ?? '' }}" class="custom-input">
-            </div>
-        </div>
-    </div>
-
-    <div class="form-section">
-        <div class="bilingual-grid member-card" style="background: #faf9f6 !important;">
-            <div class="section-header gradient-header" style="background: linear-gradient(90deg, #f59e0b, #f97316);">
-                <div class="section-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"
-                            stroke-width="1.8" />
-                        <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor"
-                            stroke-width="1.8" />
-                        <line x1="8" y1="3" x2="8" y2="7" stroke="currentColor"
-                            stroke-width="1.8" stroke-linecap="round" />
-                        <line x1="16" y1="3" x2="16" y2="7" stroke="currentColor"
-                            stroke-width="1.8" stroke-linecap="round" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="section-title">Date of Birth of Applicant at the time of Application (In Numbers &
-                        Figures both)</h3>
-                </div>
-            </div>
-            <div class="section-header gradient-header" style="background: linear-gradient(90deg, #f59e0b, #f97316);">
-                <div class="section-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor"
-                            stroke-width="1.8" />
-                        <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor"
-                            stroke-width="1.8" />
-                        <line x1="8" y1="3" x2="8" y2="7" stroke="currentColor"
-                            stroke-width="1.8" stroke-linecap="round" />
-                        <line x1="16" y1="3" x2="16" y2="7" stroke="currentColor"
-                            stroke-width="1.8" stroke-linecap="round" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="section-title">आवेदन की तिथि पर उम्र (अंक एवं अक्षर दोनों में )</h3>
-                </div>
-            </div>
-            <div class="field">
-                <label class="field-label"> Age in numbers
-                </label>
-                <input type="text" name="age_number_of_birth_application"
-                    class="custom-input only-number num-input" data-word-target="age_word_of_birth_application"
-                    data-word-postfix=" Years" value="{{ $applicant->age_number_of_birth_application ?? '' }}"
-                    placeholder="e.g 30" maxlength="2" minlength="1">
-            </div>
-
-            <div class="field">
-                <label class="field-label"> उम्र (अंकों में)
-                </label>
-                <input type="text" name="age_number_of_birth_application_hindi"
-                    class="custom-input only-number num-to-word-hi"
-                    data-word-target="age_word_hindi_of_birth_application"
-                    value="{{ $applicant->age_number_of_birth_application_hindi ?? '' }}" placeholder="e.g 30"
-                    maxlength="2" minlength="1">
-            </div>
-
-            <div class="field">
-                <label class="field-label"> Age (in words)
-                </label>
-                <input type="text" name="age_word_of_birth_application" class="custom-input"
-                    id="age_word_of_birth_application" value="{{ $applicant->age_word_of_birth_application ?? '' }}"
-                    placeholder="e.g. Thirty">
-            </div>
-
-            <div class="field">
-                <label class="field-label"> उम्र (अक्षरों में)
-                </label>
-                <input type="text" name="age_word_hindi_of_birth_application" class="custom-input"
-                    id="age_word_hindi_of_birth_application"
-                    value="{{ $applicant->age_word_hindi_of_birth_application ?? '' }}" placeholder="e.g. तीस">
+                <input type="text" name="remarks_for_dob" value="{{ $applicant->remarks_for_dob ?? '' }}"
+                    class="custom-input">
             </div>
         </div>
     </div>
