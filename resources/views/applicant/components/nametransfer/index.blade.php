@@ -1622,7 +1622,7 @@
     </script>
 
     {{-- Load Step Handlers --}}
-    <script src="{{ asset('assets/stepjs/step1-handler.js') }}"></script>
+    <script src="{{ asset('assets/stepjs/step1-handler-nt.js') }}"></script>
     <script src="{{ asset('assets/stepjs/step2-handler.js') }}"></script>
     <script src="{{ asset('assets/stepjs/step3-handler.js') }}"></script>
     <script src="{{ asset('assets/stepjs/step4-handler.js') }}"></script>
