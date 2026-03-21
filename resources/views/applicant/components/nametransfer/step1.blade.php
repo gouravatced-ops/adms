@@ -137,7 +137,7 @@
                     First Name <span class="req-star">*</span>
                 </label>
                 <div class="input-group">
-                    @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/s.']; @endphp
+                    @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
                     <select name="prefix" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"
@@ -171,7 +171,7 @@
                     First Name (Hindi) <span class="req-star">*</span>
                 </label>
                 <div class="input-group">
-                    @php $prefixes = ['श्री', 'श्रीमती', 'सुश्री', 'डॉ.', 'मो.', 'स्व०', 'मेसर्स']; @endphp
+                    @php $prefixes = ['श्री', 'श्रीमती', 'सुश्री', 'डॉ.', 'मो.', 'स्व०', 'मेसर्स' , 'मेजर', 'कैप्टन']; @endphp
                     <select name="allottee_prefix_hindi" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"
@@ -297,6 +297,15 @@
                     </option>
                     <option value="EWS"
                         {{ isset($applicant) && $applicant->allottee_category == 'EWS' ? 'selected' : '' }}>EWS
+                    </option>
+                    <option value="Ex-Army"
+                        {{ isset($applicant) && $applicant->allottee_category == 'Ex-Army' ? 'selected' : '' }}>Ex-Army
+                    </option>
+                    <option value="Ex-Serviceman"
+                        {{ isset($applicant) && $applicant->allottee_category == 'Ex-Serviceman' ? 'selected' : '' }}>Ex-Serviceman
+                    </option>
+                    <option value="PwD"
+                        {{ isset($applicant) && $applicant->allottee_category == 'PwD' ? 'selected' : '' }}>PwD / PH
                     </option>
                 </select>
             </div>

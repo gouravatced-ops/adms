@@ -319,7 +319,7 @@
 
                         <div class="input-group">
                             @php
-                                $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S'];
+                                $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.'];
                             @endphp
 
                             <select name="prefix" class="prefix-select">

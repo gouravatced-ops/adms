@@ -908,7 +908,7 @@
                                     <div class="field">
                                         <label class="label required">Allottee First Name</label>
                                         <div class="input-group">
-                                            @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
+                                            @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
                                             <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
                                                 @foreach ($prefixes as $prefix)
                                                     <option value="{{ $prefix }}"
@@ -1132,7 +1132,7 @@
                                     <div class="field">
                                         <label class="label required">Allottee First Name</label>
                                         <div class="input-group">
-                                            @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
+                                            @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
                                             <select name="allottees[{{ $index }}][prefix]" class="prefix-select">
                                                 @foreach ($prefixes as $prefix)
                                                     <option value="{{ $prefix }}"
@@ -1324,7 +1324,7 @@
                                 <div class="field">
                                     <label class="label required">Allottee First Name</label>
                                     <div class="input-group">
-                                        @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
+                                        @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
                                         <select name="allottees[0][prefix]" class="prefix-select">
                                             @foreach ($prefixes as $prefix)
                                                 <option value="{{ $prefix }}"
@@ -2242,7 +2242,7 @@
                             <div class="field">
                                 <label class="label required">Allottee First Name</label>
                                 <div class="input-group">
-                                    @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S']; @endphp
+                                    @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
                                     <select name="allottees[${index}][prefix]" class="prefix-select" required>
                                         @foreach ($prefixes as $prefix)
                                             <option value="{{ $prefix }}"
