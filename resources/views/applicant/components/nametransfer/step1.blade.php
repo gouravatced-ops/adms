@@ -278,35 +278,41 @@
                     placeholder="12-digit Aadhar number, no spaces" pattern="[0-9]{12}" maxlength="12">
             </div>
 
+
+            @php
+                $categories = [
+                    'General' => 'General',
+                    'General (PwD)' => 'General (PwD)',
+                    'Scheduled Caste (SC)' => 'Scheduled Caste (SC)',
+                    'Scheduled Caste (SC) (PwD)' => 'Scheduled Caste (SC) (PwD)',
+                    'Scheduled Tribe (ST)' => 'Scheduled Tribe (ST)',
+                    'Scheduled Tribe (ST) (PwD)' => 'Scheduled Tribe (ST) (PwD)',
+                    'Other Backward Class (OBC)' => 'Other Backward Class (OBC)',
+                    'Other Backward Class (OBC) (PwD)' => 'Other Backward Class (OBC) (PwD)',
+                    'Retired Government Servant' => 'Retired Government Servant',
+                    'Govt. Servant retiring within one year' => 'Govt. Servant retiring within one year',
+                    'Armed Forces Personnel' => 'Armed Forces Personnel',
+                    'Ex-Servicemen' => 'Ex-Servicemen',
+                    'Abandoned' => 'Abandoned',
+                    'Destitute Widows' => 'Destitute Widows',
+                    'Vidhaanmandal' => 'Vidhaanmandal',
+                    'Vidhansabha' => 'Vidhansabha',
+                ];
+
+                $selectedCategory = old('allottee_category', $applicant->allottee_category ?? '');
+            @endphp
+
             <div class="field">
                 <label class="field-label">
                     Category <span class="req-star">*</span>
                 </label>
-                <select name="allottee_category" class="custom-input">
-                    <option value="General"
-                        {{ isset($applicant) && $applicant->allottee_category == 'General' ? 'selected' : '' }}>General
-                    </option>
-                    <option value="OBC"
-                        {{ isset($applicant) && $applicant->allottee_category == 'OBC' ? 'selected' : '' }}>OBC
-                    </option>
-                    <option value="SC"
-                        {{ isset($applicant) && $applicant->allottee_category == 'SC' ? 'selected' : '' }}>SC
-                    </option>
-                    <option value="ST"
-                        {{ isset($applicant) && $applicant->allottee_category == 'ST' ? 'selected' : '' }}>ST
-                    </option>
-                    <option value="EWS"
-                        {{ isset($applicant) && $applicant->allottee_category == 'EWS' ? 'selected' : '' }}>EWS
-                    </option>
-                    <option value="Ex-Army"
-                        {{ isset($applicant) && $applicant->allottee_category == 'Ex-Army' ? 'selected' : '' }}>Ex-Army
-                    </option>
-                    <option value="Ex-Serviceman"
-                        {{ isset($applicant) && $applicant->allottee_category == 'Ex-Serviceman' ? 'selected' : '' }}>Ex-Serviceman
-                    </option>
-                    <option value="PwD"
-                        {{ isset($applicant) && $applicant->allottee_category == 'PwD' ? 'selected' : '' }}>PwD / PH
-                    </option>
+                <select name="allottee_category" class="custom-input" required>
+                    <option value="">Select Category</option>
+                    @foreach ($categories as $value => $label)
+                        <option value="{{ $value }}" {{ $selectedCategory === $value ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
