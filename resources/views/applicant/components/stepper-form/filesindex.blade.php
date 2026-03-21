@@ -113,7 +113,9 @@
                             <th class="text-center">Data Entry</th>
                         </tr>
                     </thead>
-
+                    @php
+                        #return getDebugIndex($registerAllottee);
+                    @endphp
                     <tbody id="tableBody">
                         @forelse ($registerAllottee as $key => $file)
                             <tr>
@@ -185,7 +187,7 @@
                                 <td class="py-2">
                                     <div class="flex gap-2">
                                         <!-- View -->
-                                        <a href="{{ route('applicant.apply.index', encrypt($file->id)) }}"
+                                        <a href="{{ route('applicant.apply.index', $file->allotteeId) }}"
                                             class="action-btn action-btn-info" title="Data Entry for this file">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -265,7 +267,6 @@
             const paginationContainer = document.getElementById('paginationContainer');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const table = document.getElementById('studentListTable');
-            const registerNumber = document.getElementById('registerNumber');
 
             // State variables
             let currentPage = 1;
@@ -279,7 +280,7 @@
             let lastSearchParams = {};
 
             // Get register number from the page
-            const registerId = "{{ request()->route('registerId') }}";
+            const encodedId = @json($registerId);
 
             // Function to load data
             function loadData(page = 1, searchParams = {}) {
@@ -291,8 +292,9 @@
                 paginationContainer.style.display = 'none';
 
                 // Build URL with parameters
-                const url = new URL('{{ route('admin.filereceving.fileindex', ['registerId' => ':registerId']) }}'
-                    .replace(':registerId', registerId));
+                const url = new URL(
+                    '{{ route('applicant.dataentry.scanned.lots.files', ['encodedId' => ':encodedId']) }}'
+                    .replace(':encodedId', encodedId));
                 url.searchParams.append('page', page);
 
                 // Add search parameters
@@ -412,11 +414,22 @@
                                         </td>
                                         <td class="py-2">
                                             <div class="flex gap-2">
-                                                <a href="/filereceving/individual/fetch/${btoa(file.id)}" class="action-btn action-btn-success" title="Edit file">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="/filereceving/allotte/deleted/${btoa(file.id)}" class="action-btn action-btn-danger" title="Delete file">
-                                                    <i class="fas fa-trash"></i>
+                                                <a href="/applicant/dataentry/start/${file.allotteeId}" class="action-btn action-btn-info" title="Data Entry for this file">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                                        <!-- Document/Form -->
+                                                        <rect x="3" y="3" width="14" height="18" rx="2"></rect>
+                                                        <path d="M6 7h8"></path>
+                                                        <path d="M6 11h6"></path>
+                                                        <path d="M6 15h4"></path>
+
+                                                        <!-- Plus Icon -->
+                                                        <circle cx="18" cy="17" r="4"></circle>
+                                                        <path d="M18 15v4"></path>
+                                                        <path d="M16 17h4"></path>
+                                                    </svg>
                                                 </a>
                                             </div>
                                         </td>
@@ -432,10 +445,6 @@
                                 paginationContainer.style.display = 'none';
                             }
 
-                            // Update register number if provided
-                            if (data.register_number) {
-                                registerNumber.textContent = `Register No: ${data.register_number}`;
-                            }
                         } else {
                             // Show no results message
                             const noDataRow = document.createElement('tr');

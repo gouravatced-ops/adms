@@ -18,6 +18,7 @@ use App\Models\AllotteeDocument;
 use App\Models\AllotteeStepDuration;
 use App\Models\DocumentMaster;
 use App\Models\QuarterType;
+use App\Models\LotAssignment;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 // use Illuminate\Support\Str;
@@ -74,49 +75,79 @@ class StepperFormController extends Controller
     public function index(Request $request)
     {
         try {
-
-            $search = $request->query('search');
+            $search  = trim($request->query('search'));
+            $userId  = auth()->id();
 
             $query = RegistrationFile::query()
-                ->with(['allottees', 'scannedBy'])
+                ->with(['scannedBy:id,name'])
+                ->withCount([
+                    'allottees as total_files' => function ($q) {
+                        $q->where('allottee_status', 'scanned');
+                    },
 
-                ->where('created_by', auth()->id())
+                    'allottees as completed_files' => function ($q) {
+                        $q->where('allottee_status', 'dataentry');
+                    },
 
+                    'lotAssignments as full_lot_assignment_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('assignment_type', 'full_lot');
+                    },
+
+                    'lotAssignments as assigned_files_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('assignment_type', 'partial')
+                            ->whereNotNull('allottee_id');
+                    },
+                ])
                 ->where('status', 'scanned')
-
                 ->whereHas('allottees', function ($q) {
                     $q->where('allottee_status', 'scanned');
                 })
-
+                ->whereHas('lotAssignments', function ($q) use ($userId) {
+                    $q->where('assigned_to', $userId);
+                })
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($sub) use ($search) {
+                        $sub->where('register_no', 'like', "%{$search}%")
+                            ->orWhere('lot_no', 'like', "%{$search}%");
+                    });
+                })
                 ->latest();
-
-            if ($search) {
-                $query->where('register_no', 'like', "%{$search}%");
-            }
 
             $registrations = $query->paginate(25)
                 ->through(function ($item) {
+                    $item->encoded_register_no = encrypt($item->register_no);
+                    $item->scanned_named_by    = $item->scannedBy->name ?? 'System';
 
-                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $isFullLotAssigned = (int) ($item->full_lot_assignment_count ?? 0) > 0;
 
-                    $item->total_files = $item->allottees->count();
+                    $item->assigned_files = $isFullLotAssigned
+                        ? (int) ($item->total_files ?? 0)
+                        : (int) ($item->assigned_files_count ?? 0);
 
-                    $item->scanned_files = $item->allottees
-                        ->where('allottee_status', 'scanned')
-                        ->count();
+                    $item->remaining_files = max(
+                        0,
+                        (int) ($item->assigned_files ?? 0) - (int) ($item->completed_files ?? 0)
+                    );
 
-                    $item->completed_files = $item->allottees
-                        ->where('allottee_status', 'dataentry')
-                        ->count();
+                    $item->assignment_type_label = $isFullLotAssigned ? 'Full Lot' : 'Partial';
+
+                    $item->assignment_status = match (true) {
+                        $isFullLotAssigned => 'full_lot',
+                        ($item->assigned_files ?? 0) > 0 => 'partial',
+                        default => 'not_assigned',
+                    };
 
                     return $item;
-                });
-
+                })
+                ->withQueryString();
+            // return $registrations;
             if ($request->ajax()) {
                 return response()->json([
                     'registrations' => $registrations,
-                    'pagination' => $registrations->links()->toHtml(),
-                    'search_term' => $search
+                    'pagination'    => $registrations->links()->toHtml(),
+                    'search_term'   => $search,
                 ]);
             }
 
@@ -125,15 +156,13 @@ class StepperFormController extends Controller
                 compact('registrations', 'search')
             );
         } catch (\Throwable $e) {
-
-            Log::error('Register list failed', [
-                'error' => $e->getMessage()
+            Log::error('Assigned register list failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
             ]);
 
-            return back()->with(
-                'error',
-                'Failed to load register list.'
-            );
+            return back()->with('error', 'Failed to load assigned lot list.');
         }
     }
 
@@ -205,41 +234,70 @@ class StepperFormController extends Controller
     public function fileIndex($registerId, Request $request)
     {
         try {
-
             $registerNo = decrypt($registerId, true);
 
             if (!$registerNo) {
                 return back()->with('error', 'Invalid register reference.');
             }
 
-            $searchAllottee   = $request->query('allottee');
-            $searchPropertyNo = $request->query('property_no');
-            $searchArea       = $request->query('area');
+            $userId = auth()->id();
+
+            $searchAllottee   = trim($request->query('allottee'));
+            $searchPropertyNo = trim($request->query('property_no'));
+            $searchArea       = trim($request->query('area'));
             $searchDivision   = $request->query('division');
 
+            $registration = RegistrationFile::query()
+                ->select('id', 'register_no', 'lot_no')
+                ->where('register_no', $registerNo)
+                ->first();
+
+            if (!$registration) {
+                return back()->with('error', 'Register not found.');
+            }
+
+            $lotId = $registration->id;
+
+            $hasFullLotAssignment = LotAssignment::query()
+                ->where('lot_id', $lotId)
+                ->where('assigned_to', $userId)
+                ->where('assignment_type', 'full_lot')
+                ->exists();
+
+            $assignedAllotteeIds = LotAssignment::query()
+                ->where('lot_id', $lotId)
+                ->where('assigned_to', $userId)
+                ->where('assignment_type', 'partial')
+                ->whereNotNull('allottee_id')
+                ->pluck('allottee_id')
+                ->unique()
+                ->values();
+
+            if (!$hasFullLotAssignment && $assignedAllotteeIds->isEmpty()) {
+                return back()->with('error', 'You are not assigned to this lot.');
+            }
+
             $query = RegisterAllottee::query()
-                ->with('scannedBy')
                 ->from('register_allottees as ra')
+                ->with('scannedBy:id,name')
                 ->leftJoin('allottees as a', 'a.register_file_id', '=', 'ra.id')
                 ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
                 ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
                 ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
                 ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
                 ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
-
                 ->where([
-                    ['ra.register_id', $registerNo],
-                    ['ra.allottee_status', 'scanned'],
-                    ['ra.is_active', 1],
-                    ['ra.created_by', auth()->id()]
+                    ['ra.register_id', '=', $registerNo],
+                    ['ra.allottee_status', '=', 'scanned'],
+                    ['ra.is_active', '=', 1],
                 ])
-
-                // Hide completed files
                 ->where(function ($q) {
                     $q->whereNull('a.id')
                         ->orWhere('a.is_step_completed', '!=', 1);
                 })
-
+                ->when(!$hasFullLotAssignment, function ($q) use ($assignedAllotteeIds) {
+                    $q->whereIn('ra.id', $assignedAllotteeIds);
+                })
                 ->select([
                     'ra.*',
                     'd.name as dname',
@@ -249,72 +307,53 @@ class StepperFormController extends Controller
                     'qt.quarter_code',
                     'a.is_step_completed',
                     'a.current_step',
-                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files')
+                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files'),
                 ])
-
                 ->orderByDesc('ra.created_at');
-
-            /*
-        |--------------------------------------------------------------------------
-        | Search Filters
-        |--------------------------------------------------------------------------
-        */
 
             if ($searchAllottee) {
                 $query->where(function ($q) use ($searchAllottee) {
-                    $q->where('ra.allottee_name', 'like', "%$searchAllottee%")
-                        ->orWhere('ra.allottee_middle_name', 'like', "%$searchAllottee%")
-                        ->orWhere('ra.allottee_surname', 'like', "%$searchAllottee%");
+                    $q->where('ra.allottee_name', 'like', "%{$searchAllottee}%")
+                        ->orWhere('ra.allottee_middle_name', 'like', "%{$searchAllottee}%")
+                        ->orWhere('ra.allottee_surname', 'like', "%{$searchAllottee}%");
                 });
             }
 
             if ($searchPropertyNo) {
-                $query->where('ra.property_number', 'like', "%$searchPropertyNo%");
+                $query->where('ra.property_number', 'like', "%{$searchPropertyNo}%");
             }
 
             if ($searchArea) {
-                $query->where('ra.area', 'like', "%$searchArea%");
+                $query->where('ra.area', 'like', "%{$searchArea}%");
             }
 
             if ($searchDivision) {
                 $query->where('ra.division_id', $searchDivision);
             }
 
-            $registerAllottee = $query->paginate(25);
-
-            /*
-        |--------------------------------------------------------------------------
-        | Encode Values
-        |--------------------------------------------------------------------------
-        */
+            $registerAllottee = $query->paginate(25)->withQueryString();
 
             $encodedRegisterNo = base64_encode($registerNo);
 
-            $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo) {
-
+            $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo, $hasFullLotAssignment) {
                 $item->encoded_register_no = $encodedRegisterNo;
-                $item->allotteeId = base64_encode($item->id);
+                $item->allotteeId = encrypt($item->id);
+                $item->assignment_type = $hasFullLotAssignment ? 'full_lot' : 'partial';
 
                 return $item;
             });
 
-            /*
-        |--------------------------------------------------------------------------
-        | AJAX Response
-        |--------------------------------------------------------------------------
-        */
-
             if ($request->ajax()) {
-
                 return response()->json([
                     'registerAllottee' => $registerAllottee,
                     'pagination'       => $registerAllottee->links()->toHtml(),
                     'register_number'  => $registerNo,
-                    'search_params' => [
-                        'allottee'   => $searchAllottee,
+                    'assignment_type'  => $hasFullLotAssignment ? 'full_lot' : 'partial',
+                    'search_params'    => [
+                        'allottee'    => $searchAllottee,
                         'property_no' => $searchPropertyNo,
-                        'area'       => $searchArea,
-                        'division'   => $searchDivision,
+                        'area'        => $searchArea,
+                        'division'    => $searchDivision,
                     ],
                 ]);
             }
@@ -323,13 +362,20 @@ class StepperFormController extends Controller
 
             return view(
                 'applicant.components.stepper-form.filesindex',
-                compact('registerAllottee', 'registerNo', 'divisions', 'registerId')
+                compact(
+                    'registerAllottee',
+                    'registerNo',
+                    'divisions',
+                    'registerId',
+                    'hasFullLotAssignment'
+                )
             );
         } catch (\Throwable $e) {
-
-            Log::error('File index load failed', [
+            Log::error('Assigned file index load failed', [
                 'register_id' => $registerId,
                 'error'       => $e->getMessage(),
+                'line'        => $e->getLine(),
+                'file'        => $e->getFile(),
             ]);
 
             if ($request->ajax()) {
@@ -821,6 +867,12 @@ class StepperFormController extends Controller
             ]);
         }
 
+        $registerId = RegistrationFile::where('register_no', $request->register_id)->value('id');
+        $updateAssigned = LotAssignment::where('lot_id', $registerId)->where('allottee_id', $request->applicant_id)->first();
+        $updateAssigned->status = 'in_progress';
+        $updateAssigned->updated_at = now();
+        $updateAssigned->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Allottee Details saved successfully',
@@ -1044,6 +1096,12 @@ class StepperFormController extends Controller
                     'allottee_status' => 'dataentry',
                 ]);
 
+            $registerId = RegistrationFile::where('register_no', $allottee->register_id)->value('id');
+            $updateAssigned = LotAssignment::where('lot_id', $registerId)->where('allottee_id', $request->applicant_id)->first();
+            $updateAssigned->status = 'completed';
+            $updateAssigned->completed_at = now();
+            $updateAssigned->save();
+
             DB::commit();
 
             return response()->json([
@@ -1111,6 +1169,7 @@ class StepperFormController extends Controller
 
         $filePath = null;
         $fileName = null;
+        $allotteePath = null;
         if ($request->hasFile('document_file')) {
             $uploadPath = implode('/', array_filter($folderParts));
             $directory = public_path($uploadPath);
@@ -1132,8 +1191,15 @@ class StepperFormController extends Controller
             $file->move($directory, $fileName);
 
             $filePath = $uploadPath . '/' . $fileName;
+            $allotteePath = $uploadPath;
         }
 
+        // only update if empty (first time only)
+        Allottee::where('id', $request->allottee_id)
+            ->whereNull('allottee_document_path')
+            ->update([
+                'allottee_document_path' => $allotteePath
+            ]);
 
         AllotteeDocument::create([
             'allottee_id' => $request->allottee_id,

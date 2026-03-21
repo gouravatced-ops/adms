@@ -36,7 +36,7 @@ class AllotteePropertyFinDetail extends Model
         'payment_start_year',
 
         'last_payment_due_date',
-
+        'interest_calculation_mode',
         'interest_type',
         'pre_interest',
         'late_interest',
