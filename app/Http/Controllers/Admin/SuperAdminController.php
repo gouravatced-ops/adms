@@ -6,11 +6,38 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AdminDetails;
 use Illuminate\Http\Request;
+use App\Models\Scheme;
+use App\Models\Division;
+use App\Models\SubDivision;
+use App\Models\Allottee;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class SuperAdminController extends Controller
 {
+    public function superadminDashboard()
+    {
+        $divisionCount     = Division::where('status', 1)->count();
+        $subdivisionCount  = SubDivision::where('status', 1)->count();
+        $schemeCount       = Scheme::where('is_active', 1)->count();
+        $allotteeCount     = Allottee::where('is_step_completed', 1)->count();
+
+        $recentAllotteeList = Allottee::with('division')->where('is_step_completed', 1)
+            ->latest() // cleaner than orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // return $recentAllotteeList;
+
+        return view('admin.superadmin.dashboard', compact(
+            'divisionCount',
+            'subdivisionCount',
+            'schemeCount',
+            'allotteeCount',
+            'recentAllotteeList'
+        ));
+    }
+
     public function showCreateAdmin()
     {
         return view('admin.superadmin.create-admin');
@@ -29,7 +56,7 @@ class SuperAdminController extends Controller
             'role' => 'required|in:council_office,registar,superadmin',
         ]);
 
-        DB::beginTransaction(); 
+        DB::beginTransaction();
 
         try {
             $adminDetails = AdminDetails::create($validatedData);
@@ -54,7 +81,6 @@ class SuperAdminController extends Controller
 
             return back()->with('error', 'Failed to create admin: ' . $e->getMessage());
         }
-
     }
 
     public function showAdmins()
@@ -101,6 +127,4 @@ class SuperAdminController extends Controller
 
         return back()->with('success', 'Admin updated successfully!');
     }
-
-
 }

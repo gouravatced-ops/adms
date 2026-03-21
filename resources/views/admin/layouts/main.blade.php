@@ -8,7 +8,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>JSPC - Dashboard</title>
+    <title>JSHB - Dashboard</title>
 
     <meta name="description" content="JSPC" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -87,8 +87,11 @@
                             <!-- For larger screens -->
                             <div class="nav-item d-none d-md-flex">
                                 Welcome, <strong class="mx-1">{{ auth('admin')->user()->admin_name }}</strong>
-                                @if(auth('admin')->user()->role === 'council_office')
-                                (Admin)
+                                @if (auth('admin')->user()->role === 'council_office')
+                                    (Sub-Admin)
+                                @endif
+                                @if (auth('admin')->user()->role === 'superadmin')
+                                    (Admin)
                                 @endif
                                 to Allottee Data Management System
                             </div>
@@ -123,11 +126,14 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <span class="fw-medium d-block">{{
-                                                        auth('admin')->user()->admin_name }}</span>
+                                                    <span
+                                                        class="fw-medium d-block">{{ auth('admin')->user()->admin_name }}</span>
                                                     <small class="text-muted">
-                                                        @if(auth('admin')->user()->role === 'council_office')
-                                                        ADMIN
+                                                        @if (auth('admin')->user()->role === 'council_office')
+                                                            SUB ADMIN
+                                                        @endif
+                                                        @if (auth('admin')->user()->role == 'superadmin')
+                                                            ADMIN
                                                         @endif
                                                     </small>
                                                 </div>
@@ -136,12 +142,6 @@
                                     </li>
                                     <li>
                                         <div class="dropdown-divider"></div>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('profile.my-profile') }}">
-                                            <i class="bx bx-user me-2"></i>
-                                            <span class="align-middle">My Profile</span>
-                                        </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('profile.my-setting') }}">

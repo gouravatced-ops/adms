@@ -22,8 +22,19 @@ const Step3Handler = {
 
     // Month names for display
     monthNames: [
-        "", "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     ],
 
     // Disable auto-calculated fields
@@ -33,7 +44,7 @@ const Step3Handler = {
             "remaining_amount",
             "pre_interest_amount",
             "late_interest_amount",
-            "last_payment_due_date"
+            "last_payment_due_date",
         ];
 
         autoFields.forEach((id) => {
@@ -45,6 +56,42 @@ const Step3Handler = {
         });
     },
 
+    getInterestMode: function () {
+        const selected = document.querySelector(
+            'input[name="interest_calculation_mode"]:checked',
+        );
+        return selected ? selected.value : "manual";
+    },
+
+    toggleInterestCalculationMode: function () {
+        const mode = this.getInterestMode();
+
+        const preInterestAmount = document.getElementById(
+            "pre_interest_amount",
+        );
+        const lateInterestAmount = document.getElementById(
+            "late_interest_amount",
+        );
+
+        if (!preInterestAmount || !lateInterestAmount) return;
+
+        if (mode === "manual") {
+            preInterestAmount.readOnly = false;
+            preInterestAmount.disabled = false;
+
+            lateInterestAmount.readOnly = false;
+            lateInterestAmount.disabled = false;
+        } else {
+            preInterestAmount.readOnly = true;
+            preInterestAmount.disabled = true;
+
+            lateInterestAmount.readOnly = true;
+            lateInterestAmount.disabled = true;
+
+            this.calculateInterest();
+        }
+    },
+
     // Set auto-calculated field value
     setAutoValue: function (id, value, isFloat = true) {
         const input = document.getElementById(id);
@@ -54,7 +101,9 @@ const Step3Handler = {
         input.value = formattedValue;
 
         // Create hidden input for form submission if not exists
-        let hidden = document.querySelector(`input[type=hidden][name="${input.name}"]`);
+        let hidden = document.querySelector(
+            `input[type=hidden][name="${input.name}"]`,
+        );
         if (!hidden && input.name) {
             hidden = document.createElement("input");
             hidden.type = "hidden";
@@ -70,34 +119,66 @@ const Step3Handler = {
         // Tentative price input
         const tentative = document.getElementById("tentative_price");
         if (tentative) {
-            tentative.addEventListener("input", (e) => this.handleTentativePrice(e));
+            tentative.addEventListener("input", (e) =>
+                this.handleTentativePrice(e),
+            );
         }
 
         // Deposit type toggle
         const depositType = document.getElementById("deposit_type");
         if (depositType) {
-            depositType.addEventListener("change", (e) => this.toggleDepositType(e));
+            depositType.addEventListener("change", (e) =>
+                this.toggleDepositType(e),
+            );
         }
 
         // High income percent input
         const high = document.getElementById("high_income_percent");
         if (high) {
-            high.addEventListener("input", () => this.calculateFromPercentage());
+            high.addEventListener("input", () =>
+                this.calculateFromPercentage(),
+            );
         }
 
         // Deposited amount direct input
         const deposited = document.getElementById("deposited_amount");
         if (deposited) {
-            deposited.addEventListener("input", () => this.calculateFromAmount());
-            deposited.addEventListener("blur", () => this.formatAmount(deposited));
+            deposited.addEventListener("input", () =>
+                this.calculateFromAmount(),
+            );
+            deposited.addEventListener("blur", () =>
+                this.formatAmount(deposited),
+            );
         }
 
+        // Interest mode toggle
+        document
+            .querySelectorAll('input[name="interest_calculation_mode"]')
+            .forEach((radio) => {
+                radio.addEventListener("change", () =>
+                    this.toggleInterestCalculationMode(),
+                );
+            });
+
         // Interest calculation triggers
-        ["payment_months", "interest_type", "pre_interest", "late_interest"].forEach((id) => {
+        [
+            "payment_months",
+            "interest_type",
+            "pre_interest",
+            "late_interest",
+        ].forEach((id) => {
             const el = document.getElementById(id);
             if (el) {
-                el.addEventListener("input", () => this.calculateInterest());
-                el.addEventListener("change", () => this.calculateInterest());
+                el.addEventListener("input", () => {
+                    if (this.getInterestMode() === "auto") {
+                        this.calculateInterest();
+                    }
+                });
+                el.addEventListener("change", () => {
+                    if (this.getInterestMode() === "auto") {
+                        this.calculateInterest();
+                    }
+                });
             }
         });
 
@@ -121,18 +202,22 @@ const Step3Handler = {
 
         [startMonth, startYear, specifiedDays].forEach((el) => {
             if (el) {
-                el.addEventListener("change", () => this.calculateFinalPaymentDate());
+                el.addEventListener("change", () =>
+                    this.calculateFinalPaymentDate(),
+                );
             }
         });
 
         // State-District cascading
-        document.querySelectorAll(".state-select, .state-select-hindi").forEach((select) => {
-            select.addEventListener("change", this.loadDistricts);
-        });
+        document
+            .querySelectorAll(".state-select, .state-select-hindi")
+            .forEach((select) => {
+                select.addEventListener("change", this.loadDistricts);
+            });
 
         // Input restrictions
         this.applyInputRestrictions();
-        
+
         // Disable auto fields initially
         this.disableAutoFields();
     },
@@ -141,21 +226,22 @@ const Step3Handler = {
         // Check if tentative price has value and trigger calculations
         const tentative = document.getElementById("tentative_price");
         const depositType = document.getElementById("deposit_type");
-        
+
         if (tentative && tentative.value) {
             this.handleTentativePrice({ target: tentative });
-            
+
             // Trigger appropriate calculation based on deposit type
-            if (depositType && depositType.value === 'percent') {
+            if (depositType && depositType.value === "percent") {
                 this.toggleDepositType({ target: depositType });
             }
         }
 
         // Calculate EMI last date
         this.calculateLastEMI();
-        
+
         // Calculate final payment date
         this.calculateFinalPaymentDate();
+        this.toggleInterestCalculationMode();
     },
 
     handleTentativePrice: function (e) {
@@ -164,7 +250,7 @@ const Step3Handler = {
             // Enable deposit type selection
             const depositType = document.getElementById("deposit_type");
             if (depositType) depositType.disabled = false;
-            
+
             // Trigger recalculation of remaining amount
             this.calculateRemaining();
         }
@@ -176,22 +262,22 @@ const Step3Handler = {
         const highPercent = document.getElementById("high_income_percent");
         const depositedAmount = document.getElementById("deposited_amount");
 
-        if (type === 'percent') {
-            percentRow.style.display = '';
+        if (type === "percent") {
+            percentRow.style.display = "";
             highPercent.disabled = false;
             depositedAmount.readOnly = true;
             depositedAmount.disabled = true;
-            
+
             // Calculate from percentage if percent field has value
             if (highPercent.value) {
                 this.calculateFromPercentage();
             }
         } else {
-            percentRow.style.display = 'none';
+            percentRow.style.display = "none";
             highPercent.disabled = true;
             depositedAmount.readOnly = false;
             depositedAmount.disabled = false;
-            
+
             // Calculate from amount if amount field has value
             if (depositedAmount.value) {
                 this.calculateFromAmount();
@@ -221,7 +307,7 @@ const Step3Handler = {
 
         if (deposited && deposited.value) {
             // Clear percentage field when manually entering amount
-            if (highPercent) highPercent.value = '';
+            if (highPercent) highPercent.value = "";
             this.calculateRemaining();
         }
     },
@@ -245,16 +331,16 @@ const Step3Handler = {
         if (P && d <= P) {
             const remaining = P - d;
             this.setAutoValue("remaining_amount", remaining);
-
+            console.log(remaining);
             // Enable interest fields if remaining > 0
             const interestFields = [
                 "payment_months",
                 "interest_type",
                 "pre_interest",
-                "late_interest"
+                "late_interest",
             ];
-            
-            interestFields.forEach(id => {
+
+            interestFields.forEach((id) => {
                 const el = document.getElementById(id);
                 if (el) el.disabled = remaining <= 0;
             });
@@ -266,6 +352,10 @@ const Step3Handler = {
     },
 
     calculateInterest: function () {
+        if (this.getInterestMode() !== "auto") {
+            return;
+        }
+
         console.log("------ Interest Calculation Triggered ------");
 
         const remainingAmount = document.getElementById("remaining_amount");
@@ -367,7 +457,7 @@ const Step3Handler = {
 
         // Create start date (first day of the month)
         const startDate = new Date(year, month - 1, 1);
-        
+
         // Add EMI months - 1 to get the last EMI month
         startDate.setMonth(startDate.getMonth() + emi - 1);
 
@@ -382,32 +472,39 @@ const Step3Handler = {
         const startMonth = document.getElementById("payment_start_month");
         const startYear = document.getElementById("payment_start_year");
         const specifiedDays = document.getElementById("specified_days");
-        
+
         const lastDay = document.getElementById("last_day");
         const lastMonth = document.getElementById("last_month");
         const lastYear = document.getElementById("last_year");
 
-        if (!startMonth || !startYear || !specifiedDays || !lastDay || !lastMonth || !lastYear) 
+        if (
+            !startMonth ||
+            !startYear ||
+            !specifiedDays ||
+            !lastDay ||
+            !lastMonth ||
+            !lastYear
+        )
             return;
 
         const month = this.int(startMonth.value);
         const year = this.int(startYear.value);
-        
+
         // Extract days from specified_days value (e.g., "30 days" -> 30)
         const daysText = specifiedDays.value;
-        const days = daysText ? this.int(daysText.split(' ')[0]) : 0;
+        const days = daysText ? this.int(daysText.split(" ")[0]) : 0;
 
         if (!month || !year || !days) {
             // Clear last payment date fields if inputs are missing
-            lastDay.value = '';
-            lastMonth.value = '';
-            lastYear.value = '';
+            lastDay.value = "";
+            lastMonth.value = "";
+            lastYear.value = "";
             return;
         }
 
         // Create start date (first day of the month)
         const startDate = new Date(year, month - 1, 1);
-        
+
         // Add the specified days and subtract 1 to get the last day
         // Example: If start is March 1 + 30 days = March 31 (correct)
         startDate.setDate(startDate.getDate() + days - 1);
@@ -418,8 +515,8 @@ const Step3Handler = {
         const resultYear = startDate.getFullYear();
 
         // Set the values in the selects
-        lastDay.value = String(resultDay).padStart(2, '0');
-        lastMonth.value = String(resultMonth).padStart(2, '0');
+        lastDay.value = String(resultDay).padStart(2, "0");
+        lastMonth.value = String(resultMonth).padStart(2, "0");
         lastYear.value = resultYear;
 
         // Log for debugging
@@ -438,7 +535,8 @@ const Step3Handler = {
 
         if (!districtSelect) return;
 
-        districtSelect.innerHTML = '<option value="">-- Select District --</option>';
+        districtSelect.innerHTML =
+            '<option value="">-- Select District --</option>';
 
         if (!stateId) return;
 
@@ -497,16 +595,24 @@ const Step3Handler = {
         // English + Hindi
         document.querySelectorAll(".only-eng-hindi").forEach((input) => {
             input.addEventListener("input", function () {
-                this.value = this.value.replace(/[^a-zA-Z\u0900-\u097F\s]/g, "");
+                this.value = this.value.replace(
+                    /[^a-zA-Z\u0900-\u097F\s]/g,
+                    "",
+                );
             });
         });
 
         // English + Hindi + Number + / -
-        document.querySelectorAll(".only-eng-hindi-special").forEach((input) => {
-            input.addEventListener("input", function () {
-                this.value = this.value.replace(/[^a-zA-Z0-9\u0900-\u097F\s\/-]/g, "");
+        document
+            .querySelectorAll(".only-eng-hindi-special")
+            .forEach((input) => {
+                input.addEventListener("input", function () {
+                    this.value = this.value.replace(
+                        /[^a-zA-Z0-9\u0900-\u097F\s\/-]/g,
+                        "",
+                    );
+                });
             });
-        });
 
         // English + Number + / - (for address fields)
         document.querySelectorAll(".only-address").forEach((input) => {
@@ -549,13 +655,13 @@ const Step3Handler = {
         // Required fields validation
         const requiredFields = [
             "tentative_price",
-            "payment_months",
-            "payment_start_month",
-            "payment_start_year",
-            "interest_type",
-            "pre_interest",
-            "late_interest",
-            "specified_days"
+            // "payment_months",
+            // "payment_start_month",
+            // "payment_start_year",
+            // "interest_type",
+            // "pre_interest",
+            // "late_interest",
+            "specified_days",
         ];
 
         requiredFields.forEach((fieldName) => {
@@ -572,7 +678,7 @@ const Step3Handler = {
         const highPercent = document.getElementById("high_income_percent");
         const depositedAmount = document.getElementById("deposited_amount");
 
-        if (depositType === 'percent') {
+        if (depositType === "percent") {
             if (!highPercent?.value) {
                 highPercent?.classList.add("is-invalid");
                 valid = false;
@@ -587,7 +693,32 @@ const Step3Handler = {
         }
 
         if (firstInvalid) {
-            firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+            firstInvalid.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+        }
+
+        const interestMode = this.getInterestMode();
+        const preInterestAmount = document.getElementById(
+            "pre_interest_amount",
+        );
+        const lateInterestAmount = document.getElementById(
+            "late_interest_amount",
+        );
+
+        if (interestMode === "manual") {
+            if (!preInterestAmount?.value) {
+                preInterestAmount?.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = preInterestAmount;
+            }
+
+            if (!lateInterestAmount?.value) {
+                lateInterestAmount?.classList.add("is-invalid");
+                valid = false;
+                if (!firstInvalid) firstInvalid = lateInterestAmount;
+            }
         }
 
         return valid;
@@ -595,7 +726,7 @@ const Step3Handler = {
 
     destroy: function () {
         console.log("Step 3 Handler Destroyed");
-    }
+    },
 };
 
 // Register with StepManager

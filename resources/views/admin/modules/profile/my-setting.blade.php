@@ -49,8 +49,6 @@
                     <ul class="nav nav-pills flex-column flex-md-row mb-6">
                         <li class="nav-item"><a class="nav-link active" href="javascript:void(0);"><i
                                     class="bx bx-sm bx-user me-1_5"></i> Account</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('profile.security') }}"><i
-                                    class="bx bx-sm bx-lock-alt me-1_5"></i> Security</a></li>
                     </ul>
                 </div>
                 <div class="card mb-6 p-2">
@@ -155,6 +153,7 @@
                                     <label class="form-label" for="newPassword">New Password</label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" id="newPassword" name="newPassword"
+                                            autocomplete="new-password"
                                             class="form-control @error('newPassword') is-invalid @enderror"
                                             placeholder="Enter new password">
 

@@ -1128,6 +1128,7 @@ class NameTransferController extends Controller
 
         $filePath = null;
         $fileName = null;
+        $allotteePath = null;
         if ($request->hasFile('document_file')) {
             $uploadPath = implode('/', array_filter($folderParts));
             $directory = public_path($uploadPath);
@@ -1149,7 +1150,15 @@ class NameTransferController extends Controller
             $file->move($directory, $fileName);
 
             $filePath = $uploadPath . '/' . $fileName;
+            $allotteePath = $uploadPath;
         }
+
+        // only update if empty (first time only)
+        Allottee::where('id', $request->allottee_id)
+            ->whereNull('allottee_document_path')
+            ->update([
+                'allottee_document_path' => $allotteePath
+            ]);
 
         AllotteeDocument::create([
             'allottee_id' => $request->allottee_id,

@@ -131,7 +131,17 @@ if (!function_exists('getPropertySubType')) {
 if (!function_exists('getStates')) {
     function getStates()
     {
-        return DB::table('states')->get();
+        return DB::table('states')
+            ->orderByRaw("
+                CASE 
+                    WHEN name_en = 'Bihar (Now Jharkhand)' THEN 1
+                    WHEN name_en = 'Jharkhand' THEN 2
+                    WHEN name_en = 'Bihar' THEN 3
+                    ELSE 4
+                END
+            ")
+            ->orderBy('name_en', 'ASC') // optional: sort remaining states
+            ->get();
     }
 }
 
@@ -142,14 +152,12 @@ if (!function_exists('getDistrict')) {
     }
 }
 
-
 if (!function_exists('getStateName')) {
     function getStateName($stateId)
     {
         return DB::table('states')->where('id', $stateId)->value('name_en');
     }
 }
-
 
 if (!function_exists('getDistrictName')) {
     function getDistrictName($distId)
@@ -185,6 +193,13 @@ if (!function_exists('formatDate')) {
         } catch (\Exception $e) {
             return '-';
         }
+    }
+}
+
+if (!function_exists('getUsers')) {
+    function getUsers()
+    {
+        return DB::table('users')->where('role', 'scanner')->get();
     }
 }
 

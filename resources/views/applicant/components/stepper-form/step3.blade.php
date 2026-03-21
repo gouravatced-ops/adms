@@ -240,9 +240,30 @@
                     <tr id="percent_row" style="display:none;">
                         <td class="sl"></td>
                         <td class="term">प्रतिशत / Percentage</td>
-                        <td><input name="high_income_percent" id="high_income_percent" class="only-float-100 custom-input"
+                        <td><input name="high_income_percent" id="high_income_percent"
+                                class="only-float-100 custom-input"
                                 value="{{ old('high_income_percent', $applicant->high_income_percent) }}"
                                 placeholder="प्रतिशत / Percentage"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl"></td>
+                        <td class="term">EMD की राशि</td>
+                        <td>
+                            <input type="text" name="legal_fee" class="only-number-amount custom-input"
+                                autocomplete="off" placeholder="शेष राशि / Amount"
+                                value="{{ old('legal_fee', $applicant->legal_fee) }}">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl"></td>
+                        <td class="term">Administrative Fee</td>
+                        <td>
+                            <input type="text" name="legal_document_fee" class="only-number-amount custom-input"
+                                autocomplete="off" placeholder="शेष राशि / Amount"
+                                value="{{ old('legal_document_fee', $applicant->legal_document_fee) }}">
+                        </td>
                     </tr>
 
                     <tr>
@@ -334,6 +355,28 @@
                         <td><input name="last_payment_due_date" id="last_payment_due_date" class="custom-input" readonly
                                 placeholder="अंतिम ईएमआई देय महीना / Last EMI Due Month"
                                 value="{{ old('last_payment_due_date', $applicant->last_payment_due_date) }}"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="sl"></td>
+                        <td class="term">ब्याज गणना मोड (Interest Calculation Mode)</td>
+                        <td class="value">
+                            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                                <label style="margin:0;">
+                                    <input type="radio" name="interest_calculation_mode" id="interest_mode_manual"
+                                        value="manual"
+                                        {{ old('interest_calculation_mode', $applicant->interest_calculation_mode ?? 'manual') == 'manual' ? 'checked' : '' }}>
+                                    मैनुअल / Manual
+                                </label>
+
+                                <label style="margin:0;">
+                                    <input type="radio" name="interest_calculation_mode" id="interest_mode_auto"
+                                        value="auto"
+                                        {{ old('interest_calculation_mode', $applicant->interest_calculation_mode ?? '') == 'auto' ? 'checked' : '' }}>
+                                    ऑटो / Auto
+                                </label>
+                            </div>
+                        </td>
                     </tr>
 
                     <tr>
@@ -494,13 +537,12 @@
                         <td class="sl"></td>
                         <td class="term">राज्य (State)</td>
                         <td class="value">
-                            <select name="state" class="custom-select state-select-hindi"
-                                data-target="district-hi">
+                            <select name="state" class="custom-select state-select" data-target="district-eng">
                                 <option value="">-- राज्य चुनें --</option>
                                 @foreach ($states as $item)
                                     <option value="{{ $item->id }}"
                                         {{ isset($applicant) && $applicant->state == $item->id ? 'selected' : '' }}>
-                                        {{ $item->name_hi }}</option>
+                                        {{ $item->name_en }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -512,13 +554,13 @@
                         <td class="sl"></td>
                         <td class="term">जिला (District)</td>
                         <td class="value">
-                            <select name="district" class="custom-select fetch-district-hindi" id="district-hi">
+                            <select name="district" class="custom-select fetch-district" id="district-eng">
                                 <option value="">-- जिला चुनें --</option>
                                 @if (!empty($districts))
                                     @foreach ($districts as $dist)
                                         <option value="{{ $dist->id }}"
                                             {{ isset($applicant) && $applicant->district == $dist->id ? 'selected' : '' }}>
-                                            {{ $dist->name_hi }}
+                                            {{ $dist->name_en }}
                                         </option>
                                     @endforeach
                                 @endif

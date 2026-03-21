@@ -68,6 +68,7 @@ class Allottee extends Model
         'allottee_create_date',
         'create_ip_address',
         'update_ip_address',
+        'allottee_document_path',
         'updated_by',
         'created_by',
     ];

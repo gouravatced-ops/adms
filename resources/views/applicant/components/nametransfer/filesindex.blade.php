@@ -28,7 +28,7 @@
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
                             <i class="fas fa-folder-open"></i>
-                            Data Entry >> Make Data Entry for Scanned Files
+                            Data Entry for Name Transfer >> Make Data Entry for Scanned Files
                         </h3>
 
                         <!-- Title BELOW subtitle -->

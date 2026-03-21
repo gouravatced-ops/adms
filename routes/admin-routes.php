@@ -4,8 +4,8 @@ use App\Exports\CertificateGeneratedExport;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminRegistrationController;
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Applicant\StudentApplicationController;
+use App\Http\Controllers\Admin\LotsController;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -55,6 +55,10 @@ Route::prefix('admin')->group(function () {
         Route::post('/updateAdminOTP/password', [AdminController::class, 'sendChangePassOTP'])->name('updateAdminOTP.password');
 
         Route::post('/admin-pass-verify-otp', [AdminController::class, 'verifyPassOTP'])->name('admin-pass-verify-otp');
+
+        // operation of lots for admin and sub-admin
+        Route::get('file/receiving/list', [LotsController::class, 'receivingIndex'])->name('admin.file.receiving');
+        Route::get('file/dataentry/lots/list', [LotsController::class, 'registerLotsList'])->name('admin.file.lots.dataentry');
 
 
         Route::get('/profile/security', function () {

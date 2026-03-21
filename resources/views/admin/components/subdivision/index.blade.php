@@ -31,8 +31,10 @@
                                 <th>Colony Name</th>
                                 <th>Locality Address</th>
                                 <th>Status</th>
-                                <th>Created On</th>
-                                <th class="text-center">Action</th>
+                                <th>Created On</th> 
+                                @if (auth('admin')->user()->role == 'superadmin')
+                                    <th class="text-center">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -64,6 +66,7 @@
                                     <td>
                                         {{ $subdivision->created_at ? $subdivision->created_at : '—' }}
                                     </td>
+                                    @if (auth('admin')->user()->role == 'superadmin')
                                     <td class="text-center">
                                         <a href="{{ route('admin.subdivision.fetch', $subdivision->encode_id) }}"
                                             class="text-warning me-2" title="Edit">
@@ -86,6 +89,7 @@
                                             </a>
                                         @endif
                                     </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

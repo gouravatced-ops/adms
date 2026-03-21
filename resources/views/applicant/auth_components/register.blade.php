@@ -231,6 +231,9 @@
                 </svg>
                 <span>Forgot Password?</span>
             </a>
+            @if (request()->getHttpHost() === '127.0.0.1:8000')
+                <a href="{{ route('admin.login') }}">Admin Login</a>
+            @endif
         </div>
 
         <!-- Additional Links (Optional) -->

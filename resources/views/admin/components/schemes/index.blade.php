@@ -33,7 +33,9 @@
                                 <th width="200">Financial</th>
                                 <th width="100">Status</th>
                                 <th width="150">Dates</th>
-                                <th width="120" class="text-center">Actions</th>
+                                @if (auth('admin')->user()->role == 'superadmin')
+                                    <th width="120" class="text-center">Actions</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -113,43 +115,45 @@
                                                 {{ formatDate($scheme->created_at) }}</small>
                                         </div>
                                     </td>
+                                    @if (auth('admin')->user()->role == 'superadmin')
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
 
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ route('admin.schemes.blocks.manage', ['schemeId' => $scheme->encoded_id]) }}"
+                                                    class="btn btn-outline-info btn-sm" title="Add Blocks Types">
+                                                    <i class="bx bx-building"></i> Blocks
+                                                </a>
 
-                                            <a href="{{ route('admin.schemes.blocks.manage', ['schemeId' => $scheme->encoded_id]) }}"
-                                                class="btn btn-outline-info btn-sm" title="Add Blocks Types">
-                                                <i class="bx bx-building"></i> Blocks
-                                            </a>
+                                                <a href="{{ route('admin.schemes.edit', $scheme->id) }}"
+                                                    class="btn btn-outline-primary" title="Edit">
+                                                    <i class="bx bx-edit"></i>
+                                                </a>
 
-                                            <a href="{{ route('admin.schemes.edit', $scheme->id) }}"
-                                                class="btn btn-outline-primary" title="Edit">
-                                                <i class="bx bx-edit"></i>
-                                            </a>
-
-                                            @if ($scheme->is_active)
-                                                <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger"
-                                                        onclick="return confirm('Inactive this scheme?')" title="Delete">
-                                                        <i class="bx bx-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @else
-                                                <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger"
-                                                        onclick="return confirm('Active this scheme?')" title="Delete">
-                                                        <i class="bx bx-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
+                                                @if ($scheme->is_active)
+                                                    <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-outline-danger"
+                                                            onclick="return confirm('Inactive this scheme?')"
+                                                            title="Delete">
+                                                            <i class="bx bx-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form action="{{ route('admin.schemes.destroy', $scheme->id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-outline-danger"
+                                                            onclick="return confirm('Active this scheme?')" title="Delete">
+                                                            <i class="bx bx-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

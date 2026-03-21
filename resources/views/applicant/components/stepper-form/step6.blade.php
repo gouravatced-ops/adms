@@ -703,6 +703,26 @@
             </tr>
         </table>
     </div>
+
+    <!-- Allottee Document Path -->
+    <div class="review-table-container">
+        <div class="table-header" style="background: linear-gradient(90deg,#aa4b6b,#6b6b83,#3b8d99);">
+            <div class="header-content">
+                <h4>Allottee Document Path</h4>
+            </div>
+        </div>
+
+        <table class="review-table">
+            <tr>
+                <td class="label-cell" style="width:20%;">Path</td>
+                <td class="value-cell" colspan="3">
+                    <span>
+                        {{ $applicant->allottee_document_path }}
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 <form id="step6Form" method="POST">
     @csrf
