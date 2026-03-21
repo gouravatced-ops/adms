@@ -1097,7 +1097,7 @@ class StepperFormController extends Controller
                 ]);
 
             $registerId = RegistrationFile::where('register_no', $allottee->register_id)->value('id');
-            $updateAssigned = LotAssignment::where('lot_id', $registerId)->where('allottee_id', $request->applicant_id)->first();
+            $updateAssigned = LotAssignment::where('lot_id', $registerId)->where('allottee_id', $allottee->register_file_id)->first();
             $updateAssigned->status = 'completed';
             $updateAssigned->completed_at = now();
             $updateAssigned->save();
