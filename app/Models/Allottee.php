@@ -113,7 +113,7 @@ class Allottee extends Model
         return $this->hasOne(AllotteesContactDetail::class, 'allottee_id', 'id');
     }
 
-    public function nomineesBank() 
+    public function nomineesBank()
     {
         return $this->hasOne(AllotteeNomineeBankDetail::class, 'allottee_id', 'id');
     }
@@ -146,5 +146,10 @@ class Allottee extends Model
     public function updater()
     {
         return $this->belongsTo(Admin::class, 'updated_by');
+    }
+
+    public function jointAllottees()
+    {
+        return $this->hasMany(JointAllottee::class, 'allottee_id');
     }
 }

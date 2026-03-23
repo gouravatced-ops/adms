@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Applicant;
 use App\Http\Controllers\Controller;
 use App\Models\Allottee;
 use App\Models\AllotteeDocument;
-use App\Models\AllotteeEmiLedger;
-use App\Models\AllotteeNomineeBankDetail;
-use App\Models\AllotteePropertyFinDetail;
+use App\Models\JointAllottee;
 use App\Models\AllotteesContactDetail;
 use App\Models\AllotteeStepDuration;
 use App\Models\Division;
@@ -770,7 +768,6 @@ class NameTransferController extends Controller
 
     public function saveStep1(Request $request)
     {
-        // return $request;
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
             $allottmentNumber = $request->allotment_no . '/' . $request->year;
@@ -855,6 +852,44 @@ class NameTransferController extends Controller
             'created_by' => auth()->id(),
             'allottee_create_date' => now()
         ]);
+
+        $jointAllottees = [];
+        $jointNames = $request->joint_allottee_name ?? [];
+
+        foreach ($jointNames as $index => $firstName) {
+            if (blank($firstName)) {
+                continue;
+            }
+
+            $jointAllottees[] = [
+                'allottee_id' => $applicant->id,
+
+                'prefix' => $request->joint_allottee_prefix[$index] ?? 'Shri',
+                'first_name' => $firstName,
+                'middle_name' => $request->joint_allottee_middle_name[$index] ?? null,
+                'last_name' => $request->joint_allottee_surname[$index] ?? null,
+
+                'prefix_hindi' => $request->joint_allottee_prefix_hindi[$index] ?? 'श्री',
+                'first_name_hindi' => $request->joint_allottee_name_hindi[$index] ?? null,
+                'middle_name_hindi' => $request->joint_allottee_middle_name_hindi[$index] ?? null,
+                'last_name_hindi' => $request->joint_allottee_surname_hindi[$index] ?? null,
+
+                'gender' => $request->joint_allottee_gender[$index] ?? 'Male',
+
+                'aadhar_number' => $request->joint_allottee_aadhar[$index] ?? null,
+                'pan_number' => $request->joint_allottee_pan[$index] ?? null,
+
+                'other_doc_type' => $request->joint_allottee_doc_type[$index] ?? null,
+                'other_doc_number' => $request->joint_allottee_doc_number[$index] ?? null,
+
+                'created_at' => now(),
+            ];
+        }
+
+        if (!empty($jointAllottees)) {
+            JointAllottee::insert($jointAllottees);
+        }
+
 
         // mark parent allottee transfer completed
         $parent = Allottee::where('id', $applicant->parent_id)->first();
