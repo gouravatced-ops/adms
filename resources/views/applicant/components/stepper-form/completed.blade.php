@@ -63,7 +63,6 @@
                             <th class="text-left text-xs font-semibold">Register No.</th>
                             <th class="text-left text-xs font-semibold">Total Files</th>
                             <th class="text-left text-xs font-semibold">Assigned Files</th>
-                            <th class="text-left text-xs font-semibold">Completed Files</th>
                             <th class="text-left text-xs font-semibold">Remaining Files</th>
                             <th class="text-left text-xs font-semibold">Assignment Type</th>
                             <th class="text-left text-xs font-semibold">Status</th>
@@ -85,7 +84,6 @@
                                 </td>
                                 <td>{{ $registration->total_files ?? 0 }}</td>
                                 <td>{{ $registration->assigned_files ?? 0 }}</td>
-                                <td>{{ $registration->completed_files ?? 0 }}</td>
                                 <td>{{ $registration->remaining_files ?? 0 }}</td>
                                 <td>
                                     <span

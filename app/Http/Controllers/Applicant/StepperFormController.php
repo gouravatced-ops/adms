@@ -85,10 +85,6 @@ class StepperFormController extends Controller
                         $q->where('allottee_status', 'scanned');
                     },
 
-                    'allottees as completed_files' => function ($q) {
-                        $q->where('allottee_status', 'dataentry');
-                    },
-
                     'lotAssignments as full_lot_assignment_count' => function ($q) use ($userId) {
                         $q->where('assigned_to', $userId)
                             ->where('assignment_type', 'full_lot');
@@ -106,6 +102,10 @@ class StepperFormController extends Controller
                 })
                 ->whereHas('lotAssignments', function ($q) use ($userId) {
                     $q->where('assigned_to', $userId);
+                })
+                ->whereHas('lotAssignments', function ($q) use ($userId) {
+                    $q->where('assigned_to', $userId)
+                        ->whereIn('status', ['pending', 'in_progress']);
                 })
                 ->when($search, function ($q) use ($search) {
                     $q->where(function ($sub) use ($search) {
@@ -166,70 +166,6 @@ class StepperFormController extends Controller
         }
     }
 
-    public function completedIndex(Request $request)
-    {
-        try {
-
-            $search = $request->query('search');
-
-            $query = RegistrationFile::query()
-                ->whereHas('registerAllottee') // register me allottee hona chahiye
-
-                ->whereDoesntHave('registerAllottee', function ($q) {
-                    $q->where('is_step_completed', '!=', 1);
-                })
-
-                ->with([
-                    'registerAllottee' => function ($q) {
-                        $q->select('id', 'register_id', 'created_by', 'is_step_completed');
-                    },
-                    'registerAllottee.Usercreator:id,name' // created_by user name
-                ])
-
-                ->withCount([
-                    'registerAllottee as total_files',
-                    'registerAllottee as completed_files' => function ($q) {
-                        $q->where('is_step_completed', 1);
-                    }
-                ])
-
-                ->latest();
-
-            if ($search) {
-                $query->where('register_no', 'like', "%{$search}%");
-            }
-
-            $registrations = $query->paginate(25);
-
-            $registrations->getCollection()->transform(function ($item) {
-                $item->encoded_register_no = base64_encode($item->register_no);
-                return $item;
-            });
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'registrations' => $registrations,
-                    'pagination' => $registrations->links()->toHtml(),
-                    'search_term' => $search
-                ]);
-            }
-
-            return view(
-                'applicant.components.stepper-form.completedLots',
-                compact('registrations', 'search')
-            );
-        } catch (\Throwable $e) {
-
-            Log::error('Register list failed', [
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->with(
-                'error',
-                'Failed to load register list.'
-            );
-        }
-    }
 
     public function fileIndex($registerId, Request $request)
     {
@@ -389,14 +325,136 @@ class StepperFormController extends Controller
         }
     }
 
-    public function CompletedfileIndex($registerId, Request $request)
+    public function completedIndex(Request $request)
     {
         try {
+            $search  = trim($request->query('search'));
+            $userId  = auth()->id();
 
-            $registerNo = decrypt($registerId, true);
+            $query = RegistrationFile::query()
+                ->with(['scannedBy:id,name'])
+                ->withCount([
+                    'allottees as total_files' => function ($q) {
+                        $q->where('allottee_status', 'scanned');
+                    },
 
-            if (!$registerNo) {
-                return back()->with('error', 'Invalid register reference.');
+                    'lotAssignments as completed_files' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('status', 'completed');
+                    },
+
+                    'lotAssignments as full_lot_assignment_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('assignment_type', 'full_lot');
+                    },
+
+                    'lotAssignments as assigned_files_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('assignment_type', 'partial')
+                            ->whereNotNull('allottee_id');
+                    },
+                ])
+                ->where('status', 'scanned')
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', 'scanned');
+                })
+                ->whereHas('lotAssignments', function ($q) use ($userId) {
+                    $q->where('assigned_to', $userId);
+                })
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($sub) use ($search) {
+                        $sub->where('register_no', 'like', "%{$search}%")
+                            ->orWhere('lot_no', 'like', "%{$search}%");
+                    });
+                })
+                ->latest();
+
+            $registrations = $query->paginate(25)
+                ->through(function ($item) {
+                    $item->encoded_register_no = encrypt($item->register_no);
+                    $item->scanned_named_by    = $item->scannedBy->name ?? 'System';
+
+                    $isFullLotAssigned = (int) ($item->full_lot_assignment_count ?? 0) > 0;
+
+                    $item->assigned_files = $isFullLotAssigned
+                        ? (int) ($item->total_files ?? 0)
+                        : (int) ($item->assigned_files_count ?? 0);
+
+                    $item->remaining_files = max(
+                        0,
+                        (int) ($item->assigned_files ?? 0) - (int) ($item->completed_files ?? 0)
+                    );
+
+                    $item->assignment_type_label = $isFullLotAssigned ? 'Full Lot' : 'Partial';
+
+                    $item->assignment_status = match (true) {
+                        $isFullLotAssigned => 'full_lot',
+                        ($item->assigned_files ?? 0) > 0 => 'partial',
+                        default => 'not_assigned',
+                    };
+
+                    return $item;
+                })
+                ->withQueryString();
+            // return $registrations;
+            if ($request->ajax()) {
+                return response()->json([
+                    'registrations' => $registrations,
+                    'pagination'    => $registrations->links()->toHtml(),
+                    'search_term'   => $search,
+                ]);
+            }
+
+            return view(
+                'applicant.components.stepper-form.completedLots',
+                compact('registrations', 'search')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Assigned register list failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
+            ]);
+
+            return back()->with('error', 'Failed to load assigned lot list.');
+        }
+    }
+
+    public function CompletedfileIndex(string $registerId, Request $request)
+    {
+        try {
+            $registerNo = decrypt($registerId);
+
+            $userId = auth()->id();
+
+            $registration = RegistrationFile::query()
+                ->select(['id', 'register_no', 'lot_no'])
+                ->where('register_no', $registerNo)
+                ->first();
+
+            if (!$registration) {
+                return back()->with('error', 'Register not found.');
+            }
+
+            $lotId = $registration->id;
+
+            $hasFullLotAssignment = LotAssignment::query()
+                ->where('lot_id', $lotId)
+                ->where('assigned_to', $userId)
+                ->where('assignment_type', 'full_lot')
+                ->exists();
+
+            $assignedAllotteeIds = LotAssignment::query()
+                ->where('lot_id', $lotId)
+                ->where('assigned_to', $userId)
+                ->where('assignment_type', 'partial')
+                ->whereNotNull('allottee_id')
+                ->pluck('allottee_id')
+                ->unique()
+                ->values();
+
+            if (!$hasFullLotAssignment && $assignedAllotteeIds->isEmpty()) {
+                return back()->with('error', 'You are not assigned to this lot.');
             }
 
             $baseRelations = [
@@ -404,24 +462,37 @@ class StepperFormController extends Controller
                 'subDivision',
                 'propertyCategory',
                 'propertyType',
-                'quarterType'
+                'quarterType',
             ];
+            // return $assignedAllotteeIds;
+            $query = Allottee::query()
+                ->with($baseRelations)
+                ->where('register_id', $registerNo)
+                ->where('is_step_completed', 1)
+                ->when(!$hasFullLotAssignment, function ($q) use ($assignedAllotteeIds) {
+                    $q->whereIn('register_file_id', $assignedAllotteeIds);
+                });
 
-            $registerAllottee = Allottee::with($baseRelations)->where('register_id', $registerNo)->where('is_step_completed', 1)->get();
+            $registerAllottee = $query->paginate(50)->through(function ($item) {
+                $item->allotteeId = encrypt($item->id);
+                return $item;
+            });
+            // return $registerAllottee;
             return view(
                 'applicant.components.stepper-form.completefilesindex',
                 compact('registerAllottee', 'registerNo', 'registerId')
             );
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return back()->with('error', 'Invalid register reference.');
         } catch (\Throwable $e) {
-
-            Log::error('File index load failed', [
+            \Log::error('File index load failed', [
                 'register_id' => $registerId,
-                'error'       => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             if ($request->ajax()) {
                 return response()->json([
-                    'error'   => 'Failed to load files.',
+                    'error' => 'Failed to load files.',
                     'message' => $e->getMessage(),
                 ], 500);
             }

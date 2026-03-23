@@ -125,7 +125,7 @@ class Allottee extends Model
 
     public function documentData()
     {
-        return $this->hasOne(AllotteeDocument::class, 'allottee_id', 'id');
+        return $this->hasMany(AllotteeDocument::class, 'allottee_id', 'id');
     }
 
     public function creator()

@@ -62,7 +62,7 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            {{-- <th class="text-center">Data Entry</th> --}}
+                            <th class="text-center">Preview</th>
                         </tr>
                     </thead>
 
@@ -130,29 +130,29 @@
                                 </td>
 
                                 <!-- Actions -->
-                                {{-- <td class="py-2">
+                                <td class="py-2">
                                     <div class="flex gap-2">
                                         <!-- View -->
-                                        <a href="{{ route('applicant.apply.index', encrypt($file->id)) }}"
-                                            class="action-btn action-btn-info" title="Data Entry for this file">
+                                        <a href="{{ route('preview.apply.index', $file->allotteeId) }}"
+                                            class="action-btn action-btn-info" title="Open File Data Entry">
+
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round">
 
-                                                <!-- Document/Form -->
-                                                <rect x="3" y="3" width="14" height="18" rx="2"></rect>
-                                                <path d="M6 7h8"></path>
-                                                <path d="M6 11h6"></path>
-                                                <path d="M6 15h4"></path>
+                                                <!-- File / Form -->
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <path d="M14 2v6h6"></path>
+                                                <path d="M8 13h8"></path>
+                                                <path d="M8 17h5"></path>
 
-                                                <!-- Plus Icon -->
-                                                <circle cx="18" cy="17" r="4"></circle>
-                                                <path d="M18 15v4"></path>
-                                                <path d="M16 17h4"></path>
+                                                <!-- Pencil -->
+                                                <path d="M16.5 11.5l2 2"></path>
+                                                <path d="M15 13l4-4 2 2-4 4-3 1z"></path>
                                             </svg>
                                         </a>
                                     </div>
-                                </td> --}}
+                                </td>
                             </tr>
                         @empty
                             <tr id="noDataRow">

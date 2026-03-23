@@ -8,6 +8,7 @@ use App\Http\Controllers\Applicant\StudentApplicationController;
 use App\Http\Controllers\Applicant\FileRecevingController;
 use App\Http\Controllers\Applicant\ScannedController;
 use App\Http\Controllers\Applicant\StepperFormController;
+use App\Http\Controllers\Applicant\PreviewController;
 use App\Http\Controllers\Applicant\NameTransferController;
 
 
@@ -148,6 +149,23 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/skip-step', [StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
         Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
+    });
+
+    // data entry 
+    Route::prefix('preview')->name('preview.')->group(function () {
+        Route::get('/start/{encodedId}', [PreviewController::class, 'indexStart'])->name('apply.index');
+        Route::get('/step/{step}/{applicantId}', [PreviewController::class, 'getStep'])->name('apply.step');
+        Route::post('/apply/step1/save', [PreviewController::class, 'saveStep1'])->name('apply.step1.save');
+        Route::post('/apply/step2/save', [PreviewController::class, 'saveStep2'])->name('apply.step2.save');
+        Route::post('/apply/step3/save', [PreviewController::class, 'saveStep3'])->name('apply.step3.save');
+        Route::post('/apply/step4/save', [PreviewController::class, 'saveStep4'])->name('apply.step4.save');
+        Route::post('/apply/step5/save', [PreviewController::class, 'saveStep5'])->name('apply.step5.save');
+        Route::post('/apply/step6/save', [PreviewController::class, 'saveStep6'])->name('apply.step6.save');
+        Route::post('/apply/step7/save', [PreviewController::class, 'saveStep7'])->name('apply.step7.save');
+        Route::post('/documents/store', [PreviewController::class, 'store'])->name('documents.store');
+        Route::post('/save-allottee-details', [PreviewController::class, 'saveAllotteeDetails'])->name('save.new.store');
+        Route::post('/save-emi-ledger', [PreviewController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
+        Route::post('/skip-step', [PreviewController::class, 'skipStep'])->name('applicant.skip.step');
     });
 
     // data entry of file transfer
