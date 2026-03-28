@@ -1093,7 +1093,7 @@
                     <p class="header-subtitle">Submit complete allottee and property information</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="#">
+                    <a href="{{ route('applicant.dataentry.completed.lots.files', $registerId) }}">
                         <button class="btn btn-info"
                             style="background: linear-gradient(135deg, #ce3d04, #ee5121) !important; color:white;padding: 6px 24px; border-radius: 2px;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

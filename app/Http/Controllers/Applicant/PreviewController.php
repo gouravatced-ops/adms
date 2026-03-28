@@ -34,7 +34,7 @@ class PreviewController extends Controller
             ->where('id', $id)
             ->first();
 
-
+        $registerId = encrypt($applicant->register_id);
         $getSchemeList = getSchemeList(
             $applicant->division_id,
             $applicant->sub_division_id ?? $applicant->subdivision_id,
@@ -69,7 +69,7 @@ class PreviewController extends Controller
 
         return view(
             'applicant.components.stepper-form.preview.index',
-            compact('applicant', 'getSchemeList', 'documents', 'completedDocuments')
+            compact('applicant', 'getSchemeList', 'registerId', 'documents', 'completedDocuments')
         );
     }
 
