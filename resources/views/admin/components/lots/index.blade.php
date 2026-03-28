@@ -153,6 +153,10 @@
                                                         <i class="bx bx-list-check"></i>
                                                     </a>
                                                 @endif
+                                                <a href="{{ route('admin.lots.assign.userlist', base64_encode($item->id)) }}"
+                                                    class="btn btn-sm btn-info" title="Assigned User List">
+                                                    <i class="bx bx-user-check"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

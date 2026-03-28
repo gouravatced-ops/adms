@@ -238,6 +238,51 @@ class LotsController extends Controller
         }
     }
 
+    public function assignedUserList($encodedId)
+    {
+        try {
+
+            $lotId = base64_decode($encodedId);
+
+            if (!$lotId) {
+                return back()->with('error', 'Invalid lot reference.');
+            }
+
+            $assignedUsers = LotAssignment::query()
+                ->from('lot_assignments as la')
+                ->join('users as u', 'u.id', '=', 'la.assigned_to')
+                ->where('la.lot_id', $lotId)
+
+                ->select([
+                    'la.assigned_to',
+                    'u.name',
+                    'u.email_id as uemail',
+                    DB::raw('COUNT(la.allottee_id) as total_assigned_files'),
+                    DB::raw("SUM(CASE WHEN la.status='completed' THEN 1 ELSE 0 END) as completed_files"),
+                    DB::raw("SUM(CASE WHEN la.status!='completed' THEN 1 ELSE 0 END) as pending_files"),
+                    DB::raw("MAX(la.assignment_type) as assignment_type"),
+                    DB::raw("MIN(la.assigned_at) as assigned_at")
+                ])
+
+                ->groupBy('la.assigned_to', 'u.name', 'uemail')
+                ->orderBy('assigned_at', 'desc')
+                ->get();
+
+            return view(
+                'admin.components.lots.assigned-users',
+                compact('assignedUsers', 'lotId')
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('Assigned user list failed', [
+                'encodedId' => $encodedId,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load assigned users.');
+        }
+    }
+
     public function assignPartialFiles(Request $request)
     {
         // return $request;

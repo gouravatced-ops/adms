@@ -49,6 +49,7 @@ Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::get('/list', [LotsController::class, 'registerLotsList'])->name('aasign.index');
     Route::get('file/list/{encodedId}/{page}', [LotsController::class, 'registerLotsFileList'])
         ->name('assign.file.index');
+    Route::get('/assign/dataentry/list/{encodedId}', [LotsController::class, 'assignedUserList'])->name('assign.userlist');
     Route::post('/lots/assign', [LotsController::class, 'assignStore'])->name('assign.store');
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
