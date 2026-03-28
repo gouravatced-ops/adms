@@ -64,6 +64,7 @@ class Allottee extends Model
         'parent_id',
         'current_step',
         'is_trans_entry_completed',
+        'free_hold_status',
         'step_remarks',
         'allottee_create_date',
         'create_ip_address',

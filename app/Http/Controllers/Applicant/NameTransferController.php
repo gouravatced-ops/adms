@@ -1046,12 +1046,14 @@ class NameTransferController extends Controller
         $request->validate([
             'allottee_id' => 'required|exists:allottees,id',
             'nametransferValue' => 'nullable|in:yes,no',
+            'freeHoldValue' => 'nullable|in:yes,no'
         ]);
 
         Allottee::where('id', $request->allottee_id)
             ->update([
                 'current_step' => 6,
                 'name_transfer_status' => $request->nametransferValue,
+                'free_hold_status' => $request->freeHoldValue
             ]);
 
         $this->trackStepEnd($request->allottee_id, 5);

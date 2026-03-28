@@ -704,6 +704,49 @@
         </table>
     </div>
 
+    @php
+    $isFreeHold = ($applicant->free_hold_status ?? 'no') === 'yes';
+    @endphp
+
+    <!-- Lease / Free Hold Status -->
+
+    <div class="review-table-container">
+        <div class="table-header" style="background: linear-gradient(90deg,#11998e,#38ef7d);">
+            <div class="header-content">
+                <h4>Property Ownership Type</h4>
+            </div>
+        </div>
+        <table class="review-table">
+
+            <tr>
+
+                <td class="label-cell" style="width:20%;">
+                    Ownership Type
+                </td>
+
+                <td class="value-cell" colspan="3">
+
+                    <span style="
+                        display:inline-flex;
+                        align-items:center;
+                        gap:8px;
+                        padding:4px 12px;
+                        border-radius:20px;
+                        color:#fff;
+                        background: {{ $isFreeHold ? '#4CAF50' : '#ff9800' }};
+                    ">
+
+                        {{ $isFreeHold ? 'Free Hold Property' : 'Lease Hold Property' }}
+
+                    </span>
+
+                </td>
+
+            </tr>
+
+        </table>
+    </div>
+
     <!-- Allottee Document Path -->
     <div class="review-table-container">
         <div class="table-header" style="background: linear-gradient(90deg,#aa4b6b,#6b6b83,#3b8d99);">

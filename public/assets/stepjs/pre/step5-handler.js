@@ -22,6 +22,9 @@ const Step5Handler = (function() {
                 nameTransferSection: "#nameTransferSection",
                 nameTransferSelect: "#nameTransfer",
                 nametransferValue: "#nametransferValue",
+                freeHoldSection: "#freeHoldSection",
+                freeHoldSectionSelect: "#is_free_hold",
+                freeHoldValue: "#freeHoldValue",
                 progressCount: "#progressCount",
                 progressBar: "#progressBar",
                 finalSubmitBtn: "#nextBtn",
@@ -137,6 +140,8 @@ const Step5Handler = (function() {
             nameTransferSection: document.querySelector(CONFIG.ui.selectors.nameTransferSection),
             nameTransferSelect: document.querySelector(CONFIG.ui.selectors.nameTransferSelect),
             nametransferValue: document.querySelector(CONFIG.ui.selectors.nametransferValue),
+            freeHoldSectionSelect: document.querySelector(CONFIG.ui.selectors.freeHoldSectionSelect),
+            freeHoldValue: document.querySelector(CONFIG.ui.selectors.freeHoldValue),
             progressCount: document.querySelector(CONFIG.ui.selectors.progressCount),
             progressBar: document.querySelector(CONFIG.ui.selectors.progressBar),
             finalSubmitBtn: document.querySelector(CONFIG.ui.selectors.finalSubmitBtn),
@@ -150,6 +155,10 @@ const Step5Handler = (function() {
 
         if (elements.nameTransferSelect) {
             elements.nameTransferSelect.addEventListener("change", handleNameTransferChange);
+        }
+
+        if (elements.freeHoldSectionSelect) {
+            elements.freeHoldSectionSelect.addEventListener("change", handleFreeHoldChange);
         }
     }
 
@@ -231,6 +240,16 @@ const Step5Handler = (function() {
         // Update progress and button state
         updateProgress();
         // validateAndUpdateNextButton();
+    }
+
+    function handleFreeHoldChange(e) {
+        const isfreeHold = e.target.value === "yes";
+        state.isFreeHoldstatus = isfreeHold;
+        console.log("Free Hold selected:", isfreeHold ? "Yes" : "No");
+
+        if (elements.freeHoldValue) {
+            elements.freeHoldValue.value = isfreeHold ? "yes" : "no";
+        }
     }
 
     // ==================== NEXT BUTTON STATE MANAGEMENT ====================
@@ -1838,6 +1857,10 @@ const Step5Handler = (function() {
 
         if (elements.nameTransferSelect) {
             elements.nameTransferSelect.removeEventListener("change", handleNameTransferChange);
+        }
+
+        if (elements.freeHoldSectionSelect) {
+            elements.freeHoldSectionSelect.addEventListener("change", handleFreeHoldChange);
         }
     }
 

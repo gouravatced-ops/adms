@@ -126,18 +126,34 @@
             @csrf
             <input type="hidden" name="allottee_id" id="applicant_id" value="{{ $applicant->id ?? '' }}">
             <meta name="csrf-token" content="{{ csrf_token() }}">
-                
+
             {{-- Name Transfer Question --}}
             <div id="nameTransferSection" style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px;">
                 <div style="display:flex; align-items:center; gap:15px;">
                     <label style="font-weight:600; font-size:13px;">Is this a Name Transfer case?</label>
                     <select id="nametransferValue" name="nametransferValue" class="custom-select"
                         style="width:150px; padding:5px; border:1px solid #ddd; border-radius:4px;">
-                        <option value="no">No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no" {{ $applicant->name_transfer_status == 'no' ? 'selected' : '' }}>No</option>
+                        <option value="yes" {{ $applicant->name_transfer_status == 'yes' ? 'selected' : '' }}>Yes</option>
                     </select>
                 </div>
             </div>
+
+            {{-- Free Hold Property Question --}}
+            <div id="freeHoldSection"
+                style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px; display:flex; align-items:center; gap:15px;">
+
+                <label for="freeHoldValue" style="font-weight:600; font-size:13px; margin:0;">
+                    Is this property Free Hold?
+                </label>
+
+                <select name="freeHoldValue" id="freeHoldValue" class="custom-select"
+                    style="width:150px; padding:5px; border:1px solid #ddd; border-radius:4px;">
+                    <option value="no" {{ $applicant->free_hold_status == 'no' ? 'selected' : '' }}>No</option>
+                    <option value="yes" {{ $applicant->free_hold_status == 'yes' ? 'selected' : '' }}>Yes</option>
+                </select>
+            </div>
+
         </form>
     </div>
 </div>

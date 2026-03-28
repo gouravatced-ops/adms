@@ -571,17 +571,16 @@ const Step3Handler = {
             input.addEventListener("input", function () {
                 let value = this.value.replace(/[^0-9.]/g, "");
                 const parts = value.split(".");
+                // Allow only one decimal point
                 if (parts.length > 2) {
-                    value = parts[0] + "." + parts.slice(1).join("");
+                    value = parts[0] + "." + parts[1];
+                }
+                // Limit decimal to 2 digits
+                if (parts[1]) {
+                    parts[1] = parts[1].substring(0, 2);
+                    value = parts[0] + "." + parts[1];
                 }
                 this.value = value;
-            });
-
-            input.addEventListener("blur", function () {
-                let num = parseFloat(this.value);
-                if (!isNaN(num)) {
-                    this.value = num.toFixed(2);
-                }
             });
         });
 

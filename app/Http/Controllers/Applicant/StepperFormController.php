@@ -1108,12 +1108,14 @@ class StepperFormController extends Controller
     {
         $request->validate([
             'allottee_id' => 'required|exists:allottees,id',
-            'nametransferValue' => 'nullable|in:yes,no'
+            'nametransferValue' => 'nullable|in:yes,no',
+            'freeHoldValue' => 'nullable|in:yes,no'
         ]);
 
         $updateData = [
             'current_step' => 6,
-            'name_transfer_status' => $request->nametransferValue
+            'name_transfer_status' => $request->nametransferValue,
+            'free_hold_status' => $request->freeHoldValue
         ];
 
         // EMI status only if no_information

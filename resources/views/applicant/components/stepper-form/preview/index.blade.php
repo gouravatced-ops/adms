@@ -1263,7 +1263,7 @@
                 const lbl = document.getElementById('btnLabel');
 
                 if (prev) prev.style.display = step === 1 ? 'none' : 'inline-flex';
-                if (lbl) lbl.innerHTML = step === 6 ? 'Submit Application' : 'Save & Continue';
+                if (lbl) lbl.innerHTML = step === 6 ? 'Final Submission' : 'Save & Continue';
 
                 this.config.currentStep = step;
             },

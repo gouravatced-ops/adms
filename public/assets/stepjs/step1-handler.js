@@ -188,7 +188,7 @@ const Step1Handler = {
         let firstInvalid = null;
 
         // Required fields validation
-        const requiredFields = [ 'application_day', 'application_month', 'application_year', 'allotment_month', 'allotment_year',
+        const requiredFields = [ 'allotment_month', 'allotment_year',
             'allottee_name', 'allotmentYear','allottee_category', 'allottee_religion',
             //, 'allottee_name_hindi', 'allottee_surname_hindi',
             // 'relation_name', 'marital_status', 'allottee_gender',
