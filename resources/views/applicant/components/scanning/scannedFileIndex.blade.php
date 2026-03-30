@@ -58,6 +58,7 @@
                             <th>Remarks</th>
                             <th>Status</th>
                             <th>Scanned On (Date & Time)</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     @php
@@ -125,6 +126,15 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         {{ formatDateTime($file->updated_at) }}
+                                    </div>
+                                </td>
+                                <td class="py-2">
+                                    <div class="flex gap-2">
+                                        <!-- View -->
+                                        <a href="{{ route('admin.individual.filereceving.fetch', $file->allotteeId) }}"
+                                            class="action-btn action-btn-success" title="Edit file">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

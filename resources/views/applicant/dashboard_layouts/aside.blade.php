@@ -213,10 +213,56 @@
                                 <span class="ml-3">Complete File</span>
                             </a>
                         </div>
-                    </div>
 
-                    <!-- Reports Section -->
-                    {{-- <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'profile')">
+                        <div>
+                            <a href="#"
+                                class="sidebar-item flex {{ request()->routeIs('lease.*') ? 'active' : '' }} items-center justify-between"
+                                onclick="toggleSubmenu(event)">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+
+                                        <!-- Document -->
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+
+                                        <!-- Check mark (approved / ownership) -->
+                                        <polyline points="9 15 11 17 15 13"></polyline>
+
+                                    </svg>
+                                    <span class="ml-3">Lease Free Hold</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs submenu-icon"
+                                    style="transition: transform 0.3s;"></i>
+                            </a>
+                            <div class="submenu">
+                                <a href="{{ route('lease.allottee.index') }}"
+                                    class="sidebar-item {{ request()->routeIs('lease.allottee.index') ? 'active' : '' }} submenu-item flex items-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"
+                                            stroke="currentColor" stroke-width="2" />
+                                        <path d="M14 3v5h5" stroke="currentColor" stroke-width="2" />
+                                        <path d="M10 15h6M13 12l3 3-3 3" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span class="ml-3">Free Hold File</span>
+                                </a>
+                                <a href="{{ route('lease.allottee.completeIndex') }}"
+                                    class="sidebar-item {{ request()->routeIs('lease.allottee.completeIndex') ? 'active' : '' }} submenu-item flex items-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                        <rect x="3" y="4" width="18" height="16" rx="2"
+                                            stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                    <span class="ml-3">Complete File</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Reports Section -->
+                        {{-- <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'profile')">
                     <i class="fas fa-chart-line"></i>
                     <span class="ml-3">Reports</span>
                 </a> --}}

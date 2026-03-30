@@ -61,6 +61,7 @@
                             <th class="text-left text-xs font-semibold">Lot No.</th>
                             <th class="text-left text-xs font-semibold">Register No.</th>
                             <th class="text-left text-xs font-semibold">No. of Files Received</th>
+                            <th class="text-left text-xs font-semibold">Division</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Created on (Date & Time)</th>
                             <th class="text-left text-xs font-semibold">View Register</th>
@@ -85,6 +86,10 @@
 
                                 <td class="py-2">
                                     {{ $registration->total_files }}
+                                </td>
+
+                                <td class="py-2">
+                                    {{ getDivisionName($registration->division_id) ?? 'N/A' }}
                                 </td>
 
                                 <td class="py-2">{{ ucfirst($registration->status) }} by <br>

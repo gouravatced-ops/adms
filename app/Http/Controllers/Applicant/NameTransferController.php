@@ -157,64 +157,71 @@ class NameTransferController extends Controller
     public function completedIndex(Request $request)
     {
         try {
+            $userId = auth()->id();
+            $perPage = $request->input('per_page', 50);
 
-            $search = $request->query('search');
+            $transferAllottee = Allottee::selectRaw("
+                allottees.*,
+                CASE 
+                    WHEN name_transfer_status = 'no' 
+                         AND is_trans_entry_completed = 0
+                    THEN 'Current Allottee'
+                    ELSE 'Transfer Allottee'
+                END as allottee_type
+            ")
+                // current / transfer records should always have parent
+                ->whereNotNull('parent_id')
 
-            $query = RegistrationFile::query()
-                ->with(['scannedBy'])
+                ->where('name_transfer_status', 'no')
+                ->where('is_trans_entry_completed', 0)
+                ->where('created_by', $userId)
 
-                ->where('created_by', auth()->id())
+                ->with([
+                    'division:id,name',
+                    'subDivision:id,name',
+                    'propertyCategory:id,name',
+                    'propertyType:id,name',
+                    'quarterType:quarter_id,quarter_code',
 
-                ->whereHas('allottees')
+                    // parent history
+                    'parent' => function ($q) {
 
-                ->whereDoesntHave('allottees', function ($q) {
-                    $q->where('allottee_status', '!=', 'dataentry');
-                })
+                        $q->selectRaw("
+                        allottees.*,
+                        'Previous Allottee' as allottee_type
+                    ")
 
-                ->withCount([
-                    'allottees as total_files',
-                    'allottees as completed_files' => function ($q) {
-                        $q->where('allottee_status', 'dataentry');
-                    },
+                            ->with([
+                                'parent' => function ($q2) {
+
+                                    $q2->selectRaw("
+                                allottees.*,
+                                'First Allottee' as allottee_type
+                            ");
+                                }
+                            ]);
+                    }
                 ])
 
-                ->latest();
+                // only CURRENT allottee
+                ->where('name_transfer_status', 'no')
 
-            if ($search) {
-                $query->where('register_no', 'like', "%{$search}%");
-            }
+                ->where('is_trans_entry_completed', 0)
 
-            $registrations = $query->paginate(25);
+                ->orderByDesc('id')
 
-            // encode register no
-            $registrations->getCollection()->transform(function ($item) {
-                $item->encoded_register_no = base64_encode($item->register_no);
-
-                return $item;
-            });
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'registrations' => $registrations,
-                    'pagination' => $registrations->links()->toHtml(),
-                    'search_term' => $search,
-                ]);
-            }
-
+                ->paginate($perPage);
+            // return response()->json($transferAllottee);
+                $divisions = getDivisions();
             return view(
                 'applicant.components.nametransfer.completedLots',
-                compact('registrations', 'search')
+                compact('transferAllottee' , 'divisions')
             );
         } catch (\Throwable $e) {
 
-            Log::error('Register list failed', [
-                'error' => $e->getMessage(),
-            ]);
+            \Log::error($e);
 
-            return back()->with(
-                'error',
-                'Failed to load register list.'
-            );
+            return back()->with('error', $e->getMessage());
         }
     }
 

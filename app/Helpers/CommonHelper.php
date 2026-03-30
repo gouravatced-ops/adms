@@ -145,6 +145,13 @@ if (!function_exists('getStates')) {
     }
 }
 
+if (!function_exists('getDivisionName')) {
+    function getDivisionName($divisionId)
+    {
+        return Division::where('id', $divisionId)->value('name');
+    }
+}
+
 if (!function_exists('getDistrict')) {
     function getDistrict($stateId)
     {

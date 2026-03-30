@@ -60,6 +60,7 @@
                             <th class="text-left text-xs font-semibold">Sl. No.</th>
                             <th class="text-left text-xs font-semibold">Lot No.</th>
                             <th class="text-left text-xs font-semibold">Register No.</th>
+                            <th class="text-left text-xs font-semibold">Division</th>
                             <th class="text-left text-xs font-semibold">No. of Files Scanned</th>
                             <th class="text-left text-xs font-semibold">Action</th>
                         </tr>
@@ -77,6 +78,10 @@
                                         style="text-decoration: underline;color: blue;">
                                         {{ $registration->register_no }}
                                     </a>
+                                </td>
+
+                                <td class="py-2">
+                                    {{ getDivisionName($registration->division_id) ?? 'N/A' }}
                                 </td>
 
                                 <td class="py-2">

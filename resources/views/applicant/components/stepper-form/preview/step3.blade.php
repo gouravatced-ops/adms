@@ -604,7 +604,7 @@
                         <td class="sl"></td>
                         <td class="term">पूरब से पश्चिम उत्तर तरफ (फीट) (East-West North Side in Ft.)</td>
                         <td><input name="ew_north" placeholder="फीट में लंबाई / Length in Ft."
-                                value="{{ old('ew_north', $applicant->ew_north) }}" class="only-number">
+                                value="{{ old('ew_north', $applicant->ew_north) }}" class="only-number-amount">
                         </td>
                     </tr>
 
@@ -612,7 +612,7 @@
                         <td class="sl"></td>
                         <td class="term">पूरब से पश्चिम दक्षिण तरफ (फीट) (East-West South Side in Ft.)</td>
                         <td><input name="ew_south" placeholder="फीट में लंबाई / Length in Ft."
-                                value="{{ old('ew_south', $applicant->ew_south) }}" class="only-number">
+                                value="{{ old('ew_south', $applicant->ew_south) }}" class="only-number-amount">
                         </td>
                     </tr>
 
@@ -620,7 +620,7 @@
                         <td class="sl"></td>
                         <td class="term">उत्तर से दक्षिण पूरब तरफ (फीट) (North-South East Side in Ft.)</td>
                         <td><input name="ns_east" placeholder="फीट में लंबाई / Length in Ft."
-                                value="{{ old('ns_east', $applicant->ns_east) }}" class="only-number">
+                                value="{{ old('ns_east', $applicant->ns_east) }}" class="only-number-amount">
                         </td>
                     </tr>
 
@@ -628,7 +628,7 @@
                         <td class="sl"></td>
                         <td class="term">उत्तर से दक्षिण पश्चिम तरफ (फीट) (North-South West Side in Ft.)</td>
                         <td><input name="ns_west" placeholder="फीट में लंबाई / Length in Ft."
-                                value="{{ old('ns_west', $applicant->ns_west) }}" class="only-number">
+                                value="{{ old('ns_west', $applicant->ns_west) }}" class="only-number-amount">
                         </td>
                     </tr>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Applicant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Models\ExportedFile;
 use App\Models\Register;
 use App\Models\RegisterAllottee;
@@ -217,6 +218,7 @@ class FileRecevingController extends Controller
 
         $data = [
             'register' => $register,
+            'divisions' => getDivisions()
         ];
 
         return view('applicant.components.filereceiving.register', $data);
@@ -226,15 +228,19 @@ class FileRecevingController extends Controller
     {
         $request->validate([
             'allowed_files' => 'required|integer|min:1|max:35',
-            'register_id' => 'required'
+            'register_id' => 'required',
+            'division_id' => 'required',
         ]);
 
         $register = Register::where('register_no', $request->register_id)->first();
         $register->allowed_files = $request->allowed_files;
+        $register->division_id = $request->division_id;
         $register->save();
 
+        $divisions = Division::where('id', $request->division_id)->get();
+
         $data = [
-            'divisions' => getDivisions(),
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -250,9 +256,10 @@ class FileRecevingController extends Controller
         $registerNo = base64_decode($registerId);
         // Get data for dropdowns
         $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $divisions = Division::where('id', $register->division_id)->get();
 
         $data = [
-            'divisions' => getDivisions(),
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -332,6 +339,7 @@ class FileRecevingController extends Controller
                 $finalRegistration->total_files = $tempRegister->total_files + 1;
                 $finalRegistration->allowed_files = $tempRegister->allowed_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
+                $finalRegistration->division_id = $tempRegister->division_id;
                 $finalRegistration->status = 'received';
                 $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
@@ -457,9 +465,10 @@ class FileRecevingController extends Controller
         $encodedId = base64_decode($allotteeId);
         $allottee = RegisterAllottee::find($encodedId);        // Get data for dropdowns
         $register = RegistrationFile::where('register_no', $allottee->register_id)->first();
+        $divisions = Division::where('id', $register->division_id)->get();
 
         $data = [
-            'divisions' => getDivisions(),
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -630,6 +639,9 @@ class FileRecevingController extends Controller
             return redirect()->back()->with('error', 'Invalid register ID');
         }
 
+        $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $registerDivision = Division::where('id' , $register->division_id)->value('name');
+        $lotNumber = strtoupper($register->lot_no);
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
@@ -658,6 +670,8 @@ class FileRecevingController extends Controller
             'date' => date('d/m/Y'),
             'allottees' => $allottees,
             'registerNo' => $registerNo,
+            'lotDivision' => $registerDivision,
+            'lotNumber' => $lotNumber,
             'logo1' => public_path('assets/indian-bank.png'),
             'logo2' => public_path('assets/insta-logo.jpg'),
             'logo3' => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
@@ -673,8 +687,8 @@ class FileRecevingController extends Controller
             ->setOption('defaultFont', 'dejavu sans');
 
         $todayDate = $this->generateRegisterNo();
-
-        $filename = $todayDate . '-ced-jshb-receiving.pdf';
+        $smallcaseLots = strtolower($lotNumber);
+        $filename = $smallcaseLots.'_'.$todayDate . '-ced-jshb-receiving.pdf';
 
         $directory = public_path("uploads/{$registerNo}/files");
 

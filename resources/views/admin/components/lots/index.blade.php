@@ -73,6 +73,7 @@
                                     <th>Total Files</th>
                                     <th>Assigned</th>
                                     <th>Remaining</th>
+                                    <th>Division</th>
                                     <th>Scanned By</th>
                                     <th>Assignment Status</th>
                                     <th>Scanned On</th>
@@ -110,6 +111,10 @@
 
                                         <td>
                                             <span class="badge bg-danger">{{ $item->remaining_files ?? 0 }}</span>
+                                        </td>
+
+                                        <td>
+                                            {{ getDivisionName($item->division_id) ?? 'N/A' }}
                                         </td>
 
                                         <td>{{ $item->scanned_named_by ?? 'System' }}</td>

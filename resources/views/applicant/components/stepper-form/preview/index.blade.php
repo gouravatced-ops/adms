@@ -1089,8 +1089,11 @@
         <div class="modern-card-header">
             <div class="header-flex">
                 <div>
-                    <h1 class="header-title">Residential Property Allotment Application</h1>
-                    <p class="header-subtitle">Submit complete allottee and property information</p>
+                    <h1 class="header-title">Residential Property Allotment Application Preview</h1>
+                    <p class="header-subtitle">
+                        Review the existing allottee and property details below. You may update the information if any
+                        changes are required.
+                    </p>
                 </div>
                 <div class="flex items-center gap-2">
                     <a href="{{ route('applicant.dataentry.completed.lots.files', $registerId) }}">

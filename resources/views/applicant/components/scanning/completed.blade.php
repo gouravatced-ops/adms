@@ -62,6 +62,7 @@
                             <th class="text-left text-xs font-semibold">Register No.</th>
                             <th class="text-left text-xs font-semibold">No. of Files Scanned</th>
                             <th class="text-left text-xs font-semibold">Total Pages</th>
+                            <th class="text-left text-xs font-semibold">Division</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Scanned on (Date & Time)</th>
                             <th class="text-left text-xs font-semibold">Action</th>
@@ -88,6 +89,11 @@
                                 <td class="py-2">
                                     {{ $registration->allottees->sum('total_pages') ?? 0 }}
                                 </td>
+
+                                <td class="py-2">
+                                    {{ getDivisionName($registration->division_id) ?? 'N/A' }}
+                                </td>
+                                
                                 <td class="py-2">
                                     {{ ucfirst($registration->status ?? 'Unknown') }} by <br>
                                     {{ $registration->scannedBy->name ?? 'System' }}

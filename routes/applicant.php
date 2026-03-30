@@ -10,6 +10,7 @@ use App\Http\Controllers\Applicant\ScannedController;
 use App\Http\Controllers\Applicant\StepperFormController;
 use App\Http\Controllers\Applicant\PreviewController;
 use App\Http\Controllers\Applicant\NameTransferController;
+use App\Http\Controllers\Applicant\LeaseFreeHoldController;
 
 
 Route::middleware('guest')->group(function () {
@@ -149,6 +150,8 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/skip-step', [StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
         Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
+        Route::get('/basic/documents/{encodedId}', [StepperFormController::class, 'documentUpload'])->name('documents.upload');
+        Route::post('/basic/documents/store', [LeaseFreeHoldController::class, 'uploadDocument'])->name('basicdocuments.store');
     });
 
     // data entry 
@@ -189,4 +192,10 @@ Route::middleware('auth:web')->group(function () {
 
     // Add to your routes file
     Route::post('/applicant/documents/skip', [ScannedController::class, 'skip'])->name('applicant.documents.skip');
+
+    // Lease Free Hold files
+    Route::get('/allottee/lease-free-hold/list', [LeaseFreeHoldController::class, 'index'])->name('lease.allottee.index');
+    Route::get('/allottee/lease-free-hold/completed/list', [LeaseFreeHoldController::class, 'completedIndex'])->name('lease.allottee.completeIndex');
+    Route::get('/lease-free-hold/documents/{encodedId}', [LeaseFreeHoldController::class, 'documentUpload'])->name('lease.documents.upload');
+    Route::post('/lease-free-hold/documents/store', [LeaseFreeHoldController::class, 'uploadDocument'])->name('lease.documents.store');
 });

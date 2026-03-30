@@ -380,7 +380,7 @@
 
             generateCaptcha() {
                 // Generate random 5-character CAPTCHA with mixed characters (including lowercase)
-                const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+                const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
                 let captcha = '';
                 for (let i = 0; i < 5; i++) {
                     captcha += characters.charAt(Math.floor(Math.random() * characters.length));

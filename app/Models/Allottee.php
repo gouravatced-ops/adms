@@ -74,6 +74,30 @@ class Allottee extends Model
         'created_by',
     ];
 
+        // Parent relationship (the parent of this allottee)
+    public function parent()
+    {
+        return $this->belongsTo(Allottee::class, 'parent_id');
+    }
+    
+    // Children relationship (allottees that have this as parent)
+    public function children()
+    {
+        return $this->hasMany(Allottee::class, 'parent_id');
+    }
+    
+    // Recursive children with nested relationships
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+    
+    // Recursive parent chain
+    public function parentRecursive()
+    {
+        return $this->parent()->with('parentRecursive');
+    }
+
     public function division()
     {
         return $this->belongsTo(Division::class, 'division_id');

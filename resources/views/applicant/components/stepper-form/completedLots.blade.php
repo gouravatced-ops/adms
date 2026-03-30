@@ -66,6 +66,7 @@
                             <th class="text-left text-xs font-semibold">Completed Files</th>
                             <th class="text-left text-xs font-semibold">Remaining Files</th>
                             <th class="text-left text-xs font-semibold">Assignment Type</th>
+                            <th class="text-left text-xs font-semibold">Division</th>
                             <th class="text-left text-xs font-semibold">Status</th>
                             <th class="text-left text-xs font-semibold">Scanned On</th>
                             <th class="text-left text-xs font-semibold">View Files</th>
@@ -92,6 +93,9 @@
                                         class="badge bg-{{ $registration->assignment_status == 'partial' ? 'warning' : 'success' }}">
                                         {{ $registration->assignment_type_label ?? 'N/A' }}
                                     </span>
+                                </td>
+                                <td class="py-2">
+                                    {{ getDivisionName($registration->division_id) ?? 'N/A' }}
                                 </td>
                                 <td>Sanned By <br> {{ $registration->scanned_named_by ?? 'System' }}</td>
                                 <td>{{ formatDateTime($registration->updated_at) }}</td>
