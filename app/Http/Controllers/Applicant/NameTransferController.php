@@ -65,6 +65,7 @@ class NameTransferController extends Controller
     public function index(Request $request)
     {
         try {
+            $userId = auth()->id();
             $perPage = $request->input('per_page', 50);
 
             // Get search params
@@ -85,7 +86,7 @@ class NameTransferController extends Controller
 
             // Optimized query with selective loading
             $query = Allottee::with($baseRelations)->where('is_trans_entry_completed', 0)
-                ->where('name_transfer_status', 'yes');
+                ->where('name_transfer_status', 'yes')->where('created_by', $userId);
 
             // Apply search filters
             if (!empty($searchParams['allottee'])) {
