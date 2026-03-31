@@ -1059,12 +1059,12 @@ class NameTransferController extends Controller
 
         Allottee::where('id', $request->allottee_id)
             ->update([
-                'current_step' => 6,
+                'current_step' => 4,
                 'name_transfer_status' => $request->nametransferValue,
                 'free_hold_status' => $request->freeHoldValue
             ]);
 
-        $this->trackStepEnd($request->allottee_id, 5);
+        $this->trackStepEnd($request->allottee_id, 3);
 
         return response()->json([
             'success' => true,
@@ -1074,7 +1074,6 @@ class NameTransferController extends Controller
     }
 
     public function saveStep4(Request $request)
-    {
         if (! $request->final_submission) {
             return response()->json([
                 'success' => false,
@@ -1099,7 +1098,7 @@ class NameTransferController extends Controller
             $allottee->update([
                 'is_step_completed' => 1,
             ]);
-            $this->trackStepEnd($request->allottee_id, 6);
+            $this->trackStepEnd($request->allottee_id, 4);
             // Update RegisterAllottee
             RegisterAllottee::where('id', $allottee->register_file_id)
                 ->update([

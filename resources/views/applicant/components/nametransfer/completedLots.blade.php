@@ -224,7 +224,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="{{ route('preview.apply.index', encrypt($currentAllottee->id)) }}"
+                                    {{-- {{ route('preview.apply.index', encrypt($currentAllottee->id)) }} --}}
+                                    <a href="#"
                                         class="action-btn action-btn-info" title="Data Entry">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2">

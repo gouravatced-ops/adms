@@ -53,10 +53,16 @@
                             {{ ($applicant->relation_type ?? '') == 'husband' ? 'checked' : '' }}>
                         Husband
                     </label>
+
+                    <label>
+                        <input type="radio" name="relation_type" value="wife"
+                            {{ ($applicant->relation_type ?? '') == 'wife' ? 'checked' : '' }}>
+                        Wife
+                    </label>
                 </div>
                 <label class="field-label">Name</label>
                 <div class="input-group">
-                    @php $prefixes = ['Shri', 'Late']; @endphp
+                    @php $prefixes = ['Shri', 'Late', 'Smt.', 'Miss', 'M/S']; @endphp
                     <select name="prefix_relation_eng" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"
@@ -83,10 +89,15 @@
                             {{ ($applicant->relation_type_hindi ?? '') == 'पति' ? 'checked' : '' }}>
                         पति
                     </label>
+                    <label>
+                        <input type="radio" name="relation_type_hindi" value="पत्नी"
+                            {{ ($applicant->relation_type_hindi ?? '') == 'पत्नी' ? 'checked' : '' }}>
+                        पत्नी
+                    </label>
                 </div>
                 <label class="field-label">नाम </label>
                 <div class="input-group">
-                    @php $prefixes = ['श्री', 'स्व०']; @endphp
+                    @php $prefixes = ['श्री', 'स्व०', 'श्रीमती', 'सुश्री', 'मेसर्स']; @endphp
                     <select name="prefix_relation_hindi" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"

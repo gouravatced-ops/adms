@@ -214,8 +214,7 @@ class LeaseFreeHoldController extends Controller
                 $uploaded = $uploadedDocuments->get($document->id);
 
                 // document is completed only when file path exists
-                $isCompleted = $uploaded
-                    && !empty(trim((string) $uploaded->file_path));
+                $isCompleted = $uploaded;
 
                 $documentData = (object) [
                     'id'            => $document->id,
