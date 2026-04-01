@@ -1,0 +1,386 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\RegisterAllottee;
+use App\Models\RegistrationFile;
+use App\Models\Division;
+use App\Models\ExportedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class FileManagementController extends Controller
+{
+    protected $user;
+    protected $id;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->id = auth()->id();
+            $this->user = auth()->user();
+            return $next($request);
+        });
+    }
+
+    public function generateRegisterNo()
+    {
+        $date = now()->format('dmy'); // 090226
+        $rand = rand(1000, 9999);
+
+        return $date . $rand;
+    }
+
+    public function receivingLotsList(Request $request)
+    {
+        try {
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name'])
+                ->withCount([
+                    'allottees as total_files' => function ($q) {
+                        $q->where('allottee_status', 'received');
+                    },
+
+                ])
+                ->where('status', 'received')
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', 'received');
+                })
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->created_named_by = $item->creator->name ?? 'System';
+                    return $item;
+                });
+            // return $registrations;
+
+            return view('admin.components.filereceiving.index', compact('registrations'));
+        } catch (\Throwable $e) {
+            Log::error('Register list failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
+            ]);
+
+            return back()->with('error', 'Failed to load register list.');
+        }
+    }
+
+    public function receivingLotsFileList($encodedId, $page)
+    {
+        try {
+            $Id = base64_decode($encodedId);
+            $relationWith = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'registration',
+            ];
+            $files = RegisterAllottee::query()
+
+                ->with($relationWith)
+
+                ->where('allottee_status', 'received')
+                ->where('register_id', $Id)
+
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+
+                    $item->register_no = $item->registration->register_no ?? '';
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->lot_no = $item->registration->lot_no ?? '';
+                    $item->primary_id_encrpted = encrypt($item->id);
+                    return $item;
+                });
+            // return $files;
+            $pageNo = $page;
+            $registers  = RegistrationFile::where('register_no', $Id)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            $registerNo  = $Id;
+            return view('admin.components.filereceiving.fileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function receivingfileFetch($encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+            $file = RegisterAllottee::query()
+                ->with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
+                ->where('id', $id)
+                ->where('allottee_status', 'received')
+                ->firstOrFail();
+            $file->encoded_register_no = base64_encode($file->register_id);
+            $encryptedId;
+            $fullName = $file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname;
+            $divisions = Division::where('status', 1)->where('id', $file->division_id)->orderBy('name', 'asc')->get();
+            return view('admin.components.filereceiving.editfile', compact('file', 'divisions', 'fullName', 'encryptedId'));
+        } catch (\Throwable $e) {
+            Log::error('File fetch failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return null;
+        }
+    }
+
+    public function receivingfileUpdate(Request $request, $encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+            $file = RegisterAllottee::where('id', $id)->where('allottee_status', 'received')->firstOrFail();
+
+            $file->update([
+                'prefix' => $request->prefix,
+                'allottee_name' => $request->allottee_name,
+                'allottee_middle_name' => $request->allottee_middle_name,
+                'allottee_surname' => $request->allottee_surname,
+                'division_id' => $request->division_id,
+                'sub_division_id' => $request->sub_division_id,
+                'pcategory_id' => $request->pcategory_id,
+                'p_type_id' => $request->p_type_id,
+                'quarter_type_id' => $request->quarter_type_id,
+                'no_of_files' => $request->no_of_files,
+                'no_of_supplement' => $request->no_of_supplement,
+                'remarks' => $request->remarks,
+            ]);
+
+            return redirect()->route('admin.receiving.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                ->with('success', 'File updated successfully.');
+        } catch (\Throwable $e) {
+            Log::error('File update failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to update file.');
+        }
+    }
+
+    public function receivingfilesExports($registerId)
+    {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
+        $registerNo = base64_decode($registerId, true);
+
+        if ($registerNo === false) {
+            return redirect()->back()->with('error', 'Invalid register ID');
+        }
+
+        $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $registerDivision = Division::where('id', $register->division_id)->value('name');
+        $lotNumber = strtoupper($register->lot_no);
+        $allottees = RegisterAllottee::query()
+            ->from('register_allottees as ra')
+            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
+            ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
+            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
+            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
+            ->where('ra.register_id', $registerNo)
+            ->orderByDesc('ra.created_at')
+            ->select([
+                'ra.*',
+                'd.name  as dname',
+                'sd.name as subname',
+                'pc.name as cname',
+                'pt.name as pname',
+                'qt.quarter_code as quarter_code',
+            ])
+            ->get();
+
+        if ($allottees->isEmpty()) {
+            return redirect()->back()->with('error', 'No records found');
+        }
+
+        $data = [
+            'title' => 'COMPUTER Ed. - Files Receiving',
+            'date' => date('d/m/Y'),
+            'allottees' => $allottees,
+            'registerNo' => $registerNo,
+            'lotDivision' => $registerDivision,
+            'lotNumber' => $lotNumber,
+            'logo1' => public_path('assets/indian-bank.png'),
+            'logo2' => public_path('assets/insta-logo.jpg'),
+            'logo3' => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
+            'copies' => [
+                'OFFICE COPY - COMPUTER Ed.',
+                'OFFICE COPY - JHARKHAND STATE HOUSING BOARD',
+                'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH',
+            ],
+        ];
+
+        $pdf = Pdf::loadView('exports.register-allottees', $data)
+            ->setPaper('A4', 'portrait')
+            ->setOption('defaultFont', 'dejavu sans');
+
+        $todayDate = $this->generateRegisterNo();
+        $smallcaseLots = strtolower($lotNumber);
+        $filename = $smallcaseLots . '_' . $todayDate . '-ced-jshb-receiving.pdf';
+
+        $directory = public_path("uploads/{$registerNo}/files");
+
+        if (! File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $filePath = $directory . '/' . $filename;
+        file_put_contents($filePath, $pdf->output());
+
+        $fileSize = filesize($filePath);
+
+        ExportedFile::create([
+            'register_no' => $registerNo,
+            'file_name' => $filename,
+            'file_path' => "uploads/{$registerNo}/files/{$filename}",
+            'file_size' => $fileSize,
+        ]);
+
+        return response()->download($filePath);
+    }
+
+    public function scannedLotsList(Request $request)
+    {
+        try {
+            $registrations = RegistrationFile::query()
+                ->with(['scannedBy:id,name'])
+                ->withCount([
+                    'allottees as total_files' => function ($q) {
+                        $q->where('allottee_status', 'scanned');
+                    },
+
+                ])
+                ->where('status', 'scanned')
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', 'scanned');
+                })
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->scanned_named_by = $item->scannedBy->name ?? 'System';
+                    return $item;
+                });
+            // return $registrations;
+
+            return view('admin.components.scanning.index', compact('registrations'));
+        } catch (\Throwable $e) {
+            Log::error('Register list failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
+            ]);
+
+            return back()->with('error', 'Failed to load register list.');
+        }
+    }
+
+    public function scanningLotsFileList($encodedId, $page)
+    {
+        try {
+            $Id = base64_decode($encodedId);
+            $relationWith = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'registration',
+            ];
+            $files = RegisterAllottee::query()
+
+                ->with($relationWith)
+
+                ->where('allottee_status', 'scanned')
+                ->where('register_id', $Id)
+
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+
+                    $item->register_no = $item->registration->register_no ?? '';
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->lot_no = $item->registration->lot_no ?? '';
+                    $item->primary_id_encrpted = encrypt($item->id);
+                    return $item;
+                });
+            // return $files;
+            $pageNo = $page;
+            $registers  = RegistrationFile::where('register_no', $Id)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            $registerNo  = $Id;
+            return view('admin.components.scanning.fileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function scanningfileFetch($encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+            $file = RegisterAllottee::query()
+                ->with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
+                ->where('id', $id)
+                ->where('allottee_status', 'scanned')
+                ->firstOrFail();
+            $file->encoded_register_no = base64_encode($file->register_id);
+            $fullName = $file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname;
+            $divisions = Division::where('status', 1)->where('id', $file->division_id)->orderBy('name', 'asc')->get();
+            return view('admin.components.scanning.editfile', compact('file', 'divisions', 'fullName', 'encryptedId'));
+        } catch (\Throwable $e) {
+            Log::error('File fetch failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return null;
+        }
+    }
+
+    public function scanningfileUpdate(Request $request, $encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+            $file = RegisterAllottee::where('id', $id)->where('allottee_status', 'scanned')->firstOrFail();
+
+            $file->update([
+                'prefix' => $request->prefix,
+                'allottee_name' => $request->allottee_name,
+                'allottee_middle_name' => $request->allottee_middle_name,
+                'allottee_surname' => $request->allottee_surname,
+            ]);
+
+            return redirect()->route('admin.scanning.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                ->with('success', 'File updated successfully.');
+        } catch (\Throwable $e) {
+            Log::error('File update failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to update file.');
+        }
+    }
+}

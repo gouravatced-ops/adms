@@ -230,16 +230,16 @@
         </li>
 
         {{-- File Receiving --}}
-        <li class="menu-item {{ request()->routeIs('admin.filereceving.index') ? 'active' : '' }}">
-            <a href="{{ route('admin.filereceving.index') }}" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.receiving.lots.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file"></i>
                 <div>File Receiving</div>
             </a>
         </li>
 
         {{-- File Scanned --}}
-        <li class="menu-item {{ request()->routeIs('applicant.scanning.completed') ? 'active' : '' }}">
-            <a href="{{ route('applicant.scanning.completed') }}" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('admin.scanning.lots.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.scanning.lots.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file-blank"></i>
                 <div>File Scanned</div>
             </a>

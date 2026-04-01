@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PropertyMainTypeController;
 use App\Http\Controllers\Admin\SchemeController;
 use App\Http\Controllers\Admin\LotsController;
 use App\Http\Controllers\Admin\SchemeBlockController;
+use App\Http\Controllers\Admin\FileManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', [AdminController::class, 'councilDashboard'])->name('council_office.dashboard');
@@ -53,6 +54,16 @@ Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::post('/lots/assign', [LotsController::class, 'assignStore'])->name('assign.store');
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
+
+Route::get('/receiving/lots/list', [FileManagementController::class, 'receivingLotsList'])->name('admin.receiving.lots.index');
+Route::get('/receiving/file/list/{encodedId}/{page}', [FileManagementController::class, 'receivingLotsFileList'])->name('admin.receiving.files.index');
+Route::get('/receiving/file/exports/{registerId}', [FileManagementController::class, 'receivingfilesExports'])->name('admin.receiving.files.exports');
+Route::get('/receiving/file/fetch/{encryptedId}', [FileManagementController::class, 'receivingfileFetch'])->name('admin.receiving.file.fetch');
+Route::put('/receiving/file/update/{encryptedId}', [FileManagementController::class, 'receivingfileUpdate'])->name('admin.receiving.file.update');
+Route::get('/scanning/lots/list', [FileManagementController::class, 'scannedLotsList'])->name('admin.scanning.lots.index');
+Route::get('/scanning/file/list/{encodedId}/{page}', [FileManagementController::class, 'scanningLotsFileList'])->name('admin.scanning.files.index');
+Route::get('/scanning/file/fetch/{encryptedId}', [FileManagementController::class, 'scanningfileFetch'])->name('admin.scanning.file.fetch');
+Route::put('/scanning/file/update/{encryptedId}', [FileManagementController::class, 'scanningfileUpdate'])->name('admin.scanning.file.update');
 
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');

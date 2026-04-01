@@ -3,11 +3,11 @@
 @section('admin-content')
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Receiving Lots</span>
+            <span class="invert-text-white">Dashboard / Scanning Lots</span>
         </h6>
 
         <div class="card mb-4">
-            <h5 class="card-header text-white bg-info">Receiving Lots</h5>
+            <h5 class="card-header text-white bg-info">Scanning Lots</h5>
 
             <div class="card-body mt-2">
                 @php
@@ -38,9 +38,9 @@
                                 <th>Total Files</th>
                                 <th>Allowed Files</th>
                                 <th>Division</th>
-                                <th>Created By</th>
+                                <th>Scanned By</th>
                                 <th>Status</th>
-                                <th>Created On</th>
+                                <th>Scanned On</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -69,7 +69,7 @@
                                         {{ getDivisionName($item->division_id) }}
                                     </td>
 
-                                    <td>{{ $item->created_named_by }}</td>
+                                    <td>{{ $item->scanned_named_by }}</td>
 
                                     <td>
                                         <span class="badge bg-success">
@@ -78,11 +78,11 @@
                                     </td>
 
                                     <td>
-                                        {{ $item->created_at }}
+                                        {{ $item->updated_at }}
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('admin.receiving.files.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}" class="btn btn-primary text-white me-2" title="View Lot Files">
+                                        <a href="{{ route('admin.scanning.files.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}" class="btn btn-primary text-white me-2" title="View Lot Files">
                                             <!-- Custom List/File SVG Icon -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

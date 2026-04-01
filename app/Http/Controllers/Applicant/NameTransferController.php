@@ -62,7 +62,7 @@ class NameTransferController extends Controller
         return str_shuffle($password);
     }
 
-    public function index(Request $request)
+     public function index(Request $request)
     {
         try {
             $userId = auth()->id();
@@ -1074,6 +1074,7 @@ class NameTransferController extends Controller
     }
 
     public function saveStep4(Request $request)
+    {
         if (! $request->final_submission) {
             return response()->json([
                 'success' => false,
