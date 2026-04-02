@@ -190,6 +190,9 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/documents/list/{allotteeId}', [NameTransferController::class, 'getDocumentsList'])->name('applicant.document.list');
         Route::get('/name-transfer/documents/{encodedId}', [NameTransferController::class, 'documentList'])->name('documents.upload');
         Route::post('/name-transfer/documents/store', [NameTransferController::class, 'uploadDocument'])->name('nameTransferdocuments.storefile');
+        Route::get('/incomplete/start/{encodedId}', [NameTransferController::class, 'inCompleteindexStart'])->name('incomplete.apply.index');
+        Route::get('/incomplete/files/list', [NameTransferController::class, 'inCompletedindex'])->name('incomplete.name.transfer.files');
+        Route::get('/incomplete/apply/step/{step}/{applicantId}', [NameTransferController::class, 'incompletegetStep'])->name('incomplete.apply.step');
     });
 
     // Add to your routes file

@@ -202,6 +202,29 @@
                                 </svg>
                                 <span class="ml-3">Transfer File</span>
                             </a>
+                            <a href="{{ route('nametransfer.incomplete.name.transfer.files') }}"
+                                class="sidebar-item {{ request()->routeIs('nametransfer.incomplete.name.transfer.files') ? 'active' : '' }} submenu-item flex items-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <!-- File -->
+                                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"
+                                        stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+
+                                    <!-- Folded Corner -->
+                                    <path d="M14 3v5h5" stroke="currentColor" stroke-width="2"
+                                        stroke-linejoin="round" />
+
+                                    <!-- Incomplete / Pending mark -->
+                                    <circle cx="12" cy="15" r="3.5" stroke="currentColor"
+                                        stroke-width="2" />
+
+                                    <path d="M12 13.5v2.2" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" />
+
+                                    <circle cx="12" cy="17.7" r="0.5" fill="currentColor" />
+                                </svg>
+                                <span class="ml-3">Incomplete File</span>
+                            </a>
+
                             <a href="{{ route('nametransfer.dataentry.completed') }}"
                                 class="sidebar-item {{ request()->routeIs('nametransfer.dataentry.completed') ? 'active' : '' }} submenu-item flex items-center">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
