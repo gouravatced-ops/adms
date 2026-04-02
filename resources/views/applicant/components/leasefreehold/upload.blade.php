@@ -1108,7 +1108,7 @@
             }
 
             function updateProgress() {
-                const total = {{ $totalDocuments ?? 7 }};
+                const total = {{ $totalDocument ?? 7 }};
                 const completed = state.completedDocs.length;
                 const percentage = total > 0 ? (completed / total) * 100 : 0;
 

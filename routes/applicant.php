@@ -150,8 +150,8 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/skip-step', [StepperFormController::class, 'skipStep'])->name('applicant.skip.step');
         Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
-        Route::get('/basic/documents/{encodedId}', [StepperFormController::class, 'documentUpload'])->name('documents.upload');
-        Route::post('/basic/documents/store', [LeaseFreeHoldController::class, 'uploadDocument'])->name('basicdocuments.store');
+        Route::get('/basic/documents/{encodedId}', [StepperFormController::class, 'documentList'])->name('documents.upload');
+        Route::post('/basic/documents/store', [StepperFormController::class, 'uploadDocument'])->name('basicdocuments.store');
     });
 
     // data entry 
@@ -188,6 +188,8 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/skip-step', [NameTransferController::class, 'skipStep'])->name('applicant.skip.step');
         Route::get('/documents/configs', [NameTransferController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [NameTransferController::class, 'getDocumentsList'])->name('applicant.document.list');
+        Route::get('/name-transfer/documents/{encodedId}', [NameTransferController::class, 'documentList'])->name('documents.upload');
+        Route::post('/name-transfer/documents/store', [NameTransferController::class, 'uploadDocument'])->name('nameTransferdocuments.storefile');
     });
 
     // Add to your routes file

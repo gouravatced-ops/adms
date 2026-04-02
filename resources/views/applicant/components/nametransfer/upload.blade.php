@@ -1,6 +1,6 @@
 @extends('applicant.dashboard_layouts.main')
 
-@section('title', 'Data Entry File - Document')
+@section('title', 'Name Transfer File - Document')
 
 @section('content')
     <style>
@@ -638,13 +638,13 @@
         <div class="modern-card-header">
             <div class="header-flex">
                 <div>
-                    <h1 class="header-title">Data Entry File Documents : <span style="color: rgb(255, 217, 0);">{{ $file->prefix }} {{ $file->allottee_name }} {{ $file->allottee_middle_name }} {{ $file->allottee_surname }}</span></h1>
+                    <h1 class="header-title">Name Transfer File Documents : <span style="color: rgb(255, 217, 0);">{{ $file->prefix }} {{ $file->allottee_name }} {{ $file->allottee_middle_name }} {{ $file->allottee_surname }}</span></h1>
                     <p class="header-subtitle">
                         View uploaded documents and upload remaining documents for the selected allottee.
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('applicant.dataentry.completed.lots.files', $registerId) }}">
+                    <a href="{{ route('nametransfer.dataentry.completed') }}">
                         <button class="btn btn-info"
                             style="background: linear-gradient(135deg, #ce3d04, #ee5121) !important; color:white;padding: 6px 24px; border-radius: 2px;">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
@@ -1057,7 +1057,7 @@
             submitBtn.disabled = true;
 
             try {
-                const response = await fetch('{{ route('applicant.basicdocuments.store') }}', {
+                const response = await fetch('{{ route('nametransfer.nameTransferdocuments.storefile') }}', {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -1084,13 +1084,13 @@
         // Main Upload Handler
         const FreeHoldUploadHandler = (function() {
             const CONFIG = {
-                submitUrl: "{{ route('applicant.basicdocuments.store') }}"
+                submitUrl: "{{ route('nametransfer.nameTransferdocuments.storefile') }}"
             };
 
             let state = {
                 documents: [],
                 completedDocs: [],
-                totalDocument: {{ $totalDocument ?? 10 }},
+                totalDocument: {{ $totalDocument ?? 9 }},
                 applicantId: null,
                 uploadPath: null,
                 isLoading: false,
@@ -1111,7 +1111,7 @@
             }
 
             function updateProgress() {
-                const total = {{ $totalDocument ?? 10 }};
+                const total = {{ $totalDocument ?? 9 }};
                 const completed = state.completedDocs.length;
                 const percentage = total > 0 ? (completed / total) * 100 : 0;
 

@@ -151,6 +151,22 @@
                                                 <path d="M15 13l4-4 2 2-4 4-3 1z"></path>
                                             </svg>
                                         </a>
+
+                                        <a href="{{ route('applicant.documents.upload', $file->allotteeId) }}"
+                                            class="action-btn action-btn-warning" title="View Documents">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+
+                                                <!-- File -->
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+
+                                                <!-- Upload Arrow -->
+                                                <path d="M12 18V11"></path>
+                                                <path d="M9 14l3-3 3 3"></path>
+                                            </svg>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
