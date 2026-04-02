@@ -72,6 +72,9 @@ $(document).ready(function () {
         studentListTable.draw();
     });
 
+    // DataTable Initialize
+    $("#allLotsListTable").DataTable({});
+
     $("#resetButton").on("click", function () {
         location.reload();
     });
