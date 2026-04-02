@@ -501,13 +501,14 @@ class StepperFormController extends Controller
         }
     }
 
-    public function documentUpload(string $encryptedId)
+    public function documentList(string $encryptedId)
     {
         try {
             $allotteeId = decrypt($encryptedId);
 
             $file = Allottee::findOrFail($allotteeId);
-            $file->freehold_upload_document_path = $file->allottee_document_path;
+            $file->upload_document_path = $file->allottee_document_path;
+            $registerId = encrypt($file->register_id);
 
             // All master documents for free hold
             $masterDocuments = DocumentMaster::query()
@@ -564,6 +565,7 @@ class StepperFormController extends Controller
                     'completedDocuments',
                     'remainingDocuments',
                     'totalDocument',
+                    'registerId',
                     'isAllDocumentsCompleted'
                 )
             );
@@ -600,6 +602,21 @@ class StepperFormController extends Controller
                 'year'          => ['nullable', 'string', 'max:4'],
                 'additional_info' => ['nullable', 'string', 'max:500'],
             ]);
+            
+            if(empty($validated['document_file']) && empty($validated['remarks'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Either document file or remarks must be provided.',
+                ], 422);
+            }
+
+            // upload path
+            if(isset($validated['uploadpath']) && empty($validated['uploadpath'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload path is required.',
+                ], 422);
+            }
 
             $allotteeId = $validated['allottee_id'];
             $documentId = $validated['document_id'];
@@ -700,8 +717,8 @@ class StepperFormController extends Controller
                 'uploaded_by'     => auth()->id(),
             ])->save();
 
-            // Get all required freehold documents
-            $requiredDocumentIds = DocumentMaster::where('document_category', 'freehold')
+            // Get all required basic documents
+            $requiredDocumentIds = DocumentMaster::where('document_category', 'basic')
                 ->where('status', 1)
                 ->pluck('id');
 
@@ -719,11 +736,6 @@ class StepperFormController extends Controller
 
             // Check if all documents are completed (file uploaded OR remarks provided)
             $isCompleted = $uploadedCount === $requiredDocumentIds->count();
-
-            // Update the allottee status
-            Allottee::where('id', $allotteeId)->update([
-                'is_free_hold_completed' => 1,
-            ]);
 
             $response = [
                 'success'   => true,

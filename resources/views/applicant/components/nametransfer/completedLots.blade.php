@@ -223,21 +223,37 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td>
-                                    {{-- {{ route('preview.apply.index', encrypt($currentAllottee->id)) }} --}}
-                                    <a href="#"
-                                        class="action-btn action-btn-info" title="Data Entry">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="3" width="14" height="18" rx="2"></rect>
-                                            <path d="M6 7h8"></path>
-                                            <path d="M6 11h6"></path>
-                                            <path d="M6 15h4"></path>
-                                            <circle cx="18" cy="17" r="4"></circle>
-                                            <path d="M18 15v4"></path>
-                                            <path d="M16 17h4"></path>
-                                        </svg>
-                                    </a>
+                                <td class="py-2">
+                                    <div class="flex gap-2">
+                                        {{-- {{ route('preview.apply.index', encrypt($currentAllottee->id)) }} --}}
+                                        <a href="#" class="action-btn action-btn-info" title="Data Entry">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="14" height="18" rx="2"></rect>
+                                                <path d="M6 7h8"></path>
+                                                <path d="M6 11h6"></path>
+                                                <path d="M6 15h4"></path>
+                                                <circle cx="18" cy="17" r="4"></circle>
+                                                <path d="M18 15v4"></path>
+                                                <path d="M16 17h4"></path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ route('nametransfer.documents.upload', encrypt($currentAllottee->id)) }}"
+                                            class="action-btn action-btn-warning" title="View Documents">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+
+                                                <!-- File -->
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+
+                                                <!-- Upload Arrow -->
+                                                <path d="M12 18V11"></path>
+                                                <path d="M9 14l3-3 3 3"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
 
