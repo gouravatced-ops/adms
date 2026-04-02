@@ -41,15 +41,15 @@ class FileManagementController extends Controller
             $registrations = RegistrationFile::query()
                 ->with(['creator:id,name', 'allottees:id,register_id,allottee_status'])
                 ->latest()
-                ->paginate(25)
-                ->through(function ($item) {
+                ->get()
+                ->map(function ($item) {
 
                     $statuses = $item->allottees
                         ->pluck('allottee_status')
                         ->map(fn($s) => strtolower(trim($s)))
                         ->toArray();
 
-                    if (count($statuses) > 0) {
+                    if (!empty($statuses)) {
                         if (in_array('handover', $statuses)) {
                             $item->current_stage = 'Handover';
                             $item->badge_color = 'success';
@@ -73,7 +73,6 @@ class FileManagementController extends Controller
 
                     return $item;
                 });
-            // return $registrations;
 
             return view('admin.components.filereceiving.alllots', compact('registrations'));
         } catch (\Throwable $e) {

@@ -29,7 +29,7 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table id="adminListTable" class="table table-striped table-bordered align-middle">
+                    <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th style="white-space: nowrap;">Sl. No.</th>
@@ -56,7 +56,9 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge bg-warning">{{ $item->lot_no }}</span>
+                                        <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}">
+                                            <span class="badge bg-primary">{{ $item->lot_no }}</span>
+                                        </a>
                                     </td>
 
                                     <td>{{ $item->total_files }}</td>
@@ -111,11 +113,6 @@
                             @endforelse
                         </tbody>
                     </table>
-                    @if ($registrations->hasPages())
-                        <div class="p-4 border-top">
-                            {{ $registrations->links('vendor.pagination.custom') }}
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
