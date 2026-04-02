@@ -42,6 +42,33 @@
                     </div>
 
                     <div class="col-md-6">
+                        <label for="subdivision_code" class="form-label">
+                            Sub Division Code <small class="text-danger">*</small> (e.g HR for Ranchi Division->Harmu Colony
+                            Sub Division)
+                        </label>
+                        <input type="text" class="form-control" id="subdivision_code" name="subdivision_code"
+                            placeholder="Enter Sub Division Code">
+                    </div>
+
+                    <!-- Colony Name -->
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">
+                            Colony Name <small class="text-danger">*</small>
+                        </label>
+                        <input type="text" class="form-control" id="colony_name" name="colony_name"
+                            placeholder="Sub Division Colony Name">
+                    </div>
+
+                    <!-- Locality Name -->
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">
+                            Locality Address <small class="text-danger">*</small>
+                        </label>
+                        <input type="text" class="form-control" id="locality_address" name="locality_address"
+                            placeholder="Sub Division Locality Address">
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="status" class="form-label">
                             Status <small class="text-danger">*</small>
                         </label>

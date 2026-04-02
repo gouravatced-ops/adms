@@ -40,7 +40,7 @@
 
                             <div class="custom-options" id="customOptions">
                                 @foreach ($schemes as $scheme)
-                                    <div class="custom-option" data-value="{{ $scheme->scheme_id }}"
+                                    <div class="custom-option" data-value="{{ $scheme->id }}"
                                         data-property-type="{{ $scheme->property_type_name ?? '' }}"
                                         data-scheme-code="{{ $scheme->scheme_code ?? '' }}"
                                         data-scheme-name="{{ $scheme->scheme_name }}"
@@ -472,7 +472,7 @@
             // Initialize schemes data from PHP with block counts
             @foreach ($schemes as $scheme)
                 schemes.push({
-                    id: '{{ $scheme->scheme_id }}',
+                    id: '{{ $scheme->id }}',
                     propertyType: '{{ $scheme->property_type_name ?? '' }}',
                     blockCount: {{ $scheme->total_blocks ?? 0 }},
                     searchText: `{{ strtolower(
@@ -722,23 +722,23 @@
 
                     if (propertyTypeLower.includes('flat') || propertyTypeLower.includes('apartment')) {
                         html = `
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <label class="form-label">Undivided Land Share <small class="text-danger">*</small></label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="blocks[${index}][undivided_land_share]" placeholder="e.g., 100 sq ft" required>
-                        <span class="input-group-text">sq. ft.</span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Total Buildup Area <small class="text-danger">*</small></label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="blocks[${index}][total_buildup]" placeholder="e.g., 1500 sq ft" required>
-                        <span class="input-group-text">sq. ft.</span>
-                    </div>
-                </div>
-            </div>
-        `;
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Undivided Land Share <small class="text-danger">*</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="blocks[${index}][undivided_land_share]" placeholder="e.g., 100 sq ft" required>
+                                    <span class="input-group-text">sq. ft.</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Total Buildup Area <small class="text-danger">*</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="blocks[${index}][total_buildup]" placeholder="e.g., 1500 sq ft" required>
+                                    <span class="input-group-text">sq. ft.</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                     } else if (propertyTypeLower.includes('house')) {
                         html = `
             <div class="row mt-3">

@@ -34,9 +34,6 @@
             transition: transform 0.25s ease;
         }
 
-        .captcha-refresh-btn:hover {
-            transform: rotate(90deg);
-        }
 
         /* Spinner animation */
         @keyframes spin {
@@ -155,7 +152,7 @@
                 @enderror
             </div>
 
-            <!-- Captcha Field -->
+            <!-- Add this message container near your CAPTCHA field -->
             <div class="form-group mt-3">
                 <label class="form-label">
                     Captcha <span class="text-danger">*</span>
@@ -165,7 +162,7 @@
                     <!-- Captcha Image -->
                     <span class="input-group-text p-1 bg-white">
                         <span id="captcha-img" class="captcha-image">
-                            {!! captcha_img('flat') !!}
+
                         </span>
 
                         <!-- Loader -->
@@ -173,15 +170,18 @@
                     </span>
 
                     <!-- Captcha Input -->
-                    <input type="text" name="captcha" class="form-control @error('captcha') is-invalid @enderror"
-                        placeholder="Enter captcha" required>
+                    <input type="text" name="captcha" class="form-control" placeholder="Enter captcha"
+                        maxlength="5" required aria-label="Captcha input">
 
-                    <!-- Refresh Button (Input Group Button) -->
+                    <!-- Refresh Button -->
                     <button type="button" class="input-group-text captcha-refresh-btn" id="reload-captcha"
-                        aria-label="Refresh captcha">
+                        aria-label="Refresh captcha" title="Refresh CAPTCHA">
                         &#x21bb;
                     </button>
                 </div>
+
+                <!-- Message container for CAPTCHA validation -->
+                <div id="captcha-message" class="captcha-message mt-2" style="display: none;"></div>
 
                 @error('captcha')
                     <small class="text-danger">{{ $message }}</small>
@@ -191,19 +191,19 @@
 
             <!-- Remember Me Checkbox (Optional) -->
             {{-- Uncomment if you want a Remember Me option
-        <div class="form-group">
-            <div class="form-check">
-                <input class="form-check-input" 
-                       type="checkbox" 
-                       name="remember" 
-                       id="remember"
-                       {{ old('remember') ? 'checked' : '' }}>
-                <label class="form-check-label" for="remember">
-                    Remember me
-                </label>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" 
+                        type="checkbox" 
+                        name="remember" 
+                        id="remember"
+                        {{ old('remember') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="remember">
+                        Remember me
+                    </label>
+                </div>
             </div>
-        </div>
-        --}}
+            --}}
 
             <!-- Sign In Button -->
             <div class="form-group mt-4">
@@ -231,6 +231,9 @@
                 </svg>
                 <span>Forgot Password?</span>
             </a>
+            @if (request()->getHttpHost() === '127.0.0.1:8000')
+                <a href="{{ route('admin.login') }}">Admin Login</a>
+            @endif
         </div>
 
         <!-- Additional Links (Optional) -->
@@ -271,31 +274,488 @@
         });
     </script>
     <script>
-        document.getElementById('reload-captcha').addEventListener('click', function() {
-            const imgBox = document.getElementById('captcha-img');
-            const loader = document.getElementById('captcha-loader');
-            const btn = this;
+        // captcha.js
 
-            btn.disabled = true;
-            imgBox.classList.add('fade-out');
-            loader.classList.remove('d-none');
+        class CaptchaManager {
+            constructor() {
+                this.captchaCode = '';
+                this.formSubmitTime = null;
+                this.minTimeToSubmit = 3000; // Minimum 3 seconds to fill the form
+                this.fontsDirectory = '/assets/fonts/';
+                this.bgsDirectory = '/assets/backgrounds/';
+                this.fontFile = 'arial.ttf'; // Your specific font
+                this.backgroundFile = 'captcha-bg.jpg'; // Your specific background
+                // Font colors array - each character gets a different color
+                this.fontColors = [
+                    '#000080', // Navy Blue
+                    '#006400', // Dark Green
+                    '#FF0000', // Red
+                    '#e99903', // Orange
+                    '#000000' // Black
+                ];
+                this.messageTimeout = null;
 
-            fetch("{{ route('captcha.reload') }}")
-                .then(res => res.json())
-                .then(data => {
-                    setTimeout(() => {
-                        imgBox.innerHTML = data.captcha;
+                this.init();
+            }
 
-                        loader.classList.add('d-none');
-                        imgBox.classList.remove('fade-out');
-                        imgBox.classList.add('fade-in');
+            async init() {
+                // Generate initial CAPTCHA
+                this.generateCaptcha();
 
-                        setTimeout(() => {
-                            imgBox.classList.remove('fade-in');
-                            btn.disabled = false;
-                        }, 300);
-                    }, 300);
+                // Set form submit time
+                this.setFormSubmitTime();
+
+                // Add event listeners
+                this.addEventListeners();
+
+                // Set background image and font for captcha box
+                await this.setCaptchaStyle();
+
+                // Create message container if it doesn't exist
+                this.createMessageContainer();
+            }
+
+            createMessageContainer() {
+                // Check if message container already exists
+                let messageContainer = document.getElementById('captcha-message');
+
+                if (!messageContainer) {
+                    // Create message container
+                    messageContainer = document.createElement('div');
+                    messageContainer.id = 'captcha-message';
+                    messageContainer.className = 'captcha-message mt-2';
+                    messageContainer.style.display = 'none';
+
+                    // Find where to insert the message (after the input group)
+                    const captchaGroup = document.querySelector('.captcha-group');
+                    if (captchaGroup && captchaGroup.parentNode) {
+                        captchaGroup.parentNode.insertBefore(messageContainer, captchaGroup.nextSibling);
+                    }
+                }
+
+                this.messageContainer = messageContainer;
+            }
+
+            showMessage(message, type = 'error') {
+                // Clear any existing timeout
+                if (this.messageTimeout) {
+                    clearTimeout(this.messageTimeout);
+                }
+
+                // Set message content and style
+                if (this.messageContainer) {
+                    this.messageContainer.textContent = message;
+                    this.messageContainer.style.display = 'block';
+                    this.messageContainer.style.padding = '8px 12px';
+                    this.messageContainer.style.borderRadius = '4px';
+                    this.messageContainer.style.fontSize = '14px';
+
+                    if (type === 'error') {
+                        this.messageContainer.style.backgroundColor = '#f8d7da';
+                        this.messageContainer.style.color = '#721c24';
+                        this.messageContainer.style.border = '1px solid #f5c6cb';
+                    } else if (type === 'success') {
+                        this.messageContainer.style.backgroundColor = '#d4edda';
+                        this.messageContainer.style.color = '#155724';
+                        this.messageContainer.style.border = '1px solid #c3e6cb';
+                    } else if (type === 'warning') {
+                        this.messageContainer.style.backgroundColor = '#fff3cd';
+                        this.messageContainer.style.color = '#856404';
+                        this.messageContainer.style.border = '1px solid #ffeeba';
+                    }
+
+                    // Auto hide message after 5 seconds
+                    this.messageTimeout = setTimeout(() => {
+                        this.hideMessage();
+                    }, 5000);
+                }
+            }
+
+            hideMessage() {
+                if (this.messageContainer) {
+                    this.messageContainer.style.display = 'none';
+                    this.messageContainer.textContent = '';
+                }
+            }
+
+            generateCaptcha() {
+                // Generate random 5-character CAPTCHA with mixed characters (including lowercase)
+                const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let captcha = '';
+                for (let i = 0; i < 5; i++) {
+                    captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                this.captchaCode = captcha;
+
+                // Update CAPTCHA display with colored characters
+                this.displayColoredCaptcha();
+
+                // Store CAPTCHA in session storage for validation
+                sessionStorage.setItem('captchaCode', this.captchaCode);
+                sessionStorage.setItem('captchaTimestamp', Date.now().toString());
+
+                return this.captchaCode;
+            }
+
+            displayColoredCaptcha() {
+                const captchaImg = document.getElementById('captcha-img');
+                if (!captchaImg) return;
+
+                // Clear existing content
+                captchaImg.innerHTML = '';
+
+                // Split the captcha code into characters
+                const characters = this.captchaCode.split('');
+
+                // Create a span for each character with different color
+                characters.forEach((char, index) => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+
+                    // Apply color from fontColors array (cycle through colors)
+                    const colorIndex = index % this.fontColors.length;
+                    span.style.color = this.fontColors[colorIndex];
+
+                    // Add random rotation for authentic CAPTCHA look
+                    span.style.display = 'inline-block';
+                    span.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+                    span.style.margin = '0 2px';
+                    span.style.fontWeight = 'bold';
+                    span.style.textShadow = '1px 1px 2px rgba(0,0,0,0.2)';
+
+                    // Add slight variation in font size
+                    span.style.fontSize = '33px';
+
+                    captchaImg.appendChild(span);
                 });
+            }
+
+            async setCaptchaStyle() {
+                const captchaImg = document.getElementById('captcha-img');
+                if (!captchaImg) return;
+
+                // Load your specific font (arial.ttf)
+                try {
+                    const fontFace = new FontFace('CaptchaFont', `url(${this.fontsDirectory}${this.fontFile})`);
+                    const font = await fontFace.load();
+                    document.fonts.add(font);
+                    // Apply font to captcha container
+                    captchaImg.style.fontFamily = 'CaptchaFont, Arial, sans-serif';
+                } catch (error) {
+                    console.log('Failed to load custom font, using Arial');
+                    captchaImg.style.fontFamily = 'Arial, monospace';
+                }
+
+                // Set background image
+                const backgroundUrl = `${this.bgsDirectory}${this.backgroundFile}`;
+
+                // Check if background image exists and load it
+                const img = new Image();
+                img.onload = () => {
+                    // Background image loaded successfully
+                    captchaImg.style.backgroundImage = `url('${backgroundUrl}')`;
+                    captchaImg.style.backgroundColor = 'transparent'; // Remove background color since image loaded
+                };
+
+                img.onerror = () => {
+                    // Background image failed to load, use background color instead
+                    console.log('Background image not found, using background color');
+                    captchaImg.style.backgroundImage = 'none';
+                    captchaImg.style.backgroundColor = '#f0f0f0'; // Fallback light gray background
+                };
+
+                img.src = backgroundUrl;
+
+                // Apply CAPTCHA container styling
+                captchaImg.style.backgroundSize = 'cover';
+                captchaImg.style.backgroundPosition = 'center';
+                captchaImg.style.backgroundRepeat = 'no-repeat';
+                captchaImg.style.backgroundBlendMode = 'overlay';
+                captchaImg.style.display = 'flex';
+                captchaImg.style.justifyContent = 'center';
+                captchaImg.style.alignItems = 'center';
+                captchaImg.style.padding = '10px 15px';
+                captchaImg.style.borderRadius = '5px';
+                captchaImg.style.minWidth = '150px';
+                captchaImg.style.height = '60px';
+                captchaImg.style.textAlign = 'center';
+                captchaImg.style.lineHeight = '1.4';
+                captchaImg.style.position = 'relative';
+                captchaImg.style.overflow = 'hidden';
+                captchaImg.style.border = '2px solid #ddd';
+
+                // Add noise effect overlay
+                this.addNoiseEffect(captchaImg);
+            }
+
+            addNoiseEffect(element) {
+                // Remove any existing noise style
+                const existingStyle = document.getElementById('captcha-noise-style');
+                if (existingStyle) {
+                    existingStyle.remove();
+                }
+
+                // Create a canvas for noise effect
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Set canvas size
+                canvas.width = element.offsetWidth || 200;
+                canvas.height = element.offsetHeight || 60;
+
+                // Draw noise
+                const imageData = ctx.createImageData(canvas.width, canvas.height);
+                const data = imageData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    // Add random noise
+                    const noise = Math.random() * 50;
+                    data[i] = noise; // R
+                    data[i + 1] = noise; // G
+                    data[i + 2] = noise; // B
+                    data[i + 3] = 20; // A (very low opacity)
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+
+                // Convert canvas to data URL and set as overlay
+                const noiseDataUrl = canvas.toDataURL();
+
+                // Create a style element for noise overlay
+                const style = document.createElement('style');
+                style.id = 'captcha-noise-style';
+                style.textContent = `
+            #captcha-img {
+                position: relative;
+                overflow: hidden;
+            }
+            #captcha-img::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('${noiseDataUrl}');
+                opacity: 0.2;
+                pointer-events: none;
+                mix-blend-mode: multiply;
+                z-index: 1;
+            }
+            #captcha-img span {
+                position: relative;
+                z-index: 2;
+            }
+        `;
+                document.head.appendChild(style);
+            }
+
+            setFormSubmitTime() {
+                this.formSubmitTime = Date.now();
+                sessionStorage.setItem('formLoadTime', this.formSubmitTime.toString());
+            }
+
+            validateCaptcha(inputCaptcha) {
+                const storedCaptcha = sessionStorage.getItem('captchaCode');
+                // Case-sensitive comparison (exact match)
+                return inputCaptcha === storedCaptcha;
+            }
+
+            validateSubmitTime() {
+                const loadTime = parseInt(sessionStorage.getItem('formLoadTime'));
+                const currentTime = Date.now();
+                const timeDiff = currentTime - loadTime;
+
+                // Check if form was submitted too quickly (possible bot)
+                return timeDiff >= this.minTimeToSubmit;
+            }
+
+            refreshCaptcha() {
+                // Show loader
+                const loader = document.getElementById('captcha-loader');
+                const captchaImg = document.getElementById('captcha-img');
+
+                if (loader) loader.classList.remove('d-none');
+                if (captchaImg) {
+                    captchaImg.style.opacity = '0.5';
+                }
+
+                // Hide any existing messages
+                this.hideMessage();
+
+                // Simulate network delay for realistic refresh
+                setTimeout(() => {
+                    this.generateCaptcha();
+
+                    // Hide loader
+                    if (loader) loader.classList.add('d-none');
+                    if (captchaImg) {
+                        captchaImg.style.opacity = '1';
+
+                        // Add animation effect
+                        captchaImg.style.transform = 'scale(1.05)';
+                        setTimeout(() => {
+                            captchaImg.style.transform = 'scale(1)';
+                        }, 200);
+                    }
+                }, 500);
+            }
+
+            addEventListeners() {
+                // Refresh CAPTCHA button
+                const refreshBtn = document.getElementById('reload-captcha');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.refreshCaptcha();
+                    });
+                }
+
+                // Form submit validation
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault(); // Prevent actual submit for validation
+
+                        const captchaInput = document.querySelector('input[name="captcha"]');
+
+                        // Check if CAPTCHA is empty
+                        if (!captchaInput.value) {
+                            this.showMessage('Please enter the CAPTCHA code.', 'warning');
+                            captchaInput.focus();
+                            return;
+                        }
+
+                        // Validate submit time first
+                        if (!this.validateSubmitTime()) {
+                            this.showMessage('Form submitted too quickly. Please take your time.', 'warning');
+                            this.refreshCaptcha();
+                            captchaInput.value = '';
+                            return;
+                        }
+
+                        // Validate CAPTCHA (case-sensitive)
+                        if (!this.validateCaptcha(captchaInput.value)) {
+                            // Show invalid message WITHOUT refreshing
+                            this.showMessage('Invalid CAPTCHA. Please try again. (Case-sensitive)', 'error');
+                            captchaInput.value = '';
+                            captchaInput.focus();
+                            return;
+                        }
+
+                        // If all validations pass, show success message and submit the form
+                        this.showMessage('CAPTCHA validated successfully! Submitting form...', 'success');
+
+                        // Small delay to show success message before submitting
+                        setTimeout(() => {
+                            form.submit();
+                        }, 500);
+                    });
+                }
+
+                // Add input animation and real-time validation hint
+                const captchaInput = document.querySelector('input[name="captcha"]');
+                if (captchaInput) {
+                    captchaInput.addEventListener('input', (e) => {
+                        const captchaImg = document.getElementById('captcha-img');
+                        const inputValue = e.target.value;
+
+                        // Pulse animation when input length reaches 5
+                        if (inputValue.length === 5) {
+                            captchaImg.style.animation = 'pulse 0.5s';
+                            setTimeout(() => {
+                                captchaImg.style.animation = '';
+                            }, 500);
+                        }
+                    });
+
+                    // Add focus event to clear messages
+                    captchaInput.addEventListener('focus', () => {
+                        this.hideMessage();
+                    });
+
+                    // Add blur event for validation hint
+                    captchaInput.addEventListener('blur', (e) => {
+                        if (e.target.value.length > 0 && e.target.value.length < 5) {
+                            this.showMessage('CAPTCHA must be 5 characters.', 'warning');
+                        }
+                    });
+                }
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .captcha-image {
+        position: relative;
+        overflow: hidden;
+        min-width: 150px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background-blend-mode: overlay;
+        border: 2px solid #ddd;
+    }
+    
+    .captcha-image::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shine 3s infinite;
+        pointer-events: none;
+        z-index: 3;
+    }
+    
+    @keyframes shine {
+        to {
+            left: 200%;
+        }
+    }
+    
+    .captcha-loader {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .captcha-refresh-btn {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+    }
+
+    
+    .captcha-message {
+        transition: opacity 0.3s ease;
+    }
+`;
+
+        document.head.appendChild(style);
+
+        // Initialize CAPTCHA manager when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new CaptchaManager();
         });
     </script>
 @endpush

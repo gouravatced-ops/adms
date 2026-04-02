@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\AdminDetails;
 use App\Models\AdminOtpLogs;
-use App\Models\Payment;
-use App\Models\StudentApplication;
-use App\Models\UploadedDocument;
+use App\Models\Scheme;
+use App\Models\Division;
+use App\Models\SubDivision;
+use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,46 +19,31 @@ class AdminController extends Controller
 {
     public function councilDashboard()
     {
-        $incompleteCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'incomplete')
-            ->where('auth', 'council_office')
-            ->count();
-        $acceptCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'accept')
-            ->where('auth', 'council_office')
-            ->count();
-        $rejectCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'reject')
-            ->where('auth', 'council_office')
-            ->count();
-        $approveCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'approved')
-            ->where('auth', 'council_office')
-            ->count();
+        $divisionCount     = Division::where('status', 1)->count();
+        $subdivisionCount  = SubDivision::where('status', 1)->count();
+        $schemeCount       = Scheme::where('is_active', 1)->count();
+        $allotteeCount     = Allottee::where('is_step_completed', 1)->count();
 
-        return view('admin.modules.dashboard.co-dashboard', compact('incompleteCount', 'acceptCount', 'rejectCount', 'approveCount'));
+        $recentAllotteeList = Allottee::with('division')->where('is_step_completed', 1)
+            ->latest() // cleaner than orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // return $recentAllotteeList;
+
+        return view('admin.modules.dashboard.co-dashboard', compact(
+            'divisionCount',
+            'subdivisionCount',
+            'schemeCount',
+            'allotteeCount',
+            'recentAllotteeList'
+        ));
     }
 
     public function registarDashboard()
     {
-        $incompleteCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'incomplete')
-            ->where('auth', 'council_office')
-            ->count();
-        $acceptCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'accept')
-            ->where('auth', 'council_office')
-            ->count();
-        $rejectCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'reject')
-            ->where('auth', 'council_office')
-            ->count();
-        $approveCount = StudentApplication::where('status', 'submitted')
-            ->where('auth_status', 'approved')
-            ->where('auth', 'council_office')
-            ->count();
 
-        return view('admin.modules.dashboard.rgtr-dashboard', compact('incompleteCount', 'acceptCount', 'rejectCount', 'approveCount'));
+        return view('admin.modules.dashboard.rgtr-dashboard');
     }
 
     public function getMyProfile(Request $request)
@@ -76,37 +62,50 @@ class AdminController extends Controller
 
     public function updateAdminDetails(Request $request)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:100',
             'gender' => 'required|in:Male,Female,Other',
             'email' => 'required|email',
-            'whatsapp' => 'required|digits:10',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204', // max 200kB
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204', // 200KB
+            'newPassword' => 'nullable|confirmed|min:6',
         ]);
-        $FileName = null; // Initialize as null to handle cases where no file is uploaded.
 
+        $admin = auth('admin')->user();
+        $profilePic = $admin->profile_path ?? null;
+
+        // File upload (only if exists)
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-            $folderPath = 'admin_pic/';
+            $folderPath = public_path('admin_pic');
 
-            if ($file->move(public_path($folderPath), $fileName)) {
-                $FileName = $folderPath . $fileName;
+            // create folder if not exists
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0777, true);
             }
+
+            $file->move($folderPath, $fileName);
+            $profilePic = 'admin_pic/' . $fileName;
         }
 
-        // dd($FileName);
-        $student = AdminDetails::updateOrCreate(
-            ['id' => auth('admin')->user()->admin_details_id],
+        // Update or Create
+        $adminDetails = Admin::updateOrCreate(
+            ['id' => $admin->id],
             [
-                'name' => $request->name,
-                'gender' => $request->gender,
-                'email' => $request->email,
-                'whatsapp' => $request->whatsapp,
-                'profile_pic' => $FileName ?? auth('admin')->user()->adminDetails->profile_pic, // Preserve the current profile picture if no new one is uploaded
+                'admin_name' => $validated['name'],
+                'gender' => $validated['gender'],
+                'email_id' => $validated['email'],
+                'profile_path' => $profilePic,
             ]
         );
+
+        // Password update (only if provided)
+        if (!empty($validated['newPassword'])) {
+            $admin->update([
+                'password' => Hash::make($validated['newPassword'])
+            ]);
+        }
 
         return back()->with('success', 'Profile updated successfully!');
     }
@@ -229,7 +228,6 @@ class AdminController extends Controller
                 ]);
             }
         }
-
     }
 
     private function sendSMS($mobileNo, $message)

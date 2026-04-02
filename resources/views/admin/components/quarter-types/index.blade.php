@@ -30,7 +30,9 @@
                                 <th>Income Range</th>
                                 <th>Status</th>
                                 <th>Created On</th>
-                                <th class="text-center">Actions</th>
+                                @if (auth('admin')->user()->role == 'superadmin')
+                                    <th class="text-center">Actions</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -73,37 +75,39 @@
                                     <td>
                                         {{ $quarter->created_at->format('d M Y') }}
                                     </td>
+                                    @if (auth('admin')->user()->role == 'superadmin')
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ route('admin.quarter-types.edit', $quarter->quarter_id) }}"
+                                                    class="btn btn-outline-primary" title="Edit">
+                                                    <i class="bx bx-edit"></i>
+                                                </a>
 
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('admin.quarter-types.edit', $quarter->quarter_id) }}"
-                                                class="btn btn-outline-primary" title="Edit">
-                                                <i class="bx bx-edit"></i>
-                                            </a>
-
-                                            @if ($quarter->status == 1)
-                                                <form
-                                                    action="{{ route('admin.quarter-types.destroy', $quarter->quarter_id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-danger"
-                                                        onclick="return confirm('Delete {{ $quarter->quarter_code }}?')"
-                                                        title="Delete">
-                                                        <i class="bx bx-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @else
-                                                <form
-                                                    action="{{ route('admin.quarter-types.destroy', $quarter->quarter_id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-success" title="Activate">
-                                                        <i class="bx bx-check-circle"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
+                                                @if ($quarter->status == 1)
+                                                    <form
+                                                        action="{{ route('admin.quarter-types.destroy', $quarter->quarter_id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-danger"
+                                                            onclick="return confirm('Delete {{ $quarter->quarter_code }}?')"
+                                                            title="Delete">
+                                                            <i class="bx bx-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form
+                                                        action="{{ route('admin.quarter-types.destroy', $quarter->quarter_id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-success"
+                                                            title="Activate">
+                                                            <i class="bx bx-check-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>

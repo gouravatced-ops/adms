@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Applicant;
 
 use App\Http\Controllers\Controller;
 use App\Models\OtpLog;
-use App\Models\StudentRegistration;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +25,6 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required',
             'password' => 'required|string|min:8',
-            'captcha'  => 'required|captcha',
         ]);
 
         if (Auth::guard('admin')->check()) {
@@ -34,7 +33,7 @@ class AuthController extends Controller
 
         $loginInput = $request->input('username');
 
-        $student = StudentRegistration::where(function ($query) use ($loginInput) {
+        $student = User::where(function ($query) use ($loginInput) {
             $query->where('mobile_no', $loginInput)
                 ->orWhere('email_id', $loginInput);
         })->latest()->first();
@@ -79,7 +78,7 @@ class AuthController extends Controller
     public function forgotPassApplicantOtp(Request $request)
     {
         $forgetInput = $request->input('username');
-        $stu = StudentRegistration::where(function ($query) use ($forgetInput) {
+        $stu = User::where(function ($query) use ($forgetInput) {
             $query->where('mobile_no', $forgetInput)
                 ->orWhere('email_id', $forgetInput);
         })->latest()->first();
@@ -133,7 +132,7 @@ class AuthController extends Controller
             if ($providedOtpHmac === $otpLog->otp_hmac) {
                 session()->forget('mobile_number');
 
-                $applicant = StudentRegistration::where(function ($query) use ($mobileNumber) {
+                $applicant = User::where(function ($query) use ($mobileNumber) {
                     $query->where('mobile_no', $mobileNumber)
                         ->orWhere('email_id', $mobileNumber);
                 })->latest()->first();
@@ -193,7 +192,7 @@ class AuthController extends Controller
     public function resendOtp()
     {
         $mobileNumber = session('mobile_number');
-        $applicant = StudentRegistration::where(function ($query) use ($mobileNumber) {
+        $applicant = User::where(function ($query) use ($mobileNumber) {
             $query->where('mobile_no', $mobileNumber)
                 ->orWhere('email_id', $mobileNumber);
         })->latest()->first();
@@ -240,7 +239,7 @@ class AuthController extends Controller
 
         $loginInput = $mobileNumber; // email or mobile
 
-        $student = StudentRegistration::where(function ($q) use ($loginInput) {
+        $student = User::where(function ($q) use ($loginInput) {
             $q->where('mobile_no', $loginInput)
                 ->orWhere('email_id', $loginInput);
         })

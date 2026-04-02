@@ -10,14 +10,16 @@
 
             <!-- Menu Items -->
             <nav class="space-y-1">
-                <a href="{{ route('dashboard') }}" class="sidebar-item active flex items-center">
+                <a href="{{ route('dashboard') }}"
+                    class="sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }} flex items-center">
                     <i class="fas fa-home"></i>
                     <span class="ml-3">Dashboard</span>
                 </a>
                 @if (Auth::user()->role === 'scanner')
                     <!-- File Section -->
                     <div>
-                        <a href="#" class="sidebar-item flex items-center justify-between"
+                        <a href="#"
+                            class="sidebar-item flex {{ request()->routeIs('admin.filereceving.*') ? 'active' : '' }} items-center justify-between"
                             onclick="toggleSubmenu(event)">
                             <div class="flex items-center">
                                 <i class="fas fa-file-alt"></i>
@@ -26,12 +28,23 @@
                             <i class="fas fa-chevron-down text-xs submenu-icon" style="transition: transform 0.3s;"></i>
                         </a>
                         <div class="submenu">
-                            <a href="{{ route('admin.filereceving.create') }}" class="sidebar-item submenu-item flex items-center">
+                            <a href="{{ route('admin.filereceving.create') }}"
+                                class="sidebar-item {{ request()->routeIs('admin.filereceving.create') ? 'active' : '' }} submenu-item flex items-center">
                                 <i class="fas fa-plus-circle"></i>
                                 <span class="ml-3"> Add File Receiving </span>
                             </a>
-                            <a href="{{ route('admin.filereceving.index') }}" class="sidebar-item submenu-item flex items-center">
-                                <i class="fas fa-clock"></i>
+                            <a href="{{ route('admin.filereceving.index') }}"
+                                class="sidebar-item {{ request()->routeIs('admin.filereceving.index') ? 'active' : '' }} submenu-item flex items-center">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <path d="M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01"
+                                            stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
                                 <span class="ml-3">Receiving List</span>
                             </a>
                         </div>
@@ -39,7 +52,8 @@
 
                     <!-- Scanning Management -->
                     <div>
-                        <a href="#" class="sidebar-item flex items-center justify-between"
+                        <a href="#"
+                            class="sidebar-item flex {{ request()->routeIs('applicant.scanning.*') ? 'active' : '' }} items-center justify-between"
                             onclick="toggleSubmenu(event)">
                             <div class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -59,55 +73,199 @@
                             <i class="fas fa-chevron-down text-xs submenu-icon" style="transition: transform 0.3s;"></i>
                         </a>
                         <div class="submenu">
-                            <a href="#" class="sidebar-item submenu-item flex items-center"
-                                onclick="setActiveMenu(event, 'received-books')">
+                            <a href="{{ route('applicant.scanning.index') }}"
+                                class="sidebar-item {{ request()->routeIs('applicant.scanning.index') ? 'active' : '' }} submenu-item flex items-center">
                                 <i class="fas fa-inbox"></i>
                                 <span class="ml-3">Add Scanning</span>
                             </a>
-                            <a href="#" class="sidebar-item submenu-item flex items-center"
-                                onclick="setActiveMenu(event, 'scanning-books')">
-                                <i class="fa-solid fa-scanner-gun"></i>
+                            <a href="{{ route('applicant.scanning.completed') }}"
+                                class="sidebar-item {{ request()->routeIs('applicant.scanning.completed') ? 'active' : '' }} submenu-item flex items-center">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <path d="M8 8H20M11 12H20M14 16H20M4 8H4.01M7 12H7.01M10 16H10.01"
+                                            stroke="#ffffff" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
                                 <span class="ml-3">Scanning List</span>
                             </a>
                         </div>
                     </div>
 
                     <!-- File Handover -->
-                    <a href="#" class="sidebar-item flex items-center"
-                        onclick="setActiveMenu(event, 'documents')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M11 12h2a2 2 0 1 0 0 -4h-2v8" />
-                            <path d="M14 10l-3 -3" />
-                            <path d="M14 14l-3 3" />
-                            <path d="M19 16v-2a2 2 0 0 0 -2 -2h-2" />
-                            <path d="M5 8v2a2 2 0 0 0 2 2h2" />
-                        </svg>
-                        <span class="ml-3">File Handover</span>
-                    </a>
+                    {{-- <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'documents')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M11 12h2a2 2 0 1 0 0 -4h-2v8" />
+                        <path d="M14 10l-3 -3" />
+                        <path d="M14 14l-3 3" />
+                        <path d="M19 16v-2a2 2 0 0 0 -2 -2h-2" />
+                        <path d="M5 8v2a2 2 0 0 0 2 2h2" />
+                    </svg>
+                    <span class="ml-3">File Handover</span>
+                </a> --}}
 
                     <!-- Proof Section -->
-                    <a href="#" class="sidebar-item flex items-center"
-                        onclick="setActiveMenu(event, 'documents')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                            <path d="M10 11l-2 2l2 2" />
-                            <path d="M14 11l2 2l-2 2" />
-                        </svg>
-                        <span class="ml-3">Client Signature</span>
-                    </a>
+                    {{-- <a href="#" class="sidebar-item flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                        <path d="M10 11l-2 2l2 2" />
+                        <path d="M14 11l2 2l-2 2" />
+                    </svg>
+                    <span class="ml-3">Scanned Lots List</span>
+                </a> --}}
 
-                    <!-- Reports Section -->
-                    <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'profile')">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="ml-3">Reports</span>
-                    </a>
+                    <div>
+                        <a href="#"
+                            class="sidebar-item flex {{ request()->routeIs('applicant.dataentry.*') ? 'active' : '' }} items-center justify-between"
+                            onclick="toggleSubmenu(event)">
+
+                            <div class="flex items-center">
+                                <!-- Main Data Entry SVG -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                                    <path d="M7 8h10" />
+                                    <path d="M7 12h6" />
+                                    <path d="M7 16h4" />
+                                </svg>
+                                <span class="ml-3">Data Entry</span>
+                            </div>
+
+                            <i class="fas fa-chevron-down text-xs submenu-icon"
+                                style="transition: transform 0.3s;"></i>
+                        </a>
+
+                        <div class="submenu">
+
+                            <!-- Scanned Lots List -->
+                            <a href="{{ route('applicant.dataentry.scanned.files') }}"
+                                class="sidebar-item submenu-item flex items-center">
+
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+
+                                <span class="ml-3">Scanned Lots List</span>
+                            </a>
+
+                            <!-- Completed Lots List -->
+                            <a href="{{ route('applicant.dataentry.completed.lot') }}"
+                                class="sidebar-item submenu-item flex items-center">
+
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+
+                                <span class="ml-3">Completed Lots List</span>
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <!-- Scanning Management -->
+                    <div>
+                        <a href="#"
+                            class="sidebar-item flex {{ request()->routeIs('nametransfer.*') ? 'active' : '' }} items-center justify-between"
+                            onclick="toggleSubmenu(event)">
+                            <div class="flex items-center">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span class="ml-3">Name Transfer</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs submenu-icon"
+                                style="transition: transform 0.3s;"></i>
+                        </a>
+                        <div class="submenu">
+                            <a href="{{ route('nametransfer.dataentry.files') }}"
+                                class="sidebar-item {{ request()->routeIs('nametransfer.dataentry.files') ? 'active' : '' }} submenu-item flex items-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"
+                                        stroke="currentColor" stroke-width="2" />
+                                    <path d="M14 3v5h5" stroke="currentColor" stroke-width="2" />
+                                    <path d="M10 15h6M13 12l3 3-3 3" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="ml-3">Transfer File</span>
+                            </a>
+                            <a href="{{ route('nametransfer.dataentry.completed') }}"
+                                class="sidebar-item {{ request()->routeIs('nametransfer.dataentry.completed') ? 'active' : '' }} submenu-item flex items-center">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" />
+                                    <rect x="3" y="4" width="18" height="16" rx="2"
+                                        stroke="currentColor" stroke-width="2" />
+                                </svg>
+                                <span class="ml-3">Complete File</span>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="#"
+                                class="sidebar-item flex {{ request()->routeIs('lease.*') ? 'active' : '' }} items-center justify-between"
+                                onclick="toggleSubmenu(event)">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+
+                                        <!-- Document -->
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+
+                                        <!-- Check mark (approved / ownership) -->
+                                        <polyline points="9 15 11 17 15 13"></polyline>
+
+                                    </svg>
+                                    <span class="ml-3">Lease Free Hold</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs submenu-icon"
+                                    style="transition: transform 0.3s;"></i>
+                            </a>
+                            <div class="submenu">
+                                <a href="{{ route('lease.allottee.index') }}"
+                                    class="sidebar-item {{ request()->routeIs('lease.allottee.index') ? 'active' : '' }} submenu-item flex items-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"
+                                            stroke="currentColor" stroke-width="2" />
+                                        <path d="M14 3v5h5" stroke="currentColor" stroke-width="2" />
+                                        <path d="M10 15h6M13 12l3 3-3 3" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span class="ml-3">Free Hold File</span>
+                                </a>
+                                <a href="{{ route('lease.allottee.completeIndex') }}"
+                                    class="sidebar-item {{ request()->routeIs('lease.allottee.completeIndex') ? 'active' : '' }} submenu-item flex items-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                        <rect x="3" y="4" width="18" height="16" rx="2"
+                                            stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                    <span class="ml-3">Complete File</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Reports Section -->
+                        {{-- <a href="#" class="sidebar-item flex items-center" onclick="setActiveMenu(event, 'profile')">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="ml-3">Reports</span>
+                </a> --}}
                 @endif
                 @if (Auth::user()->role === 'dataentry')
                     <!-- Assigned Scans -->
@@ -204,7 +362,7 @@
         <span class="text-xs text-gray-300">Technology Partner</span>
         <a href="https://www.computered.in/" target="_blank"
             class="flex items-center space-x-2 hover:opacity-80 transition">
-            <img src="https://computered.co.in/cgst/domains/assets/images/logos/insta-logo.jpg" alt="Partner Logo"
+            <img src="{{ asset(config('config-system.patrnterFooterLogo')) }}" alt="Partner Logo"
                 class="h-8 w-auto object-contain">
             <span class="text-xs text-white font-medium">COMPUTER Ed.</span>
         </a>

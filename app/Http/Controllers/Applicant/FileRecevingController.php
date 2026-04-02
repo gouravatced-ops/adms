@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Applicant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Models\ExportedFile;
 use App\Models\Register;
 use App\Models\RegisterAllottee;
@@ -33,26 +34,35 @@ class FileRecevingController extends Controller
         try {
             $search = $request->query('search', '');
 
-            $query = RegistrationFile::query()
+            $query = RegistrationFile::with('creator')
+                ->where('created_by', auth()->id())
+                ->whereHas('allottees', function ($q) {
+                    $q->where('allottee_status', '=', 'received');
+                })
                 ->orderBy('created_at', 'desc');
 
-            // Apply search filter
-            if (! empty($search)) {
+            if (!empty($search)) {
                 $query->where('register_no', 'like', '%' . $search . '%');
             }
 
-            $registrations = $query->paginate(10)->through(function ($item) use ($search) {
+            $registrations = $query->paginate(25)->through(function ($item) use ($search) {
+
                 $item->encoded_register_no = base64_encode($item->register_no);
 
-                // Highlight search term in response (optional)
+                // Add creator name safely
+                $item->created_by_name = $item->creator->name ?? 'N/A';
+
                 if ($search && strpos(strtolower($item->register_no), strtolower($search)) !== false) {
+                    $item->highlighted = true;
+                }
+
+                if ($search && strpos(strtolower($item->lot_no), strtolower($search)) !== false) {
                     $item->highlighted = true;
                 }
 
                 return $item;
             });
 
-            // If AJAX request, return JSON
             if ($request->ajax()) {
                 return response()->json([
                     'registrations' => $registrations,
@@ -66,6 +76,7 @@ class FileRecevingController extends Controller
                 compact('registrations', 'search')
             );
         } catch (\Throwable $e) {
+
             Log::error('Registration index failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -110,7 +121,10 @@ class FileRecevingController extends Controller
                 ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
                 ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
                 ->where('ra.register_id', $registerNo)
+                ->where('ra.allottee_status', 'received')
+                ->where('ra.is_active', 1)
                 ->orderByDesc('ra.created_at')
+                ->where('created_by', auth()->id())
                 ->select([
                     'ra.*',
                     'd.name  as dname',
@@ -123,7 +137,9 @@ class FileRecevingController extends Controller
 
             // Apply search filters
             if (! empty($searchAllottee)) {
-                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%');
+                $query->where('ra.allottee_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_middle_name', 'like', '%' . $searchAllottee . '%')
+                    ->orWhere('ra.allottee_surname', 'like', '%' . $searchAllottee . '%');
             }
 
             if (! empty($searchPropertyNo)) {
@@ -144,7 +160,7 @@ class FileRecevingController extends Controller
             }
 
             // Paginate results
-            $registerAllottee = $query->paginate(10);
+            $registerAllottee = $query->paginate(25);
 
             // Prepare data for response
             $encodedRegisterNo = base64_encode($registerNo);
@@ -201,7 +217,30 @@ class FileRecevingController extends Controller
         ]);
 
         $data = [
-            'divisions' => getDivisions(),
+            'register' => $register,
+            'divisions' => getDivisions()
+        ];
+
+        return view('applicant.components.filereceiving.register', $data);
+    }
+
+    public function generateRgistrationFileLimit(Request $request)
+    {
+        $request->validate([
+            'allowed_files' => 'required|integer|min:1|max:35',
+            'register_id' => 'required',
+            'division_id' => 'required',
+        ]);
+
+        $register = Register::where('register_no', $request->register_id)->first();
+        $register->allowed_files = $request->allowed_files;
+        $register->division_id = $request->division_id;
+        $register->save();
+
+        $divisions = Division::where('id', $request->division_id)->get();
+
+        $data = [
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -217,9 +256,10 @@ class FileRecevingController extends Controller
         $registerNo = base64_decode($registerId);
         // Get data for dropdowns
         $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $divisions = Division::where('id', $register->division_id)->get();
 
         $data = [
-            'divisions' => getDivisions(),
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -246,7 +286,7 @@ class FileRecevingController extends Controller
                 $finalRegistration->register_no = $tempRegister->register_no;
                 $finalRegistration->total_files = $tempRegister->total_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
-                $finalRegistration->status = 'submitted';
+                $finalRegistration->status = 'received';
                 $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();
@@ -272,15 +312,15 @@ class FileRecevingController extends Controller
     public function storeIndividual(Request $request)
     {
         try {
-            $exists = RegisterAllottee::where('property_number', $request->property_number)
-                ->exists();
+            // $exists = RegisterAllottee::where('division_id', $request->division_id)->where('sub_division_id', $request->sub_division_id)->where('property_number', $request->property_number)
+            //     ->exists();
 
-            if ($exists) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This property number is already added in this registration.',
-                ]);
-            }
+            // if ($exists) {
+            //     return response()->json([
+            //         'success' => false,
+            //         'message' => 'This property number is already added in this registration.',
+            //     ]);
+            // }
 
             $exists = RegistrationFile::where('register_no', $request->register_id)->exists();
             if (! $exists) {
@@ -294,20 +334,23 @@ class FileRecevingController extends Controller
                 }
 
                 $finalRegistration = new RegistrationFile;
+                $finalRegistration->lot_no = 'Lot-' . RegistrationFile::max('id') + 1;
                 $finalRegistration->register_no = $tempRegister->register_no;
                 $finalRegistration->total_files = $tempRegister->total_files + 1;
+                $finalRegistration->allowed_files = $tempRegister->allowed_files;
                 $finalRegistration->remarks = $tempRegister->remarks;
-                $finalRegistration->status = 'submitted';
+                $finalRegistration->division_id = $tempRegister->division_id;
+                $finalRegistration->status = 'received';
                 $finalRegistration->created_by = auth()->id();
                 $finalRegistration->created_at = NOW();
                 $finalRegistration->save();
             } else {
                 // Prevent creating if already 2
                 $finalRegistration = RegistrationFile::where('register_no', $request->register_id)->first();
-                if ($finalRegistration->total_files >= 15) {
+                if ($finalRegistration->total_files >= 35) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Maximum file limit (15) reached for this register.',
+                        'message' => 'Maximum file limit (35) reached for this register.',
                     ], 400);
                 }
                 $finalRegistration->total_files = $finalRegistration->total_files + 1;
@@ -316,6 +359,11 @@ class FileRecevingController extends Controller
             }
 
             $data = $request->all();
+            if ($data['confirm_same_allottee_name'] == 'Yes') {
+                $data['parent_id'] = $data['allottee_exists_id'] ?? null;
+            } else {
+                $data['parent_id'] = null;
+            }
             $data['created_by'] = auth()->id();
             $data['ip_address'] = $request->ip();
             $allottee = RegisterAllottee::create($data);
@@ -375,7 +423,11 @@ class FileRecevingController extends Controller
             }
         }
         if ($allottee) {
-            $allottee->delete();
+            $allottee->is_active = 0;
+            $allottee->save();
+
+            RegistrationFile::where('register_no', $allottee->register_id)
+                ->decrement('total_files');
 
             return response()->json(['success' => true]);
         }
@@ -413,9 +465,10 @@ class FileRecevingController extends Controller
         $encodedId = base64_decode($allotteeId);
         $allottee = RegisterAllottee::find($encodedId);        // Get data for dropdowns
         $register = RegistrationFile::where('register_no', $allottee->register_id)->first();
+        $divisions = Division::where('id', $register->division_id)->get();
 
         $data = [
-            'divisions' => getDivisions(),
+            'divisions' => $divisions,
             'quarterTypes' => getQuarterType(),
             'getPropertyCategory' => getPropertyCategory(),
             'getQuarterType' => getQuarterType(),
@@ -435,7 +488,10 @@ class FileRecevingController extends Controller
             'pcategory_id' => 'required',
             'p_type_id' => 'required',
             'property_number' => 'required|string',
+            'prefix' => 'required|string',
             'allottee_name' => 'required|string',
+            'allottee_middle_name' => 'nullable|string',
+            'allottee_surname' => 'nullable|string',
             'no_of_files' => 'required',
             'no_of_supplement' => 'nullable|min:0|max:10',
             'remarks' => 'nullable|string',
@@ -468,22 +524,25 @@ class FileRecevingController extends Controller
             'p_type_id' => 'required',
             'quarter_type' => 'nullable',
             'property_number' => 'required|string',
+            'prefix' => 'required|string',
             'allottee_name' => 'required|string',
+            'allottee_middle_name' => 'nullable|string',
+            'allottee_surname' => 'nullable|string',
             'no_of_files' => 'required',
             'no_of_supplement' => 'nullable|min:0|max:10',
             'remarks' => 'nullable|string',
         ]);
 
-        $duplicate = RegisterAllottee::where('property_number', $validated['property_number'])
-            ->where('id', '!=', $validated['allottee_id'])
-            ->exists();
+        // $duplicate = RegisterAllottee::where('division_id', $validated['division_id'])->where('sub_division_id', $validated['sub_division_id'])->where('property_number', $validated['property_number'])
+        //     ->where('id', '!=', $validated['allottee_id'])
+        //     ->exists();
 
-        if ($duplicate) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This property number is already added in this registration.',
-            ], 422);
-        }
+        // if ($duplicate) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'This property number is already added in this registration.',
+        //     ], 422);
+        // }
 
         $allottee = RegisterAllottee::find($validated['allottee_id']);
 
@@ -494,7 +553,10 @@ class FileRecevingController extends Controller
             'p_type_id' => $validated['p_type_id'],
             'property_number' => $validated['property_number'],
             'quarter_type' => $validated['quarter_type'] ?? null,
+            'prefix' => $validated['prefix'],
             'allottee_name' => $validated['allottee_name'],
+            'allottee_middle_name' => $validated['allottee_middle_name'],
+            'allottee_surname' => $validated['allottee_surname'],
             'remarks' => $validated['remarks'] ?? null,
             'no_of_files' => $validated['no_of_files'],
             'no_of_supplement' => $validated['no_of_supplement'] ?? '0',
@@ -505,6 +567,63 @@ class FileRecevingController extends Controller
         return response()->json([
             'success' => true,
             'allottee_id' => $allottee->id,
+        ]);
+    }
+
+    public function checkPropertyNumber(Request $request)
+    {
+        // return $request->all();
+        $validated = $request->validate([
+            'division_id'       => ['required', 'integer'],
+            'sub_division_id'   => ['required', 'integer'],
+            'pcategory_id'      => ['nullable', 'integer'],
+            'p_type_id'         => ['nullable', 'integer'],
+            'property_number'   => ['required', 'string'],
+            'allottee_id'       => ['nullable', 'integer'],
+        ]);
+
+        $allottee = RegisterAllottee::query()
+            ->where('division_id', $validated['division_id'])
+            ->where('sub_division_id', $validated['sub_division_id'])
+            ->where('property_number', $validated['property_number'])
+            ->when(!empty($validated['pcategory_id']), function ($q) use ($validated) {
+                $q->where('pcategory_id', $validated['pcategory_id']);
+            })
+            ->when(!empty($validated['p_type_id']), function ($q) use ($validated) {
+                $q->where('p_type_id', $validated['p_type_id']);
+            })
+            ->when(!empty($validated['allottee_id']), function ($q) use ($validated) {
+                $q->where('id', '!=', $validated['allottee_id']);
+            })
+            ->select([
+                'id',
+                'prefix',
+                'allottee_name',
+                'allottee_middle_name',
+                'allottee_surname',
+                'no_of_files',
+                'no_of_supplement',
+            ])
+            ->first();
+
+        if (!$allottee) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Property not found',
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'id_exits' => $allottee->id,
+                'prefix' => $allottee->prefix,
+                'allottee_name' => $allottee->allottee_name,
+                'allottee_middle_name' => $allottee->allottee_middle_name,
+                'allottee_surname' => $allottee->allottee_surname,
+                'no_of_files' => $allottee->no_of_files,
+                'no_of_supplement' => $allottee->no_of_supplement,
+            ]
         ]);
     }
 
@@ -520,6 +639,9 @@ class FileRecevingController extends Controller
             return redirect()->back()->with('error', 'Invalid register ID');
         }
 
+        $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $registerDivision = Division::where('id' , $register->division_id)->value('name');
+        $lotNumber = strtoupper($register->lot_no);
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
@@ -548,6 +670,8 @@ class FileRecevingController extends Controller
             'date' => date('d/m/Y'),
             'allottees' => $allottees,
             'registerNo' => $registerNo,
+            'lotDivision' => $registerDivision,
+            'lotNumber' => $lotNumber,
             'logo1' => public_path('assets/indian-bank.png'),
             'logo2' => public_path('assets/insta-logo.jpg'),
             'logo3' => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
@@ -562,7 +686,9 @@ class FileRecevingController extends Controller
             ->setPaper('A4', 'portrait')
             ->setOption('defaultFont', 'dejavu sans');
 
-        $filename = 'Files-Receiving-' . $registerNo . '-' . time() . '.pdf';
+        $todayDate = $this->generateRegisterNo();
+        $smallcaseLots = strtolower($lotNumber);
+        $filename = $smallcaseLots.'_'.$todayDate . '-ced-jshb-receiving.pdf';
 
         $directory = public_path("uploads/{$registerNo}/files");
 

@@ -70,7 +70,6 @@
     :root {
         --primary-color: {{ $projectTheme['primary-color'] }};
         --primary-hover: {{ $projectTheme['primary-hover'] }};
-
         --sidebar-bg: {{ $projectTheme['sidebar-bg'] }};
         --sidebar-secondary: {{ $projectTheme['sidebar-secondary'] }};
         --sidebar-hover: {{ $projectTheme['sidebar-hover'] }};
@@ -96,7 +95,7 @@
     <div class="loader-overlay" id="loader">
         <div>
             <div class="loader"></div>
-            <div class="loader-text">Loading Dashboard...</div>
+            <div class="loader-text">Loading ...</div>
         </div>
     </div>
 
@@ -228,6 +227,7 @@
             }
         }
 
+        // routes open means perticular route is active means menu defaultly open
         function toggleSubmenu(e) {
             e.preventDefault();
             const submenu = e.currentTarget.nextElementSibling;
@@ -270,6 +270,16 @@
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(el => el.remove());
         }, 3000);
+    </script>
+    <script>
+        setInterval(() => {
+            fetch('/refresh-csrf')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('meta[name="csrf-token"]')
+                        .setAttribute('content', data.token);
+                });
+        }, 600000);
     </script>
     @stack('scripts')
 </body>

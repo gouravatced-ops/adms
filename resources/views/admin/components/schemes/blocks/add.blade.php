@@ -6,13 +6,12 @@
             <span class="invert-text-white">Dashboard / Scheme Master / Add Scheme Block</span>
         </h6>
         @php
-            $scheme = $schemes->first();
             $blocks = $scheme->blocks ?? collect([]);
             $existingBlockCount = $blocks->count();
         @endphp
         <div class="card mb-4">
             <h5 class="card-header text-white bg-info">Add Scheme Block <span>
-                ({{ $existingBlockCount + 1 }})</span></h5> 
+                    ({{ $existingBlockCount + 1 }})</span></h5>
             <div class="card-body mt-2">
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible" role="alert">
@@ -34,7 +33,7 @@
                         id="addBlockForm">
                         @csrf
 
-                        <input type="hidden" name="scheme_id" value="{{ $scheme->scheme_id }}">
+                        <input type="hidden" name="scheme_id" value="{{ $scheme->id }}">
                         <input type="hidden" name="scheme_property_type" value="{{ $scheme->propertyType->name }}">
 
                         <div class="row g-3">

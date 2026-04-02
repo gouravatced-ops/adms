@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 // Applicant Routes
 require base_path('routes/applicant.php');
@@ -18,3 +19,10 @@ Route::get('/get-property-sub-types/{typeId}', function ($typeId) {
     return response()->json(getPropertySubType($typeId));
 });
 
+Route::get('/districts/{stateId}', function ($stateId) {
+    return response()->json(getDistrict($stateId));
+});
+
+Route::get('/refresh-csrf', function () {
+    return response()->json(['token' => csrf_token()]);
+});

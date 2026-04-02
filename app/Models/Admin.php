@@ -12,21 +12,16 @@ class Admin extends Model implements AuthenticatableContract
     use HasFactory, Authenticatable;
 
     protected $fillable = [
-        'admin_details_id',
         'mobile_no',
         'alt_mobile_no',
         'email_id',
         'password',
+        'gender',
+        'admin_name',
+        'profile_path',
         'prev_password',
         'role',
         'otp_verified_at',
         'password_created_at',
     ];
-
-    public function adminDetails()
-    {
-        return $this->belongsTo(AdminDetails::class, 'admin_details_id');
-    }
 }
-
-

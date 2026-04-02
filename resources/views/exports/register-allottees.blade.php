@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Files Receiving - COMPUTER Ed.</title>
     <style>
         @font-face {
@@ -160,9 +160,10 @@
         .copy-type {
             text-align: center;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 4px;
             text-transform: uppercase;
+            text-decoration: underline;
         }
 
         .receiving-info {
@@ -333,6 +334,8 @@
             <!-- Project Name -->
             <div class="project-name">
                 Project Name - Allottee Data Management System (ADMS)
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Division
+                    :</strong> {{ $lotDivision }}
             </div>
 
             <!-- Copy Information Box -->
@@ -340,12 +343,12 @@
                 <div class="copy-type">{{ $copyType }}</div>
                 <div class="receiving-info">
                     <div class="receiving-date">
-                        <span class="info-label"></span><br>
-                        <span class="info-label">Total Nos. of Physical Files Recieved:</span> {{ count($allottees) }}
+                        <span class="info-label"><strong>{{ $lotNumber }}</strong></span><br>
+                        <span class="info-label">Total Nos. of Physical Files Received:</span> {{ count($allottees) }}
                     </div>
                     <div class="receiving-time">
                         <span class="info-label">Date of Receiving:</span> {{ date('d/m/Y') }}<br>
-                        <span class="info-label">Time of Receiving:</span> {{ date('H:i:s') }}
+                        <span class="info-label">Time of Receiving:</span> {{ date('H:i:s') }}<br>
                     </div>
                 </div>
             </div>
@@ -358,11 +361,11 @@
                         <th style="width: 10%;">Division</th>
                         <th style="width: 12%;">Sub-division</th>
                         <th style="width: 11%;">Property Category</th>
-                        <th style="width: 11%;">Type of <br> Property</th>
+                        <th style="width: 8%;">Type of <br> Property</th>
                         <th style="width: 8%;">Income Category</th>
                         <th style="width: 9%;">Property No.</th>
                         <th style="width: 18%;">Allottee Name</th>
-                        <th style="width: 17%;">Physical File Status</th>
+                        <th style="width: 20%;">Physical File Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -375,7 +378,9 @@
                             <td>{{ $allottee->pname ?? 'N/A' }}</td>
                             <td class="text-center">{{ $allottee->quarter_code ?? 'N/A' }}</td>
                             <td class="text-center">{{ $allottee->property_number ?? 'N/A' }}</td>
-                            <td>{{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}</td>
+                            <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}
+                                {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}
+                            </td>
                             <td>{{ $allottee->remarks ?? 'N/A' }}</td>
                         </tr>
                     @empty
@@ -388,7 +393,7 @@
 
             <!-- Footer Signatures -->
             <div class="footer">
-                <br><br>
+                <br><br><br><br>
                 <table class="signature-table">
                     <tr>
                         <td class="left">
@@ -398,7 +403,7 @@
                             </div>
 
                             <div class="line-row">
-                                Name of the Reciever :
+                                Name of the Receiver :
                                 <span class="line medium"></span>
                             </div>
 
