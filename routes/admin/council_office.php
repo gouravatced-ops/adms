@@ -55,6 +55,7 @@ Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
 
+Route::get('manage/lots/list', [FileManagementController::class, 'LotsList'])->name('admin.manage.lots.index');
 Route::get('/receiving/lots/list', [FileManagementController::class, 'receivingLotsList'])->name('admin.receiving.lots.index');
 Route::get('/receiving/file/list/{encodedId}/{page}', [FileManagementController::class, 'receivingLotsFileList'])->name('admin.receiving.files.index');
 Route::get('/receiving/file/exports/{registerId}', [FileManagementController::class, 'receivingfilesExports'])->name('admin.receiving.files.exports');

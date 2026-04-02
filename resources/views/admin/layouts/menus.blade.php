@@ -230,19 +230,37 @@
         </li>
 
         {{-- File Receiving --}}
-        <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index') ? 'active' : '' }}">
-            <a href="{{ route('admin.receiving.lots.index') }}" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('admin.manage.lots.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.manage.lots.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-file"></i>
-                <div>File Receiving</div>
+                <div>All Lots</div>
             </a>
         </li>
 
-        {{-- File Scanned --}}
-        <li class="menu-item {{ request()->routeIs('admin.scanning.lots.index') ? 'active' : '' }}">
-            <a href="{{ route('admin.scanning.lots.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-file-blank"></i>
-                <div>File Scanned</div>
+        <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index', 'admin.scanning.lots.index') ? 'active open' : '' }}"
+            style="">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-file"></i>
+                <div class="text-truncate" data-i18n="Divisions">Manage File</div>
             </a>
+            <ul class="menu-sub">
+
+                {{-- File Receiving --}}
+                <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.receiving.lots.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-file"></i>
+                        <div>File Receiving</div>
+                    </a>
+                </li>
+
+                {{-- File Scanned --}}
+                <li class="menu-item {{ request()->routeIs('admin.scanning.lots.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.scanning.lots.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-file-blank"></i>
+                        <div>File Scanned</div>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         {{-- Lots (Submenu) --}}

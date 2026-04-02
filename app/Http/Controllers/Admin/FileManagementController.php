@@ -35,6 +35,58 @@ class FileManagementController extends Controller
         return $date . $rand;
     }
 
+    public function LotsList(Request $request)
+    {
+        try {
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name', 'allottees:id,register_id,allottee_status'])
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+
+                    $statuses = $item->allottees
+                        ->pluck('allottee_status')
+                        ->map(fn($s) => strtolower(trim($s)))
+                        ->toArray();
+
+                    if (count($statuses) > 0) {
+                        if (in_array('handover', $statuses)) {
+                            $item->current_stage = 'Handover';
+                            $item->badge_color = 'success';
+                        } elseif (in_array('dataentry', $statuses)) {
+                            $item->current_stage = 'Data Entry';
+                            $item->badge_color = 'info';
+                        } elseif (in_array('scanned', $statuses)) {
+                            $item->current_stage = 'Scanning';
+                            $item->badge_color = 'warning';
+                        } else {
+                            $item->current_stage = 'Receiving';
+                            $item->badge_color = 'secondary';
+                        }
+                    } else {
+                        $item->current_stage = 'Receiving';
+                        $item->badge_color = 'secondary';
+                    }
+
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->created_named_by = $item->creator->name ?? 'System';
+
+                    return $item;
+                });
+            // return $registrations;
+
+            return view('admin.components.filereceiving.alllots', compact('registrations'));
+        } catch (\Throwable $e) {
+            Log::error('Register list failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
+            ]);
+
+            return back()->with('error', 'Failed to load register list.');
+        }
+    }
+
     public function receivingLotsList(Request $request)
     {
         try {
