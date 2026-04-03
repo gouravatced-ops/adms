@@ -84,8 +84,8 @@
                                     @endif
                                 </td>
                                 <td>{{ $registration->total_files ?? 0 }}</td>
-                                <td>{{ $registration->assigned_files ?? 0 }}</td>
-                                <td>{{ $registration->remaining_files ?? 0 }}</td>
+                                <td>{{ $registration->assigned_files_count ?? 0 }}</td>
+                                <td><span class="badge bg-info">Pending: {{ $registration->pending_count ?? 0 }}</span> <br> <span class="badge bg-warning">In Progress: {{ $registration->in_progress_count ?? 0 }}</span></td>
                                 <td>
                                     <span
                                         class="badge bg-{{ $registration->assignment_status == 'partial' ? 'warning' : 'success' }}">

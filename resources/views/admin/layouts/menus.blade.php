@@ -256,8 +256,24 @@
                 {{-- File Scanned --}}
                 <li class="menu-item {{ request()->routeIs('admin.scanning.lots.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.scanning.lots.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-file-blank"></i>
+                        <i class="menu-icon tf-icons bx bx-file-find"></i>
                         <div>File Scanned</div>
+                    </a>
+                </li>
+
+                {{-- File Dataentry  --}}
+                <li class="menu-item {{ request()->routeIs('admin.dataentry.lots.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dataentry.lots.index') }}" class="menu-link">
+                        <span class="menu-icon"
+                            style="width:22px;height:22px;display:inline-flex;align-items:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z" />
+                                <path d="M14 2v5h5" />
+                                <path d="M9 13l2 2 4-4" />
+                            </svg>
+                        </span>
+                        <div>File Dataentry</div>
                     </a>
                 </li>
             </ul>

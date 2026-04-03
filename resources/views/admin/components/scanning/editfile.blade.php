@@ -80,7 +80,7 @@
                     <!-- Property Category -->
                     <div class="col-md-3">
                         <label class="form-label">Property Category <small class="text-danger">*</small></label>
-                        <select name="pcategory_id" id="property_category" class="form-select" disabled>
+                        <select name="pcategory_id" id="property_category" class="form-select">
                             <option value="">Select Category</option>
                             @foreach ($getPropertyCategory as $PropertyCategory)
                                 <option value="{{ $PropertyCategory->id }}"
@@ -92,7 +92,7 @@
 
                     <div class="col-md-3">
                         <label class="form-label">Property Type <small class="text-danger">*</small></label>
-                        <select name="p_type_id" id="property_type" class="form-select" disabled>
+                        <select name="p_type_id" id="property_type" class="form-select">
                             @foreach ($propertyType as $ptype)
                                 <option value="{{ $ptype->id }}"
                                     {{ $ptype->id == $file->p_type_id ? 'selected' : '' }}>
@@ -103,7 +103,7 @@
 
                     <div class="col-md-3" id="quarter_type_div">
                         <label class="form-label">Quarter Type <small class="text-danger">*</small></label>
-                        <select name="quarter_type" id="quarter_type" class="form-select" disabled>
+                        <select name="quarter_type" id="quarter_type" class="form-select">
                             @foreach ($quarterTypes as $qt)
                                 <option value="{{ $qt->quarter_id }}"
                                     {{ $qt->quarter_id == $file->quarter_type ? 'selected' : '' }}>

@@ -166,6 +166,17 @@ if (!function_exists('getStateName')) {
     }
 }
 
+if (!function_exists('getAllotteeName')) {
+    function getAllotteeName($allotteeId)
+    {
+        $allottee = DB::table('allottees')->select('prefix', 'allottee_name', 'allottee_middle_name', 'allottee_surname')->where('id', $allotteeId)->first();
+        if ($allottee) {
+            return trim($allottee->prefix . ' ' . $allottee->allottee_name . ' ' . $allottee->allottee_middle_name . ' ' . $allottee->allottee_surname);
+        }
+        return null;
+    }
+}
+
 if (!function_exists('getDistrictName')) {
     function getDistrictName($distId)
     {

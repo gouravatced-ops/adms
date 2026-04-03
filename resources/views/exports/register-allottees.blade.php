@@ -347,8 +347,8 @@
                         <span class="info-label">Total Nos. of Physical Files Received:</span> {{ count($allottees) }}
                     </div>
                     <div class="receiving-time">
-                        <span class="info-label">Date of Receiving:</span> {{ date('d/m/Y') }}<br>
-                        <span class="info-label">Time of Receiving:</span> {{ date('H:i:s') }}<br>
+                        <span class="info-label">Date of Receiving:</span> {{ $lotcreateDate }}<br>
+                        <span class="info-label">Time of Receiving:</span> {{ $lotTime }}<br>
                     </div>
                 </div>
             </div>

@@ -64,6 +64,7 @@ class Allottee extends Model
         'parent_id',
         'current_step',
         'is_trans_entry_completed',
+        'is_free_hold_completed',
         'name_transfer_status',
         'free_hold_status',
         'step_remarks',
@@ -72,6 +73,7 @@ class Allottee extends Model
         'update_ip_address',
         'allottee_document_path',
         'is_step_completed',
+        'allottee_verify',
         'updated_by',
         'created_by',
     ];

@@ -61,21 +61,17 @@ class LotsController extends Controller
             $registrations = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files' => function ($q) {
-                        $q->where('allottee_status', 'scanned');
-                    },
-
+                    'allottees as total_files',
                     'lotAssignments as total_assigned_files' => function ($q) {
-                        $q->where('assignment_type', 'partial')
-                            ->whereNotNull('allottee_id');
-                    },
-
-                    'lotAssignments as total_partial_assignments' => function ($q) {
-                        $q->where('assignment_type', 'partial');
+                        $q->whereNotNull('allottee_id');
                     },
 
                     'lotAssignments as full_lot_assigned_count' => function ($q) {
                         $q->where('assignment_type', 'full_lot');
+                    },
+
+                    'lotAssignments as total_completed' => function ($q) {
+                        $q->where('status', 'completed');
                     },
                 ])
                 ->where('status', 'scanned')
@@ -280,6 +276,42 @@ class LotsController extends Controller
             ]);
 
             return back()->with('error', 'Failed to load assigned users.');
+        }
+    }
+
+    public function assignedFilesStatus(string $encodedId)
+    {
+        try {
+            $lotId = base64_decode($encodedId, true);
+
+            if (!$lotId || !is_numeric($lotId)) {
+                return back()->with('error', 'Invalid lot reference.');
+            }
+
+            $assignedfiles = LotAssignment::query()
+                ->with([
+                    'assignedUser:id,name',
+                    'registerallottee',
+                    'assigner:id,admin_name',
+                ])
+                ->where('lot_id', (int) $lotId)
+                ->latest()
+                ->get();
+            // return $assignedfiles;
+            return view(
+                'admin.components.lots.assigned-files-status',
+                compact('assignedfiles', 'lotId')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Assigned files status load failed', [
+                'encoded_id' => $encodedId,
+                'lot_id'     => $lotId ?? null,
+                'message'    => $e->getMessage(),
+                'file'       => $e->getFile(),
+                'line'       => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load assigned files status.');
         }
     }
 

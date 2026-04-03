@@ -51,6 +51,7 @@ Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::get('file/list/{encodedId}/{page}', [LotsController::class, 'registerLotsFileList'])
         ->name('assign.file.index');
     Route::get('/assign/dataentry/list/{encodedId}', [LotsController::class, 'assignedUserList'])->name('assign.userlist');
+    Route::get('/assign/files/status/{encodedId}', [LotsController::class, 'assignedFilesStatus'])->name('assign.files.status');
     Route::post('/lots/assign', [LotsController::class, 'assignStore'])->name('assign.store');
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
@@ -65,6 +66,11 @@ Route::get('/scanning/lots/list', [FileManagementController::class, 'scannedLots
 Route::get('/scanning/file/list/{encodedId}/{page}', [FileManagementController::class, 'scanningLotsFileList'])->name('admin.scanning.files.index');
 Route::get('/scanning/file/fetch/{encryptedId}', [FileManagementController::class, 'scanningfileFetch'])->name('admin.scanning.file.fetch');
 Route::put('/scanning/file/update/{encryptedId}', [FileManagementController::class, 'scanningfileUpdate'])->name('admin.scanning.file.update');
+Route::get('/dataentry/lots/list', [FileManagementController::class, 'dataentryLotsList'])->name('admin.dataentry.lots.index');
+Route::get('/dataentry/file/list/{encodedId}/{page}', [FileManagementController::class, 'dataentryLotsFileList'])->name('admin.dataentry.files.index');
+Route::get('/preview/file/{encryptedId}', [FileManagementController::class, 'filePreview'])->name('admin.file.preview');
+Route::get('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
+Route::get('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
 
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');

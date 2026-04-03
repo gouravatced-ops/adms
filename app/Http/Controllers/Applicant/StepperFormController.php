@@ -81,8 +81,8 @@ class StepperFormController extends Controller
             $query = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files' => function ($q) {
-                        $q->where('allottee_status', 'scanned');
+                    'lotAssignments as total_files' => function ($q) use ($userId) {
+                       $q->where('assigned_to', $userId);
                     },
 
                     'lotAssignments as full_lot_assignment_count' => function ($q) use ($userId) {
@@ -91,9 +91,19 @@ class StepperFormController extends Controller
                     },
 
                     'lotAssignments as assigned_files_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId);
+                    },
+                    'lotAssignments as completed_files' => function ($q) use ($userId) {
                         $q->where('assigned_to', $userId)
-                            ->where('assignment_type', 'partial')
-                            ->whereNotNull('allottee_id');
+                            ->where('status', 'completed');
+                    },
+                    'lotAssignments as pending_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('status', 'pending');
+                    },
+                    'lotAssignments as in_progress_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('status', 'in_progress');
                     },
                 ])
                 ->where('status', 'scanned')
@@ -125,11 +135,6 @@ class StepperFormController extends Controller
                     $item->assigned_files = $isFullLotAssigned
                         ? (int) ($item->total_files ?? 0)
                         : (int) ($item->assigned_files_count ?? 0);
-
-                    $item->remaining_files = max(
-                        0,
-                        (int) ($item->assigned_files ?? 0) - (int) ($item->completed_files ?? 0)
-                    );
 
                     $item->assignment_type_label = $isFullLotAssigned ? 'Full Lot' : 'Partial';
 
