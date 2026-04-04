@@ -164,7 +164,7 @@
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>
                                                     <div class="fw-semibold">{{ $allottee->prefix }}
-                                                        {{ $allottee->allottee_name }} {{ $allottee->allottee_surname }}
+                                                        {{ $allottee->allottee_name }} {{ $allottee->allottee_middle_name }} {{ $allottee->allottee_surname }}
                                                     </div>
                                                     <div class="small text-muted">Prop: {{ $allottee->property_number }}
                                                     </div>
