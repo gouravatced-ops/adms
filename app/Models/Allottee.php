@@ -73,7 +73,10 @@ class Allottee extends Model
         'update_ip_address',
         'allottee_document_path',
         'is_step_completed',
-        'allottee_verify',
+        'sub_admin_allottee_verify',
+        'sub_admin_remarks',
+        'divisional_approval',
+        'divisional_remaks',
         'updated_by',
         'created_by',
     ];

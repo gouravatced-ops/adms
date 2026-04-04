@@ -11,3 +11,8 @@ INSERT INTO `document_master` (`id`, `document_name`, `document_key`, `document_
 ALTER TABLE `allottees` ADD `allottee_verify` INT NOT NULL DEFAULT '0' AFTER `allottee_document_path`;
 ALTER TABLE `file_registrations` ADD `lots_subadmin_approved` INT NOT NULL DEFAULT '0' AFTER `status`;
 ALTER TABLE `file_registrations` ADD `divisional_approval` INT NOT NULL DEFAULT '0' AFTER `lots_subadmin_approved`;
+
+
+ALTER TABLE `allottees` ADD `sub_admin_remarks` VARCHAR(255) NULL DEFAULT NULL AFTER `sub_admin_allottee_verify`;
+ALTER TABLE `allottees` ADD `divisional_approval` INT NOT NULL DEFAULT '0' AFTER `sub_admin_remarks`, ADD `divisional_remaks` VARCHAR(255) NULL DEFAULT NULL AFTER `divisional_approval`;
+ALTER TABLE `allottees` CHANGE `allottee_verify` `sub_admin_allottee_verify` INT(11) NOT NULL DEFAULT '0';

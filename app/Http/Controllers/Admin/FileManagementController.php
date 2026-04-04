@@ -486,7 +486,11 @@ class FileManagementController extends Controller
                         0,
                         $item->total_register_files - $item->total_assigned_files
                     );
-
+                    $item->transfer_file_count = Allottee::query()
+                        ->where('register_id', $item->register_no)
+                        ->whereNull('register_file_id')
+                        ->whereNotNull('parent_id')
+                        ->count();
                     $item->encoded_register_no = base64_encode($item->register_no);
                     $item->created_named_by    = $item->creator?->name ?? 'System';
                     $item->current_stage       = 'Data Entry';
@@ -550,7 +554,7 @@ class FileManagementController extends Controller
     }
 
     public function filePreview($encryptedId)
-    {   
+    {
         try {
             $id = decrypt($encryptedId);
             // return $id;
@@ -589,18 +593,29 @@ class FileManagementController extends Controller
         }
     }
 
-    public function approveDataEntry($encryptedId)
-    {
+    public function approveDataEntry($encryptedId, Request $request)
+    {   
+        // return $request;
         try {
             $id = decrypt($encryptedId);
             $file = Allottee::where('id', $id)->firstOrFail();
+            if($request->status == 'reverted') {
+                $file->update([
+                    'sub_admin_allottee_verify' => 2,
+                    'sub_admin_remarks' => $request->remarks,
+                ]);
 
-            $file->update([
-                'allottee_verify' => 1,
-            ]);
-
-            return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
-                ->with('success', 'Data entry approved successfully.');
+                return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                    ->with('success', 'Data entry reverted successfully.');
+            } else {
+                $file->update([
+                    'sub_admin_allottee_verify' => 1,
+                    'sub_admin_remarks' => $request->remarks,
+                ]);
+    
+                return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                    ->with('success', 'Data entry approved successfully.');
+            }
         } catch (\Throwable $e) {
             Log::error('Data entry approval failed', [
                 'error' => $e->getMessage()
@@ -610,15 +625,29 @@ class FileManagementController extends Controller
         }
     }
 
-    public function approveDataEntryLots($registerId)
+    public function approveDataEntryLots($registerId, Request $request)
     {
         try {
             $registerNo = base64_decode($registerId);
-            $updatedCount = RegistrationFile::where('register_no', $registerNo)
-                ->update(['lots_subadmin_approved' => 1, 'status' => 'handover']);
+            if ($registerNo === false) {
+                return redirect()->back()->with('error', 'Invalid register ID');
+            }
+            if ($request->status == 'reverted') {
+                RegistrationFile::where('register_no', $registerNo)
+                    ->update(['lots_subadmin_approved' => 2, 'status' => 'scanned', 'remarks' => $request->remarks]);
 
-            return redirect()->route('admin.dataentry.lots.index')
-                ->with('success', "Lots approved successfully by sub-admin for register no: {$registerNo}.");
+                return redirect()->route('admin.dataentry.lots.index')
+                    ->with('success', "Lots reverted successfully by sub-admin for register no: {$registerNo}.");
+            } else {
+                RegistrationFile::where('register_no', $registerNo)
+                    ->update(['lots_subadmin_approved' => 1, 'status' => 'scanned', 'remarks' => $request->remarks]);
+
+                Allottee::where('register_id', $registerNo)->where('is_step_completed', 1)
+                    ->update(['allottee_verify' => 1]);
+
+                return redirect()->route('admin.dataentry.lots.index')
+                    ->with('success', "Lots approved successfully by sub-admin for register no: {$registerNo}.");
+            }
         } catch (\Throwable $e) {
             Log::error('Bulk data entry approval failed', [
                 'error' => $e->getMessage()

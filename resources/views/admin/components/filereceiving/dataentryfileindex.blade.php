@@ -14,6 +14,34 @@
             font-size: 14px;
             margin-left: 5px;
         }
+
+        .status-pending {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #ffc107;
+            color: #212529;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-rejected {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
     </style>
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
@@ -22,14 +50,13 @@
         </h6>
 
         <div class="card mb-4">
-            <div class="card-header bg-info d-flex justify-content-between align-items-center">
+            <div class="card-header bg-warning d-flex justify-content-between align-items-center">
                 <h5 class="text-white mb-0">Lot Data Entry Files</h5>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-dark btn-sm">
-                        <a href="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => base64_encode($registerNo)]) }}"
-                            class="text-decoration-none text-white">
-                            Verify & Apporved Lots
-                        </a>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#verifyAllLotsModal">
+                        <i class="bx bx-check-shield me-1"></i>
+                        Verify & Approve Lots
                     </button>
                     &nbsp;
                     <button type="button" class="btn btn-light btn-sm">
@@ -40,7 +67,59 @@
                 </div>
             </div>
 
-            <div class="card-body mt-2">
+            {{-- Place outside table / near bottom of page --}}
+            <div class="modal fade" id="verifyAllLotsModal" tabindex="-1" aria-labelledby="verifyAllLotsModalLabel"
+                aria-hidden="true">
+
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form
+                            action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => base64_encode($registerNo)]) }}"
+                            method="POST">
+                            @csrf
+
+                            <div class="modal-header bg-dark text-white" style="padding:10px !important;">
+                                <h5 class="modal-title text-white" id="verifyAllLotsModalLabel">
+                                    Verify & Approve All Lots
+                                </h5>
+
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="mb-3 p-3 border rounded bg-light">
+                                    <div class="small text-muted mb-1">Register No</div>
+                                    <div class="fw-semibold">{{ $Lots }}: {{ $registerNo }}</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Remarks
+                                        <small class="text-muted">(Optional)</small>
+                                    </label>
+
+                                    <textarea name="remarks" rows="4" class="form-control" placeholder="Enter verification remarks..."></textarea>
+                                </div>
+
+                                <input type="hidden" name="status" value="verified">
+                            </div>
+                            <hr style="margin:0;">
+                            <div class="modal-footer" style="padding:10px !important;">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                    Cancel
+                                </button>
+
+                                <button type="submit" class="btn btn-dark">
+                                    <i class="bx bx-check-circle me-1"></i>
+                                    Verify & Approve Lots
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body mt-0 p-3">
                 {{-- Alerts --}}
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible">
@@ -234,8 +313,15 @@
                                             }
                                         @endphp
                                         <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}
-                                            @if ($item->allottee_verify == 1)
+                                            @if ($item->sub_admin_allottee_verify == 1)
                                                 <span class="status-completed">✓</span>
+                                            @elseif($item->sub_admin_allottee_verify == 0)
+                                                <span class="status-pending" title="Sub Admin Pending"><i
+                                                        class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
+                                            @elseif($item->sub_admin_allottee_verify === 2)
+                                                <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                                                Remark: <span
+                                                    class="small text-danger">{{ $item->sub_admin_remarks ?? 'No remarks provided' }}</span>
                                             @endif
                                         </div>
                                         <small class="text-muted d-block">Property No:
@@ -267,19 +353,55 @@
                                         {{ formatDateTime($item->updated_at ?? now()) }}
                                     </td>
                                     <td>
-                                        <!-- Preview Allottee file button -->
-                                        <a href="{{ route('admin.file.preview', encrypt($item->id)) }}"
-                                            class="btn btn-primary text-white me-2"
-                                            title="Preview {{ $allotteeName }} File">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                                <path d="M14 2v6h6" />
-                                                <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
-                                                <path d="M13 12l3 3" />
-                                            </svg>
-                                        </a>
+                                        <div class="d-flex justify-content-center gap-1">
+
+                                            {{-- Preview --}}
+                                            <a href="{{ route('admin.file.preview', encrypt($item->id)) }}"
+                                                class="btn btn-sm btn-primary text-white"
+                                                title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">
+
+                                                {{-- File Preview SVG --}}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                    </path>
+                                                    <path d="M14 2v6h6"></path>
+                                                    <path d="M9 14h6"></path>
+                                                    <path d="M9 18h4"></path>
+                                                </svg>
+                                            </a>
+
+                                            {{-- Approve --}}
+                                            @if ($item->allottee_verify == 0)
+                                                <a href="javascript:void(0)" class="btn btn-sm btn-success"
+                                                    title="Approve File" data-bs-toggle="modal"
+                                                    data-bs-target="#approveModal{{ $item->id }}">
+
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M9 12l2 2 4-4"></path>
+                                                        <path
+                                                            d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z">
+                                                        </path>
+                                                    </svg>
+                                                </a>
+                                            @endif
+
+                                            {{-- Revert --}}
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-danger"
+                                                title="Revert File" data-bs-toggle="modal"
+                                                data-bs-target="#revertModal{{ $item->id }}">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 7v6h6"></path>
+                                                    <path d="M3 13a9 9 0 1 0 3-7.7L3 7"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -291,6 +413,136 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    {{-- Place after table / outside .table-responsive --}}
+                    @foreach ($files as $item)
+                        @php
+                            // Format allottee name
+                            $allotteeName = trim(
+                                ($item->prefix ?? '') .
+                                    ' ' .
+                                    ($item->allottee_name ?? '') .
+                                    ' ' .
+                                    ($item->allottee_middle_name ?? '') .
+                                    ' ' .
+                                    ($item->allottee_surname ?? ''),
+                            );
+                        @endphp
+                        {{-- Approve Modal --}}
+                        <div class="modal fade" id="approveModal{{ $item->id }}" tabindex="-1"
+                            aria-labelledby="approveModalLabel{{ $item->id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form action="{{ route('admin.lots.dataentry.file.approve', $item->allotteeId) }}"
+                                        method="POST">
+                                        @csrf
+
+                                        <div class="modal-header bg-success text-white" style="padding:10px !important;">
+                                            <h5 class="modal-title text-white" id="approveModalLabel{{ $item->id }}">
+                                                Approve File
+                                            </h5>
+
+                                            <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="mb-3 p-3 border rounded bg-light">
+                                                <div class="small text-muted mb-1">Allottee</div>
+                                                <div class="fw-semibold">
+                                                    {{ $allotteeName ?? 'N/A' }}
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">
+                                                    Remarks
+                                                    <small class="text-muted">(Optional)</small>
+                                                </label>
+
+                                                <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>
+                                            </div>
+
+                                            <input type="hidden" name="status" value="approved">
+                                        </div>
+                                        <hr style="margin:0;">
+                                        <div class="modal-footer" style="padding:10px !important;">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                Cancel
+                                            </button>
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bx bx-check-circle me-1"></i>
+                                                Approve File
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Revert Modal --}}
+                        <div class="modal fade" id="revertModal{{ $item->id }}" tabindex="-1"
+                            aria-labelledby="revertModalLabel{{ $item->id }}" aria-hidden="true">
+
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form action="{{ route('admin.lots.dataentry.file.approve', $item->allotteeId) }}"
+                                        method="POST">
+                                        @csrf
+
+                                        <div class="modal-header bg-danger text-white" style="padding:10px !important;">
+                                            <h5 class="modal-title text-white" id="revertModalLabel{{ $item->id }}">
+                                                Revert File
+                                            </h5>
+
+                                            <button type="button" class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="bedge mb-3 p-3 border rounded text-dark"
+                                                style="background: rgba(253, 253, 140, 0.651);">
+                                                This file will be sent back for correction.
+                                            </div>
+                                            <div class="mb-3 p-3 border rounded bg-light">
+                                                <div class="small text-muted mb-1">Allottee</div>
+                                                <div class="fw-semibold">
+                                                    {{ $allotteeName ?? 'N/A' }}
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">
+                                                    Revert Remarks <span class="text-danger">*</span>
+                                                </label>
+
+                                                <textarea name="remarks" rows="4" class="form-control" placeholder="Enter reason for revert..." required></textarea>
+                                            </div>
+
+                                            <input type="hidden" name="status" value="reverted">
+                                        </div>
+                                        <hr style="margin:0;">
+                                        <div class="modal-footer" style="padding:10px !important;">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                                Cancel
+                                            </button>
+
+                                            <button type="submit" class="btn btn-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                    class="me-1">
+                                                    <path d="M3 7v6h6"></path>
+                                                    <path d="M3 13a9 9 0 1 0 3-7.7L3 7"></path>
+                                                </svg>
+                                                Revert File
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
 
                     @if ($files->hasPages())
                         <div class="p-4 border-top">

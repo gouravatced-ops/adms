@@ -7,6 +7,47 @@
             background: #0380ec;
             color: #fff !important;
         }
+
+        .status-completed {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .status-pending {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #ffc107;
+            color: #212529;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-rejected {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
     </style>
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
@@ -14,9 +55,32 @@
         </h6>
 
         <div class="card mb-4">
-            <div class="card-header bg-info d-flex justify-content-between align-items-center">
-                <h5 class="text-white mb-0">File Preview</h5>
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="text-white mb-0">File Preview :
+                    {{ trim(($registration->prefix ?? '') . ' ' . ($registration->allottee_name ?? '') . ' ' . ($registration->allottee_middle_name ?? '') . ' ' . ($registration->allottee_surname ?? '')) ?: 'N/A' }}
+                    @if ($registration->sub_admin_allottee_verify == 1)
+                        <span class="status-completed">✓</span>
+                    @elseif($registration->sub_admin_allottee_verify == 0)
+                        <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
+                                style="font-size: 10px;"></i></span>
+                    @elseif($registration->sub_admin_allottee_verify === 2)
+                        <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                        Remark: <span
+                            class="small text-danger">{{ $registration->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                    @endif
+                </h5>
                 <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#verifyDataEntryModal">
+                        <i class="bx bx-check-shield me-1"></i>
+                        Verify Data Entry
+                    </button>
+                    &nbsp;&nbsp;
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#revertDataEntryModal">
+                        <i class="bx bx-undo me-1"></i>
+                        Revert
+                    </button>
                     &nbsp;
                     <button type="button" class="btn btn-light btn-sm">
                         <a href="javascript:history.back()" class="text-decoration-none text-dark">
@@ -123,15 +187,10 @@
                 {{-- File Information Table --}}
                 <div class="table-responsive mb-4">
                     <table class="table table-striped table-bordered align-middle">
-                        <thead class="table-info">
+                        <thead class="table-secondary">
                             <tr>
-                                <th colspan="4" class="text-center bg-secondary text-white">File Information</th>
-                            </tr>
-                            <tr>
-                                <th width="25%">Field</th>
-                                <th width="25%">Value</th>
-                                <th width="25%">Field</th>
-                                <th width="25%">Value</th>
+                                <th colspan="4" class="text-center text-white" style="background:#0380ec; color:white;">
+                                    File Information</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -203,7 +262,25 @@
                                 <tr>
                                     <th class="bg-light" width="20%">Document Folder</th>
                                     <td colspan="8">
-                                        {{ $registration->allottee_document_path }}
+                                        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                            <span id="docPath{{ $registration->id }}" class="text-break">
+                                                {{ $registration->allottee_document_path }}
+                                            </span>
+
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                title="Copy Path"
+                                                onclick="copyDocumentPath('docPath{{ $registration->id }}', this)">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="9" y="9" width="13" height="13" rx="2"
+                                                        ry="2"></rect>
+                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">
+                                                    </path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endif
@@ -224,8 +301,15 @@
                     @endforeach
                 </ul>
 
+                <style>
+                    .nav-tabs .nav-item .nav-link:not(.active) {
+                        background-color: rgb(255 171 0);
+                        color: #000;
+                    }
+                </style>
+
                 {{-- Tab Content --}}
-                <div class="tab-content">
+                <div class="tab-content p-0">
                     {{-- Tab 1: Allottee Details --}}
                     <div class="tab-pane fade {{ $tabsList[0]['active'] ? 'show active' : '' }}"
                         id="content-allottee_details" role="tabpanel">
@@ -312,7 +396,8 @@
                                         {{-- Joint Allottees --}}
                                         @if ($jointAllottees->count() > 0)
                                             <tr class="table-info">
-                                                <td colspan="6" class="text-center"><strong>Joint Allottees</strong></td>
+                                                <td colspan="6" class="text-center"><strong>Joint Allottees</strong>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th>Sl No.</th>
@@ -330,7 +415,8 @@
                                                     <td>{{ $joint->gender ?? 'N/A' }}</td>
                                                     <td>{{ $joint->aadhar_number ?? 'N/A' }}</td>
                                                     <td>{{ $joint->pan_number ?? 'N/A' }}</td>
-                                                    <td>{{ $joint->other_doc_number ?? 'N/A' }} {{ ($joint->other_doc_type ?? 'N/A') }}</td>
+                                                    <td>{{ $joint->other_doc_number ?? 'N/A' }}
+                                                        {{ $joint->other_doc_type ?? 'N/A' }}</td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -379,7 +465,8 @@
                                         </th>
                                     </tr>
                                     <tr>
-                                        <th class="bg-light">{{ ucfirst($address->relation_type ?? 'Relation') }} Name</th>
+                                        <th class="bg-light">{{ ucfirst($address->relation_type ?? 'Relation') }} Name
+                                        </th>
                                         <td>{{ trim(($address->prefix_relation_eng ?? '') . ' ' . ($address->relation_name ?? '')) ?: 'N/A' }}
                                         </td>
                                     </tr>
@@ -647,7 +734,7 @@
 
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped align-middle">
-                                    <thead class="table-primary">
+                                    <thead class="table-warning">
                                         <tr>
                                             <th colspan="4" class="text-center">EMI Financial Details</th>
                                         </tr>
@@ -728,13 +815,8 @@
 
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped align-middle">
-                                    <thead class="table-warning">
-                                        <tr>
-                                            <th colspan="2" class="text-center">Nominee Information</th>
-                                        </tr>
-                                    </thead>
                                     <tbody>
-                                        <tr class="table-light">
+                                        <tr class="table-warning">
                                             <th colspan="2">Nominee Details</th>
                                         </tr>
                                         <tr>
@@ -755,7 +837,7 @@
                                             <td>{{ $nominee->nominee_pan_card ?? 'N/A' }}</td>
                                         </tr>
 
-                                        <tr class="table-light">
+                                        <tr class="table-warning">
                                             <th colspan="2">Family Member Details</th>
                                         </tr>
                                         <tr>
@@ -785,7 +867,7 @@
                                             <td>{{ $nominee->family_pan ?? 'N/A' }}</td>
                                         </tr>
 
-                                        <tr class="table-light">
+                                        <tr class="table-warning">
                                             <th colspan="2">Bank Details</th>
                                         </tr>
                                         <tr>
@@ -820,7 +902,7 @@
                                                 <th colspan="6" class="text-center">Joint Allottees</th>
                                             </tr>
                                             <tr>
-                                                <th>#</th>
+                                                <th>Sl No.</th>
                                                 <th>Name</th>
                                                 <th>Gender</th>
                                                 <th>Relationship</th>
@@ -853,12 +935,7 @@
                             <table class="table table-bordered table-striped align-middle">
                                 <thead class="table-warning">
                                     <tr>
-                                        <th colspan="9" class="text-center">
-                                            Allottee Documents
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th width="5%">#</th>
+                                        <th width="5%">Sl No.</th>
                                         <th width="10%">Doc No.</th>
                                         <th width="12%">Date</th>
                                         <th width="22%">Document Name</th>
@@ -948,9 +1025,10 @@
                 @if (isset($registration->current_step) || isset($registration->step_remarks))
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered">
-                            <thead class="table-dark">
+                            <thead>
                                 <tr>
-                                    <th colspan="2" class="text-center text-white">Workflow Information</th>
+                                    <th colspan="2" class="text-center text-white"
+                                        style="background:#0380ec; color:white;">Workflow Information</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -983,16 +1061,143 @@
                     </div>
                 @endif
 
-                {{-- Verify BUtton center --}}
-                <div class="d-flex justify-content-center my-4">
-                    <a href="{{ route('admin.lots.dataentry.file.approve', $registration->encrypted_id) }}"
-                        class="btn btn-primary btn-lg">
-                        Verify Data Entry
-                    </a>
+                {{-- Verify Modal --}}
+                <div class="modal fade" id="verifyDataEntryModal" tabindex="-1"
+                    aria-labelledby="verifyDataEntryModalLabel" aria-hidden="true">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('admin.lots.dataentry.file.approve', $registration->encrypted_id) }}"
+                                method="POST">
+                                @csrf
+
+                                <div class="modal-header bg-primary text-white" style="padding:10px !important;">
+                                    <h5 class="modal-title text-white" id="verifyDataEntryModalLabel">
+                                        Verify Data Entry
+                                    </h5>
+
+                                    <button type="button" class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="mb-3 p-3 border rounded bg-light">
+                                        <div class="small text-muted mb-1">Register No</div>
+                                        <div class="fw-semibold">{{ $registration->register_no ?? 'N/A' }}</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Remarks
+                                            <small class="text-muted">(Optional)</small>
+                                        </label>
+
+                                        <textarea name="remarks" rows="4" class="form-control" placeholder="Enter verification remarks..."></textarea>
+                                    </div>
+
+                                    <input type="hidden" name="status" value="verified">
+                                </div>
+                                <hr style="margin:0;">
+                                <div class="modal-footer" style="padding:10px !important;">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bx bx-check-circle me-1"></i>
+                                        Verify Data Entry
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Revert Modal --}}
+                <div class="modal fade" id="revertDataEntryModal" tabindex="-1"
+                    aria-labelledby="revertDataEntryModalLabel" aria-hidden="true">
+
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('admin.lots.dataentry.file.approve', $registration->encrypted_id) }}"
+                                method="POST">
+                                @csrf
+
+                                <div class="modal-header bg-danger text-white" style="padding:10px !important;">
+                                    <h5 class="modal-title text-white" id="revertDataEntryModalLabel">
+                                        Revert Data Entry
+                                    </h5>
+
+                                    <button type="button" class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="mb-3 p-3 border rounded bg-light">
+                                        <div class="small text-muted mb-1">Register No</div>
+                                        <div class="fw-semibold">{{ $registration->register_no ?? 'N/A' }}</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Revert Remarks <span class="text-danger">*</span>
+                                        </label>
+
+                                        <textarea name="remarks" rows="4" class="form-control" placeholder="Enter reason for revert..." required></textarea>
+                                    </div>
+
+                                    <input type="hidden" name="status" value="reverted">
+                                </div>
+                                <hr style="margin:0;">
+                                <div class="modal-footer" style="padding:10px !important;">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bx bx-undo me-1"></i>
+                                        Revert Data Entry
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        function copyDocumentPath(elementId, button) {
+            const text = document.getElementById(elementId).innerText.trim();
+
+            navigator.clipboard.writeText(text).then(() => {
+                const original = button.innerHTML;
+
+                button.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
+            `;
+
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-success');
+
+                setTimeout(() => {
+                    button.innerHTML = original;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-secondary');
+                }, 1500);
+            });
+        }
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var triggerTabList = [].slice.call(document.querySelectorAll('#filePreviewTab button'))

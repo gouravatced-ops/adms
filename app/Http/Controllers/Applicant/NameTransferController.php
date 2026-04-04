@@ -1042,7 +1042,6 @@ class NameTransferController extends Controller
 
     public function saveStep1(Request $request)
     {
-        return [1];
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
             $allottmentNumber = $request->allotment_no . '/' . $request->year;

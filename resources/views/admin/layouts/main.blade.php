@@ -33,7 +33,7 @@
         class="template-customizer-theme-css" />
 
     <link rel="stylesheet"
-        href="{{ asset('assets/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.cs') }}s" />
+        href="{{ asset('assets/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}s" />
     <link rel="stylesheet" href="{{ asset('assets/admin/assets/vendor/libs/apex-charts/apex-charts.css') }}" />
     <script src="{{ asset('assets/admin/assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/admin/assets/js/config.js') }}"></script>

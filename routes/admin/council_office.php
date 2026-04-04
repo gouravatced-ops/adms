@@ -69,8 +69,8 @@ Route::put('/scanning/file/update/{encryptedId}', [FileManagementController::cla
 Route::get('/dataentry/lots/list', [FileManagementController::class, 'dataentryLotsList'])->name('admin.dataentry.lots.index');
 Route::get('/dataentry/file/list/{encodedId}/{page}', [FileManagementController::class, 'dataentryLotsFileList'])->name('admin.dataentry.files.index');
 Route::get('/preview/file/{encryptedId}', [FileManagementController::class, 'filePreview'])->name('admin.file.preview');
-Route::get('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
-Route::get('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
+Route::post('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
+Route::post('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
 
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');
