@@ -32,7 +32,7 @@ class FileManagementController extends Controller
 
     public function generateRegisterNo()
     {
-        $date = now()->format('dmy'); // 090226
+        $date = now()->format('dmy');
         $rand = rand(1000, 9999);
 
         return $date . $rand;
@@ -594,12 +594,12 @@ class FileManagementController extends Controller
     }
 
     public function approveDataEntry($encryptedId, Request $request)
-    {   
+    {
         // return $request;
         try {
             $id = decrypt($encryptedId);
             $file = Allottee::where('id', $id)->firstOrFail();
-            if($request->status == 'reverted') {
+            if ($request->status == 'reverted') {
                 $file->update([
                     'sub_admin_allottee_verify' => 2,
                     'sub_admin_remarks' => $request->remarks,
@@ -612,7 +612,7 @@ class FileManagementController extends Controller
                     'sub_admin_allottee_verify' => 1,
                     'sub_admin_remarks' => $request->remarks,
                 ]);
-    
+
                 return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                     ->with('success', 'Data entry approved successfully.');
             }
