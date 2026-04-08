@@ -539,10 +539,14 @@ class FileManagementController extends Controller
             // return $files;
             $files = $registerAllottee;
             $pageNo = $page;
+
+            // If all rows have sub_admin_allottee_verify == 1 then 1 else 0
+            $allVerified = $query->where('sub_admin_allottee_verify', '!=', 1)->exists() ? 0 : 1;
+
             $registers  = RegistrationFile::where('register_no', $registerNo)->first();
             $registerId = $registers->id;
             $Lots = $registers->lot_no;
-            return view('admin.components.filereceiving.dataentryfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+            return view('admin.components.filereceiving.dataentryfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo', 'allVerified'));
         } catch (\Throwable $e) {
 
             Log::error('File list failed', [
@@ -590,6 +594,23 @@ class FileManagementController extends Controller
             ]);
 
             return null;
+        }
+    }
+
+    public function markAsRead($id)
+    {
+        // return $id;
+        try {
+            $document = AllotteeDocument::findOrFail($id);
+            $document->update(['is_sadmin_read' => true]);
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            Log::error('Mark document as read failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['success' => false], 500);
         }
     }
 

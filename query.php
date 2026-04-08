@@ -16,3 +16,5 @@ ALTER TABLE `file_registrations` ADD `divisional_approval` INT NOT NULL DEFAULT 
 ALTER TABLE `allottees` ADD `sub_admin_remarks` VARCHAR(255) NULL DEFAULT NULL AFTER `sub_admin_allottee_verify`;
 ALTER TABLE `allottees` ADD `divisional_approval` INT NOT NULL DEFAULT '0' AFTER `sub_admin_remarks`, ADD `divisional_remaks` VARCHAR(255) NULL DEFAULT NULL AFTER `divisional_approval`;
 ALTER TABLE `allottees` CHANGE `allottee_verify` `sub_admin_allottee_verify` INT(11) NOT NULL DEFAULT '0';
+
+ALTER TABLE `allottee_documents` ADD `is_sadmin_read` INT NOT NULL DEFAULT '0' AFTER `file_name`, ADD `is_divisional_read` INT NOT NULL DEFAULT '0' AFTER `is_sadmin_read`;

@@ -361,7 +361,7 @@ class StepperFormController extends Controller
                 ])
                 ->where('status', 'scanned')
                 ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', 'scanned');
+                    $q->where('allottee_status', 'dataentry');
                 })
                 ->whereHas('lotAssignments', function ($q) use ($userId) {
                     $q->where('assigned_to', $userId);

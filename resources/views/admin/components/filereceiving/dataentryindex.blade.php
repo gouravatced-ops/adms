@@ -92,10 +92,6 @@
 
                         <tbody>
                             @forelse ($registrations as $item)
-                                @php
-                                    $modalId = "verifyModal{$item->id}";
-                                @endphp
-
                                 <tr @class(['table-warning' => $item->highlighted])>
                                     <td>{{ $loop->iteration }}</td>
 
@@ -167,18 +163,6 @@
                                                 class="btn btn-sm btn-secondary" title="Assigned Files Status">
                                                 <i class="bx bx-check-circle"></i>
                                             </a>
-
-                                            {{-- Verify / Approve --}}
-                                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal"
-                                                data-bs-target="#verifyModal{{ $item->id }}" title="Verify & Approve">
-                                                <i class="bx bx-check-shield"></i>
-                                            </button>
-
-                                            {{-- Revert --}}
-                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                                data-bs-target="#revertModal{{ $item->id }}" title="Revert Lot">
-                                                <i class="bx bx-undo"></i>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -191,121 +175,6 @@
                             @endforelse
                         </tbody>
                     </table>
-                    {{-- Put below table / outside .table-responsive --}}
-                    @foreach ($registrations as $item)
-                        {{-- Verify Modal --}}
-                        @php
-                            $registerNo = base64_encode($item->register_no);
-                        @endphp
-                        <div class="modal fade" id="verifyModal{{ $item->id }}" tabindex="-1"
-                            aria-labelledby="verifyModalLabel{{ $item->id }}" aria-hidden="true">
-
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form
-                                        action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => $registerNo]) }}"
-                                        method="POST">
-                                        @csrf
-
-                                        <div class="modal-header bg-success text-white" style="padding: 10px !important;">
-                                            <h5 class="modal-title text-white" id="verifyModalLabel{{ $item->id }}">
-                                                Verify & Approve Lot
-                                            </h5>
-
-                                            <button type="button" class="btn-close btn-close-white"
-                                                data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <div class="modal-body">
-                                            <div class="mb-3 p-3 border rounded bg-light">
-                                                <strong>Register:</strong> {{ $item->register_no }} <br>
-                                                <strong>Lot No:</strong> {{ $item->lot_no }}
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">
-                                                    Remarks
-                                                    <small class="text-muted">(Optional)</small>
-                                                </label>
-
-                                                <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>
-                                            </div>
-
-                                            <input type="hidden" name="status" value="verified">
-                                        </div>
-                                        <hr style="margin:0;">
-                                        <div class="modal-footer" style="padding: 10px; !important;">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                                                Cancel
-                                            </button>
-
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="bx bx-check-circle me-1"></i>
-                                                Verify & Approve
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Revert Modal --}}
-                        <div class="modal fade" id="revertModal{{ $item->id }}" tabindex="-1"
-                            aria-labelledby="revertModalLabel{{ $item->id }}" aria-hidden="true">
-
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form
-                                        action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => $registerNo]) }}"
-                                        method="POST">
-                                        @csrf
-
-                                        <div class="modal-header bg-danger text-white" style="padding: 10px !important;">
-                                            <h5 class="modal-title text-white" id="revertModalLabel{{ $item->id }}">
-                                                Revert Lot
-                                            </h5>
-
-                                            <button type="button" class="btn-close btn-close-white"
-                                                data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <div class="modal-body">
-                                            <div class="bedge mb-3 p-3 border rounded text-dark"
-                                                style="background: rgba(253, 253, 140, 0.651);">
-                                                This action will revert the verified lot back for correction.
-                                            </div>
-
-                                            <div class="mb-3 p-3 border rounded bg-light">
-                                                <strong>Register:</strong> {{ $item->register_no }} <br>
-                                                <strong>Lot No:</strong> {{ $item->lot_no }}
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">
-                                                    Revert Remarks <span class="text-danger">*</span>
-                                                </label>
-
-                                                <textarea name="remarks" rows="4" class="form-control" placeholder="Enter reason for revert..." required></textarea>
-                                            </div>
-
-                                            <input type="hidden" name="status" value="reverted">
-                                        </div>
-                                        <hr style="margin:0;">
-                                        <div class="modal-footer" style="padding: 10px; !important;">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                                                Cancel
-                                            </button>
-
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="bx bx-undo me-1"></i>
-                                                Revert Lot
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
                 </div>
             </div>
         </div>

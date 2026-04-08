@@ -69,6 +69,7 @@ Route::put('/scanning/file/update/{encryptedId}', [FileManagementController::cla
 Route::get('/dataentry/lots/list', [FileManagementController::class, 'dataentryLotsList'])->name('admin.dataentry.lots.index');
 Route::get('/dataentry/file/list/{encodedId}/{page}', [FileManagementController::class, 'dataentryLotsFileList'])->name('admin.dataentry.files.index');
 Route::get('/preview/file/{encryptedId}', [FileManagementController::class, 'filePreview'])->name('admin.file.preview');
+Route::post('/documents/{id}/mark-read', [FileManagementController::class, 'markAsRead'])->name('admin.documents.mark-read');
 Route::post('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
 Route::post('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
 

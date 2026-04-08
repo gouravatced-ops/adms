@@ -75,9 +75,6 @@ class LotsController extends Controller
                     },
                 ])
                 ->where('status', 'scanned')
-                ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', 'scanned');
-                })
                 ->latest()
                 ->paginate(25)
                 ->through(function ($item) {
