@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SchemeController;
 use App\Http\Controllers\Admin\LotsController;
 use App\Http\Controllers\Admin\SchemeBlockController;
 use App\Http\Controllers\Admin\FileManagementController;
+use App\Http\Controllers\Admin\ApproverController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', [AdminController::class, 'councilDashboard'])->name('council_office.dashboard');
@@ -56,6 +57,12 @@ Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
 
+// checked Files
+Route::get('checked/lots/list', [FileManagementController::class, 'CheckedLotsList'])->name('admin.checked.lots.index');
+Route::get('/checked/file/list/{encodedId}/{page}', [FileManagementController::class, 'checkedLotsFileList'])->name('admin.checked.files.index');
+Route::get('/revert/file/list/1', [FileManagementController::class, 'revertLotsFileList'])->name('admin.revert.lots.files.index');
+
+// manage Lots
 Route::get('manage/lots/list', [FileManagementController::class, 'LotsList'])->name('admin.manage.lots.index');
 Route::get('/receiving/lots/list', [FileManagementController::class, 'receivingLotsList'])->name('admin.receiving.lots.index');
 Route::get('/receiving/file/list/{encodedId}/{page}', [FileManagementController::class, 'receivingLotsFileList'])->name('admin.receiving.files.index');
@@ -72,6 +79,15 @@ Route::get('/preview/file/{encryptedId}', [FileManagementController::class, 'fil
 Route::post('/documents/{id}/mark-read', [FileManagementController::class, 'markAsRead'])->name('admin.documents.mark-read');
 Route::post('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
 Route::post('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
+
+// approver lists
+Route::get('approver/pending/lots/list', [ApproverController::class, 'approverPendingLots'])->name('approver.pending-lots');
+Route::get('/pending/approver/file/list/{encodedId}/{page}', [ApproverController::class, 'approverPendingFiles'])->name('admin.pending.files.index');
+Route::get('approved/lots/list', [ApproverController::class, 'approverApprovedLots'])->name('approver.approved-lots');
+Route::get('/approved/file/list/{encodedId}/{page}', [ApproverController::class, 'approverApprovedLotFiles'])->name('admin.approved.files.index');
+
+// fetch and update allotee
+Route::get('/edit/allottee/setp1/{encryptedId}', [FileManagementController::class, 'fetchallottedetails'])->name('admin.fetch.step1');
 
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');

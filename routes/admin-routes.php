@@ -70,8 +70,8 @@ Route::prefix('admin')->group(function () {
             require base_path('routes/admin/superadmin.php');
         });
 
-        // Council Office
-        Route::middleware(['admin.role:council_office'])->group(function () {
+        // Subadmin and Approver of Divisional
+        Route::middleware(['admin.role:council_office,approver'])->group(function () {
             require base_path('routes/admin/council_office.php');
         });
 

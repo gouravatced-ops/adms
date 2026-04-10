@@ -1,5 +1,4 @@
 @extends('admin.layouts.main')
-
 @section('admin-content')
     <style>
         .status-completed {
@@ -45,26 +44,19 @@
 
     @php
         $defaultBadges = [
-            ['label' => 'Total', 'field' => 'total_register_files', 'class' => 'primary', 'always' => true],
-            ['label' => 'Assigned', 'field' => 'total_assigned_files', 'class' => 'info', 'always' => true],
-            ['label' => 'Completed', 'field' => 'total_completed_files', 'class' => 'success', 'always' => true],
-            ['label' => 'Transfer Files', 'field' => 'transfer_file_count', 'class' => 'dark', 'always' => true],
-            ['label' => 'Pending', 'field' => 'total_pending_files', 'class' => 'warning text-dark'],
-            ['label' => 'In Progress', 'field' => 'total_inprogress_files', 'class' => 'secondary'],
-            ['label' => 'Not Assigned', 'field' => 'not_assigned_files', 'class' => 'danger'],
-            ['label' => 'Checked Files', 'field' => 'total_verified_files', 'class' => 'success'],
-            ['label' => 'Unchecked Files', 'field' => 'total_unverified_files', 'class' => 'dark'],
-            ['label' => 'Revert Files', 'field' => 'total_revert_files', 'class' => 'danger'],
+            ['label' => 'Total Verified', 'field' => 'verified_files_count', 'class' => 'primary', 'always' => true],
+            ['label' => 'Total Approved', 'field' => 'approved_files_count', 'class' => 'success', 'always' => true],
+            ['label' => 'Total Unapproved', 'field' => 'unapproved_files_count', 'class' => 'dark', 'always' => true],
         ];
     @endphp
 
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Data Entry Lots</span>
+            <span class="invert-text-white">Dashboard / Pending for Approval Lots</span>
         </h6>
 
         <div class="card mb-4">
-            <h5 class="card-header text-white bg-info">Data Entry Lots</h5>
+            <h5 class="card-header bg-primary text-white bg-info">Pending for Approval</h5>
 
             <div class="card-body mt-2">
 
@@ -86,8 +78,6 @@
                                 <th>Lot No</th>
                                 <th>File Counts</th>
                                 <th>Division</th>
-                                <th>Created By</th>
-                                <th>Stage</th>
                                 <th>Created On</th>
                                 <th width="150" class="text-center">Actions</th>
                             </tr>
@@ -101,14 +91,14 @@
                                     <td class="fw-semibold">
                                         {{ $item->register_no }}
 
-                                        @if ($item->lots_subadmin_approved == 1)
+                                        <!-- @if ($item->lots_subadmin_approved == 1)
                                             <span class="status-completed" title="Sub Admin Approved">✓</span>
                                         @elseif($item->lots_subadmin_approved == 0)
                                             <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
                                         @elseif($item->lots_subadmin_approved === 2)
                                             <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                                             Remark: <span class="small text-danger">{{ $item->remarks ?? 'No remarks provided' }}</span>
-                                        @endif
+                                        @endif -->
                                     </td>
 
                                     <td>
@@ -142,29 +132,16 @@
 
                                     <td>{{ getDivisionName($item->division_id) }}</td>
 
-                                    <td>{{ $item->created_named_by }}</td>
-
-                                    <td>
-                                        <span class="badge bg-{{ $item->badge_color ?: 'secondary' }}">
-                                            {{ ucfirst($item->current_stage) }}
-                                        </span>
-                                    </td>
-
                                     <td>{{ formatDate($item->created_at) }}</td>
 
                                     <td>
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="{{ route('admin.dataentry.files.index', [
+                                            <a href="{{ route('admin.pending.files.index', [
                                                 'encodedId' => $item->encoded_register_no,
                                                 'page' => 1,
                                             ]) }}"
                                                 class="btn btn-sm btn-primary" title="View Lot Files">
                                                 <i class="bx bx-list-ul"></i>
-                                            </a>
-
-                                            <a href="{{ route('admin.lots.assign.files.status', base64_encode($item->id)) }}"
-                                                class="btn btn-sm btn-secondary" title="Assigned Files Status">
-                                                <i class="bx bx-check-circle"></i>
                                             </a>
                                         </div>
                                     </td>

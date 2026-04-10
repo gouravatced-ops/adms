@@ -99,12 +99,15 @@
                             <!-- For mobile screens -->
                             <div class="nav-item d-flex d-md-none">
                                 Welcome, <strong class="mx-1">{{ auth('admin')->user()->admin_name }}</strong>
-                                to CGMS.
+                                to Allottee Data Management System
                             </div>
                         </div>
 
 
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            @if(auth('admin')->user()->role === 'approver')
+                            <strong>({{getDivisionName(auth('admin')->user()->division_id)}})</strong>
+                            @endif
                             <!-- User -->
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
@@ -131,6 +134,9 @@
                                                     <small class="text-muted">
                                                         @if (auth('admin')->user()->role === 'council_office')
                                                             SUB ADMIN
+                                                        @endif
+                                                        @if (auth('admin')->user()->role === 'approver')
+                                                            JSHB APPROVER
                                                         @endif
                                                         @if (auth('admin')->user()->role == 'superadmin')
                                                             ADMIN

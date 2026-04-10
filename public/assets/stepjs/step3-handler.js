@@ -653,14 +653,14 @@ const Step3Handler = {
 
         // Required fields validation
         const requiredFields = [
-            "tentative_price",
+            // "tentative_price",
             // "payment_months",
             // "payment_start_month",
             // "payment_start_year",
             // "interest_type",
             // "pre_interest",
             // "late_interest",
-            "specified_days",
+            // "specified_days",
         ];
 
         requiredFields.forEach((fieldName) => {
@@ -677,19 +677,19 @@ const Step3Handler = {
         const highPercent = document.getElementById("high_income_percent");
         const depositedAmount = document.getElementById("deposited_amount");
 
-        if (depositType === "percent") {
-            if (!highPercent?.value) {
-                highPercent?.classList.add("is-invalid");
-                valid = false;
-                if (!firstInvalid) firstInvalid = highPercent;
-            }
-        } else {
-            if (!depositedAmount?.value) {
-                depositedAmount?.classList.add("is-invalid");
-                valid = false;
-                if (!firstInvalid) firstInvalid = depositedAmount;
-            }
-        }
+        // if (depositType === "percent") {
+        //     if (!highPercent?.value) {
+        //         highPercent?.classList.add("is-invalid");
+        //         valid = false;
+        //         if (!firstInvalid) firstInvalid = highPercent;
+        //     }
+        // } else {
+        //     if (!depositedAmount?.value) {
+        //         depositedAmount?.classList.add("is-invalid");
+        //         valid = false;
+        //         if (!firstInvalid) firstInvalid = depositedAmount;
+        //     }
+        // }
 
         if (firstInvalid) {
             firstInvalid.scrollIntoView({
@@ -706,19 +706,19 @@ const Step3Handler = {
             "late_interest_amount",
         );
 
-        if (interestMode === "manual") {
-            if (!preInterestAmount?.value) {
-                preInterestAmount?.classList.add("is-invalid");
-                valid = false;
-                if (!firstInvalid) firstInvalid = preInterestAmount;
-            }
+        // if (interestMode === "manual") {
+        //     if (!preInterestAmount?.value) {
+        //         preInterestAmount?.classList.add("is-invalid");
+        //         valid = false;
+        //         if (!firstInvalid) firstInvalid = preInterestAmount;
+        //     }
 
-            if (!lateInterestAmount?.value) {
-                lateInterestAmount?.classList.add("is-invalid");
-                valid = false;
-                if (!firstInvalid) firstInvalid = lateInterestAmount;
-            }
-        }
+        //     if (!lateInterestAmount?.value) {
+        //         lateInterestAmount?.classList.add("is-invalid");
+        //         valid = false;
+        //         if (!firstInvalid) firstInvalid = lateInterestAmount;
+        //     }
+        // }
 
         return valid;
     },

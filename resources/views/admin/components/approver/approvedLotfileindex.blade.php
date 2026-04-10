@@ -45,16 +45,16 @@
 </style>
 <div class="container-xxl flex-grow-1">
     <h6 class="py-3 mb-2">
-        <span class="invert-text-white">Dashboard / Data Entry Files List / {{ $Lots }} :
+        <span class="invert-text-white">Dashboard / Approved Files / {{ $Lots }} :
             {{ $registerNo }}</span>
     </h6>
 
     <div class="card mb-4">
-        <div class="card-header bg-warning d-flex justify-content-between align-items-center">
-            <h5 class="text-white mb-0">Lot Data Entry Files</h5>
+        <div class="card-header bg-success d-flex justify-content-between align-items-center">
+            <h5 class="text-white mb-0">Approved Files</h5>
             <div class="btn-group">
                 <button type="button" class="btn btn-light btn-sm">
-                    <a href="{{ route('admin.dataentry.lots.index') }}" class="text-decoration-none text-dark">
+                    <a href="{{ route('approver.approved-lots') }}" class="text-decoration-none text-dark">
                         ← Back
                     </a>
                 </button>
@@ -87,7 +87,7 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            <th>Action</th> <!-- Edit file -->
+                            <!-- <th>Action</th> -->
                         </tr>
                     </thead>
 
@@ -255,12 +255,12 @@
                                 }
                                 @endphp
                                 <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}
-                                    @if ($item->sub_admin_allottee_verify == 1)
+                                    @if ($item->divisional_approval == 1)
                                     <span class="status-completed">✓</span>
-                                    @elseif($item->sub_admin_allottee_verify == 0)
+                                    @elseif($item->divisional_approval == 0)
                                     <span class="status-pending" title="Sub Admin Pending"><i
                                             class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
-                                    @elseif($item->sub_admin_allottee_verify === 2)
+                                    @elseif($item->divisional_approval === 2)
                                     <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                                     @endif
                                 </div>
@@ -292,7 +292,7 @@
                             <td>
                                 {{ formatDateTime($item->updated_at ?? now()) }}
                             </td>
-                            <td>
+                            <!-- <td>
                                 <div class="d-flex justify-content-center gap-1">
 
                                     {{-- Preview --}}
@@ -315,20 +315,20 @@
                                         </svg>
                                     </a>
                                 </div>
-                            </td>
+                            </td> -->
                         </tr>
                         @empty
                         <tr>
                             <td colspan="8" class="text-center text-muted">
-                                    No Lots Files Found.
+                                No Lots Files Found.
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
 
-                {{-- Verify Buttons --}}
-                <!-- @if ($allVerified && $allVerified == 1)
+                <!-- {{-- Verify Buttons --}}
+                @if ($allVerified && $allVerified == 1)
                 <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
                     <button type="button"
                         class="btn btn-primary btn-md"
@@ -359,7 +359,7 @@
                             @csrf
 
                             <div class="modal-header bg-success text-white" style="padding: 10px !important;">
-                                <h5 class="modal-title text-white" id="verifyModalLabel">
+                                <h5 class="modal-title text-white" id="verifyModalLabel{{ $item->id }}">
                                     Verify & Approve Lot
                                 </h5>
 

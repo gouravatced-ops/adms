@@ -445,52 +445,202 @@ class FileManagementController extends Controller
         }
     }
 
+    public function CheckedLotsList(Request $request)
+    {
+        try {
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'scanned')
+                // ->where('lots_subadmin_approved', 1)
+
+                // Only include lots where at least one allottee is verified
+                ->whereHas('registerAllottee', function ($q) {
+                    $q->where('sub_admin_allottee_verify', 1);
+                })
+
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('sub_admin_allottee_verify', 1);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->created_named_by = $item->creator?->name ?? 'System';
+
+                    $item->current_stage = 'Verified';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            // return $registrations;
+            return view(
+                'admin.components.filereceiving.checklotsindex',
+                compact('registrations')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
+
+    public function checkedLotsFileList($encodedId, $page)
+    {
+        try {
+            $registerNo = base64_decode($encodedId);
+
+            $baseRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+            ];
+            // return $assignedAllotteeIds;
+            $query = Allottee::query()
+                ->with($baseRelations)
+                ->where('register_id', $registerNo)
+                ->where('sub_admin_allottee_verify', 1);
+
+            $registerAllottee = $query->paginate(50)->through(function ($item) {
+                $item->allotteeId = encrypt($item->id);
+                return $item;
+            });
+            // return $files;
+            $files = $registerAllottee;
+            $pageNo = $page;
+
+            $registers  = RegistrationFile::where('register_no', $registerNo)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            return view('admin.components.filereceiving.checklotsfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function revertLotsFileList($page = 1)
+    {
+        try {
+            $baseRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+            ];
+            // return $assignedAllotteeIds;
+            $query = Allottee::query()
+                ->with($baseRelations)
+                ->where('sub_admin_allottee_verify', 2);
+
+            $registerAllottee = $query->paginate(50)->through(function ($item) {
+                $item->allotteeId = encrypt($item->id);
+                return $item;
+            });
+            // return $files;
+            $files = $registerAllottee;
+            $pageNo = $page;
+            $revertfilecount = $files->count();
+            return view('admin.components.filereceiving.revertlotsfileindex', compact('files', 'revertfilecount', 'pageNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
     public function dataentryLotsList(Request $request)
     {
         try {
             $registrations = RegistrationFile::query()
                 ->with(['creator:id,name'])
+
+                // Only scanned lots
+                ->where('status', 'scanned')
+
                 ->withCount([
-                    // Total register files in this lot
                     'registerAllotteeDetails as total_register_files',
 
-                    // Total assigned files against this lot
+                    // Total verified files
+                    'registerAllottee as total_verified_files' => function ($q) {
+                        $q->where('sub_admin_allottee_verify', 1);
+                    },
+
+                    'registerAllottee as total_unverified_files' => function ($q) {
+                        $q->where('sub_admin_allottee_verify', 0);
+                    },
+
+                    'registerAllottee as total_revert_files' => function ($q) {
+                        $q->where('sub_admin_allottee_verify', 2);
+                    },
+
                     'lotAssignments as total_assigned_files',
 
-                    // Completed files
-                    'lotAssignments as total_completed_files' => fn($q) => $q
-                        ->where('status', 'completed'),
+                    'lotAssignments as total_completed_files' => function ($q) {
+                        $q->where('status', 'completed');
+                    },
 
-                    // Pending files
-                    'lotAssignments as total_pending_files' => fn($q) => $q
-                        ->where('status', 'pending'),
+                    'lotAssignments as total_pending_files' => function ($q) {
+                        $q->where('status', 'pending');
+                    },
 
-                    // In progress files
-                    'lotAssignments as total_inprogress_files' => fn($q) => $q
-                        ->where('status', 'in_progress'),
+                    'lotAssignments as total_inprogress_files' => function ($q) {
+                        $q->where('status', 'in_progress');
+                    },
                 ])
 
-                // Only those lots where at least one file is still in dataentry stage
-                ->whereHas('registerAllotteeDetails', function ($q) {
+                // Show only those lots where at least one file is NOT verified yet
+                ->whereHas('registerAllottee', function ($q) {
                     $q->where(function ($sub) {
-                        $sub->whereNull('allottee_status')
-                            ->orWhereRaw('LOWER(TRIM(allottee_status)) = ?', ['dataentry']);
+                        $sub->whereNull('sub_admin_allottee_verify')
+                            ->orWhere('sub_admin_allottee_verify', '!=', 1);
                     });
                 })
 
-                ->latest()
+                ->latest('created_at')
                 ->get()
 
                 ->map(function ($item) {
+                    $item->remaining_verified_files = max(
+                        0,
+                        $item->total_register_files - $item->total_verified_files
+                    );
+
                     $item->not_assigned_files = max(
                         0,
                         $item->total_register_files - $item->total_assigned_files
                     );
+
                     $item->transfer_file_count = Allottee::query()
                         ->where('register_id', $item->register_no)
                         ->whereNull('register_file_id')
                         ->whereNotNull('parent_id')
                         ->count();
+
                     $item->encoded_register_no = base64_encode($item->register_no);
                     $item->created_named_by    = $item->creator?->name ?? 'System';
                     $item->current_stage       = 'Data Entry';
@@ -530,7 +680,8 @@ class FileManagementController extends Controller
             // return $assignedAllotteeIds;
             $query = Allottee::query()
                 ->with($baseRelations)
-                ->where('register_id', $registerNo);
+                ->where('register_id', $registerNo)
+                ->where('sub_admin_allottee_verify', 0);
 
             $registerAllottee = $query->paginate(50)->through(function ($item) {
                 $item->allotteeId = encrypt($item->id);
@@ -602,7 +753,11 @@ class FileManagementController extends Controller
         // return $id;
         try {
             $document = AllotteeDocument::findOrFail($id);
-            $document->update(['is_sadmin_read' => true]);
+            if (auth('admin')->user()->role == 'approver') {
+                $document->update(['is_divisional_read' => 1]);
+            } else {
+                $document->update(['is_sadmin_read' => 1]);
+            }
 
             return response()->json(['success' => true]);
         } catch (\Throwable $e) {
@@ -629,13 +784,21 @@ class FileManagementController extends Controller
                 return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                     ->with('success', 'Data entry reverted successfully.');
             } else {
-                $file->update([
-                    'sub_admin_allottee_verify' => 1,
-                    'sub_admin_remarks' => $request->remarks,
-                ]);
-
-                return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
-                    ->with('success', 'Data entry approved successfully.');
+                if (auth('admin')->user()->role == 'approver') {
+                    $file->update([
+                        'divisional_approval' => 1,
+                        'divisional_remaks' => $request->remarks,
+                    ]);
+                    return redirect()->route('admin.pending.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                        ->with('success', 'Data entry approved successfully.');
+                } else {
+                    $file->update([
+                        'sub_admin_allottee_verify' => 1,
+                        'sub_admin_remarks' => $request->remarks,
+                    ]);
+                    return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+                        ->with('success', 'Data entry approved successfully.');
+                }
             }
         } catch (\Throwable $e) {
             Log::error('Data entry approval failed', [
@@ -664,7 +827,7 @@ class FileManagementController extends Controller
                     ->update(['lots_subadmin_approved' => 1, 'status' => 'scanned', 'remarks' => $request->remarks]);
 
                 Allottee::where('register_id', $registerNo)->where('is_step_completed', 1)
-                    ->update(['allottee_verify' => 1]);
+                    ->update(['sub_admin_allottee_verify' => 1]);
 
                 return redirect()->route('admin.dataentry.lots.index')
                     ->with('success', "Lots approved successfully by sub-admin for register no: {$registerNo}.");
@@ -675,5 +838,12 @@ class FileManagementController extends Controller
             ]);
             return back()->with('error', 'Failed to approve data entry for lots.');
         }
+    }
+
+    public function fetchallottedetails($encryptedId)
+    {
+        $id = decrypt($encryptedId);
+        $applicant = Allottee::where('id', $id)->firstOrFail();
+        return view('admin.components.forms.editstep1', compact('applicant'));
     }
 }

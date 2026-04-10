@@ -1,5 +1,4 @@
 @extends('admin.layouts.main')
-
 @section('admin-content')
     <style>
         .status-completed {
@@ -45,26 +44,17 @@
 
     @php
         $defaultBadges = [
-            ['label' => 'Total', 'field' => 'total_register_files', 'class' => 'primary', 'always' => true],
-            ['label' => 'Assigned', 'field' => 'total_assigned_files', 'class' => 'info', 'always' => true],
-            ['label' => 'Completed', 'field' => 'total_completed_files', 'class' => 'success', 'always' => true],
-            ['label' => 'Transfer Files', 'field' => 'transfer_file_count', 'class' => 'dark', 'always' => true],
-            ['label' => 'Pending', 'field' => 'total_pending_files', 'class' => 'warning text-dark'],
-            ['label' => 'In Progress', 'field' => 'total_inprogress_files', 'class' => 'secondary'],
-            ['label' => 'Not Assigned', 'field' => 'not_assigned_files', 'class' => 'danger'],
-            ['label' => 'Checked Files', 'field' => 'total_verified_files', 'class' => 'success'],
-            ['label' => 'Unchecked Files', 'field' => 'total_unverified_files', 'class' => 'dark'],
-            ['label' => 'Revert Files', 'field' => 'total_revert_files', 'class' => 'danger'],
+            ['label' => 'Total Verified', 'field' => 'verified_files_count', 'class' => 'primary', 'always' => true],
         ];
     @endphp
 
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Data Entry Lots</span>
+            <span class="invert-text-white">Dashboard / Checked Lots</span>
         </h6>
 
         <div class="card mb-4">
-            <h5 class="card-header text-white bg-info">Data Entry Lots</h5>
+            <h5 class="card-header bg-primary text-white bg-info">Checked Lots</h5>
 
             <div class="card-body mt-2">
 
@@ -154,17 +144,12 @@
 
                                     <td>
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="{{ route('admin.dataentry.files.index', [
+                                            <a href="{{ route('admin.checked.files.index', [
                                                 'encodedId' => $item->encoded_register_no,
                                                 'page' => 1,
                                             ]) }}"
                                                 class="btn btn-sm btn-primary" title="View Lot Files">
                                                 <i class="bx bx-list-ul"></i>
-                                            </a>
-
-                                            <a href="{{ route('admin.lots.assign.files.status', base64_encode($item->id)) }}"
-                                                class="btn btn-sm btn-secondary" title="Assigned Files Status">
-                                                <i class="bx bx-check-circle"></i>
                                             </a>
                                         </div>
                                     </td>

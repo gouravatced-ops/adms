@@ -24,4 +24,9 @@ class SubDivision extends Model
     {
         return $this->belongsTo(Division::class, 'division_id');
     }
+
+    public function allottees()
+    {
+        return $this->hasMany(Allottee::class, 'subdivision_id');
+    }
 }

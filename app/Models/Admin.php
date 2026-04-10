@@ -21,6 +21,8 @@ class Admin extends Model implements AuthenticatableContract
         'profile_path',
         'prev_password',
         'role',
+        'division_id',
+        'designation',
         'otp_verified_at',
         'password_created_at',
     ];

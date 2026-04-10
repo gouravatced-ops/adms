@@ -18,3 +18,6 @@ ALTER TABLE `allottees` ADD `divisional_approval` INT NOT NULL DEFAULT '0' AFTER
 ALTER TABLE `allottees` CHANGE `allottee_verify` `sub_admin_allottee_verify` INT(11) NOT NULL DEFAULT '0';
 
 ALTER TABLE `allottee_documents` ADD `is_sadmin_read` INT NOT NULL DEFAULT '0' AFTER `file_name`, ADD `is_divisional_read` INT NOT NULL DEFAULT '0' AFTER `is_sadmin_read`;
+
+ALTER TABLE `admins` CHANGE `role` `role` ENUM('council_office','registar','superadmin','approver') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `admins` ADD `division_id` INT NOT NULL DEFAULT '0' AFTER `gender`, ADD `designation` VARCHAR(255) NULL DEFAULT NULL AFTER `division_id`;

@@ -19,25 +19,91 @@ class AdminController extends Controller
 {
     public function councilDashboard()
     {
-        $divisionCount     = Division::where('status', 1)->count();
-        $subdivisionCount  = SubDivision::where('status', 1)->count();
-        $schemeCount       = Scheme::where('is_active', 1)->count();
-        $allotteeCount     = Allottee::where('is_step_completed', 1)->count();
+        $user       = auth('admin')->user();
+        $divisionId = $user->division_id;
 
-        $recentAllotteeList = Allottee::with('division')->where('is_step_completed', 1)
-            ->latest() // cleaner than orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        if ($user->role === 'council_office') {
 
-        // return $recentAllotteeList;
+            $divisionCount    = Division::where('status', 1)->count();
+            $subdivisionCount = SubDivision::where('status', 1)->count();
+            $schemeCount      = Scheme::where('is_active', 1)->count();
+            $allotteeCount    = Allottee::where('is_step_completed', 1)->count();
 
-        return view('admin.modules.dashboard.co-dashboard', compact(
-            'divisionCount',
-            'subdivisionCount',
-            'schemeCount',
-            'allotteeCount',
-            'recentAllotteeList'
-        ));
+            $recentAllotteeList = Allottee::with('division:id,name')
+                ->where('is_step_completed', 1)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            return view('admin.modules.dashboard.co-dashboard', compact(
+                'divisionCount',
+                'subdivisionCount',
+                'schemeCount',
+                'allotteeCount',
+                'recentAllotteeList'
+            ));
+        }
+
+        if ($user->role === 'approver') {
+
+            $allDivisionFileCount = Allottee::where([
+                'division_id'       => $divisionId,
+                'is_step_completed' => 1,
+            ])->count();
+
+            $subdivisionStats = SubDivision::query()
+                ->where([
+                    'division_id' => $divisionId,
+                    'status'      => 1,
+                ])
+                ->withCount([
+                    'allottees as total_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1);
+                    },
+
+                    'allottees as verified_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where('sub_admin_allottee_verify', 1);
+                    },
+
+                    'allottees as pending_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where(function ($sub) {
+                                $sub->whereNull('sub_admin_allottee_verify')
+                                    ->orWhere('sub_admin_allottee_verify', '!=', 1);
+                            });
+                    },
+                ])
+                ->get()
+                ->map(function ($subdivision) {
+                    $subdivision->progress_percent = $subdivision->total_files_count > 0
+                        ? round(($subdivision->verified_files_count / $subdivision->total_files_count) * 100)
+                        : 0;
+
+                    return $subdivision;
+                });
+
+            $recentVerifyAllotteeList = Allottee::with([
+                'division:id,name',
+                'subdivision:id,name'
+            ])
+                ->where([
+                    'division_id'               => $divisionId,
+                    'is_step_completed'         => 1,
+                    'sub_admin_allottee_verify' => 1,
+                ])
+                ->latest('updated_at')
+                ->take(5)
+                ->get();
+            // return [$allDivisionFileCount , $subdivisionStats , $recentVerifyAllotteeList];
+            return view('admin.modules.dashboard.co-dashboard', compact(
+                'allDivisionFileCount',
+                'subdivisionStats',
+                'recentVerifyAllotteeList'
+            ));
+        }
+
+        return view('error.403');
     }
 
     public function registarDashboard()
@@ -68,6 +134,7 @@ class AdminController extends Controller
             'email' => 'required|email',
             'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204', // 200KB
             'newPassword' => 'nullable|confirmed|min:6',
+            'designation' => 'nullable|string'
         ]);
 
         $admin = auth('admin')->user();
@@ -96,6 +163,7 @@ class AdminController extends Controller
                 'admin_name' => $validated['name'],
                 'gender' => $validated['gender'],
                 'email_id' => $validated['email'],
+                'designation' => $validated['designation'],
                 'profile_path' => $profilePic,
             ]
         );

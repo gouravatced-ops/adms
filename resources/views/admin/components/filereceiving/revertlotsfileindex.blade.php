@@ -45,20 +45,12 @@
 </style>
 <div class="container-xxl flex-grow-1">
     <h6 class="py-3 mb-2">
-        <span class="invert-text-white">Dashboard / Data Entry Files List / {{ $Lots }} :
-            {{ $registerNo }}</span>
+        <span class="invert-text-white">Dashboard / Revert Files List </span>
     </h6>
 
     <div class="card mb-4">
-        <div class="card-header bg-warning d-flex justify-content-between align-items-center">
-            <h5 class="text-white mb-0">Lot Data Entry Files</h5>
-            <div class="btn-group">
-                <button type="button" class="btn btn-light btn-sm">
-                    <a href="{{ route('admin.dataentry.lots.index') }}" class="text-decoration-none text-dark">
-                        ← Back
-                    </a>
-                </button>
-            </div>
+        <div class="card-header bg-danger d-flex justify-content-between align-items-center">
+            <h5 class="text-white mb-0">Lot Revert Files</h5>
         </div>
 
         <div class="card-body mt-0 p-3">
@@ -76,9 +68,8 @@
                 <button class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             @endif
-
             <div class="table-responsive">
-                <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
+                <table {{ $revertfilecount > 0 ? 'id=allLotsListTable' : '' }} class="table table-striped table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Sl. no.</th>
@@ -87,7 +78,7 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            <th>Action</th> <!-- Edit file -->
+                            <!-- <th>Action</th> -->
                         </tr>
                     </thead>
 
@@ -268,6 +259,7 @@
                                     {{ $item->property_number ?? 'C-52' }}</small>
                                 <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
                                 <small class="text-muted d-block">Total Pages: {{ $totalPages }}</small>
+                                <strong>Revert Remarks :</strong> <span class="text-danger">{{ $item->sub_admin_remarks ?? 'No remarks provided' }}</span>
                                 <div class="d-flex flex-wrap gap-1">
                                     @foreach ($badges as $badge)
                                     <span class="badge {{ $badge['class'] }}">
@@ -292,7 +284,7 @@
                             <td>
                                 {{ formatDateTime($item->updated_at ?? now()) }}
                             </td>
-                            <td>
+                            <!-- <td>
                                 <div class="d-flex justify-content-center gap-1">
 
                                     {{-- Preview --}}
@@ -315,89 +307,23 @@
                                         </svg>
                                     </a>
                                 </div>
-                            </td>
+                            </td> -->
                         </tr>
                         @empty
                         <tr>
                             <td colspan="8" class="text-center text-muted">
-                                    No Lots Files Found.
+                                No Lots Found.
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
 
-                {{-- Verify Buttons --}}
-                <!-- @if ($allVerified && $allVerified == 1)
-                <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
-                    <button type="button"
-                        class="btn btn-primary btn-md"
-                        data-bs-toggle="modal"
-                        data-bs-target="#verifyDataEntryLotModal">
-                        <i class="bx bx-check-shield me-1"></i>
-                        Verify Lots
-                    </button>
-                </div>
-                @endif -->
-
                 @if ($files->hasPages())
                 <div class="p-4 border-top">
                     {{ $files->links('vendor.pagination.custom') }}
                 </div>
                 @endif
-            </div>
-
-
-            <div class="modal fade" id="verifyDataEntryLotModal" tabindex="-1"
-                aria-labelledby="verifyDataEntryLotModalLabel" aria-hidden="true">
-
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form
-                            action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => $registerNo]) }}"
-                            method="POST">
-                            @csrf
-
-                            <div class="modal-header bg-success text-white" style="padding: 10px !important;">
-                                <h5 class="modal-title text-white" id="verifyModalLabel">
-                                    Verify & Approve Lot
-                                </h5>
-
-                                <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                            </div>
-
-                            <div class="modal-body">
-                                <div class="mb-3 p-3 border rounded bg-light">
-                                    <strong>Register:</strong> {{ $registerNo }} <br>
-                                    <strong>Lot No:</strong> {{ $Lots }}
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Remarks
-                                        <small class="text-muted">(Optional)</small>
-                                    </label>
-
-                                    <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>
-                                </div>
-
-                                <input type="hidden" name="status" value="verified">
-                            </div>
-                            <hr style="margin:0;">
-                            <div class="modal-footer" style="padding: 10px; !important;">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                                    Cancel
-                                </button>
-
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bx bx-check-circle me-1"></i>
-                                    Verify & Approve
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

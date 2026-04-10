@@ -57,15 +57,30 @@
         <div class="card-header bg-dark d-flex justify-content-between align-items-center">
             <h5 class="text-white mb-0">File Preview :
                 {{ trim(($registration?->prefix ?? '') . ' ' . ($registration?->allottee_name ?? '') . ' ' . ($registration?->allottee_middle_name ?? '') . ' ' . ($registration?->allottee_surname ?? '')) ?: 'N/A' }}
-                @if ($registration?->sub_admin_allottee_verify == 1)
-                <span class="status-completed">✓</span>
-                @elseif($registration?->sub_admin_allottee_verify == 0)
-                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
-                        style="font-size: 10px;"></i></span>
-                @elseif($registration?->sub_admin_allottee_verify === 2)
-                <span class="status-rejected" title="Sub Admin Rejected">✗</span>
-                Remark: <span
-                    class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                @if(auth('admin')->user()->role === 'approver')
+                    @if ($registration?->divisional_approval == 1)
+                    <span class="status-completed">✓</span>
+                    @elseif($registration?->divisional_approval == 0)
+                    <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
+                            style="font-size: 10px;"></i></span>
+                    @elseif($registration?->divisional_approval === 2)
+                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                    Remark: <span
+                        class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                    @endif
+                @endif
+
+                @if(auth('admin')->user()->role === 'council_office')
+                    @if ($registration?->sub_admin_allottee_verify == 1)
+                    <span class="status-completed">✓</span>
+                    @elseif($registration?->sub_admin_allottee_verify == 0)
+                    <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
+                            style="font-size: 10px;"></i></span>
+                    @elseif($registration?->sub_admin_allottee_verify === 2)
+                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                    Remark: <span
+                        class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                    @endif
                 @endif
             </h5>
             <div class="btn-group">
@@ -247,7 +262,7 @@
 
                         @if (!empty($registration?->allottee_document_path))
                         <tr>
-                            <th class="bg-light" width="20%">Document Folder</th>
+                            <th class="bg-light" width="20%"><strong>Document Folder</strong></th>
                             <td colspan="8">
                                 <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                     <span id="docPath{{ $registration?->id }}" class="text-break">
@@ -301,14 +316,15 @@
                 <div class="tab-pane fade {{ $tabsList[0]['active'] ? 'show active' : '' }}"
                     id="content-allottee_details" role="tabpanel">
                     <!-- Edit Allottee Details is only available when Sub Admin has not verified the allottee details. Once verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
+                        <a href="{{ route('admin.fetch.step1', $registration->encrypted_id) }}"
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Allottee Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tbody>
@@ -429,14 +445,14 @@
                     $address = $registration?->alloteeAdresses ?? null;
                     @endphp
                     <!-- Edit option for contact details will also be available only when Sub Admin has not verified the allottee details, as once contact details are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Contact Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle">
                             <tbody>
@@ -556,14 +572,14 @@
                     $emi = $registration?->accountLedger ?? ($registration?->account_ledger ?? null);
                     @endphp
                     <!-- Edit option for property details will also be available only when Sub Admin has not verified the allottee details, as once property details are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Financial Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle">
                             <tbody>
@@ -751,14 +767,14 @@
                     $emi = $registration?->accountLedger ?? null;
                     @endphp
                     <!-- Edit option for financial details will also be available only when Sub Admin has not verified the allottee details, as once financial details are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Financial Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle">
                             <thead class="table-warning">
@@ -842,14 +858,14 @@
                     $jointAllottees = $registration?->joint_allottees ?? collect();
                     @endphp
                     <!-- Edit option for nominee details will also be available only when Sub Admin has not verified the allottee details, as once nominee details are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Nominee Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle">
                             <tbody>
@@ -933,14 +949,14 @@
 
                     @if ($jointAllottees?->count() > 0)
                     <!-- Edit option for joint allottee details will also be available only when Sub Admin has not verified the allottee details, as once joint allottee details are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Joint Allottee Details
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-hover align-middle">
                             <thead class="table-info">
@@ -978,14 +994,14 @@
                 {{-- Tab Documents (Common for both) --}}
                 <div class="tab-pane fade" id="content-documents" role="tabpanel">
                     <!-- Edit option for documents will also be available only when Sub Admin has not verified the allottee details, as once documents are verified, if any changes are required, then Sub Admin needs to revert the verification with remarks and then details can be edited. -->
-                    @if ($registration->sub_admin_allottee_verify != 1)
+                    <!-- @if ($registration->sub_admin_allottee_verify != 1)
                     <div class="d-flex justify-content-end">
                         <a href="#"
                             class="btn btn-sm btn-primary">
                             <i class="bx bx-edit-alt me-1"></i> Edit Documents
                         </a>
                     </div>
-                    @endif
+                    @endif -->
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped align-middle">
                             <thead class="table-warning">
@@ -1036,6 +1052,9 @@
                                         <small class="text-info">
                                             {{ strtoupper($document?->document_category) }} &nbsp; <!-- Marks Is read -->
                                             @if($doc?->is_sadmin_read == 1)
+                                            <span class="badge bg-success">Read</span>
+                                            @endif
+                                            @if($doc?->is_divisional_read == 1)
                                             <span class="badge bg-success">Read</span>
                                             @endif
                                         </small>
@@ -1143,24 +1162,31 @@
             </div>
             @endif
 
+            @php
+                $label = auth('admin')->user()->role === 'approver'
+                    ? 'Approved'
+                    : 'Verify Data Entry';
+            @endphp
+
             {{-- Verify / Revert Buttons --}}
             @if($registration?->is_step_completed == 1)
             <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
-                <button type="button"
-                    class="btn btn-primary btn-md"
-                    data-bs-toggle="modal"
-                    data-bs-target="#verifyDataEntryModal">
-                    <i class="bx bx-check-shield me-1"></i>
-                    Verify Data Entry
-                </button>
-
-                <button type="button"
-                    class="btn btn-danger btn-md"
-                    data-bs-toggle="modal"
-                    data-bs-target="#revertDataEntryModal">
-                    <i class="bx bx-undo me-1"></i>
-                    Revert
-                </button>
+                    <button type="button"
+                        class="btn btn-primary btn-md"
+                        data-bs-toggle="modal"
+                        data-bs-target="#verifyDataEntryModal">
+                        <i class="bx bx-check-shield me-1"></i>
+                        {{ $label }}
+                    </button>
+                    @if(auth('admin')->user()->role == 'council_office')
+                    <button type="button"
+                        class="btn btn-danger btn-md"
+                        data-bs-toggle="modal"
+                        data-bs-target="#revertDataEntryModal">
+                        <i class="bx bx-undo me-1"></i>
+                        Revert
+                    </button>
+                    @endif
             </div>
             @endif
 
