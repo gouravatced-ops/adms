@@ -61,6 +61,7 @@ class Allottee extends Model
         'no_of_supplement',
         'json_pages',
         'total_pages',
+        'file_remarks',
         'parent_id',
         'current_step',
         'is_trans_entry_completed',

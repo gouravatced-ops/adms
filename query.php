@@ -21,3 +21,5 @@ ALTER TABLE `allottee_documents` ADD `is_sadmin_read` INT NOT NULL DEFAULT '0' A
 
 ALTER TABLE `admins` CHANGE `role` `role` ENUM('council_office','registar','superadmin','approver') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 ALTER TABLE `admins` ADD `division_id` INT NOT NULL DEFAULT '0' AFTER `gender`, ADD `designation` VARCHAR(255) NULL DEFAULT NULL AFTER `division_id`;
+
+ALTER TABLE `allottees` ADD `file_remarks` VARCHAR(255) NULL DEFAULT NULL AFTER `total_pages`;

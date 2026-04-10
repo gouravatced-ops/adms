@@ -1191,8 +1191,8 @@ class StepperFormController extends Controller
         $applicant->date_of_birth_day = $request->date_of_birth_day;
         $applicant->date_of_birth_month = $request->date_of_birth_month;
         $applicant->date_of_birth_year = $request->date_of_birth_year;
-        $applicant->date_of_birth_year = $request->date_of_birth_year;
-        $applicant->remarks_for_dob = $registerAllottee->remarks_for_dob;
+        $applicant->remarks_for_dob = $request->remarks_for_dob;
+        $applicant->file_remarks = $registerAllottee->remarks;
         $applicant->no_of_files = $registerAllottee->no_of_files;
         $applicant->no_of_supplement = $registerAllottee->no_of_supplement;
         $applicant->json_pages = $registerAllottee->json_pages;

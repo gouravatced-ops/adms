@@ -100,8 +100,8 @@
                         $fileCount = $item->no_of_files ?? 1;
 
                         // Format property details
-                        $propertyType = $item->property_type->name ?? 'Plot';
-                        $quarterInfo = $item->quarter_type->quarter_code ?? 'MIG';
+                        $propertyType = $item->propertyType->name ?? 'N/A';
+                        $quarterInfo = $item->quarterType->quarter_code ?? 'N/A';
 
                         // Format allottee name
                         $allotteeName = trim(
@@ -277,20 +277,20 @@
                                 </div>
                             </td>
                             <td>
-                                <div>{{ $item->division->name ?? 'Ranchi Division' }}</div>
+                                <div>{{ $item->division->name ?? 'N/A' }}</div>
                                 <small class="text-muted d-block">Sub Division:
-                                    {{ $item->sub_division->name ?? 'Harnu-Ranchi' }}</small>
+                                    {{ $item->subDivision->name ?? 'N/A' }}</small>
                             </td>
                             <td>
-                                <div>{{ $item->property_category->name ?? 'Residential' }} – Plot</div>
+                                <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
                                 <small class="text-muted d-block">Quarter: {{ $quarterInfo }}</small>
                             </td>
                             <td>
                                 <span
-                                    class="badge bg-warning text-dark">{{ $item->remarks ?? 'Partial Fresh and Old Pages' }}</span>
+                                    class="badge bg-warning text-dark">{{ $item->file_remarks }}</span>
                             </td>
                             <td>
-                                {{ formatDateTime($item->updated_at ?? now()) }}
+                                {{ formatDateTime($item->updated_at ?? '--') }}
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
