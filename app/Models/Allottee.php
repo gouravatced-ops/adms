@@ -76,8 +76,10 @@ class Allottee extends Model
         'is_step_completed',
         'sub_admin_allottee_verify',
         'sub_admin_remarks',
+        'sub_admin_checked_date',
         'divisional_approval',
         'divisional_remaks',
+        'divisional_approved_date',
         'updated_by',
         'created_by',
     ];

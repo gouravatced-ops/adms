@@ -386,10 +386,10 @@
                                 </td>
 
                                 <td>
-                                    {{ $file->updated_at?->format('d M Y') }}
+                                    {{ formatDateTime($file->sub_admin_checked_date , 'd/m/Y') }}
                                     <br>
                                     <small class="text-muted">
-                                        {{ $file->updated_at?->format('h:i A') }}
+                                        {{ formatDateTime($file->sub_admin_checked_date , 'h:i A') }}
                                     </small>
                                 </td>
 

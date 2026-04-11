@@ -82,11 +82,10 @@
                     <thead class="table-light">
                         <tr>
                             <th>Sl. no.</th>
-                            <th>Allottee & Property</th>
-                            <th>Division Details</th>
-                            <th>Property Details</th>
-                            <th>Remarks</th>
-                            <th>Dates</th>
+                            <th style="width:25%;">Allottee & Property</th>
+                            <th>Division / Property Details</th>
+                            <th>Checked On</th>
+                            <th>Current Status</th>
                             <th>Action</th> <!-- Edit file -->
                         </tr>
                     </thead>
@@ -254,7 +253,8 @@
                                 ];
                                 }
                                 @endphp
-                                <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}
+                                <div class="fw-semibold"><a href="{{ route('admin.file.preview', encrypt($item->id)) }}" style="color:blue;"
+                                        title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">{{ $allotteeName ?: 'N/A' }}</a>
                                     @if ($item->divisional_approval == 1)
                                     <span class="status-completed">✓</span>
                                     @elseif($item->divisional_approval == 0)
@@ -264,10 +264,8 @@
                                     <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                                     @endif
                                 </div>
-                                <small class="text-muted d-block">Property No:
-                                    {{ $item->property_number ?? 'C-52' }}</small>
-                                <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
-                                <small class="text-muted d-block">Total Pages: {{ $totalPages }}</small>
+                                <span class="d-block"><u>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></u></span>
+                                <span class="d-block">No. of Scanned Pages: {{ $fileCount }}</span>
                                 <div class="d-flex flex-wrap gap-1">
                                     @foreach ($badges as $badge)
                                     <span class="badge {{ $badge['class'] }}">
@@ -277,20 +275,18 @@
                                 </div>
                             </td>
                             <td>
-                                <div>{{ $item->division->name ?? 'N/A' }}</div>
-                                <small class="text-muted d-block">Sub Division:
-                                    {{ $item->subDivision->name ?? 'N/A' }}</small>
+                                <div><b>{{ $item->division->name ?? 'N/A' }}</b></div>
+                                <div>Sub Division: <b>{{ $item->subDivision->name ?? 'N/A' }}</b></div>
+                                <div>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></div>
+                                <hr>
+                                <div><b>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</b></div>
+                                <div class="d-block">Quarter: <b>{{ $quarterInfo }}</b></div>
                             </td>
                             <td>
-                                <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
-                                <small class="text-muted d-block">Quarter: {{ $quarterInfo }}</small>
+                                {{ formatDateTime($item->sub_admin_checked_date ?? '-') }}
                             </td>
                             <td>
-                                <span
-                                    class="badge bg-warning text-dark">{{ $item->file_remarks }}</span>
-                            </td>
-                            <td>
-                                {{ formatDateTime($item->updated_at ?? '--') }}
+                                <span class="pending-time" data-date="{{ $item->sub_admin_checked_date }}"></span>
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
@@ -313,6 +309,7 @@
                                             <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
+                                        &nbsp; View File
                                     </a>
                                 </div>
                             </td>
@@ -403,9 +400,7 @@
     </div>
 </div>
 </div>
-@endsection
 
-@push('styles')
 <style>
     .table td,
     .table th {
@@ -429,4 +424,88 @@
         filter: brightness(0) invert(1);
     }
 </style>
-@endpush
+<style>
+    .pending-days {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+    .pending-hours {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+
+    .pending-mins {
+        color: #16a34a;
+        font-weight: 600;
+    }
+
+    .pending-secs {
+        color: #2563eb;
+        font-weight: 600;
+    }
+
+    .not-pending {
+        color: #6b7280;
+        font-style: italic;
+    }
+</style>
+
+<script>
+    function updatePendingTimes() {
+        document.querySelectorAll('.pending-time').forEach(el => {
+            const rawDate = el.dataset.date;
+
+            if (!rawDate || rawDate === 'null') {
+                el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                return;
+            }
+
+            const date = new Date(rawDate);
+
+            if (isNaN(date.getTime())) {
+                el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                return;
+            }
+
+            const now = new Date();
+            let diff = Math.floor((now - date) / 1000);
+
+            if (diff <= 0) {
+                el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                return;
+            }
+
+            const days = Math.floor(diff / 86400);
+            diff %= 86400;
+
+            const hours = Math.floor(diff / 3600);
+            diff %= 3600;
+
+            const mins = Math.floor(diff / 60);
+            const secs = diff % 60;
+
+            let html = 'Pending for Approval Since <br>';
+
+            if (days) {
+                html += `<span class="pending-days">${days} day${days > 1 ? 's' : ''}</span> `;
+            }
+
+            if (hours) {
+                html += `<span class="pending-hours">${hours} hr${hours > 1 ? 's' : ''}</span> `;
+            }
+
+            if (mins) {
+                html += `<span class="pending-mins">${mins} min${mins > 1 ? 's' : ''}</span> `;
+            }
+
+            html += `<span class="pending-secs">${secs} sec${secs > 1 ? 's' : ''}</span>`;
+
+            el.innerHTML = html;
+        });
+    }
+
+    updatePendingTimes();
+    setInterval(updatePendingTimes, 1000);
+</script>
+@endsection

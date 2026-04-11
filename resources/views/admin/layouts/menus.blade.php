@@ -449,14 +449,14 @@
     <li class="menu-item {{ request()->routeIs('approver.pending-lots*') ? 'active' : '' }}">
         <a href="{{ route('approver.pending-lots') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-time-five"></i>
-            <div>Pending for Approval</div>
+            <div>Lot Files Pending for Approval</div>
         </a>
     </li>
 
     <li class="menu-item {{ request()->routeIs('approver.approved-lots*') ? 'active' : '' }}">
         <a href="{{ route('approver.approved-lots') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-check-shield"></i>
-            <div>Approved Lots</div>
+            <div>Approved Lot Files</div>
         </a>
     </li>
 

@@ -58,32 +58,40 @@
             <h5 class="text-white mb-0">File Preview :
                 {{ trim(($registration?->prefix ?? '') . ' ' . ($registration?->allottee_name ?? '') . ' ' . ($registration?->allottee_middle_name ?? '') . ' ' . ($registration?->allottee_surname ?? '')) ?: 'N/A' }}
                 @if(auth('admin')->user()->role === 'approver')
-                    @if ($registration?->divisional_approval == 1)
-                    <span class="status-completed">✓</span>
-                    @elseif($registration?->divisional_approval == 0)
-                    <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
-                            style="font-size: 10px;"></i></span>
-                    @elseif($registration?->divisional_approval === 2)
-                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
-                    Remark: <span
-                        class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
-                    @endif
+                @if ($registration?->divisional_approval == 1)
+                <span class="status-completed">✓</span>
+                @elseif($registration?->divisional_approval == 0)
+                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
+                        style="font-size: 10px;"></i></span>
+                @elseif($registration?->divisional_approval === 2)
+                <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                Remark: <span
+                    class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                @endif
                 @endif
 
                 @if(auth('admin')->user()->role === 'council_office')
-                    @if ($registration?->sub_admin_allottee_verify == 1)
-                    <span class="status-completed">✓</span>
-                    @elseif($registration?->sub_admin_allottee_verify == 0)
-                    <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
-                            style="font-size: 10px;"></i></span>
-                    @elseif($registration?->sub_admin_allottee_verify === 2)
-                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
-                    Remark: <span
-                        class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
-                    @endif
+                @if ($registration?->sub_admin_allottee_verify == 1)
+                <span class="status-completed">✓</span>
+                @elseif($registration?->sub_admin_allottee_verify == 0)
+                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
+                        style="font-size: 10px;"></i></span>
+                @elseif($registration?->sub_admin_allottee_verify === 2)
+                <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                Remark: <span
+                    class="small text-danger">{{ $registration?->sub_admin_remarks ?? 'No remarks provided' }}</span>
+                @endif
                 @endif
             </h5>
             <div class="btn-group">
+                @if(auth('admin')->user()->role == 'approver')
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#verifyDataEntryModal">
+                    <i class="bx bx-check-shield me-1"></i>
+                    Verify Data Entry
+                </button>
+                @endif
+                &nbsp; &nbsp;
                 <button type="button" class="btn btn-light btn-sm">
                     <a href="javascript:history.back()" class="text-decoration-none text-dark">
                         ← Back
@@ -1163,30 +1171,30 @@
             @endif
 
             @php
-                $label = auth('admin')->user()->role === 'approver'
-                    ? 'Approved'
-                    : 'Verify Data Entry';
+            $label = auth('admin')->user()->role === 'approver'
+            ? 'Approved'
+            : 'Verify Data Entry';
             @endphp
 
             {{-- Verify / Revert Buttons --}}
             @if($registration?->is_step_completed == 1)
             <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
-                    <button type="button"
-                        class="btn btn-primary btn-md"
-                        data-bs-toggle="modal"
-                        data-bs-target="#verifyDataEntryModal">
-                        <i class="bx bx-check-shield me-1"></i>
-                        {{ $label }}
-                    </button>
-                    @if(auth('admin')->user()->role == 'council_office')
-                    <button type="button"
-                        class="btn btn-danger btn-md"
-                        data-bs-toggle="modal"
-                        data-bs-target="#revertDataEntryModal">
-                        <i class="bx bx-undo me-1"></i>
-                        Revert
-                    </button>
-                    @endif
+                <button type="button"
+                    class="btn btn-primary btn-md"
+                    data-bs-toggle="modal"
+                    data-bs-target="#verifyDataEntryModal">
+                    <i class="bx bx-check-shield me-1"></i>
+                    {{ $label }}
+                </button>
+                @if(auth('admin')->user()->role == 'council_office')
+                <button type="button"
+                    class="btn btn-danger btn-md"
+                    data-bs-toggle="modal"
+                    data-bs-target="#revertDataEntryModal">
+                    <i class="bx bx-undo me-1"></i>
+                    Revert
+                </button>
+                @endif
             </div>
             @endif
 

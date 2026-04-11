@@ -23,3 +23,5 @@ ALTER TABLE `admins` CHANGE `role` `role` ENUM('council_office','registar','supe
 ALTER TABLE `admins` ADD `division_id` INT NOT NULL DEFAULT '0' AFTER `gender`, ADD `designation` VARCHAR(255) NULL DEFAULT NULL AFTER `division_id`;
 
 ALTER TABLE `allottees` ADD `file_remarks` VARCHAR(255) NULL DEFAULT NULL AFTER `total_pages`;
+ALTER TABLE `allottees` ADD `divisional_approved_date` VARCHAR(100) NULL DEFAULT NULL AFTER `divisional_remaks`;
+ALTER TABLE `allottees` ADD `sub_admin_checked_date` VARCHAR(100) NULL DEFAULT NULL AFTER `sub_admin_remarks`;

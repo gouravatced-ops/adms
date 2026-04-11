@@ -82,11 +82,9 @@
                     <thead class="table-light">
                         <tr>
                             <th>Sl. no.</th>
-                            <th>Allottee & Property</th>
-                            <th>Division Details</th>
-                            <th>Property Details</th>
-                            <th>Remarks</th>
-                            <th>Dates</th>
+                            <th  style="width:35%;">Allottee & Property</th>
+                            <th>Division / Property Details</th>
+                            <th>Approved On</th>
                             <!-- <th>Action</th> -->
                         </tr>
                     </thead>
@@ -254,7 +252,7 @@
                                 ];
                                 }
                                 @endphp
-                                <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}
+                                <div class="fw-semibold"><span style="color:blue;">{{ $allotteeName ?: 'N/A' }}</span>
                                     @if ($item->divisional_approval == 1)
                                     <span class="status-completed">✓</span>
                                     @elseif($item->divisional_approval == 0)
@@ -264,10 +262,8 @@
                                     <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                                     @endif
                                 </div>
-                                <small class="text-muted d-block">Property No:
-                                    {{ $item->property_number ?? 'C-52' }}</small>
-                                <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
-                                <small class="text-muted d-block">Total Pages: {{ $totalPages }}</small>
+                                <span class="d-block"><u>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></u></span>
+                                <span class="d-block">No. of Scanned Pages: {{ $fileCount }}</span>
                                 <div class="d-flex flex-wrap gap-1">
                                     @foreach ($badges as $badge)
                                     <span class="badge {{ $badge['class'] }}">
@@ -277,45 +273,16 @@
                                 </div>
                             </td>
                             <td>
-                                <div>{{ $item->division->name ?? 'Ranchi Division' }}</div>
-                                <small class="text-muted d-block">Sub Division:
-                                    {{ $item->subDivision->name ?? 'Harnu-Ranchi' }}</small>
+                                <div><b>{{ $item->division->name ?? 'N/A' }}</b></div>
+                                <div>Sub Division: <b>{{ $item->subDivision->name ?? 'N/A' }}</b></div>
+                                <div>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></div>
+                                <hr>
+                                <div><b>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</b></div>
+                                <div class="d-block">Quarter: <b>{{ $quarterInfo }}</b></div>
                             </td>
                             <td>
-                                <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
-                                <small class="text-muted d-block">Quarter: {{ $quarterInfo }}</small>
+                                {{ formatDateTime($item->divisional_approved_date ?? '-') }}
                             </td>
-                            <td>
-                                <span
-                                    class="badge bg-warning text-dark">{{ $item->file_remarks ?? 'N/A' }}</span>
-                            </td>
-                            <td>
-                                {{ formatDateTime($item->updated_at ?? '--') }}
-                            </td>
-                            <!-- <td>
-                                <div class="d-flex justify-content-center gap-1">
-
-                                    {{-- Preview --}}
-                                    <a href="{{ route('admin.file.preview', encrypt($item->id)) }}"
-                                        class="btn btn-sm btn-primary text-white"
-                                        title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">
-
-                                        {{-- Eye Preview SVG --}}
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            width="18"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </td> -->
                         </tr>
                         @empty
                         <tr>

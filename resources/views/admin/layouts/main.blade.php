@@ -45,6 +45,10 @@
     .invert-text-white {
         color: #0380ec !important;
     }
+
+    table tbody td {
+        color: #000 !important;
+    }
 </style>
 
 <body style="background-color: #f6f4f5;">
@@ -88,10 +92,10 @@
                             <div class="nav-item d-none d-md-flex">
                                 Welcome, <strong class="mx-1">{{ auth('admin')->user()->admin_name }}</strong>
                                 @if (auth('admin')->user()->role === 'council_office')
-                                    (Sub-Admin)
+                                (Sub-Admin)
                                 @endif
                                 @if (auth('admin')->user()->role === 'superadmin')
-                                    (Admin)
+                                (Admin)
                                 @endif
                                 to Allottee Data Management System
                             </div>
@@ -133,13 +137,13 @@
                                                         class="fw-medium d-block">{{ auth('admin')->user()->admin_name }}</span>
                                                     <small class="text-muted">
                                                         @if (auth('admin')->user()->role === 'council_office')
-                                                            SUB ADMIN
+                                                        SUB ADMIN
                                                         @endif
                                                         @if (auth('admin')->user()->role === 'approver')
-                                                            JSHB APPROVER
+                                                        JSHB APPROVER
                                                         @endif
                                                         @if (auth('admin')->user()->role == 'superadmin')
-                                                            ADMIN
+                                                        ADMIN
                                                         @endif
                                                     </small>
                                                 </div>

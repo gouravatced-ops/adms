@@ -787,7 +787,8 @@ class FileManagementController extends Controller
                 if (auth('admin')->user()->role == 'approver') {
                     $file->update([
                         'divisional_approval' => 1,
-                        'divisional_remaks' => $request->remarks,
+                        'divisional_remaks' => NULL,
+                        'divisional_approved_date' => date('Y-m-d H:i:s')
                     ]);
                     return redirect()->route('admin.pending.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                         ->with('success', 'Data entry approved successfully.');
@@ -795,6 +796,7 @@ class FileManagementController extends Controller
                     $file->update([
                         'sub_admin_allottee_verify' => 1,
                         'sub_admin_remarks' => $request->remarks,
+                        'sub_admin_checked_date' => date('Y-m-d H:i:s'),
                     ]);
                     return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                         ->with('success', 'Data entry approved successfully.');
