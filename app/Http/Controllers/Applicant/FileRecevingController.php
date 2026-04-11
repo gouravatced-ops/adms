@@ -132,7 +132,7 @@ class FileRecevingController extends Controller
                     'pc.name as cname',
                     'pt.name as pname',
                     'qt.quarter_code as quarter_code',
-                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files')
+                    'ra.no_of_files as total_files'
                 ]);
 
             // Apply search filters

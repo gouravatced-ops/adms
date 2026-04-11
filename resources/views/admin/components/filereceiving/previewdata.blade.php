@@ -1232,12 +1232,28 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">
-                                        Remarks
-                                        <small class="text-muted">(Optional)</small>
+                                    <label class="form-label">Select Remark</label><br>
+
+                                    <label>
+                                        <input type="radio" name="status" value="checked" checked onclick="handleStatus()"> Checked
                                     </label>
 
-                                    <textarea name="remarks" rows="4" class="form-control" placeholder="Enter verification remarks..."></textarea>
+                                    <label class="ms-3">
+                                        <input type="radio" name="status" value="other" onclick="handleStatus()"> Other
+                                    </label>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        Remarks
+                                        <span id="remarkLabel" class="text-danger">(Optional)</span>
+                                    </label>
+
+                                    <textarea id="remarks"
+                                        name="remarks"
+                                        rows="4"
+                                        class="form-control"
+                                        placeholder="Enter verification remarks...">Checked</textarea>
                                 </div>
 
                                 <input type="hidden" name="status" value="verified">
@@ -1358,5 +1374,22 @@
             })
         })
     })
+</script>
+<script>
+function handleStatus() {
+    const status = document.querySelector('input[name="status"]:checked').value;
+    const remarks = document.getElementById('remarks');
+    const label = document.getElementById('remarkLabel');
+
+    if (status === 'checked') {
+        remarks.value = 'Checked';
+        remarks.required = false;
+        label.innerText = '(Optional)';
+    } else {
+        remarks.value = '';
+        remarks.required = true;
+        label.innerText = '(Required)';
+    }
+}
 </script>
 @endsection

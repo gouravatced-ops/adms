@@ -248,7 +248,7 @@ class StepperFormController extends Controller
                     'qt.quarter_code',
                     'a.is_step_completed',
                     'a.current_step',
-                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files'),
+                    'ra.no_of_files as total_files',
                 ])
                 ->orderByDesc('ra.created_at');
 

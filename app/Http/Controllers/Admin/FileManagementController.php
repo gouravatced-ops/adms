@@ -817,7 +817,7 @@ class FileManagementController extends Controller
                 } else {
                     $file->update([
                         'sub_admin_allottee_verify' => 1,
-                        'sub_admin_remarks' => $request->remarks,
+                        'sub_admin_remarks' => $request->remarks ?? "checked",
                         'sub_admin_checked_date' => date('Y-m-d H:i:s'),
                     ]);
                     return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
