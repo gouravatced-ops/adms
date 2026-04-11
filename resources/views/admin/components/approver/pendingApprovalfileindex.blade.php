@@ -256,12 +256,12 @@
                                 <div class="fw-semibold"><a href="{{ route('admin.file.preview', encrypt($item->id)) }}" style="color:blue;"
                                         title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">{{ $allotteeName ?: 'N/A' }}</a>
                                     @if ($item->divisional_approval == 1)
-                                    <span class="status-completed">✓</span>
+                                    <span class="status-completed" title="Divisional Approved ">✓</span>
                                     @elseif($item->divisional_approval == 0)
-                                    <span class="status-pending" title="Sub Admin Pending"><i
+                                    <span class="status-pending" title="Divisional Approval Pending"><i
                                             class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
                                     @elseif($item->divisional_approval === 2)
-                                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                                    <span class="status-rejected" title="Divisional Approval Rejected">✗</span>
                                     @endif
                                 </div>
                                 <span class="d-block"><u>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></u></span>

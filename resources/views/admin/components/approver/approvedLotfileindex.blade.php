@@ -254,12 +254,12 @@
                                 @endphp
                                 <div class="fw-semibold"><span style="color:blue;">{{ $allotteeName ?: 'N/A' }}</span>
                                     @if ($item->divisional_approval == 1)
-                                    <span class="status-completed">✓</span>
+                                    <span class="status-completed" title="Divisional Approved">✓</span>
                                     @elseif($item->divisional_approval == 0)
-                                    <span class="status-pending" title="Sub Admin Pending"><i
+                                    <span class="status-pending" title="Divisional Approval Pending"><i
                                             class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
                                     @elseif($item->divisional_approval === 2)
-                                    <span class="status-rejected" title="Sub Admin Rejected">✗</span>
+                                    <span class="status-rejected" title="Divisional Approval Rejected">✗</span>
                                     @endif
                                 </div>
                                 <span class="d-block"><u>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></u></span>

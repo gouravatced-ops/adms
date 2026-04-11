@@ -71,10 +71,11 @@ class ApproverController extends Controller
 
                     return $item;
                 });
+            $pendingfilecount = $registrations->count();
             // return $registrations;
             return view(
                 'admin.components.approver.pendingApprovalLots',
-                compact('registrations')
+                compact('registrations', 'pendingfilecount')
             );
         } catch (\Throwable $e) {
             Log::error('Checked lots list failed', [
@@ -176,10 +177,11 @@ class ApproverController extends Controller
 
                     return $item;
                 });
+            $approvedfilecount = $registrations->count();
             // return $registrations;
             return view(
                 'admin.components.approver.approvedLotsindex',
-                compact('registrations')
+                compact('registrations', 'approvedfilecount')
             );
         } catch (\Throwable $e) {
             Log::error('Checked lots list failed', [

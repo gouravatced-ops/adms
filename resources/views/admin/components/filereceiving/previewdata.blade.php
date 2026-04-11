@@ -85,11 +85,13 @@
             </h5>
             <div class="btn-group">
                 @if(auth('admin')->user()->role == 'approver')
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                    data-bs-target="#verifyDataEntryModal">
-                    <i class="bx bx-check-shield me-1"></i>
-                    Verify Data Entry
-                </button>
+                <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bx bx-check-shield me-1"></i>
+                        Approved
+                    </button>
+                </form>
                 @endif
                 &nbsp; &nbsp;
                 <button type="button" class="btn btn-light btn-sm">
@@ -1170,23 +1172,27 @@
             </div>
             @endif
 
-            @php
-            $label = auth('admin')->user()->role === 'approver'
-            ? 'Approved'
-            : 'Verify Data Entry';
-            @endphp
-
             {{-- Verify / Revert Buttons --}}
             @if($registration?->is_step_completed == 1)
             <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
+                @if(auth('admin')->user()->role == 'approver')
+                <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
+                    @csrf
+
+                    <button type="submit" class="btn btn-primary btn-md">
+                        <i class="bx bx-check-shield me-1"></i>
+                        Approved
+                    </button>
+                </form>
+                @endif
+                @if(auth('admin')->user()->role == 'council_office')
                 <button type="button"
                     class="btn btn-primary btn-md"
                     data-bs-toggle="modal"
                     data-bs-target="#verifyDataEntryModal">
                     <i class="bx bx-check-shield me-1"></i>
-                    {{ $label }}
+                    Checked Data Entry
                 </button>
-                @if(auth('admin')->user()->role == 'council_office')
                 <button type="button"
                     class="btn btn-danger btn-md"
                     data-bs-toggle="modal"

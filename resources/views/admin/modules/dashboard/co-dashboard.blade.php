@@ -251,24 +251,8 @@
     @endif
     @if (auth('admin')->user()->role == 'approver')
     <div class="row">
-        <div class="col-sm-3 col-xl-3 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
-                        <i class="bx bx-folder-open fs-2"></i>
-                    </div>
-
-                    <div>
-                        <div class="text-muted small text-uppercase">Division Files</div>
-                        <h2 class="mb-0 fw-bold">{{ $allDivisionFileCount }}</h2>
-                        <small class="text-muted">Total completed files in your division</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         @foreach ($subdivisionStats as $item)
-        <div class="col-sm-3 col-xl-3 mb-4">
+        <div class="col-sm-3 col-xl-4 mb-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
 
@@ -286,21 +270,28 @@
                     </div>
 
                     <div class="row text-center mb-3">
-                        <div class="col-4 border-end">
+                        <div class="col-3 border-end">
                             <div class="fw-bold fs-4 text-dark">
                                 {{ $item->total_files_count }}
                             </div>
                             <small class="text-muted">Total</small>
                         </div>
 
-                        <div class="col-4 border-end">
-                            <div class="fw-bold fs-4 text-success">
+                        <div class="col-3 border-end">
+                            <div class="fw-bold fs-4 text-primary">
                                 {{ $item->verified_files_count }}
                             </div>
-                            <small class="text-muted">Verified</small>
+                            <small class="text-muted">Checked</small>
                         </div>
 
-                        <div class="col-4">
+                        <div class="col-3 border-end">
+                            <div class="fw-bold fs-4 text-success">
+                                {{ $item->approved_files_count }}
+                            </div>
+                            <small class="text-muted">Approved</small>
+                        </div>
+
+                        <div class="col-3">
                             <div class="fw-bold fs-4 text-warning">
                                 {{ $item->pending_files_count }}
                             </div>
@@ -331,7 +322,94 @@
             </div>
         </div>
         @endforeach
+        <div class="col-sm-3 col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
+                        <i class="bx bx-folder-open fs-2"></i>
+                    </div>
+
+                    <div>
+                        <div class="text-uppercase">Division Files</div>
+                        <h2 class="mb-0 fw-bold">{{ $allDivisionFileCount }}</h2>
+                        <small class="text-muted">Total completed files in your division</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
+                        <i class="bx bx-check-circle fs-2 text-success"></i>
+                    </div>
+
+                    <div>
+                        <div class="text-uppercase">Today Approved Files</div>
+                        <h2 class="mb-0 fw-bold">{{ $todayApprovedCount }}</h2>
+                        <small class="text-muted">Total approved files in your division</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12 col-xl-12 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <!-- Header -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <div class="text-muted small text-uppercase">Approved Files </div>
+                            <h6 class="fw-bold mb-0">Last 30 Days  ({{$monthRange}})</h6>
+                        </div>
+                        <div class="avatar avatar-md bg-success-lt text-success">
+                            <i class="bx bx-line-chart fs-4"></i>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <canvas id="approvedFilesChart" height="50"></canvas>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('approvedFilesChart');
+        const chartData = @json($chartData);
+        new Chart(ctx, {
+            type: 'line', // change to 'bar' if needed
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Approved Files',
+                    data: chartData.data,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 
     {{-- Recent verified files --}}
     <div class="row mt-2">
@@ -339,13 +417,9 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-success  d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="mb-0 text-white">Recently Verified Files</h5>
-                        <small class="opacity-75 text-white">Latest approved files from your division</small>
+                        <h5 class="mb-0 text-white">Recently Checked Files</h5>
+                        <small class="opacity-95 text-white">Latest checked files from your division</small>
                     </div>
-
-                    <a href="#" class="btn btn-sm btn-light">
-                        View All
-                    </a>
                 </div>
 
                 <div class="table-responsive">
@@ -370,14 +444,14 @@
                                     <div class="fw-semibold">
                                         {{ trim($file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname) }}
                                     </div>
-                                    <small class="text-muted">
+                                    <small class="text-dark">
                                         {{ $file->division->name ?? '-' }}
                                     </small>
                                 </td>
 
                                 <td>
-                                    <span class="badge bg-secondary-lt text-secondary">
-                                        {{ $file->property_number ?? '-' }}
+                                    <span class="badge bg-secondary-lt text-primary">
+                                        <b>{{ $file->property_number ?? '-' }}</b>
                                     </span>
                                 </td>
 
@@ -388,7 +462,7 @@
                                 <td>
                                     {{ formatDateTime($file->sub_admin_checked_date , 'd/m/Y') }}
                                     <br>
-                                    <small class="text-muted">
+                                    <small class="text-dark">
                                         {{ formatDateTime($file->sub_admin_checked_date , 'h:i A') }}
                                     </small>
                                 </td>

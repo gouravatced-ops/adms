@@ -13,6 +13,7 @@ use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
@@ -66,6 +67,11 @@ class AdminController extends Controller
                             ->where('sub_admin_allottee_verify', 1);
                     },
 
+                    'allottees as approved_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where('divisional_approval', 1);
+                    },
+
                     'allottees as pending_files_count' => function ($q) {
                         $q->where('is_step_completed', 1)
                             ->where(function ($sub) {
@@ -92,14 +98,55 @@ class AdminController extends Controller
                     'is_step_completed'         => 1,
                     'sub_admin_allottee_verify' => 1,
                 ])
-                ->latest('updated_at')
+                ->latest('sub_admin_checked_date')
                 ->take(5)
                 ->get();
+
+            $todayApprovedCount = DB::table('allottees')
+                ->where('division_id', $divisionId)
+                ->where('divisional_approval', 1)
+                ->whereDate('divisional_approved_date', Carbon::today())
+                ->count();
+
+            $rawData = DB::table('allottees')
+                ->selectRaw("DATE(divisional_approved_date) as date, COUNT(*) as total")
+                ->where('division_id', $divisionId)
+                ->where('divisional_approval', 1)
+                ->whereNotNull('divisional_approved_date')
+                ->whereDate('divisional_approved_date', '>=', Carbon::now()->subDays(29))
+                ->groupBy('date')
+                ->orderBy('date', 'ASC')
+                ->get();
+
+            $dates = collect();
+
+            for ($i = 29; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i)->format('Y-m-d');
+                $dates->put($date, 0);
+            }
+
+            foreach ($rawData as $item) {
+                $dates[$item->date] = $item->total;
+            }
+
+            $chartData = [
+                'labels' => $dates->keys()->map(fn($d) => Carbon::parse($d)->format('d/m'))->values(),
+                'data'   => $dates->values(),
+            ];
+
+            $startMonth = Carbon::now()->subDays(29)->format('F');
+            $endMonth   = Carbon::now()->format('F');
+
+            $monthRange = $startMonth . ' - ' . $endMonth;
+
             // return [$allDivisionFileCount , $subdivisionStats , $recentVerifyAllotteeList];
             return view('admin.modules.dashboard.co-dashboard', compact(
                 'allDivisionFileCount',
                 'subdivisionStats',
-                'recentVerifyAllotteeList'
+                'recentVerifyAllotteeList',
+                'todayApprovedCount',
+                'chartData',
+                'monthRange'
             ));
         }
 

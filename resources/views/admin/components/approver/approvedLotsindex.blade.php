@@ -70,15 +70,14 @@ $defaultBadges = [
             @endforeach
 
             <div class="table-responsive">
-                <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
+                <table {{ $approvedfilecount > 0 ? 'id=allLotsListTable' : '' }} class="table table-striped table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
                             <th width="12%">Register</th>
                             <th>Lot No</th>
-                            <th>File Counts</th>
+                            <th>Lots File Stats</th>
                             <th>Division</th>
-                            <th>Created On</th>
                             <th width="150" class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -89,16 +88,12 @@ $defaultBadges = [
                             <td>{{ $loop->iteration }}</td>
 
                             <td class="fw-semibold">
-                                {{ $item->register_no }}
-
-                                @if ($item->lots_subadmin_approved == 1)
-                                <span class="status-completed" title="Sub Admin Approved">✓</span>
-                                @elseif($item->lots_subadmin_approved == 0)
-                                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
-                                @elseif($item->lots_subadmin_approved === 2)
-                                <span class="status-rejected" title="Sub Admin Rejected">✗</span>
-                                Remark: <span class="small text-danger">{{ $item->remarks ?? 'No remarks provided' }}</span>
-                                @endif
+                                <a href="{{ route('admin.approved.files.index', [
+                                                'encodedId' => $item->encoded_register_no,
+                                                'page' => 1,
+                                            ]) }}"
+                                    title="View Lot Files"> {{ $item->register_no }}
+                                </a>
                             </td>
 
                             <td>
@@ -131,9 +126,6 @@ $defaultBadges = [
                             </td>
 
                             <td>{{ getDivisionName($item->division_id) }}</td>
-
-                            <td>{{ formatDate($item->created_at) }}</td>
-
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
                                     <a href="{{ route('admin.approved.files.index', [

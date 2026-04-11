@@ -72,7 +72,7 @@ $defaultBadges = [
             @endforeach
 
             <div class="table-responsive">
-                <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
+                <table {{ $pendingfilecount > 0 ? 'id=allLotsListTable' : '' }} class="table table-striped table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
