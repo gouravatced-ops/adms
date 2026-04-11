@@ -264,10 +264,10 @@
                                     <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                                     @endif
                                 </div>
-                                <small class="text-muted d-block">Property No:
-                                    {{ $item->property_number ?? 'C-52' }}</small>
-                                <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
-                                <small class="text-muted d-block">Total Pages: {{ $totalPages }}</small>
+                                <small class="text-dark d-block">Property No:
+                                    {{ $item->property_number ?? 'N/A' }}</small>
+                                <small class="text-dark d-block">No. of Files: {{ $fileCount }}</small>
+                                <small class="text-dark d-block">Total Pages: {{ $totalPages }}</small>
                                 <div class="d-flex flex-wrap gap-1">
                                     @foreach ($badges as $badge)
                                     <span class="badge {{ $badge['class'] }}">
@@ -278,12 +278,12 @@
                             </td>
                             <td>
                                 <div>{{ $item->division->name ?? 'N/A' }}</div>
-                                <small class="text-muted d-block">Sub Division:
+                                <small class="text-dark d-block">Sub Division:
                                     {{ $item->subDivision->name ?? 'N/A' }}</small>
                             </td>
                             <td>
                                 <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
-                                <small class="text-muted d-block">Quarter: {{ $quarterInfo }}</small>
+                                <small class="text-dark d-block">Quarter: {{ $quarterInfo }}</small>
                             </td>
                             <td>
                                 <span
@@ -319,7 +319,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted">
+                            <td colspan="8" class="text-center text-dark">
                                     No Lots Files Found.
                             </td>
                         </tr>
@@ -376,7 +376,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">
                                         Remarks
-                                        <small class="text-muted">(Optional)</small>
+                                        <small class="text-dark">(Optional)</small>
                                     </label>
 
                                     <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>

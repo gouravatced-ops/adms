@@ -84,24 +84,24 @@ class Allottee extends Model
         'created_by',
     ];
 
-        // Parent relationship (the parent of this allottee)
+    // Parent relationship (the parent of this allottee)
     public function parent()
     {
         return $this->belongsTo(Allottee::class, 'parent_id');
     }
-    
+
     // Children relationship (allottees that have this as parent)
     public function children()
     {
         return $this->hasMany(Allottee::class, 'parent_id');
     }
-    
+
     // Recursive children with nested relationships
     public function childrenRecursive()
     {
         return $this->children()->with('childrenRecursive');
     }
-    
+
     // Recursive parent chain
     public function parentRecursive()
     {
@@ -186,5 +186,10 @@ class Allottee extends Model
     public function jointAllottees()
     {
         return $this->hasMany(JointAllottee::class, 'allottee_id');
+    }
+
+    public function registration()
+    {
+        return $this->belongsTo(RegistrationFile::class, 'register_id');
     }
 }

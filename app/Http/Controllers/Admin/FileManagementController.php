@@ -754,9 +754,9 @@ class FileManagementController extends Controller
         try {
             $document = AllotteeDocument::findOrFail($id);
             if (auth('admin')->user()->role == 'approver') {
-                $document->update(['is_divisional_read' => 1]);
+                $document->update(['is_divisional_read' => 1, 'divisional_read_date' => date('Y-m-d H:i:s')]);
             } else {
-                $document->update(['is_sadmin_read' => 1]);
+                $document->update(['is_sadmin_read' => 1, 'sadmin_read_date' => date('Y-m-d H:i:s')]);
             }
 
             return response()->json(['success' => true]);
@@ -775,6 +775,7 @@ class FileManagementController extends Controller
         try {
             $id = decrypt($encryptedId);
             $file = Allottee::where('id', $id)->firstOrFail();
+            $registerNo = $file->register_id;
             if ($request->status == 'reverted') {
                 $file->update([
                     'sub_admin_allottee_verify' => 2,
@@ -785,11 +786,32 @@ class FileManagementController extends Controller
                     ->with('success', 'Data entry reverted successfully.');
             } else {
                 if (auth('admin')->user()->role == 'approver') {
+                    // 1. Approve current file
                     $file->update([
-                        'divisional_approval' => 1,
-                        'divisional_remaks' => NULL,
-                        'divisional_approved_date' => date('Y-m-d H:i:s')
+                        'divisional_approval'      => 1,
+                        'divisional_remaks'        => null,
+                        'divisional_approved_date' => date('Y-m-d H:i:s'),
                     ]);
+
+                    // 2. Check remaining unapproved files
+                    $remainingCount = Allottee::where('register_id', $registerNo)
+                        ->where('sub_admin_allottee_verify', 1)
+                        ->where('divisional_approval', 0)
+                        ->count();
+
+                    // 3. If last file → update lot
+                    if ($remainingCount === 0) {
+                        RegistrationFile::where('register_no', $registerNo)
+                            ->update([
+                                'status'              => 'handover',
+                                'divisional_approval' => 1,
+                                'divisional_approval_at' => date('Y-m-d H:i:s'),
+                                'handover_by' => auth('admin')->user()->id,
+                                'handover_at' => date('Y-m-d H:i:s'),
+                            ]);
+                        return redirect()->route('approver.pending-lots')
+                            ->with('success', 'Lot successfully marked as ready for handover.');
+                    }
                     return redirect()->route('admin.pending.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                         ->with('success', 'Data entry approved successfully.');
                 } else {
@@ -847,5 +869,192 @@ class FileManagementController extends Controller
         $id = decrypt($encryptedId);
         $applicant = Allottee::where('id', $id)->firstOrFail();
         return view('admin.components.forms.editstep1', compact('applicant'));
+    }
+
+
+    public function readyforhandover(Request $request)
+    {
+        try {
+            $user       = auth('admin')->user();
+            $divisionId = $user->division_id;
+            $registrations = RegistrationFile::query()
+                ->with(['approvedBy:id,admin_name'])
+                ->with(['creator:id,name'])
+                ->with(['scannedBy:id,name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'handover')
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('divisional_approval', 1);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->approved_named_by = $item->approvedBy?->admin_name ?? 'System';
+                    $item->recivied_named_by = $item->creator?->name ?? 'System';
+                    $item->scanned_named_by = $item->scannedBy?->name ?? 'System';
+
+                    $item->current_stage = 'Handover';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            $approvedfilecount = $registrations->count();
+            return view(
+                'admin.components.handover.readyhandoverLotindex',
+                compact('registrations', 'approvedfilecount')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
+
+    public function readyforhandoverindexfiles($encodedId, $page)
+    {
+        try {
+            $Id = base64_decode($encodedId);
+            $relationWith = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'registration',
+            ];
+            $files = Allottee::query()
+
+                ->with($relationWith)
+                ->where('register_id', $Id)
+
+                ->latest()
+                ->paginate(50)
+                ->through(function ($item) {
+
+                    $item->register_no = $item->registration->register_no ?? '';
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->lot_no = $item->registration->lot_no ?? '';
+                    $item->primary_id_encrpted = encrypt($item->id);
+                    return $item;
+                });
+            // return $files;
+            $pageNo = $page;
+            $registers  = RegistrationFile::where('register_no', $Id)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            $registerNo  = $Id;
+            return view('admin.components.handover.handoverfilesindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function handoverfilesExports($registerId)
+    {
+
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
+        $registerNo = base64_decode($registerId, true);
+
+        if ($registerNo === false) {
+            return redirect()->back()->with('error', 'Invalid register ID');
+        }
+
+        $register = RegistrationFile::where('register_no', $registerNo)->first();
+        $registerDivision = Division::where('id', $register->division_id)->value('name');
+        $lotNumber = strtoupper($register->lot_no);
+        $lotcreateDate = Carbon::parse($register->handover_at)->format('d/m/Y');
+        $lotTime = Carbon::parse($register->handover_at)->format('h:i A');
+        $allottees = Allottee::query()
+            ->from('allottees as ra')
+            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.subdivision_id')
+            ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
+            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.property_type_id')
+            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_id')
+            ->where('ra.register_id', $registerNo)
+            ->orderByDesc('ra.created_at')
+            ->select([
+                'ra.*',
+                'd.name  as dname',
+                'sd.name as subname',
+                'pc.name as cname',
+                'pt.name as pname',
+                'qt.quarter_code as quarter_code',
+            ])
+            ->get();
+
+        if ($allottees->isEmpty()) {
+            return redirect()->back()->with('error', 'No records found');
+        }
+
+        $data = [
+            'title' => 'COMPUTER Ed. - Files Handover',
+            'date' => date('d/m/Y'),
+            'allottees' => $allottees,
+            'registerNo' => $registerNo,
+            'lotDivision' => $registerDivision,
+            'lotNumber' => $lotNumber,
+            'lotcreateDate' => $lotcreateDate,
+            'lotTime' => $lotTime,
+            'logo1' => public_path('assets/indian-bank.png'),
+            'logo2' => public_path('assets/insta-logo.jpg'),
+            'logo3' => public_path('assets/applicant/auth/images/jspc_logo_in.png'),
+            'copies' => [
+                'OFFICE COPY - COMPUTER Ed.',
+                'OFFICE COPY - JHARKHAND STATE HOUSING BOARD',
+                'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH',
+            ],
+        ];
+
+        $pdf = Pdf::loadView('exports.handover-allottees', $data)
+            ->setPaper('A4', 'portrait')
+            ->setOption('defaultFont', 'dejavu sans');
+
+        $todayDate = $this->generateRegisterNo();
+        $smallcaseLots = strtolower($lotNumber);
+        $filename = $smallcaseLots . '_' . $todayDate . '-ced-jshb-handover.pdf';
+
+        $directory = public_path("uploads/{$registerNo}/files");
+
+        if (! File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $filePath = $directory . '/' . $filename;
+        file_put_contents($filePath, $pdf->output());
+
+        $fileSize = filesize($filePath);
+
+        ExportedFile::create([
+            'register_no' => $registerNo,
+            'file_name' => $filename,
+            'file_path' => "uploads/{$registerNo}/files/{$filename}",
+            'file_size' => $fileSize,
+        ]);
+
+        return response()->download($filePath);
     }
 }

@@ -25,3 +25,8 @@ ALTER TABLE `admins` ADD `division_id` INT NOT NULL DEFAULT '0' AFTER `gender`, 
 ALTER TABLE `allottees` ADD `file_remarks` VARCHAR(255) NULL DEFAULT NULL AFTER `total_pages`;
 ALTER TABLE `allottees` ADD `divisional_approved_date` VARCHAR(100) NULL DEFAULT NULL AFTER `divisional_remaks`;
 ALTER TABLE `allottees` ADD `sub_admin_checked_date` VARCHAR(100) NULL DEFAULT NULL AFTER `sub_admin_remarks`;
+
+ALTER TABLE `allottee_documents` ADD `divisional_read_date` VARCHAR(100) NULL DEFAULT NULL AFTER `is_divisional_read`;
+ALTER TABLE `allottee_documents` ADD `sadmin_read_date` VARCHAR(100) NULL DEFAULT NULL AFTER `is_sadmin_read`;
+
+ALTER TABLE `file_registrations` ADD `divisional_approval_at` VARCHAR(100) NULL DEFAULT NULL AFTER `divisional_approval`, ADD `handover_by` INT(11) NULL DEFAULT NULL AFTER `divisional_approval_at`, ADD `handover_at` VARCHAR(100) NULL DEFAULT NULL AFTER `handover_by`;

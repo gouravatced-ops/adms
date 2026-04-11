@@ -3,16 +3,22 @@
 @section('admin-content')
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Lot Files List / {{ $Lots }} : {{ $registerNo }}</span>
+            <span class="invert-text-white">Dashboard / Handover Lot Files List / {{ $Lots }} : {{ $registerNo }}</span>
         </h6>
 
         <div class="card mb-4">
             <div class="card-header bg-info d-flex justify-content-between align-items-center">
-                <h5 class="text-white mb-0">Lot Scanning Files</h5>
+                <h5 class="text-white mb-0">Lot Handover Files List</h5>
                 <div class="btn-group">
+                    <button type="button" class="btn btn-dark btn-sm">
+                        <a href="{{ route('admin.handover.files.exports', ['registerId' => base64_encode($registerNo)]) }}"
+                            class="text-decoration-none text-white">
+                            Export Files
+                        </a>
+                    </button>
                     &nbsp;
                     <button type="button" class="btn btn-light btn-sm">
-                        <a href="{{ route('admin.scanning.lots.index') }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('admin.handover.lots.index') }}" class="text-decoration-none text-dark">
                             ← Back
                         </a>
                     </button>
@@ -36,16 +42,15 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table id="adminListTable1" class="table table-striped table-bordered align-middle">
+                    <table id="adminListTable" class="table table-striped table-bordered align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Sl. no.</th>
                                 <th>Allottee & Property</th>
-                                <th>Division Details</th>
-                                <th>Property Details</th>
+                                <th>Division /Property Details</th>
                                 <th>Remarks</th>
-                                <th>Dates</th>
-                                <th>Action</th> <!-- Edit file -->
+                                <th>Checked At</th>
+                                <th>Approved At</th>
                             </tr>
                         </thead>
 
@@ -76,39 +81,28 @@
                                     data-row-id="{{ $item->id }}">
                                     <td>{{ $key + 1 }}</td>
                                     <td>
-                                        <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}</div>
-                                        <small class="text-dark d-block">Property No:
-                                            {{ $item->property_number ?? 'N/A' }}</small>
-                                        <small class="text-dark d-block">No. of Files: {{ $fileCount }}</small>
+                                        <div class="fw-semibold text-primary">{{ $allotteeName ?: 'N/A' }}</div>
+                                        <span class="text-dark d-block"><u><b>Property No:
+                                            <span class="text-danger">{{ $item->property_number ?? 'N/A' }}</span></b></u></span>
+                                        <span class="text-dark d-block">No. of Files: {{ $fileCount }}</span>
                                     </td>
                                     <td>
                                         <div>{{ $item->division->name ?? 'N/A' }}</div>
-                                        <small class="text-dark d-block">Sub Division:
-                                            {{ $item->subDivision->name ?? 'N/A' }}</small>
-                                    </td>
-                                    <td>
-                                        <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
-                                        <small class="text-dark d-block">Quarter: {{ $quarterInfo }}</small>
+                                        <span class="text-dark d-block">Sub Division:
+                                            <b>{{ $item->subDivision->name ?? 'N/A' }}</b></span>
+                                        <hr>
+                                        <div><b>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</b></div>
+                                        <span class="text-dark d-block">Quarter: <b> {{ $quarterInfo }}</b></span>
                                     </td>
                                     <td>
                                         <span
                                             class="badge bg-warning text-dark">{{ $item->file_remarks ?? 'N/A' }}</span>
                                     </td>
                                     <td>
-                                        {{ formatDateTime($item->updated_at ?? now()) }}
+                                        {{ formatDateTime($item->sub_admin_checked_date ?? '-') }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.scanning.file.fetch', $item->primary_id_encrpted) }}" class="btn btn-primary text-white me-2"
-                                            title="Edit {{ $allotteeName }} File">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                                <path d="M14 2v6h6" />
-                                                <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
-                                                <path d="M13 12l3 3" />
-                                            </svg>
-                                        </a>
+                                        {{ formatDateTime($item->divisional_approved_date ?? '-') }}
                                     </td>
                                 </tr>
                             @empty
@@ -120,12 +114,6 @@
                             @endforelse
                         </tbody>
                     </table>
-
-                    @if ($files->hasPages())
-                        <div class="p-4 border-top">
-                            {{ $files->links('vendor.pagination.custom') }}
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

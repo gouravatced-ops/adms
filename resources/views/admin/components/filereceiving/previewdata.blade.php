@@ -1173,7 +1173,6 @@
             @endif
 
             {{-- Verify / Revert Buttons --}}
-            @if($registration?->is_step_completed == 1)
             <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
                 @if(auth('admin')->user()->role == 'approver')
                 <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
@@ -1202,7 +1201,6 @@
                 </button>
                 @endif
             </div>
-            @endif
 
             {{-- Verify Modal --}}
             <div class="modal fade" id="verifyDataEntryModal" tabindex="-1"

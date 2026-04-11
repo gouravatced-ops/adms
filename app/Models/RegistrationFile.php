@@ -17,6 +17,9 @@ class RegistrationFile extends Model
         'divisional_approval',
         'remarks',
         'status',
+        'divisional_approval_at',
+        'handover_by',
+        'handover_at',
         'scanned_by',
         'created_by',
     ];
@@ -67,5 +70,10 @@ class RegistrationFile extends Model
     public function lotAssignments()
     {
         return $this->hasMany(LotAssignment::class, 'lot_id');
+    }
+    
+    public function approvedBy()
+    {
+        return $this->belongsTo(Admin::class, 'handover_by');
     }
 }

@@ -238,4 +238,55 @@ class ApproverController extends Controller
             return back()->with('error', 'Failed to load file list.');
         }
     }
+
+    public function handoverLotsFiles(Request $request)
+    {
+        try {
+            $user       = auth('admin')->user();
+            $divisionId = $user->division_id;
+            $registrations = RegistrationFile::query()
+                ->with(['approvedBy:id,admin_name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'handover')
+                ->where('division_id' , $divisionId)
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('divisional_approval', 1);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->approved_named_by = $item->approvedBy?->admin_name ?? 'System';
+
+                    $item->current_stage = 'Handover';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            $approvedfilecount = $registrations->count();
+            // return $registrations;
+            return view(
+                'admin.components.approver.handoverLotindex',
+                compact('registrations', 'approvedfilecount')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
 }

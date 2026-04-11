@@ -80,11 +80,20 @@ Route::post('/documents/{id}/mark-read', [FileManagementController::class, 'mark
 Route::post('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
 Route::post('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
 
+// suadmin handover
+Route::get('readyfor/handover/lot/files' , [FileManagementController::class, 'readyforhandover'])->name('admin.handover.lots.index');
+Route::get('/handover/files/{encodedId}/{page}', [FileManagementController::class, 'readyforhandoverindexfiles'])->name('admin.handover.files.index');
+Route::get('/handover/file/exports/{registerId}', [FileManagementController::class, 'handoverfilesExports'])->name('admin.handover.files.exports');
+
+
 // approver lists
 Route::get('approver/pending/lots/list', [ApproverController::class, 'approverPendingLots'])->name('approver.pending-lots');
 Route::get('/pending/approver/file/list/{encodedId}/{page}', [ApproverController::class, 'approverPendingFiles'])->name('admin.pending.files.index');
 Route::get('approved/lots/list', [ApproverController::class, 'approverApprovedLots'])->name('approver.approved-lots');
 Route::get('/approved/file/list/{encodedId}/{page}', [ApproverController::class, 'approverApprovedLotFiles'])->name('admin.approved.files.index');
+
+// hanover lots
+Route::get('handover/lot/files' , [ApproverController::class, 'handoverLotsFiles'])->name('approver.handover-lots');
 
 // fetch and update allotee
 Route::get('/edit/allottee/setp1/{encryptedId}', [FileManagementController::class, 'fetchallottedetails'])->name('admin.fetch.step1');

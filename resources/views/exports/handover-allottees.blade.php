@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Files Receiving - COMPUTER Ed.</title>
+    <title>Files Handover - COMPUTER Ed.</title>
     <style>
         @font-face {
             font-family: 'bookman';
@@ -24,6 +24,13 @@
             color: #000;
             line-height: 1.4;
             padding: 15px;
+        }
+
+        @page {
+            margin-top: 25mm;
+            margin-right: 10mm;
+            margin-bottom: 25mm;
+            margin-left: 10mm;
         }
 
         .page-wrapper {
@@ -328,7 +335,7 @@
 
             <!-- Document Title -->
             <div class="document-title">
-                <span>Files Receiving Sheet</span>
+                <span>Files Handover Sheet</span>
             </div>
 
             <!-- Project Name -->
@@ -347,8 +354,8 @@
                         <span class="info-label">Total Nos. of Physical Files Received:</span> {{ count($allottees) }}
                     </div>
                     <div class="receiving-time">
-                        <span class="info-label">Date of Receiving:</span> {{ $lotcreateDate }}<br>
-                        <span class="info-label">Time of Receiving:</span> {{ $lotTime }}<br>
+                        <span class="info-label">Date of Handover:</span> {{ $lotcreateDate }}<br>
+                        <span class="info-label">Time of Handover:</span> {{ $lotTime }}<br>
                     </div>
                 </div>
             </div>
@@ -381,7 +388,7 @@
                             <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}
                                 {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}
                             </td>
-                            <td>{{ $allottee->remarks ?? 'N/A' }}</td>
+                            <td>{{ $allottee->file_remarks ?? 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>

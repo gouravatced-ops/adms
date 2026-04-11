@@ -267,7 +267,7 @@
                                     @endif
                                 </div>
                                 <small class="text-muted d-block">Property No:
-                                    {{ $item->property_number ?? 'C-52' }}</small>
+                                    {{ $item->property_number ?? 'N/A' }}</small>
                                 <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
                                 <small class="text-muted d-block">Total Pages: {{ $totalPages }}</small>
                                 <div class="d-flex flex-wrap gap-1">

@@ -250,7 +250,7 @@
         </a>
     </li>
 
-    <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index', 'admin.scanning.lots.index') ? 'active open' : '' }}">
+    <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index', 'admin.scanning.lots.index' , 'admin.handover.lots.index') ? 'active open' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bx-file"></i>
             <div class="text-truncate" data-i18n="Divisions">Manage File</div>
@@ -286,6 +286,20 @@
                         </svg>
                     </span>
                     <div>File Dataentry</div>
+                </a>
+            </li>
+
+            <li class="menu-item {{ request()->routeIs('admin.handover.lots.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.handover.lots.index') }}" class="menu-link">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <path d="M9 15h6" />
+                        <path d="M12 12l3 3-3 3" />
+                    </svg>
+                    &nbsp;
+                    <div>Handover Lot Files</div>
                 </a>
             </li>
         </ul>
@@ -457,6 +471,20 @@
         <a href="{{ route('approver.approved-lots') }}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-check-shield"></i>
             <div>Approved Lot Files</div>
+        </a>
+    </li>
+
+    <li class="menu-item {{ request()->routeIs('approver.handover-lots*') ? 'active' : '' }}">
+        <a href="{{ route('approver.handover-lots') }}" class="menu-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M9 15h6" />
+                <path d="M12 12l3 3-3 3" />
+            </svg>
+            &nbsp;&nbsp;&nbsp;
+            <div>Handover Lot Files</div>
         </a>
     </li>
 
