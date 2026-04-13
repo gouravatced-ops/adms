@@ -11,8 +11,9 @@ use App\Models\Division;
 use App\Models\SubDivision;
 use App\Models\Allottee;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 
@@ -175,54 +176,86 @@ class AdminController extends Controller
 
     public function updateAdminDetails(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'gender' => 'required|in:Male,Female,Other',
-            'email' => 'required|email',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204', // 200KB
-            'newPassword' => 'nullable|confirmed|min:6',
-            'designation' => 'nullable|string'
-        ]);
+        try {
 
-        $admin = auth('admin')->user();
-        $profilePic = $admin->profile_path ?? null;
+            Log::info('Update Admin Request Received', [
+                'request' => $request->all(),
+                'admin_id' => auth('admin')->id()
+            ]);
 
-        // File upload (only if exists)
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $validated = $request->validate([
+                'name'        => 'required|string|max:100',
+                'email'       => 'nullable|email',
+                'gender'      => 'nullable|string',
+                'file'        => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204',
+                'newPassword' => 'nullable|min:6',
+                'newPassword_confirmation' => 'nullable|required_with:newPassword|same:newPassword',
+                'designation' => 'nullable|string',
+                'captcha'     => 'required|captcha'
+            ]);
 
-            $folderPath = public_path('admin_pic');
+            Log::info('Validation Passed', $validated);
 
-            // create folder if not exists
-            if (!file_exists($folderPath)) {
-                mkdir($folderPath, 0777, true);
+            $admin = auth('admin')->user();
+            $profilePic = $admin->profile_path ?? null;
+
+            // File Upload
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $folderPath = public_path('admin_pic');
+
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0777, true);
+                    Log::info('Folder Created', ['path' => $folderPath]);
+                }
+
+                $file->move($folderPath, $fileName);
+                $profilePic = 'admin_pic/' . $fileName;
+
+                Log::info('File Uploaded', ['file' => $profilePic]);
             }
 
-            $file->move($folderPath, $fileName);
-            $profilePic = 'admin_pic/' . $fileName;
-        }
+            // Update Admin
+            $adminDetails = Admin::updateOrCreate(
+                ['id' => $admin->id],
+                [
+                    'admin_name'  => $validated['name'],
+                    'gender'      => $validated['gender'] ?? null,
+                    'email_id'    => $validated['email'] ?? null,
+                    'designation' => $validated['designation'] ?? null,
+                    'profile_path' => $profilePic,
+                ]
+            );
 
-        // Update or Create
-        $adminDetails = Admin::updateOrCreate(
-            ['id' => $admin->id],
-            [
-                'admin_name' => $validated['name'],
-                'gender' => $validated['gender'],
-                'email_id' => $validated['email'],
-                'designation' => $validated['designation'],
-                'profile_path' => $profilePic,
-            ]
-        );
+            Log::info('Admin Updated', ['admin_id' => $admin->id]);
 
-        // Password update (only if provided)
-        if (!empty($validated['newPassword'])) {
-            $admin->update([
-                'password' => Hash::make($validated['newPassword'])
+            // Password Update
+            if (!empty($validated['newPassword'])) {
+                $admin->update([
+                    'password' => Hash::make($validated['newPassword'])
+                ]);
+
+                Log::info('Password Updated', ['admin_id' => $admin->id]);
+            }
+
+            return back()->with('success', 'Profile updated successfully!');
+        } catch (\Exception $e) {
+
+            Log::error('Admin Update Failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile()
             ]);
-        }
 
-        return back()->with('success', 'Profile updated successfully!');
+            // Debug (only in local)
+            if (config('app.debug')) {
+                return back()->with('error', $e->getMessage());
+            }
+
+            return back()->with('error', 'Something went wrong!');
+        }
     }
 
     public function sendChangePassOTP(Request $request)

@@ -110,7 +110,7 @@
                                 <label for="email" class="form-label">E-mail</label>
                                 <input class="form-control @error('email') is-invalid @enderror" type="email"
                                     id="email" name="email" value="{{ auth()->user()->email_id }}"
-                                    placeholder="Enter E-mail">
+                                    placeholder="Enter E-mail" readonly>
                                 @error('email')
                                 <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -128,45 +128,28 @@
                                     @enderror
                                 </div>
                             </div>
-
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="gender">Gender</label>
-                                <select class="form-select @error('gender') is-invalid @enderror" name="gender">
-                                    <option value="Male" {{ auth()->user()->gender == 'Male' ? 'selected' : '' }}>
-                                        Male
-                                    </option>
-                                    <option value="Female" {{ auth()->user()->gender == 'Female' ? 'selected' : '' }}>
-                                        Female
-                                    </option>
-                                    <option value="Other" {{ auth()->user()->gender == 'Other' ? 'selected' : '' }}>
-                                        Other
-                                    </option>
-                                </select>
-                                @error('gender')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            @php
-                             $divisions = getDivisions();
-                            @endphp
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="division_id">Division</label>
-                                <select class="form-select @error('division_id') is-invalid @enderror" name="division_id" disabled>
-                                    @foreach ($divisions as $division)
+                            @if(auth()->user()->role == 'approver')
+                                @php
+                                $divisions = getDivisions();
+                                @endphp
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="division_id">Division</label>
+                                    <select class="form-select @error('division_id') is-invalid @enderror" name="division_id" disabled>
+                                        @foreach ($divisions as $division)
                                         <option value="{{ $division->id }}" {{ auth()->user()->division_id == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="designation ">Designation</label>
-                                <div class="input-group input-group-merge">
-                                    <input type="text" id="designation" name="designation"
-                                        class="form-control @error('designation ') is-invalid @enderror"
-                                        value="{{ auth()->user()->designation }}">
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </div>
 
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="designation ">Designation</label>
+                                    <div class="input-group input-group-merge">
+                                        <input type="text" id="designation" name="designation"
+                                            class="form-control @error('designation ') is-invalid @enderror"
+                                            value="{{ auth()->user()->designation }}">
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                         <hr>
                         <div class="row">
@@ -200,6 +183,33 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label" for="captcha">Captcha</label>
+                                </div>
+
+                                <div class="input-group input-group-merge">
+                                    <!-- Captcha Image -->
+                                    <span class="input-group-text p-1" id="captcha-image">
+                                        {!! captcha_img('flat') !!}
+                                    </span>
+
+                                    <!-- Captcha Input -->
+                                    <input type="text" id="captcha" name="captcha" required
+                                        class="form-control @error('captcha') is-invalid @enderror" placeholder="Enter captcha"
+                                        aria-describedby="captcha" autocomplete="off" />
+
+                                    <!-- Refresh Button -->
+                                    <span class="input-group-text cursor-pointer" id="reload-captcha">
+                                        <i class="bx bx-refresh"></i>
+                                    </span>
+                                </div>
+
+                                @error('captcha')
+                                <small class="invalid-feedback">{{ $message }}</small>
+                                @enderror
+                            </div>
                         </div>
                 </div>
                 <div class="my-6">
@@ -216,6 +226,15 @@
 @endsection
 
 @push('script')
+<script>
+    document.getElementById('reload-captcha').addEventListener('click', function() {
+        fetch("{{ route('captcha.reload') }}")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('captcha-image').innerHTML = data.captcha;
+            });
+    });
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 

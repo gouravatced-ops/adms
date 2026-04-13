@@ -488,13 +488,6 @@
         </a>
     </li>
 
-    <li class="menu-item {{ request()->routeIs('profile.my-setting') ? 'active' : '' }}">
-        <a href="{{ route('profile.my-setting') }}" class="menu-link">
-            <i class="menu-icon tf-icons bx bx-user"></i>
-            <div>Profile</div>
-        </a>
-    </li>
-
     <li class="menu-item">
         <form method="POST" action="{{ route('admin.logout') }}">
             @csrf
