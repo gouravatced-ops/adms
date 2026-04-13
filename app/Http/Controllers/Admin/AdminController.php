@@ -23,6 +23,7 @@ class AdminController extends Controller
     {
         $user       = auth('admin')->user();
         $divisionId = $user->division_id;
+        $updatePasswordModal = $user->isPasswordExpired();
 
         if ($user->role === 'council_office') {
 
@@ -42,7 +43,8 @@ class AdminController extends Controller
                 'subdivisionCount',
                 'schemeCount',
                 'allotteeCount',
-                'recentAllotteeList'
+                'recentAllotteeList',
+                'updatePasswordModal'
             ));
         }
 
@@ -147,7 +149,8 @@ class AdminController extends Controller
                 'recentVerifyAllotteeList',
                 'todayApprovedCount',
                 'chartData',
-                'monthRange'
+                'monthRange',
+                'updatePasswordModal'
             ));
         }
 
@@ -156,8 +159,9 @@ class AdminController extends Controller
 
     public function registarDashboard()
     {
+        $updatePasswordModal = auth('admin')->user()->isPasswordExpired();
 
-        return view('admin.modules.dashboard.rgtr-dashboard');
+        return view('admin.modules.dashboard.rgtr-dashboard', compact('updatePasswordModal'));
     }
 
     public function getMyProfile(Request $request)
@@ -234,7 +238,8 @@ class AdminController extends Controller
             // Password Update
             if (!empty($validated['newPassword'])) {
                 $admin->update([
-                    'password' => Hash::make($validated['newPassword'])
+                    'password' => Hash::make($validated['newPassword']),
+                    'password_created_at' => now(),
                 ]);
 
                 Log::info('Password Updated', ['admin_id' => $admin->id]);
@@ -256,6 +261,29 @@ class AdminController extends Controller
 
             return back()->with('error', 'Something went wrong!');
         }
+    }
+
+    public function updateDashboardPassword(Request $request)
+    {
+        $request->validate([
+            'oldPassword' => ['required', 'string', 'min:8'],
+            'newPassword' => ['required', 'string', 'min:8', 'confirmed'],
+            'captcha' => ['required', 'captcha'],
+        ]);
+
+        $admin = auth('admin')->user();
+
+        if (!Hash::check($request->input('oldPassword'), $admin->password)) {
+            return redirect()->back()
+                ->withErrors(['oldPassword' => 'The old password is incorrect.'])
+                ->withInput();
+        }
+
+        $admin->password = Hash::make($request->input('newPassword'));
+        $admin->password_created_at = now();
+        $admin->save();
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     public function sendChangePassOTP(Request $request)

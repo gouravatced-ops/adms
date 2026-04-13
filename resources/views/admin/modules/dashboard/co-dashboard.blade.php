@@ -362,7 +362,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="text-muted small text-uppercase">Approved Files </div>
-                            <h6 class="fw-bold mb-0">Last 30 Days  ({{$monthRange}})</h6>
+                            <h6 class="fw-bold mb-0">Last 30 Days ({{$monthRange}})</h6>
                         </div>
                         <div class="avatar avatar-md bg-success-lt text-success">
                             <i class="bx bx-line-chart fs-4"></i>
@@ -491,41 +491,135 @@
     @endif
 </div>
 
-{{-- @if ($updatePasswordModal) --}}
+@if ($updatePasswordModal)
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white" style="padding:10px !important;">
+                <h5 class="modal-title text-white" id="changePasswordModalLabel">Change Password</h5>
             </div>
             <div class="modal-body">
-                <form id="changePasswordForm" action="" method="POST">
+                <form id="changePasswordForm" action="{{ route('update.dashboard-password') }}" method="POST">
                     @csrf
-                    <div class="form-group">
-                        <label for="newPassword">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                        <small class="form-text text-muted">Password must be at least 8 characters long, and
-                            include
-                            uppercase, lowercase, and special characters.</small>
+                    <div class="alert1 alert-warning mb-3 p-2">
+                        Your password is 30 days old. Please reset your password now to continue.
                     </div>
                     <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="text" class="form-control" id="confirmPassword" name="confirmPassword"
-                            required>
+                        <label class="form-label" for="oldPassword">Old Password</label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="oldPassword" name="oldPassword"
+                                autocomplete="current-password"
+                                class="form-control @error('oldPassword') is-invalid @enderror"
+                                placeholder="Enter current password" required>
+
+                            <span class="input-group-text cursor-pointer toggle-password">
+                                <i class="bx bx-hide"></i>
+                            </span>
+
+                            @error('oldPassword')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label class="form-label" for="newPassword">New Password</label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="newPassword" name="newPassword"
+                                autocomplete="new-password"
+                                class="form-control @error('newPassword') is-invalid @enderror"
+                                placeholder="Enter new password">
+
+                            <span class="input-group-text cursor-pointer toggle-password">
+                                <i class="bx bx-hide"></i>
+                            </span>
+
+                            @error('newPassword')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label class="form-label" for="newPassword_confirmation">Confirm New Password</label>
+                        <div class="input-group input-group-merge">
+                            <input type="password" id="newPassword_confirmation"
+                                name="newPassword_confirmation" class="form-control" required
+                                placeholder="Confirm new password">
+
+                            <span class="input-group-text cursor-pointer toggle-password">
+                                <i class="bx bx-hide"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label" for="captcha">Captcha</label>
+                        </div>
+
+                        <div class="input-group input-group-merge">
+                            <!-- Captcha Image -->
+                            <span class="input-group-text p-1" id="captcha-image">
+                                {!! captcha_img('flat') !!}
+                            </span>
+
+                            <!-- Captcha Input -->
+                            <input type="text" id="captcha" name="captcha" required
+                                class="form-control @error('captcha') is-invalid @enderror" placeholder="Enter captcha"
+                                aria-describedby="captcha" autocomplete="off" />
+
+                            <!-- Refresh Button -->
+                            <span class="input-group-text cursor-pointer" id="reload-captcha">
+                                <i class="bx bx-refresh"></i>
+                            </span>
+                        </div>
+
+                        @error('captcha')
+                        <small class="invalid-feedback">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div id="error-message" class="text-danger"></div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="submitPasswordChange">Update Password</button>
+                <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                <button type="submit" class="btn btn-primary" form="changePasswordForm" id="submitPasswordChange">Update Password</button>
             </div>
         </div>
     </div>
 </div>
-{{-- @endif --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var myModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+        myModal.show();
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const toggleButtons = document.querySelectorAll(".toggle-password");
+
+        toggleButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+
+                const input = this.closest(".input-group").querySelector("input");
+                const icon = this.querySelector("i");
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("bx-hide");
+                    icon.classList.add("bx-show");
+                } else {
+                    input.type = "password";
+                    icon.classList.remove("bx-show");
+                    icon.classList.add("bx-hide");
+                }
+
+            });
+        });
+
+    });
+</script>
+@endif
 </div>
 @endsection
 @push('scripts')
@@ -534,5 +628,16 @@
     window.onpopstate = function() {
         window.history.go(1);
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var changePasswordModalElement = document.getElementById('changePasswordModal');
+        if (changePasswordModalElement) {
+            var passwordModal = new bootstrap.Modal(changePasswordModalElement, {
+                backdrop: 'static',
+                keyboard: false,
+            });
+            passwordModal.show();
+        }
+    });
 </script>
 @endpush

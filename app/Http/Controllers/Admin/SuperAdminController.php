@@ -27,14 +27,15 @@ class SuperAdminController extends Controller
             ->take(5)
             ->get();
 
-        // return $recentAllotteeList;
+        $updatePasswordModal = auth('admin')->user()->isPasswordExpired();
 
         return view('admin.superadmin.dashboard', compact(
             'divisionCount',
             'subdivisionCount',
             'schemeCount',
             'allotteeCount',
-            'recentAllotteeList'
+            'recentAllotteeList',
+            'updatePasswordModal'
         ));
     }
 

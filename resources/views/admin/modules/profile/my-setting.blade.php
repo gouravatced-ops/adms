@@ -227,15 +227,6 @@
 
 @push('script')
 <script>
-    document.getElementById('reload-captcha').addEventListener('click', function() {
-        fetch("{{ route('captcha.reload') }}")
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('captcha-image').innerHTML = data.captcha;
-            });
-    });
-</script>
-<script>
     document.addEventListener("DOMContentLoaded", function() {
 
         const toggleButtons = document.querySelectorAll(".toggle-password");

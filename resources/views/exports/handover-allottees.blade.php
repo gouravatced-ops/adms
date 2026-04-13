@@ -354,8 +354,8 @@
                         <span class="info-label">Total Nos. of Physical Files Received:</span> {{ count($allottees) }}
                     </div>
                     <div class="receiving-time">
-                        <span class="info-label">Date of Handover:</span> {{ $lotcreateDate }}<br>
-                        <span class="info-label">Time of Handover:</span> {{ $lotTime }}<br>
+                        <span class="info-label">Lot Approved On:</span> {{ $lotcreateDate }}<br>
+                        <span class="info-label">Time:</span> {{ $lotTime }}<br>
                     </div>
                 </div>
             </div>
@@ -410,12 +410,12 @@
                             </div>
 
                             <div class="line-row">
-                                Name of the Receiver :
+                                Handover from :
                                 <span class="line medium"></span>
                             </div>
 
                             <div class="sub-text">
-                                (Authorized Signature-COMPUTER Ed.)
+                                (Authorized signatory-COMPUTER Ed.)
                             </div>
                         </td>
 
@@ -426,7 +426,7 @@
                             </div>
 
                             <div class="line-row">
-                                Name of the Received from :
+                                Handover to :
                                 <span class="line medium"></span>
                             </div>
 

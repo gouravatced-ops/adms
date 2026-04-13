@@ -51,6 +51,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/update/admin-details', [AdminController::class, 'updateAdminDetails'])->name('update.admin-details');
 
         Route::post('/update/admin-password', [AdminController::class, 'updateAdminpassword'])->name('update.admin-password');
+        Route::post('/update/dashboard-password', [AdminController::class, 'updateDashboardPassword'])->name('update.dashboard-password');
 
         Route::post('/updateAdminOTP/password', [AdminController::class, 'sendChangePassOTP'])->name('updateAdminOTP.password');
 

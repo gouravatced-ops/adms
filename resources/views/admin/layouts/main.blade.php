@@ -223,6 +223,15 @@
         });
     </script>
     <script>
+        document.getElementById('reload-captcha').addEventListener('click', function() {
+            fetch("{{ route('captcha.reload') }}")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('captcha-image').innerHTML = data.captcha;
+                });
+        });
+    </script>
+    <script>
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(el => el.remove());
         }, 3000);

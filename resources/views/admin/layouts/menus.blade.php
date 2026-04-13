@@ -320,7 +320,7 @@
                 </a>
             </li>
 
-            <li class="menu-item">
+            <!-- <li class="menu-item">
                 <a href="#" class="menu-link">
                     <div>Data Entry Lots</div>
                 </a>
@@ -330,16 +330,15 @@
                 <a href="#" class="menu-link">
                     <div>Completed Lots</div>
                 </a>
-            </li>
+            </li> -->
 
         </ul>
     </li>
 
     {{-- Handover --}}
-    <li class="menu-item">
-        <a href="#" class="menu-link">
+    <!-- <li class="menu-item {{ request()->routeIs('admin.handover.lots.index') ? 'active' : '' }}">
+        <a href="{{ route('admin.handover.lots.index') }}" class="menu-link">
             <span class="menu-icon">
-                <!-- Transfer SVG -->
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M7 7h10M7 7l4-4M7 7l4 4" />
                     <path d="M17 17H7M17 17l-4-4M17 17l-4 4" />
@@ -347,7 +346,7 @@
             </span>
             <div>Handover File</div>
         </a>
-    </li>
+    </li> -->
 
     {{-- Allottee --}}
     <li class="menu-item">
