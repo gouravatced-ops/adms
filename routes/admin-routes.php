@@ -72,7 +72,7 @@ Route::prefix('admin')->group(function () {
         });
 
         // Subadmin and Approver of Divisional
-        Route::middleware(['admin.role:council_office,approver'])->group(function () {
+        Route::middleware(['admin.role:council_office,approver,divisional_admin'])->group(function () {
             require base_path('routes/admin/council_office.php');
         });
 

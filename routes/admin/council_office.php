@@ -95,6 +95,14 @@ Route::get('/approved/file/list/{encodedId}/{page}', [ApproverController::class,
 // hanover lots
 Route::get('handover/lot/files' , [ApproverController::class, 'handoverLotsFiles'])->name('approver.handover-lots');
 
+// Admin approver lists
+Route::get('division/pending/lots/list', [ApproverController::class, 'approverPendingAllLots'])->name('approver.admin.pending-lots');
+Route::get('/division/approved/lots/list', [ApproverController::class, 'approverApprovedAllLots'])->name('approver.admin.approved-lots');
+Route::post('/division/file/approver', [FileManagementController::class, 'approveSelectedFile'])->name('admin.selected.files.approved');
+
+// Admin hanover lots
+Route::get('division/handover/lot/files' , [ApproverController::class, 'handoverAllLotsFiles'])->name('approver.admin.handover-lots');
+
 // fetch and update allotee
 Route::get('/edit/allottee/setp1/{encryptedId}', [FileManagementController::class, 'fetchallottedetails'])->name('admin.fetch.step1');
 

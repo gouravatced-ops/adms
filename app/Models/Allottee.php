@@ -80,6 +80,7 @@ class Allottee extends Model
         'divisional_approval',
         'divisional_remaks',
         'divisional_approved_date',
+        'divisional_approved_by',
         'updated_by',
         'created_by',
     ];

@@ -785,12 +785,13 @@ class FileManagementController extends Controller
                 return redirect()->route('admin.dataentry.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                     ->with('success', 'Data entry reverted successfully.');
             } else {
-                if (auth('admin')->user()->role == 'approver') {
+                if (auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin') {
                     // 1. Approve current file
                     $file->update([
                         'divisional_approval'      => 1,
                         'divisional_remaks'        => null,
                         'divisional_approved_date' => date('Y-m-d H:i:s'),
+                        'divisional_approved_by'   => auth('admin')->user()->id
                     ]);
 
                     // 2. Check remaining unapproved files
@@ -809,8 +810,13 @@ class FileManagementController extends Controller
                                 'handover_by' => auth('admin')->user()->id,
                                 'handover_at' => date('Y-m-d H:i:s'),
                             ]);
-                        return redirect()->route('approver.pending-lots')
-                            ->with('success', 'Lot successfully marked as ready for handover.');
+                        if (auth('admin')->user()->role == 'approver') {
+                            return redirect()->route('approver.pending-lots')
+                                ->with('success', 'Lot successfully marked as ready for handover.');
+                        } else {
+                            return redirect()->route('approver.admin.pending-lots')
+                                ->with('success', 'Lot successfully marked as ready for handover.');
+                        }
                     }
                     return redirect()->route('admin.pending.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                         ->with('success', 'Data entry approved successfully.');
@@ -840,22 +846,25 @@ class FileManagementController extends Controller
             if ($registerNo === false) {
                 return redirect()->back()->with('error', 'Invalid register ID');
             }
-            if ($request->status == 'reverted') {
-                RegistrationFile::where('register_no', $registerNo)
-                    ->update(['lots_subadmin_approved' => 2, 'status' => 'scanned', 'remarks' => $request->remarks]);
 
-                return redirect()->route('admin.dataentry.lots.index')
-                    ->with('success', "Lots reverted successfully by sub-admin for register no: {$registerNo}.");
-            } else {
-                RegistrationFile::where('register_no', $registerNo)
-                    ->update(['lots_subadmin_approved' => 1, 'status' => 'scanned', 'remarks' => $request->remarks]);
+            Allottee::where('register_id', $registerNo)->where('is_step_completed', 1)->where('divisional_approval', 0)
+                ->update([
+                    'divisional_approval'      => 1,
+                    'divisional_remaks'        => null,
+                    'divisional_approved_date' => date('Y-m-d H:i:s'),
+                    'divisional_approved_by'   => auth('admin')->user()->id
+                ]);
 
-                Allottee::where('register_id', $registerNo)->where('is_step_completed', 1)
-                    ->update(['sub_admin_allottee_verify' => 1]);
-
-                return redirect()->route('admin.dataentry.lots.index')
-                    ->with('success', "Lots approved successfully by sub-admin for register no: {$registerNo}.");
-            }
+            RegistrationFile::where('register_no', $registerNo)
+                ->update([
+                    'status'              => 'handover',
+                    'divisional_approval' => 1,
+                    'divisional_approval_at' => date('Y-m-d H:i:s'),
+                    'handover_by' => auth('admin')->user()->id,
+                    'handover_at' => date('Y-m-d H:i:s'),
+                ]);
+            return redirect()->route('approver.admin.pending-lots')
+                ->with('success', "Lot successfully marked as ready for handover register no: {$registerNo}.");
         } catch (\Throwable $e) {
             Log::error('Bulk data entry approval failed', [
                 'error' => $e->getMessage()
@@ -864,13 +873,57 @@ class FileManagementController extends Controller
         }
     }
 
+    public function approveSelectedFile(Request $request)
+    {
+        $registerNo = base64_decode($request->encodedIdregister);
+
+        $selectedIds = collect($request->selectedId)
+            ->map(function ($id) {
+                return base64_decode($id);
+            })
+            ->filter()
+            ->toArray();
+
+        if (empty($selectedIds)) {
+            return back()->with('error', 'No records selected');
+        }
+
+        Allottee::whereIn('id', $selectedIds)
+            ->update([
+                'divisional_approval'      => 1,
+                'divisional_remaks'        => null,
+                'divisional_approved_date' => now(),
+                'divisional_approved_by'   => auth('admin')->id(),
+            ]);
+
+        $remainingCount = Allottee::where('register_id', $registerNo)
+            ->where('sub_admin_allottee_verify', 1)
+            ->where('divisional_approval', 0)
+            ->count();
+
+        if ($remainingCount === 0) {
+
+            RegistrationFile::where('register_no', $registerNo)
+                ->update([
+                    'status'                   => 'handover',
+                    'divisional_approval'      => 1,
+                    'divisional_approval_at'   => now(),
+                    'handover_by'              => auth('admin')->id(),
+                    'handover_at'              => now(),
+                ]);
+
+            return redirect()->route('approver.admin.pending-lots')
+                ->with('success', 'All files approved. Lot ready for handover.');
+        }
+        return back()->with('success', 'Selected files approved successfully.');
+    }
+
     public function fetchallottedetails($encryptedId)
     {
         $id = decrypt($encryptedId);
         $applicant = Allottee::where('id', $id)->firstOrFail();
         return view('admin.components.forms.editstep1', compact('applicant'));
     }
-
 
     public function readyforhandover(Request $request)
     {

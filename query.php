@@ -30,3 +30,6 @@ ALTER TABLE `allottee_documents` ADD `divisional_read_date` VARCHAR(100) NULL DE
 ALTER TABLE `allottee_documents` ADD `sadmin_read_date` VARCHAR(100) NULL DEFAULT NULL AFTER `is_sadmin_read`;
 
 ALTER TABLE `file_registrations` ADD `divisional_approval_at` VARCHAR(100) NULL DEFAULT NULL AFTER `divisional_approval`, ADD `handover_by` INT(11) NULL DEFAULT NULL AFTER `divisional_approval_at`, ADD `handover_at` VARCHAR(100) NULL DEFAULT NULL AFTER `handover_by`;
+
+INSERT INTO `admins` (`id`, `admin_details_id`, `mobile_no`, `admin_name`, `profile_path`, `alt_mobile_no`, `email_id`, `password`, `prev_password`, `role`, `gender`, `division_id`, `designation`, `otp_verified_at`, `last_login`, `last_ip`, `password_created_at`, `created_at`, `updated_at`) VALUES (NULL, '4', '9834579834', 'Ajit Kumar', NULL, NULL, 'ajit.jshb@computered.co.in', '$2y$12$kydyORdyxUaaPqx6E.3wxe5Tpx8R9kWuqbTG9BXiGM4FGEz0yHxAK', NULL, 'registar', 'Male', '4', 'HEAD OF OFFICE', '2026-04-10 17:55:53', '2026-04-10 17:55:53', '49.37.75.101', '2026-04-12 12:30:54', '2026-02-04 14:56:19', '2026-04-13 12:31:29');
+ALTER TABLE `allottees` ADD `divisional_approved_by` INT NULL DEFAULT NULL AFTER `divisional_remaks`;

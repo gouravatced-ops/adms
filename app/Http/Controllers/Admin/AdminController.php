@@ -154,7 +154,70 @@ class AdminController extends Controller
             ));
         }
 
-        return view('error.403');
+        if ($user->role === 'divisional_admin') {
+            $allDivisionFileCount = Allottee::where([
+                'is_step_completed' => 1,
+            ])->count();
+
+            $subdivisionStats = Division::query()
+                ->where([
+                    'status'      => 1,
+                ])
+                ->withCount([
+                    'allottees as total_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1);
+                    },
+
+                    'allottees as verified_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where('sub_admin_allottee_verify', 1);
+                    },
+
+                    'allottees as approved_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where('divisional_approval', 1);
+                    },
+
+                    'allottees as pending_files_count' => function ($q) {
+                        $q->where('is_step_completed', 1)
+                            ->where(function ($sub) {
+                                $sub->whereNull('sub_admin_allottee_verify')
+                                    ->orWhere('sub_admin_allottee_verify', '!=', 1);
+                            });
+                    },
+                ])
+                ->get()
+                ->map(function ($subdivision) {
+                    $subdivision->progress_percent = $subdivision->total_files_count > 0
+                        ? round(($subdivision->verified_files_count / $subdivision->total_files_count) * 100)
+                        : 0;
+
+                    return $subdivision;
+                });
+
+            $recentVerifyAllotteeList = Allottee::with([
+                'division:id,name',
+                'subdivision:id,name'
+            ])
+                ->where([
+                    'is_step_completed'         => 1,
+                    'sub_admin_allottee_verify' => 1,
+                ])
+                ->latest('sub_admin_checked_date')
+                ->take(5)
+                ->get();
+
+
+            // return [$allDivisionFileCount , $subdivisionStats , $recentVerifyAllotteeList];
+            return view('admin.modules.dashboard.co-dashboard', compact(
+                'allDivisionFileCount',
+                'subdivisionStats',
+                'recentVerifyAllotteeList',
+                'updatePasswordModal'
+            ));
+        }
+
+        return view('errors.403');
     }
 
     public function registarDashboard()

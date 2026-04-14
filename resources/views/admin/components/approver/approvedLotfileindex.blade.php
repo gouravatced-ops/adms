@@ -53,11 +53,20 @@
         <div class="card-header bg-success d-flex justify-content-between align-items-center">
             <h5 class="text-white mb-0">Approved Files</h5>
             <div class="btn-group">
+                @if (auth('admin')->user()->role == 'approver')
                 <button type="button" class="btn btn-light btn-sm">
                     <a href="{{ route('approver.approved-lots') }}" class="text-decoration-none text-dark">
                         ← Back
                     </a>
                 </button>
+                @endif
+                @if (auth('admin')->user()->role == 'divisional_admin')
+                <button type="button" class="btn btn-light btn-sm">
+                    <a href="{{ route('approver.admin.approved-lots') }}" class="text-decoration-none text-dark">
+                        ← Back
+                    </a>
+                </button>
+                @endif
             </div>
         </div>
 

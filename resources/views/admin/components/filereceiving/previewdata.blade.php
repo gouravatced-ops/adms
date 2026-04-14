@@ -84,7 +84,7 @@
                 @endif
             </h5>
             <div class="btn-group">
-                @if(auth('admin')->user()->role == 'approver')
+                @if(auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin')
                 <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-primary btn-sm">
@@ -1174,7 +1174,7 @@
 
             {{-- Verify / Revert Buttons --}}
             <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
-                @if(auth('admin')->user()->role == 'approver')
+                @if(auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin')
                 <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
                     @csrf
 

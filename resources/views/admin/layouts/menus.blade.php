@@ -497,4 +497,50 @@
         </form>
     </li>
     @endif
+
+    @if (auth('admin')->user()->role == 'divisional_admin')
+    <li class="menu-item {{ request()->routeIs('council_office.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('council_office.dashboard') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div>Dashboard</div>
+        </a>
+    </li>
+    <li class="menu-item {{ request()->routeIs('approver.admin.pending-lots*') ? 'active' : '' }}">
+        <a href="{{ route('approver.admin.pending-lots') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-time-five"></i>
+            <div>Lot Files Pending for Approval</div>
+        </a>
+    </li>
+
+    <li class="menu-item {{ request()->routeIs('approver.admin.approved-lots*') ? 'active' : '' }}">
+        <a href="{{ route('approver.admin.approved-lots') }}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-check-shield"></i>
+            <div>Approved Lot Files</div>
+        </a>
+    </li>
+
+    <li class="menu-item {{ request()->routeIs('approver.admin.handover-lots*') ? 'active' : '' }}">
+        <a href="{{ route('approver.admin.handover-lots') }}" class="menu-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="M9 15h6" />
+                <path d="M12 12l3 3-3 3" />
+            </svg>
+            &nbsp;&nbsp;&nbsp;
+            <div>Handover Lot Files</div>
+        </a>
+    </li>
+
+    <li class="menu-item">
+        <form method="POST" action="{{ route('admin.logout') }}">
+            @csrf
+            <button type="submit" class="menu-link border-0 bg-transparent w-100 text-start">
+                <i class="menu-icon tf-icons bx bx-power-off"></i>
+                <div>Log Out</div>
+            </button>
+        </form>
+    </li>
+    @endif
 </ul>

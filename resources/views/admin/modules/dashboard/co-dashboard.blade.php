@@ -489,6 +489,155 @@
         </div>
     </div>
     @endif
+
+    @if (auth('admin')->user()->role == 'divisional_admin')
+    <div class="row">
+        <div class="col-sm-3 col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
+                        <i class="bx bx-folder-open fs-2"></i>
+                    </div>
+
+                    <div>
+                        <div class="text-uppercase">All Files</div>
+                        <h2 class="mb-0 fw-bold">{{ $allDivisionFileCount }}</h2>
+                        <small class="text-muted">Total completed files in your division</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @foreach ($subdivisionStats as $item)
+        <div class="col-sm-3 col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1 fw-bold">{{ $item->sub_division_name ?? $item->name }}</h5>
+                            <small class="text-muted">
+                                Division
+                            </small>
+                        </div>
+
+                        <!-- <span class="badge bg-primary">
+                            {{ $item->progress_percent }}%
+                        </span> -->
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-3 border-end">
+                            <div class="fw-bold fs-4 text-dark">
+                                {{ $item->total_files_count }}
+                            </div>
+                            <small class="text-muted">Total</small>
+                        </div>
+
+                        <div class="col-3 border-end">
+                            <div class="fw-bold fs-4 text-primary">
+                                {{ $item->verified_files_count }}
+                            </div>
+                            <small class="text-muted">Checked</small>
+                        </div>
+
+                        <div class="col-3 border-end">
+                            <div class="fw-bold fs-4 text-success">
+                                {{ $item->approved_files_count }}
+                            </div>
+                            <small class="text-muted">Approved</small>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="fw-bold fs-4 text-warning">
+                                {{ $item->pending_files_count }}
+                            </div>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    {{-- Recent verified files --}}
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success  d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0 text-white">Recently Checked Files</h5>
+                        <small class="opacity-95 text-white">Latest checked files from your division</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Allottee Name</th>
+                                <th>Property No.</th>
+                                <th>Subdivision</th>
+                                <th>Verified On</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse ($recentVerifyAllotteeList as $index => $file)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ trim($file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname) }}
+                                    </div>
+                                    <small class="text-dark">
+                                        {{ $file->division->name ?? '-' }}
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-secondary-lt text-primary">
+                                        <b>{{ $file->property_number ?? '-' }}</b>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ $file->subdivision->name ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ formatDateTime($file->sub_admin_checked_date , 'd/m/Y') }}
+                                    <br>
+                                    <small class="text-dark">
+                                        {{ formatDateTime($file->sub_admin_checked_date , 'h:i A') }}
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="bx bx-check-circle me-1"></i>
+                                        Verified
+                                    </span>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bx bx-folder-open fs-1 d-block mb-2"></i>
+                                    No verified files found
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @if ($updatePasswordModal)

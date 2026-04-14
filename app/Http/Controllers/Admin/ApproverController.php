@@ -111,10 +111,11 @@ class ApproverController extends Controller
 
             $registerAllottee = $query->paginate(50)->through(function ($item) {
                 $item->allotteeId = encrypt($item->id);
+                $item->encodedId = base64_encode($item->id);
                 return $item;
             });
-            // return $files;
             $files = $registerAllottee;
+            // return $files;
             $pageNo = $page;
 
             // If all rows have divisional_approval == 1 then 1 else 0
@@ -249,7 +250,7 @@ class ApproverController extends Controller
 
                 // Only scanned + subadmin approved lots
                 ->where('status', 'handover')
-                ->where('division_id' , $divisionId)
+                ->where('division_id', $divisionId)
                 ->withCount([
                     // Total allottee files in this lot
                     'registerAllottee as total_files',
@@ -277,6 +278,178 @@ class ApproverController extends Controller
             // return $registrations;
             return view(
                 'admin.components.approver.handoverLotindex',
+                compact('registrations', 'approvedfilecount')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
+
+    public function handoverAllLotsFiles(Request $request)
+    {
+        try {
+            $user       = auth('admin')->user();
+            $divisionId = $user->division_id;
+            $registrations = RegistrationFile::query()
+                ->with(['approvedBy:id,admin_name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'handover')
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('divisional_approval', 1);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->approved_named_by = $item->approvedBy?->admin_name ?? 'System';
+
+                    $item->current_stage = 'Handover';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            $approvedfilecount = $registrations->count();
+            // return $registrations;
+            return view(
+                'admin.components.approver.handoverLotindex',
+                compact('registrations', 'approvedfilecount')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
+
+    public function approverPendingAllLots(Request $request)
+    {
+        try {
+            $user       = auth('admin')->user();
+            $divisionId = $user->division_id;
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'scanned')
+
+                // Only include lots where at least one allottee is verified
+                ->whereHas('registerAllottee', function ($q) {
+                    $q->where('sub_admin_allottee_verify', 1);
+                })
+
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('sub_admin_allottee_verify', 1);
+                    },
+
+                    // Verified files count by approval role
+                    'registerAllottee as approved_files_count' => function ($q) {
+                        $q->where('divisional_approval', 1);
+                    },
+
+                    // Verified files
+                    'registerAllottee as unapproved_files_count' => function ($q) {
+                        $q->where('divisional_approval', 0);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->created_named_by = $item->creator?->name ?? 'System';
+
+                    $item->current_stage = 'Verified';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            $pendingfilecount = $registrations->count();
+            // return $registrations;
+            return view(
+                'admin.components.approver.allpendingApprovalLots',
+                compact('registrations', 'pendingfilecount')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Checked lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            return back()->with('error', 'Failed to load checked lots list.');
+        }
+    }
+
+    public function approverApprovedAllLots(Request $request)
+    {
+        try {
+            $user       = auth('admin')->user();
+            $divisionId = $user->division_id;
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name'])
+
+                // Only scanned + subadmin approved lots
+                ->where('status', 'scanned')
+
+                // Only include lots where at least one allottee is verified
+                ->whereHas('registerAllottee', function ($q) {
+                    $q->where('divisional_approval', 1);
+                })
+
+                ->withCount([
+                    // Total allottee files in this lot
+                    'registerAllottee as total_files',
+
+                    // Verified files
+                    'registerAllottee as verified_files_count' => function ($q) {
+                        $q->where('divisional_approval', 1);
+                    },
+                ])
+
+                ->latest('created_at')
+                ->get()
+
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+
+                    $item->created_named_by = $item->creator?->name ?? 'System';
+
+                    $item->current_stage = 'Verified';
+                    $item->badge_color   = 'success';
+
+                    return $item;
+                });
+            $approvedfilecount = $registrations->count();
+            // return $registrations;
+            return view(
+                'admin.components.approver.allapprovedLotsindex',
                 compact('registrations', 'approvedfilecount')
             );
         } catch (\Throwable $e) {

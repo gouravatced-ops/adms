@@ -42,6 +42,7 @@ class AuthController extends Controller
                     'superadmin' => redirect()->route('superadmin.dashboard'),
                     'council_office' => redirect()->route('council_office.dashboard'),
                     'approver' => redirect()->route('council_office.dashboard'),
+                    'divisional_admin' => redirect()->route('council_office.dashboard'),
                     'registrar' => redirect()->route('registrar.dashboard'),
                     default => redirect()->route('admin.login')->with('error', 'Unauthorized access.'),
                 };
@@ -201,6 +202,8 @@ class AuthController extends Controller
                     return match ($admin->role) {
                         'superadmin' => redirect()->route('superadmin.dashboard'),
                         'council_office' => redirect()->route('council_office.dashboard'),
+                        'approver' => redirect()->route('council_office.dashboard'),
+                        'divisional_admin' => redirect()->route('council_office.dashboard'),
                         'registar' => redirect()->route('registrar.dashboard'),
                         default => redirect()->route('admin.login')->with('error', 'Invalid role'),
                     };

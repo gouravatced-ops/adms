@@ -48,16 +48,29 @@
         <span class="invert-text-white">Dashboard / Pending for Approval Files / {{ $Lots }} :
             {{ $registerNo }}</span>
     </h6>
-
+    @php
+    $isApprover = auth('admin')->user()->role === 'approver';
+    @endphp
     <div class="card mb-4">
-        <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+        <div class="card-header {{ $isApprover ? 'bg-secondary' : 'bg-info' }} d-flex justify-content-between align-items-center">
             <h5 class="text-white mb-0">Pending for Approval Files</h5>
             <div class="btn-group">
+                @if (auth('admin')->user()->role == 'approver')
                 <button type="button" class="btn btn-light btn-sm">
                     <a href="{{ route('approver.pending-lots') }}" class="text-decoration-none text-dark">
                         ← Back
                     </a>
                 </button>
+                @endif
+                @if (auth('admin')->user()->role == 'divisional_admin')
+                <button type="button" class="btn btn-dark btn-sm" id="selectAll">Select All</button>
+                &nbsp;
+                <button type="button" class="btn btn-light btn-sm">
+                    <a href="{{ route('approver.admin.pending-lots') }}" class="text-decoration-none text-dark">
+                        ← Back
+                    </a>
+                </button>
+                @endif
             </div>
         </div>
 
@@ -77,10 +90,29 @@
             </div>
             @endif
 
+            @if(auth('admin')->user()->role == 'divisional_admin')
+            <form id="bulkForm" action="{{ route('admin.selected.files.approved') }}" method="POST">
+                @csrf
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary" id="bulkAssignBtn" disabled>
+                        <i class="bx bx-check"></i> Approved Selected
+                    </button>
+                    <input type="hidden" name="encodedIdregister" value="{{ base64_encode($registerNo) }}">
+                    <span class="text-muted ms-2" id="selectedCount">0 items selected</span>
+                </div>
+
+                <div id="selectedInputs"></div> <!-- dynamic inputs -->
+            </form>
+            @endif
+
             <div class="table-responsive">
                 <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
                     <thead class="table-light">
                         <tr>
+                            @if (auth('admin')->user()->role == 'divisional_admin')
+                            <th width="40">#</th>
+                            @endif
                             <th>Sl. no.</th>
                             <th style="width:25%;">Allottee & Property</th>
                             <th>Division / Property Details</th>
@@ -115,6 +147,12 @@
                         @endphp
                         <tr class="{{ $item->highlighted ? 'table-warning' : '' }}"
                             data-row-id="{{ $item->id }}">
+                            @if (auth('admin')->user()->role == 'divisional_admin')
+                            <td>
+                                <input type="checkbox" class="form-check-input row-checkbox"
+                                    value="{{ $item->encodedId }}">
+                            </td>
+                            @endif
                             <td>{{ $key + 1 }}</td>
                             <td>
                                 @php
@@ -450,7 +488,71 @@
         font-style: italic;
     }
 </style>
+<script>
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    const selectAllBtn = document.getElementById('selectAll');
+    const bulkBtn = document.getElementById('bulkAssignBtn');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectedInputs = document.getElementById('selectedInputs');
+    const bulkForm = document.getElementById('bulkForm');
 
+    function updateSelection() {
+        let selected = [];
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selected.push(cb.value);
+            }
+        });
+
+        // Update count
+        selectedCount.innerText = selected.length + ' items selected';
+
+        // Enable/Disable button
+        bulkBtn.disabled = selected.length === 0;
+
+        // Clear old inputs
+        selectedInputs.innerHTML = '';
+
+        // Create hidden inputs dynamically
+        selected.forEach(id => {
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'selectedId[]';
+            input.value = id;
+            selectedInputs.appendChild(input);
+        });
+    }
+
+    // Individual checkbox change
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelection);
+    });
+
+    // Select All toggle
+    let allSelected = false;
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function () {
+            allSelected = !allSelected;
+
+            checkboxes.forEach(cb => {
+                cb.checked = allSelected;
+            });
+
+            this.innerText = allSelected ? 'Unselect All' : 'Select All';
+
+            updateSelection();
+        });
+    }
+
+    // Submit on button click
+    bulkBtn.addEventListener('click', function () {
+        if (confirm('Are you sure to approve selected records?')) {
+            bulkForm.submit();
+        }
+    });
+</script>
 <script>
     function updatePendingTimes() {
         document.querySelectorAll('.pending-time').forEach(el => {
