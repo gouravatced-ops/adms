@@ -10,6 +10,8 @@ use App\Models\Scheme;
 use App\Models\Division;
 use App\Models\SubDivision;
 use App\Models\Allottee;
+use App\Models\RegisterAllottee;
+use App\Models\RegistrationFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -21,203 +23,233 @@ class AdminController extends Controller
 {
     public function councilDashboard()
     {
-        $user       = auth('admin')->user();
+        $user = auth('admin')->user();
         $divisionId = $user->division_id;
         $updatePasswordModal = $user->isPasswordExpired();
 
-        if ($user->role === 'council_office') {
+        $stats = $this->dashboardCounts($user->id);
 
-            $divisionCount    = Division::where('status', 1)->count();
-            $subdivisionCount = SubDivision::where('status', 1)->count();
-            $schemeCount      = Scheme::where('is_active', 1)->count();
-            $allotteeCount    = Allottee::where('is_step_completed', 1)->count();
+        switch ($user->role) {
 
-            $recentAllotteeList = Allottee::with('division:id,name')
-                ->where('is_step_completed', 1)
-                ->latest()
-                ->take(5)
-                ->get();
+            case 'council_office':
+                return view('admin.modules.dashboard.co-dashboard', array_merge($stats, [
+                    'divisionCount'    => Division::where('status', 1)->count(),
+                    'subdivisionCount' => SubDivision::where('status', 1)->count(),
+                    'schemeCount'      => Scheme::where('is_active', 1)->count(),
+                    'allotteeCount'    => Allottee::where('is_step_completed', 1)->count(),
 
-            return view('admin.modules.dashboard.co-dashboard', compact(
-                'divisionCount',
-                'subdivisionCount',
-                'schemeCount',
-                'allotteeCount',
-                'recentAllotteeList',
-                'updatePasswordModal'
-            ));
-        }
+                    'recentAllotteeList' => Allottee::with('division:id,name')
+                        ->where('is_step_completed', 1)
+                        ->latest()
+                        ->limit(5)
+                        ->get(),
 
-        if ($user->role === 'approver') {
+                    'updatePasswordModal' => $updatePasswordModal
+                ]));
 
-            $allDivisionFileCount = Allottee::where([
-                'division_id'       => $divisionId,
-                'is_step_completed' => 1,
-            ])->count();
+            case 'approver':
+                return view('admin.modules.dashboard.co-dashboard', array_merge(
+                    $stats,
+                    $this->approverStats($divisionId),
+                    ['updatePasswordModal' => $updatePasswordModal]
+                ));
 
-            $subdivisionStats = SubDivision::query()
-                ->where([
-                    'division_id' => $divisionId,
-                    'status'      => 1,
-                ])
-                ->withCount([
-                    'allottees as total_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1);
-                    },
-
-                    'allottees as verified_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where('sub_admin_allottee_verify', 1);
-                    },
-
-                    'allottees as approved_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where('divisional_approval', 1);
-                    },
-
-                    'allottees as pending_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where(function ($sub) {
-                                $sub->whereNull('sub_admin_allottee_verify')
-                                    ->orWhere('sub_admin_allottee_verify', '!=', 1);
-                            });
-                    },
-                ])
-                ->get()
-                ->map(function ($subdivision) {
-                    $subdivision->progress_percent = $subdivision->total_files_count > 0
-                        ? round(($subdivision->verified_files_count / $subdivision->total_files_count) * 100)
-                        : 0;
-
-                    return $subdivision;
-                });
-
-            $recentVerifyAllotteeList = Allottee::with([
-                'division:id,name',
-                'subdivision:id,name'
-            ])
-                ->where([
-                    'division_id'               => $divisionId,
-                    'is_step_completed'         => 1,
-                    'sub_admin_allottee_verify' => 1,
-                ])
-                ->latest('sub_admin_checked_date')
-                ->take(5)
-                ->get();
-
-            $todayApprovedCount = DB::table('allottees')
-                ->where('division_id', $divisionId)
-                ->where('divisional_approval', 1)
-                ->whereDate('divisional_approved_date', Carbon::today())
-                ->count();
-
-            $rawData = DB::table('allottees')
-                ->selectRaw("DATE(divisional_approved_date) as date, COUNT(*) as total")
-                ->where('division_id', $divisionId)
-                ->where('divisional_approval', 1)
-                ->whereNotNull('divisional_approved_date')
-                ->whereDate('divisional_approved_date', '>=', Carbon::now()->subDays(29))
-                ->groupBy('date')
-                ->orderBy('date', 'ASC')
-                ->get();
-
-            $dates = collect();
-
-            for ($i = 29; $i >= 0; $i--) {
-                $date = Carbon::now()->subDays($i)->format('Y-m-d');
-                $dates->put($date, 0);
-            }
-
-            foreach ($rawData as $item) {
-                $dates[$item->date] = $item->total;
-            }
-
-            $chartData = [
-                'labels' => $dates->keys()->map(fn($d) => Carbon::parse($d)->format('d/m'))->values(),
-                'data'   => $dates->values(),
-            ];
-
-            $startMonth = Carbon::now()->subDays(29)->format('F');
-            $endMonth   = Carbon::now()->format('F');
-
-            $monthRange = $startMonth . ' - ' . $endMonth;
-
-            // return [$allDivisionFileCount , $subdivisionStats , $recentVerifyAllotteeList];
-            return view('admin.modules.dashboard.co-dashboard', compact(
-                'allDivisionFileCount',
-                'subdivisionStats',
-                'recentVerifyAllotteeList',
-                'todayApprovedCount',
-                'chartData',
-                'monthRange',
-                'updatePasswordModal'
-            ));
-        }
-
-        if ($user->role === 'divisional_admin') {
-            $allDivisionFileCount = Allottee::where([
-                'is_step_completed' => 1,
-            ])->count();
-
-            $subdivisionStats = Division::query()
-                ->where([
-                    'status'      => 1,
-                ])
-                ->withCount([
-                    'allottees as total_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1);
-                    },
-
-                    'allottees as verified_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where('sub_admin_allottee_verify', 1);
-                    },
-
-                    'allottees as approved_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where('divisional_approval', 1);
-                    },
-
-                    'allottees as pending_files_count' => function ($q) {
-                        $q->where('is_step_completed', 1)
-                            ->where(function ($sub) {
-                                $sub->whereNull('sub_admin_allottee_verify')
-                                    ->orWhere('sub_admin_allottee_verify', '!=', 1);
-                            });
-                    },
-                ])
-                ->get()
-                ->map(function ($subdivision) {
-                    $subdivision->progress_percent = $subdivision->total_files_count > 0
-                        ? round(($subdivision->verified_files_count / $subdivision->total_files_count) * 100)
-                        : 0;
-
-                    return $subdivision;
-                });
-
-            $recentVerifyAllotteeList = Allottee::with([
-                'division:id,name',
-                'subdivision:id,name'
-            ])
-                ->where([
-                    'is_step_completed'         => 1,
-                    'sub_admin_allottee_verify' => 1,
-                ])
-                ->latest('sub_admin_checked_date')
-                ->take(5)
-                ->get();
-
-
-            // return [$allDivisionFileCount , $subdivisionStats , $recentVerifyAllotteeList];
-            return view('admin.modules.dashboard.co-dashboard', compact(
-                'allDivisionFileCount',
-                'subdivisionStats',
-                'recentVerifyAllotteeList',
-                'updatePasswordModal'
-            ));
+            case 'divisional_admin':
+                return view('admin.modules.dashboard.co-dashboard', array_merge(
+                    $stats,
+                    $this->divisionalStats(),
+                    ['updatePasswordModal' => $updatePasswordModal]
+                ));
         }
 
         return view('errors.403');
+    }
+
+    private function approverStats($divisionId)
+    {
+        $today = now();
+
+        $subdivisionStats = SubDivision::where([
+            'division_id' => $divisionId,
+            'status' => 1
+        ])
+            ->withCount([
+                'allottees as total_files_count' => fn($q) => $q->where('is_step_completed', 1),
+
+                'allottees as verified_files_count' => fn($q) =>
+                $q->where('is_step_completed', 1)->where('sub_admin_allottee_verify', 1),
+
+                'allottees as approved_files_count' => fn($q) =>
+                $q->where('is_step_completed', 1)->where('divisional_approval', 1),
+
+                'allottees as pending_files_count' => fn($q) =>
+                $q->where('is_step_completed', 1)
+                    ->where(function ($sub) {
+                        $sub->whereNull('sub_admin_allottee_verify')
+                            ->orWhere('sub_admin_allottee_verify', '!=', 1);
+                    }),
+            ])
+            ->get()
+            ->map(fn($item) => tap($item, function ($i) {
+                $i->progress_percent = $i->total_files_count > 0
+                    ? round(($i->verified_files_count / $i->total_files_count) * 100)
+                    : 0;
+            }));
+
+        // Chart Data Optimized
+        $dates = collect(range(0, 29))->mapWithKeys(fn($i) => [
+            now()->subDays($i)->format('Y-m-d') => 0
+        ])->reverse();
+
+        $raw = DB::table('allottees')
+            ->selectRaw("DATE(divisional_approved_date) as date, COUNT(*) as total")
+            ->where('division_id', $divisionId)
+            ->where('divisional_approval', 1)
+            ->whereNotNull('divisional_approved_date')
+            ->whereDate('divisional_approved_date', '>=', now()->subDays(29))
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        $dates = $dates->merge($raw);
+
+        return [
+            'allDivisionFileCount' => Allottee::where([
+                'division_id' => $divisionId,
+                'is_step_completed' => 1
+            ])->count(),
+
+            'subdivisionStats' => $subdivisionStats,
+
+            'recentVerifyAllotteeList' => Allottee::with(['division:id,name', 'subdivision:id,name'])
+                ->where([
+                    'division_id' => $divisionId,
+                    'is_step_completed' => 1,
+                    'sub_admin_allottee_verify' => 1,
+                ])
+                ->latest('sub_admin_checked_date')
+                ->limit(5)
+                ->get(),
+
+            'todayApprovedCount' => Allottee::where('division_id', $divisionId)
+                ->where('divisional_approval', 1)
+                ->whereDate('divisional_approved_date', $today)
+                ->count(),
+
+            'chartData' => [
+                'labels' => $dates->keys()->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m')),
+                'data'   => $dates->values(),
+            ],
+
+            'monthRange' => now()->subDays(29)->format('F') . ' - ' . now()->format('F'),
+        ];
+    }
+
+    private function divisionalStats()
+    {
+        return [
+            'allDivisionFileCount' => Allottee::where('is_step_completed', 1)->count(),
+
+            'subdivisionStats' => Division::where('status', 1)
+                ->withCount([
+                    'allottees as total_files_count' => fn($q) => $q->where('is_step_completed', 1),
+                    'allottees as verified_files_count' => fn($q) =>
+                    $q->where('is_step_completed', 1)->where('sub_admin_allottee_verify', 1),
+                    'allottees as approved_files_count' => fn($q) =>
+                    $q->where('is_step_completed', 1)->where('divisional_approval', 1),
+                ])
+                ->get(),
+
+            'recentVerifyAllotteeList' => Allottee::with(['division:id,name', 'subdivision:id,name'])
+                ->where('is_step_completed', 1)
+                ->where('sub_admin_allottee_verify', 1)
+                ->latest('sub_admin_checked_date')
+                ->limit(5)
+                ->get(),
+        ];
+    }
+
+    private function dashboardCounts($userId)
+    {
+        $today = now()->toDateString();
+
+        return [
+            'stats' => [
+                'totalreceivingFile' => RegisterAllottee::count(),
+                'totalscannedFile'   => RegisterAllottee::whereNotNull('scanned_by')->count(),
+
+                'totalAllotteeFile'  => Allottee::count(),
+                'totalDataentryFile' => Allottee::where('is_step_completed', 1)->count(),
+                // 'totaltransferFile'  => Allottee::whereNull('register_file_id')
+                //     ->whereNotNull('parent_id')->count(),
+
+                'totalcheckedFile'   => Allottee::where('sub_admin_allottee_verify', 1)->count(),
+                'totalapprovedFile'  => Allottee::where('divisional_approval', 1)->count(),
+
+                // 'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
+                // 'totallots'              => RegistrationFile::count(),
+
+                // Checked
+                'todayChecked' => Allottee::where('sub_admin_allottee_verify', 1)
+                    ->whereDate('sub_admin_checked_date', $today)
+                    ->where('is_step_completed', 1)
+                    ->count(),
+
+                'totalChecked' => Allottee::where('sub_admin_allottee_verify', 1)
+                    ->where('is_step_completed', 1)
+                    ->count(),
+
+                // Approved (User Based)
+                'todayApproved' => Allottee::where('divisional_approval', 1)
+                    ->where('divisional_approved_by', $userId)
+                    ->whereDate('divisional_approved_date', $today)
+                    ->count(),
+
+                'totalApproved' => Allottee::where('divisional_approval', 1)
+                    ->where('divisional_approved_by', $userId)
+                    ->count(),
+            ],
+
+            'labels' => [
+                'totalreceivingFile' => 'Total Files',
+                'totalscannedFile'   => 'Scanned Files',
+
+                'totalAllotteeFile'  => 'Total Allottees',
+                // 'totaltransferFile'  => 'Transferred Files',
+
+                'totalDataentryFile' => 'Data Entered',
+                'totalcheckedFile'   => 'Checked Files',
+                'totalapprovedFile'  => 'Approved Files',
+
+                // 'totalhandoverreadyLots' => 'Handover Ready',
+                // 'totallots'              => 'Total Lots',
+
+                'todayChecked' => 'Today Checked',
+                'totalChecked' => 'Total Checked',
+
+                'todayApproved' => 'Today Approved',
+                'totalApproved' => 'Total Approved',
+            ],
+            
+            'icons' => [
+                'totalreceivingFile' => '<i class="bx bx-file fs-2 text-primary"></i>',
+                'totalscannedFile'   => '<i class="bx bx-scan fs-2 text-warning"></i>',
+
+                'totalAllotteeFile'  => '<i class="bx bx-group fs-2 text-info"></i>',
+                // 'totaltransferFile'  => '<i class="bx bx-transfer fs-2 text-purple"></i>',
+
+                'totalDataentryFile' => '<i class="bx bx-edit fs-2 text-secondary"></i>',
+                'totalcheckedFile'   => '<i class="bx bx-check-circle fs-2 text-success"></i>',
+                'totalapprovedFile'  => '<i class="bx bx-badge-check fs-2 text-success"></i>',
+
+                // 'totalhandoverreadyLots' => '<i class="bx bx-repost fs-2 text-warning"></i>',
+
+                'todayChecked' => '<i class="bx bx-check-double fs-2 text-success"></i>',
+                'totalChecked' => '<i class="bx bx-check-shield fs-2 text-success"></i>',
+
+                'todayApproved' => '<i class="bx bx-calendar-check fs-2 text-primary"></i>',
+                'totalApproved' => '<i class="bx bx-award fs-2 text-success"></i>',
+            ]
+        ];
     }
 
     public function registarDashboard()

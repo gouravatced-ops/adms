@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Applicant;
 
 // use App\Models\StudentRegistration;
 use App\Models\User;
+use App\Models\RegisterAllottee;
+use App\Models\RegistrationFile;
+use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,11 +19,45 @@ class DashboardController extends Controller
     {
         $this->middleware('admin.auth');
     }
+
     public function index()
     {
-        return view('applicant.dashboard_components.dashboard');
-    }
+        $userId = auth()->id();
+        $today = now()->toDateString();
 
+        $stats = [
+            // RegisterAllottee
+            'totalreceivingFile' => RegisterAllottee::count(),
+            'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')->count(),
+
+            // Allottee
+            'totalAllotteeFile' => Allottee::count(),
+            'totaltransferFile' => Allottee::whereNull('register_file_id')
+                ->whereNotNull('parent_id')
+                ->count(),
+            'totalDataentryFile' => Allottee::where('is_step_completed', 1)->count(),
+            'totalcheckedFile' => Allottee::where('sub_admin_allottee_verify', 1)->count(),
+            'totalapprovedFile' => Allottee::where('divisional_approval', 1)->count(),
+
+            // RegistrationFile
+            'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
+            'totallots' => RegistrationFile::count(),
+
+            // User stats
+            'todayDataentryCount' => Allottee::where('created_by', $userId)
+                ->whereDate('created_at', $today)
+                ->where('is_step_completed', 1)
+                ->count(),
+
+            'totalDataentryByUser' => Allottee::where('created_by', $userId)->count(),
+
+            'totalPendingdataentryFile' => Allottee::where('created_by', $userId)
+                ->where('is_step_completed', 0)
+                ->count(),
+        ];
+        // return $stats;
+        return view('applicant.dashboard_components.dashboard', $stats);
+    }
 
     public function accountSettings()
     {
