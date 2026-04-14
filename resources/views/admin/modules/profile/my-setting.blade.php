@@ -141,14 +141,14 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-6 mb-2">
+                                <!-- <div class="col-md-6 mb-2">
                                     <label class="form-label" for="designation ">Designation</label>
                                     <div class="input-group input-group-merge">
                                         <input type="text" id="designation" name="designation"
                                             class="form-control @error('designation ') is-invalid @enderror"
                                             value="{{ auth()->user()->designation }}">
                                     </div>
-                                </div>
+                                </div> -->
                             @endif
                         </div>
                         <hr>

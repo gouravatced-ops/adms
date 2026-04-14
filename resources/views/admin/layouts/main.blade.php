@@ -109,8 +109,14 @@
 
 
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
-                            @if(auth('admin')->user()->role === 'approver')
-                            <strong>({{getDivisionName(auth('admin')->user()->division_id)}})</strong>
+                            @php
+                                $admin = auth('admin')->user();
+                            @endphp
+
+                            @if($admin->role === 'approver')
+                                <strong>({{ getDivisionName($admin->division_id) }})</strong>
+                            @elseif($admin->role === 'divisional_admin')
+                                <strong>(JSHB Admin)</strong>
                             @endif
                             <!-- User -->
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
@@ -141,6 +147,9 @@
                                                         @endif
                                                         @if (auth('admin')->user()->role === 'approver')
                                                         JSHB APPROVER
+                                                        @endif
+                                                        @if (auth('admin')->user()->role === 'divisional_admin')
+                                                        JSHB ADMIN
                                                         @endif
                                                         @if (auth('admin')->user()->role == 'superadmin')
                                                         ADMIN

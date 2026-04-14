@@ -753,7 +753,7 @@ class FileManagementController extends Controller
         // return $id;
         try {
             $document = AllotteeDocument::findOrFail($id);
-            if (auth('admin')->user()->role == 'approver') {
+            if (auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin') {
                 $document->update(['is_divisional_read' => 1, 'divisional_read_date' => date('Y-m-d H:i:s')]);
             } else {
                 $document->update(['is_sadmin_read' => 1, 'sadmin_read_date' => date('Y-m-d H:i:s')]);
