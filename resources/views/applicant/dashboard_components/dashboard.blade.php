@@ -4,66 +4,288 @@
 
 @section('content')
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+
+    /* ---------- DASHBOARD GRID: 2 CARDS PER ROW (strict) ---------- */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+        margin-bottom: 2.5rem;
+    }
+
+    /* tablet + desktop: exactly 2 columns */
+    @media (min-width: 640px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.75rem;
+        }
+    }
+
+    /* ---------- CARD STYLES: NO BORDER RADIUS, LARGER PADDING, CLEAN ---------- */
+    .stat-card {
+        background: #ffffff;
+        /* base fallback */
+        padding: 1.6rem 1.8rem;
+        transition: all 0.2s ease;
+        border: none;
+        /* NO border-radius */
+        border-radius: 0px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 28px -12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    /* inner flex layout */
+    .card-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    /* text area */
+    .stat-info p {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        margin-bottom: 0.6rem;
+        color: #2c3e50;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        color: #0a1c2f;
+        letter-spacing: -0.02em;
+    }
+
     .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 2px;
+        width: 3.6rem;
+        height: 3.6rem;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: 0.2s;
+        /* no border radius */
+        border-radius: 0px;
     }
 
-    .stat-icon svg {
-        width: 24px;
-        height: 24px;
+    .stat-icon svg,
+    .stat-icon i {
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 1.7rem;
     }
 
-    .dashboard {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 18px;
+    /* Card scheme variations - light & distinct */
+    .card-scheme-1 {
+        background: #fef7e0;
+    }
+
+    /* soft cream */
+    .card-scheme-2 {
+        background: #e3f5ec;
+    }
+
+    /* light mint */
+    .card-scheme-3 {
+        background: #eef2ff;
+    }
+
+    /* periwinkle mist */
+    .card-scheme-4 {
+        background: #ffe6f0;
+    }
+
+    /* blush pink */
+    .card-scheme-5 {
+        background: #e0f2fe;
+    }
+
+    /* sky breath */
+    .card-scheme-6 {
+        background: #f0e7fe;
+    }
+
+    /* lavender cloud */
+    .card-scheme-7 {
+        background: #feefdd;
+    }
+
+    /* peach whisper */
+    .card-scheme-8 {
+        background: #dcfce7;
+    }
+
+    /* soft green */
+    .card-scheme-9 {
+        background: #ffedd5;
+    }
+
+    /* warm sand */
+    .card-scheme-10 {
+        background: #e6f7f6;
+    }
+
+    .card-scheme-1 .stat-icon {
+        background: #faeec2;
+        color: #7a5c1a;
+    }
+
+    .card-scheme-2 .stat-icon {
+        background: #cdecdb;
+        color: #1e6b3e;
+    }
+
+    .card-scheme-3 .stat-icon {
+        background: #dfe4ff;
+        color: #2c3e8f;
+    }
+
+    .card-scheme-4 .stat-icon {
+        background: #ffd9e7;
+        color: #ac3f6b;
+    }
+
+    .card-scheme-5 .stat-icon {
+        background: #cde9ff;
+        color: #1f6392;
+    }
+
+    .card-scheme-6 .stat-icon {
+        background: #e2d9fc;
+        color: #5141a3;
+    }
+
+    .card-scheme-7 .stat-icon {
+        background: #ffe0c4;
+        color: #b45f2b;
+    }
+
+    .card-scheme-8 .stat-icon {
+        background: #c2efd4;
+        color: #146b3a;
+    }
+
+    .card-scheme-9 .stat-icon {
+        background: #ffe0b5;
+        color: #b4682d;
+    }
+
+    .card-scheme-10 .stat-icon {
+        background: #c8edea;
+        color: #1f6e64;
+    }
+
+    /* ensure text inside icon (svg / i) has dark color */
+    .stat-icon svg,
+    .stat-icon i {
+        color: currentColor;
+        stroke: currentColor;
+    }
+
+    /* section header styling (no border radius, clean) */
+    .section-header {
+        margin-bottom: 1.5rem;
+        margin-top: 0.25rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 2px solid #cddfe7;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a2c3e;
+        letter-spacing: -0.2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-header i {
+        color: #2c6e9e;
+        font-size: 1.2rem;
+    }
+
+    /* small responsive */
+    @media (max-width: 550px) {
+
+        .stat-card {
+            padding: 1.2rem 1.4rem;
+        }
+
+        .stat-number {
+            font-size: 1.7rem;
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+        }
+    }
+
+    .stat-card,
+    .stat-icon,
+    .section-header,
+    .section-header h3,
+    .dashboard-grid,
+    .card-content {
+        border-radius: 0px;
+    }
+
+    .stat-icon svg,
+    .stat-icon i {
+        border-radius: 0px;
+    }
+
+    .count-animate {
+        display: inline-block;
+    }
+
+    .stat-card:hover {
+        border-radius: 0px;
     }
 </style>
-<!-- Dashboard Content -->
-<div class="overflow-hidden">
-    <div class="p-4 border-b flex flex-col gap-3" style="border-color: var(--gray-border);" style="padding-top:0px !important;">
-        <!-- HEADER ROW -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <h3 class="flex items-center gap-2 text-sm font-semibold">
-                <i class="fas fa-database"></i>
-                Digitalization Stats
-            </h3>
-        </div>
+<div class="overflow-hidden1">
+    <div class="section-header">
+        <h3>
+            <i class="fas fa-database"></i>
+            Digitalization Stats
+        </h3>
     </div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-1">
-    <!-- Total Applications -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Receiving Files</p>
-                <div id="totalAppsCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <span class="count-animate">{{ $totalreceivingFile }}</span>
-                </div>
+
+<div class="dashboard-grid">
+    <!-- 1. Total Receiving Files - scheme 1 -->
+    <div class="stat-card card-scheme-1">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Receiving Files</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalreceivingFile }}">0</span></div>
             </div>
-            <div class="stat-icon navy">
-                <i class="fas fa-file-alt text-lg"></i>
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
             </div>
         </div>
     </div>
 
-    <!-- Pending Approvals -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Scanned Files</p>
-                <div id="pendingApprovalsCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalscannedFile }}</span>
-                </div>
+    <!-- 2. Total Scanned Files - scheme 2 -->
+    <div class="stat-card card-scheme-2">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Scanned Files</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalscannedFile }}">0</span></div>
             </div>
-            <div class="stat-icon yellow">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 7V4h4M20 7V4h-4M4 17v3h4M20 17v3h-4" />
                     <line x1="6" y1="12" x2="18" y2="12" />
@@ -72,20 +294,15 @@
         </div>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Allottees</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalAllotteeFile }}</span>
-                </div>
+    <!-- 3. Total Allottees - scheme 3 -->
+    <div class="stat-card card-scheme-3">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Allottees</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalAllotteeFile }}">0</span></div>
             </div>
-            <div class="stat-icon navy">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-home-check">
+            <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2" />
                     <path d="M19 13.488v-1.488h2l-9 -9l-9 9h2v7a2 2 0 0 0 2 2h4.525" />
@@ -95,17 +312,14 @@
         </div>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Data Entry File</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalDataentryFile }}</span>
-                </div>
+    <!-- 4. Total Data Entry File - scheme 4 -->
+    <div class="stat-card card-scheme-4">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Data Entry File</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalDataentryFile }}">0</span></div>
             </div>
-            <div class="stat-icon yellow">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <line x1="7" y1="8" x2="17" y2="8" />
@@ -116,35 +330,14 @@
         </div>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Transfer File</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totaltransferFile }}</span>
-                </div>
+    <!-- 5. Total Checked File - scheme 5 -->
+    <div class="stat-card card-scheme-5">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Checked File</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalcheckedFile }}">0</span></div>
             </div>
-            <div class="stat-icon navy">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M7 7h11l-3-3M17 17H6l3 3" />
-                </svg>
-            </div>
-        </div>
-    </div>
-
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Checked File</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalcheckedFile }}</span>
-                </div>
-            </div>
-            <div class="stat-icon yellow">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M8 12l2.5 2.5L16 9" />
@@ -153,17 +346,14 @@
         </div>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Approved File</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalapprovedFile }}</span>
-                </div>
+    <!-- 6. Total Approved File - scheme 6 -->
+    <div class="stat-card card-scheme-6">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Approved File</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalapprovedFile }}">0</span></div>
             </div>
-            <div class="stat-icon navy">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7l7-4z" />
                     <path d="M9 12l2 2 4-4" />
@@ -171,95 +361,58 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Book Processing -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Ready for Handover
-                </p>
-                <div id="bookProcessingCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalhandoverreadyLots }}</span>
-                </div>
-            </div>
-            <div class="stat-icon yellow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="icon icon-tabler icons-tabler-outline icon-tabler-truck-delivery">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                    <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                    <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
-                    <path d="M3 9l4 0" />
-                </svg>
-            </div>
-        </div>
+<!-- USER STATISTICS SECTION -->
+<div class="overflow-hidden1" style="margin-top: 0.5rem;">
+    <div class="section-header">
+        <h3>
+            <i class="fas fa-users"></i>
+            User Statistics
+        </h3>
     </div>
 </div>
-<!-- Dashboard Content -->
-<div class="overflow-hidden">
-    <div class="p-4 border-b flex flex-col gap-3" style="border-color: var(--gray-border);">
-        <!-- HEADER ROW -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <h3 class="flex items-center gap-2 text-sm font-semibold">
-                <i class="fas fa-database"></i>
-                User Statistics
-            </h3>
-        </div>
-    </div>
-</div>
-<div class="dashboard">
-    <!-- Total Applications -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Today's Data Entry</p>
-                <div id="totalAppsCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <span class="count-animate">{{ $todayDataentryCount }}</span>
-                </div>
+
+<div class="dashboard-grid">
+    <!-- Today's Data Entry - scheme 7 -->
+    <div class="stat-card card-scheme-7">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Today's Data Entry</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $todayDataentryCount }}">0</span></div>
             </div>
-            <div class="stat-icon yellow">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <!-- Document -->
                     <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <!-- Lines -->
                     <line x1="7" y1="8" x2="15" y2="8" />
                     <line x1="7" y1="12" x2="13" y2="12" />
-                    <!-- Check mark -->
                     <path d="M9 16l2 2 4-4" />
                 </svg>
             </div>
         </div>
     </div>
 
-    <!-- Pending Approvals -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">In Progress Files</p>
-                <div id="pendingApprovalsCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalPendingdataentryFile }}</span>
-                </div>
+    <!-- In Progress Files - scheme 8 -->
+    <div class="stat-card card-scheme-8">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>In Progress Files</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalPendingdataentryFile }}">0</span></div>
             </div>
-            <div class="stat-icon navy">
-                <i class="fas fa-clock text-lg"></i>
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
             </div>
         </div>
     </div>
 
-    <!-- Total Revenue -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs" style="color: var(--text-gray); margin-bottom: 4px;">Total Data Entry</p>
-                <div id="alloatedCount" class="text-2xl font-bold" style="color: var(--navy-primary);">
-                    <!-- <div class="spinner w-6 h-6"></div> -->
-                    <span class="count-animate">{{ $totalDataentryByUser }}</span>
-                </div>
+    <!-- Total Data Entry (by user) - scheme 9 -->
+    <div class="stat-card card-scheme-9">
+        <div class="card-content">
+            <div class="stat-info">
+                <p>Total Data Entry</p>
+                <div class="stat-number"><span class="count-animate" data-target="{{ $totalDataentryByUser }}">0</span></div>
             </div>
-            <div class="stat-icon yellow">
+            <div class="stat-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <line x1="7" y1="8" x2="17" y2="8" />
@@ -297,6 +450,131 @@
 @endsection
 
 @push('scripts')
+<script>
+    (function() {
+        const ANIMATION_DURATION = 2000;
+
+        // Select all counter elements
+        const counters = document.querySelectorAll('.count-animate');
+
+        // Store initial values and targets
+        const counterItems = [];
+
+        counters.forEach(counter => {
+            const targetAttr = counter.getAttribute('data-target');
+            if (targetAttr === null) return;
+
+            const targetNumber = parseInt(targetAttr, 10);
+            if (isNaN(targetNumber)) return;
+
+            // Store initial state
+            counterItems.push({
+                element: counter,
+                target: targetNumber,
+                current: 0,
+                startTime: null,
+                isAnimating: false,
+            });
+            // set initial text to 0
+            counter.innerText = '0';
+        });
+
+        function easeOutQuad(t) {
+            return t * (2 - t);
+        }
+
+        // Animation loop for each counter
+        function animateCounter(item, now) {
+            if (!item.isAnimating) return;
+
+            if (!item.startTime) {
+                item.startTime = now;
+                requestAnimationFrame(function(timestamp) {
+                    animateCounter(item, timestamp);
+                });
+                return;
+            }
+
+            const elapsed = now - item.startTime;
+            let progress = Math.min(1, elapsed / ANIMATION_DURATION);
+            // apply easing
+            const easedProgress = easeOutQuad(progress);
+            const nextValue = Math.floor(easedProgress * item.target);
+
+            // Update the DOM
+            if (item.element.innerText !== nextValue.toString()) {
+                item.element.innerText = nextValue;
+            }
+
+            // If animation is not complete, continue
+            if (progress < 1) {
+                requestAnimationFrame(function(timestamp) {
+                    animateCounter(item, timestamp);
+                });
+            } else {
+                item.element.innerText = item.target;
+                item.isAnimating = false;
+            }
+        }
+
+        function startAllCounters() {
+            for (let i = 0; i < counterItems.length; i++) {
+                const item = counterItems[i];
+                if (item.isAnimating) continue;
+                // reset
+                item.current = 0;
+                item.startTime = null;
+                item.isAnimating = true;
+                // initial set to 0
+                item.element.innerText = '0';
+                // begin animation
+                requestAnimationFrame(function(timestamp) {
+                    animateCounter(item, timestamp);
+                });
+            }
+        }
+
+        function initCounters() {
+            // Reset all counters to 0 before starting fresh (in case they have content)
+            for (let i = 0; i < counterItems.length; i++) {
+                const item = counterItems[i];
+                item.element.innerText = '0';
+                item.isAnimating = false;
+                item.startTime = null;
+                item.current = 0;
+            }
+            // slight delay to ensure DOM ready and numbers are fresh
+            setTimeout(() => {
+                startAllCounters();
+            }, 100);
+        }
+
+        // If page already loaded, init; else wait for events
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCounters);
+        } else {
+            initCounters();
+        }
+
+        window.addEventListener('load', function() {
+            // For any counters that might not have started (re-run safety)
+            for (let i = 0; i < counterItems.length; i++) {
+                const item = counterItems[i];
+                if (!item.isAnimating && item.element.innerText !== item.target.toString()) {
+                    // restart if not finished
+                    item.isAnimating = false;
+                    item.startTime = null;
+                    item.element.innerText = '0';
+                    requestAnimationFrame(function(timestamp) {
+                        item.isAnimating = true;
+                        animateCounter(item, timestamp);
+                    });
+                }
+            }
+        });
+
+    })();
+</script>
 <script>
     // ============= DASHBOARD DATA LOADING =============
     let categoryChartInstance = null;

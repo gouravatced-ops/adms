@@ -37,19 +37,67 @@
         transform: translateX(4px);
     }
 </style>
+<style>
+    .custom-card {
+        border-radius: 10px;
+        color: #1f2937;
+        /* dark text */
+    }
+
+    /* Different soft background colors */
+    .bg-soft-green {
+        background-color: #e6f9f0;
+    }
+
+    .bg-soft-blue {
+        background-color: #e7f1ff;
+    }
+
+    .bg-soft-yellow {
+        background-color: #fff8e6;
+    }
+
+    .bg-soft-orange {
+        background-color: #feefdd;
+    }
+
+    .bg-soft-pink {
+        background-color: #ffeef3;
+    }
+
+    .bg-soft-purple {
+        background-color: #f3e8ff;
+    }
+</style>
 <div class="container-xxl flex-grow-1 mt-3">
     <div class="row">
         <h5><i class="menu-icon tf-icons bx bx-layer"></i>Digitilization Stats</h5>
         @php
-        $role = auth('admin')->user()->role;
-        $allowedStats = ['totalreceivingFile', 'totalscannedFile' , 'totalAllotteeFile' , 'totaltransferFile' , 'totalDataentryFile', 'totalcheckedFile' , 'totalapprovedFile', 'totalhandoverreadyLots'];
+            $bgClasses = [
+            'bg-soft-green',
+            'bg-soft-blue',
+            'bg-soft-yellow',
+            'bg-soft-pink',
+            'bg-soft-purple',
+            'bg-soft-orange'
+            ];
         @endphp
+
+        @php
+            $role = auth('admin')->user()->role;
+            $allowedStats = ['totalreceivingFile', 'totalscannedFile' , 'totalAllotteeFile' , 'totaltransferFile' , 'totalDataentryFile', 'totalcheckedFile' , 'totalapprovedFile', 'totalhandoverreadyLots'];
+        @endphp
+
         @foreach($stats as $key => $value)
-        @if(!in_array($key, $allowedStats))
-        @continue
-        @endif
+            @if(!in_array($key, $allowedStats))
+                @continue
+            @endif
+
+            @php
+                $bgClass = $bgClasses[$loop->index % count($bgClasses)];
+            @endphp
         <div class="col-sm-4 col-xl-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card {{ $bgClass }} border-0 shadow-sm h-100">
                 <div class="card-body d-flex align-items-center">
                     <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
                         {!! $icons[$key] ?? '' !!}
@@ -80,21 +128,24 @@
 
         <div class="row">
             @foreach($filteredStats as $key => $value)
+            @php
+            $bgClass = $bgClasses[$loop->index % count($bgClasses)];
+            @endphp
             <div class="col-sm-4 col-xl-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card custom-card {{$bgClass}} border-0 shadow-sm h-100">
                     <div class="card-body d-flex align-items-center">
 
-                        <div class="avatar avatar-lg bg-light me-3">
+                        <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
                             {!! $icons[$key] ?? '' !!}
                         </div>
 
                         <div>
-                            <div class="text-uppercase small text-muted">
+                            <div class="text-uppercase">
                                 {{ $labels[$key] ?? $key }}
                             </div>
-                            <h4 class="mb-0 fw-bold">
+                            <h2 class="mb-0 fw-bold">
                                 {{ $value }}
-                            </h4>
+                            </h2>
                         </div>
 
                     </div>
@@ -163,7 +214,7 @@
     <div class="row">
         @foreach ($subdivisionStats as $item)
         <div class="col-sm-3 col-xl-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card border-0 shadow-sm h-100">
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -233,7 +284,7 @@
         </div>
         @endforeach
         <div class="col-sm-3 col-xl-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card border-0 shadow-sm h-100">
                 <div class="card-body d-flex align-items-center">
                     <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
                         <i class="bx bx-folder-open fs-2"></i>
@@ -250,7 +301,7 @@
     </div>
     <div class="row">
         <div class="col-sm-12 col-xl-12 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card border-0 shadow-sm h-100">
                 <div class="card-body">
 
                     <!-- Header -->
@@ -388,7 +439,7 @@
     @if (auth('admin')->user()->role == 'divisional_admin')
     <div class="row">
         <div class="col-sm-3 col-xl-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card border-0 shadow-sm h-100">
                 <div class="card-body d-flex align-items-center">
                     <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
                         <i class="bx bx-folder-open fs-2"></i>
@@ -404,7 +455,7 @@
         </div>
         @foreach ($subdivisionStats as $item)
         <div class="col-sm-3 col-xl-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card custom-card border-0 shadow-sm h-100">
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-start mb-3">
