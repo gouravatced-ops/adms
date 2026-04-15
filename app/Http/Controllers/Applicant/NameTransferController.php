@@ -1432,7 +1432,9 @@ class NameTransferController extends Controller
             // Step Completed
             $allottee->update([
                 'is_step_completed' => 1,
+                'sub_admin_allottee_verify' => 0
             ]);
+
             $this->trackStepEnd($request->allottee_id, 4);
             // Update RegisterAllottee
             RegisterAllottee::where('id', $allottee->register_file_id)

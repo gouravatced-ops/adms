@@ -478,6 +478,7 @@ class PreviewController extends Controller
 
             // Step Completed
             $allottee->is_step_completed = 1;
+            $allottee->sub_admin_allottee_verify = 0;
             $allottee->step_remarks = $request->remarks;
             $allottee->save();
             // Update RegisterAllottee

@@ -177,7 +177,7 @@ class AdminController extends Controller
                 'totalreceivingFile' => RegisterAllottee::count(),
                 'totalscannedFile'   => RegisterAllottee::whereNotNull('scanned_by')->count(),
 
-                'totalAllotteeFile'  => Allottee::count(),
+                'totalAllotteeFile'  => Allottee::whereNotNull('register_file_id')->count(),
                 'totalDataentryFile' => Allottee::where('is_step_completed', 1)->count(),
                 // 'totaltransferFile'  => Allottee::whereNull('register_file_id')
                 //     ->whereNotNull('parent_id')->count(),

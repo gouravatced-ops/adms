@@ -31,7 +31,7 @@ class DashboardController extends Controller
             'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')->count(),
 
             // Allottee
-            'totalAllotteeFile' => Allottee::count(),
+            'totalAllotteeFile' => Allottee::whereNotNull('register_file_id')->count(),
             'totaltransferFile' => Allottee::whereNull('register_file_id')
                 ->whereNotNull('parent_id')
                 ->count(),
