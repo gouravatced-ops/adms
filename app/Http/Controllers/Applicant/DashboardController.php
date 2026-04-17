@@ -36,8 +36,8 @@ class DashboardController extends Controller
                 ->whereNotNull('parent_id')
                 ->count(),
             'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
-            'totalcheckedFile' => Allottee::where('sub_admin_allottee_verify', 1)->count(),
-            'totalapprovedFile' => Allottee::where('divisional_approval', 1)->count(),
+            'totalcheckedFile' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)->count(),
+            'totalapprovedFile' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
 
             // RegistrationFile
             'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),

@@ -182,29 +182,29 @@ class AdminController extends Controller
                 // 'totaltransferFile'  => Allottee::whereNull('register_file_id')
                 //     ->whereNotNull('parent_id')->count(),
 
-                'totalcheckedFile'   => Allottee::where('sub_admin_allottee_verify', 1)->count(),
-                'totalapprovedFile'  => Allottee::where('divisional_approval', 1)->count(),
+                'totalcheckedFile'   => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)->count(),
+                'totalapprovedFile'  => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
 
                 // 'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
                 // 'totallots'              => RegistrationFile::count(),
 
                 // Checked
-                'todayChecked' => Allottee::where('sub_admin_allottee_verify', 1)
+                'todayChecked' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)
                     ->whereDate('sub_admin_checked_date', $today)
                     ->where('is_step_completed', 1)
                     ->count(),
 
-                'totalChecked' => Allottee::where('sub_admin_allottee_verify', 1)
+                'totalChecked' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)
                     ->where('is_step_completed', 1)
                     ->count(),
 
                 // Approved (User Based)
-                'todayApproved' => Allottee::where('divisional_approval', 1)
+                'todayApproved' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)
                     ->where('divisional_approved_by', $userId)
                     ->whereDate('divisional_approved_date', $today)
                     ->count(),
 
-                'totalApproved' => Allottee::where('divisional_approval', 1)
+                'totalApproved' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)
                     ->where('divisional_approved_by', $userId)
                     ->count(),
             ],
