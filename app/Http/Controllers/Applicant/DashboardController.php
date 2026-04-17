@@ -35,7 +35,7 @@ class DashboardController extends Controller
             'totaltransferFile' => Allottee::whereNull('register_file_id')
                 ->whereNotNull('parent_id')
                 ->count(),
-            'totalDataentryFile' => Allottee::where('is_step_completed', 1)->count(),
+            'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
             'totalcheckedFile' => Allottee::where('sub_admin_allottee_verify', 1)->count(),
             'totalapprovedFile' => Allottee::where('divisional_approval', 1)->count(),
 
