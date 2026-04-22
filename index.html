@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valex — Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ══ VARIABLES ══ */
+    :root {
+      --sw: 245px;
+      --th: 62px;
+      --cr: 12px;
+      --pri: #5b73e8;
+      --prl: #eef0fd;
+      --suc: #34c38f;
+      --wrn: #f1b44c;
+      --dng: #f46a6a;
+      --inf: #50a5f1;
+      --c1: linear-gradient(135deg, #5b73e8, #7c5bcc);
+      --c2: linear-gradient(135deg, #f46a6a, #f7a37e);
+      --c3: linear-gradient(135deg, #34c38f, #20b07b);
+      --c4: linear-gradient(135deg, #f1b44c, #e5872b)
+    }
+
+    [data-theme=light] {
+      --bg: #f0f4fb;
+      --sbg: #fff;
+      --tbg: #fff;
+      --cbg: #fff;
+      --tx: #495057;
+      --txh: #2d3748;
+      --mu: #74788d;
+      --bd: #e9ecef;
+      --ibg: #f0f4fb;
+      --sh: rgba(0, 0, 0, .06);
+      --dbg: #fff;
+      --hbg: #f8f9fa;
+      --thdBg: #f8f9fa;
+      --scr: #dee2e6
+    }
+
+    [data-theme=dark] {
+      --bg: #1a1d2b;
+      --sbg: #222536;
+      --tbg: #222536;
+      --cbg: #2a2d3e;
+      --tx: #a6b0cf;
+      --txh: #e2e8f0;
+      --mu: #6c7293;
+      --bd: #32384f;
+      --ibg: #1a1d2b;
+      --sh: rgba(0, 0, 0, .3);
+      --dbg: #2a2d3e;
+      --hbg: #32384f;
+      --thdBg: #222536;
+      --scr: #32384f
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--tx);
+      margin: 0;
+      overflow-x: hidden;
+      transition: background .3s, color .3s
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--scr);
+      border-radius: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    /* ══ SIDEBAR ══ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sw);
+      height: 100vh;
+      background: var(--sbg);
+      box-shadow: 2px 0 14px var(--sh);
+      display: flex;
+      flex-direction: column;
+      z-index: 1055;
+      transition: transform .3s, background .3s;
+      overflow-y: auto;
+      overflow-x: hidden
+    }
+
+    .sidebar.sb-img {
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important
+    }
+
+    .sidebar.sb-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(22, 25, 44, .84);
+      z-index: 0
+    }
+
+    .sidebar.sb-img>* {
+      position: relative;
+      z-index: 1
+    }
+
+    .sb-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--bd);
+      text-decoration: none;
+      flex-shrink: 0
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--pri);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0
+    }
+
+    .logo-txt {
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--pri)
+    }
+
+    .nav-sec {
+      padding: 14px 18px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--mu)
+    }
+
+    .snav {
+      list-style: none;
+      padding: 0;
+      margin: 0
+    }
+
+    .snav>li>a,
+    .snav>li>.nlnk {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px;
+      color: var(--mu);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 600;
+      transition: all .18s;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left
+    }
+
+    .snav>li>a:hover,
+    .snav>li>.nlnk:hover {
+      color: var(--pri);
+      background: var(--prl)
+    }
+
+    .snav>li>a.active {
+      color: var(--pri);
+      background: var(--prl)
+    }
+
+    .snav>li>a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--pri);
+      border-radius: 0 4px 4px 0
+    }
+
+    .snav>li>a i:first-child,
+    .snav>li>.nlnk i:first-child {
+      font-size: 16px;
+      width: 20px;
+      text-align: center
+    }
+
+    .sub {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .32s ease;
+      background: var(--prl)
+    }
+
+    [data-theme=dark] .sub {
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .sub.open {
+      max-height: 500px
+    }
+
+    .sub li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px 7px 48px;
+      color: var(--mu);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: color .18s
+    }
+
+    .sub li a:hover {
+      color: var(--pri)
+    }
+
+    .sub li a.active {
+      color: var(--pri);
+      font-weight: 700
+    }
+
+    .sub li a::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+      margin-left: -4px
+    }
+
+    .arrow {
+      margin-left: auto;
+      font-size: 11px;
+      transition: transform .3s
+    }
+
+    .nlnk.open .arrow {
+      transform: rotate(90deg)
+    }
+
+    .nbadge {
+      margin-left: auto;
+      background: var(--pri);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-weight: 700
+    }
+
+    .sb-footer {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid var(--bd);
+      flex-shrink: 0
+    }
+
+    .sb-footer-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px
+    }
+
+    .sw-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .csw {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform .2s, border-color .2s
+    }
+
+    .csw:hover {
+      transform: scale(1.15)
+    }
+
+    .csw.on {
+      border-color: var(--txh)
+    }
+
+    .isw {
+      width: 44px;
+      height: 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .2s;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      background: var(--bd);
+      color: var(--mu)
+    }
+
+    .isw.on {
+      border-color: var(--pri)
+    }
+
+    /* ══ TOPBAR ══ */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: var(--sw);
+      right: 0;
+      height: var(--th);
+      background: var(--tbg);
+      box-shadow: 0 2px 10px var(--sh);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+      z-index: 1040;
+      transition: left .3s, background .3s;
+      overflow: visible
+    }
+
+    .topbar.tb-img {
+      background-size: cover !important;
+      background-position: center !important
+    }
+
+    .topbar.tb-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(22, 25, 44, .76);
+      z-index: 0
+    }
+
+    .topbar.tb-img>* {
+      position: relative;
+      z-index: 1
+    }
+
+    .topbar.tb-img .tb-icon,
+    .topbar.tb-img .tb-title h6,
+    .topbar.tb-img .tb-title small {
+      color: #fff !important
+    }
+
+    .topbar.tb-img .tbdiv {
+      background: rgba(255, 255, 255, .3) !important
+    }
+
+    .sb-tog {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: var(--mu);
+      cursor: pointer;
+      padding: 0 4px
+    }
+
+    .tb-title {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .tb-title h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--txh);
+      line-height: 1.2
+    }
+
+    .tb-title small {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    .tb-search {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative
+    }
+
+    .srch-inp {
+      width: 100%;
+      padding: 7px 14px 7px 36px;
+      background: var(--ibg);
+      border: 1px solid var(--bd);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--tx);
+      outline: none;
+      transition: all .2s;
+      font-family: 'Nunito', sans-serif
+    }
+
+    .srch-inp:focus {
+      border-color: var(--pri);
+      box-shadow: 0 0 0 3px rgba(91, 115, 232, .12)
+    }
+
+    .srch-ico-abs {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--mu);
+      font-size: 14px;
+      pointer-events: none
+    }
+
+    .srch-dd {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--dbg);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px var(--sh);
+      z-index: 3000;
+      display: none;
+      overflow: hidden;
+      max-height: 340px;
+      overflow-y: auto
+    }
+
+    .srch-dd.show {
+      display: block
+    }
+
+    .srch-sec {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--mu);
+      padding: 10px 16px 4px
+    }
+
+    .srch-itm {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      transition: background .15s;
+      text-decoration: none;
+      color: var(--tx)
+    }
+
+    .srch-itm:hover {
+      background: var(--hbg)
+    }
+
+    .srch-ico-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0
+    }
+
+    .srch-itm-t {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txh)
+    }
+
+    .srch-itm-s {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    .srch-empty {
+      padding: 22px 16px;
+      text-align: center;
+      color: var(--mu);
+      font-size: 13px
+    }
+
+    .tb-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0
+    }
+
+    .tb-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--ibg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mu);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all .2s;
+      border: 1px solid var(--bd);
+      position: relative;
+      text-decoration: none;
+      flex-shrink: 0
+    }
+
+    .tb-icon:hover {
+      background: var(--prl);
+      color: var(--pri)
+    }
+
+    .bdot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      background: var(--dng);
+      border-radius: 50%;
+      border: 2px solid var(--tbg)
+    }
+
+    .tbdiv {
+      width: 1px;
+      height: 24px;
+      background: var(--bd)
+    }
+
+    .thtog {
+      width: 52px;
+      height: 26px;
+      border-radius: 13px;
+      background: var(--bd);
+      cursor: pointer;
+      position: relative;
+      border: none;
+      transition: background .3s;
+      flex-shrink: 0
+    }
+
+    .thtog.on {
+      background: var(--pri)
+    }
+
+    .thtog::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left .3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .15)
+    }
+
+    .thtog.on::after {
+      left: 29px
+    }
+
+    .tb-dd {
+      position: relative
+    }
+
+    .dd-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 300px;
+      background: var(--dbg);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      box-shadow: 0 10px 36px var(--sh);
+      z-index: 2500;
+      display: none;
+      overflow: hidden
+    }
+
+    .dd-panel.show {
+      display: block
+    }
+
+    .dd-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .dd-hd h6 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .dd-hd a {
+      font-size: 11px;
+      color: var(--pri);
+      font-weight: 700;
+      text-decoration: none
+    }
+
+    .dd-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background .15s;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .dd-item:last-child {
+      border-bottom: none
+    }
+
+    .dd-item:hover {
+      background: var(--hbg)
+    }
+
+    .dd-av {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .dd-ico {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px
+    }
+
+    .dd-t {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--txh)
+    }
+
+    .dd-s {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    .dd-time {
+      font-size: 10px;
+      color: var(--mu);
+      margin-left: auto;
+      white-space: nowrap;
+      padding-top: 2px
+    }
+
+    .dd-ft {
+      padding: 10px 16px;
+      text-align: center;
+      border-top: 1px solid var(--bd)
+    }
+
+    .dd-ft a {
+      font-size: 12px;
+      color: var(--pri);
+      font-weight: 700;
+      text-decoration: none
+    }
+
+    .pr-head {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .pr-av {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pri), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 20px;
+      margin: 0 auto 8px
+    }
+
+    .pr-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .pr-role {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    .pm-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      color: var(--tx);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background .15s;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .pm-item:last-child {
+      border-bottom: none
+    }
+
+    .pm-item:hover {
+      background: var(--hbg);
+      color: var(--pri)
+    }
+
+    .pm-item i {
+      width: 18px;
+      text-align: center;
+      font-size: 15px
+    }
+
+    .tb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pri), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border: 2px solid var(--pri);
+      flex-shrink: 0
+    }
+
+    /* ══ SETTINGS PANEL ══ */
+    .sp {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100vh;
+      background: var(--dbg);
+      box-shadow: -4px 0 24px var(--sh);
+      z-index: 3100;
+      transition: right .3s;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column
+    }
+
+    .sp.open {
+      right: 0
+    }
+
+    .sp-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--bd);
+      flex-shrink: 0
+    }
+
+    .sp-hd h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .sp-body {
+      padding: 16px 20px;
+      flex: 1
+    }
+
+    .sp-sec {
+      margin-bottom: 20px
+    }
+
+    .sp-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--mu);
+      margin-bottom: 10px
+    }
+
+    /* ══ MAIN ══ */
+    .main {
+      margin-left: var(--sw);
+      margin-top: var(--th);
+      padding: 22px;
+      min-height: calc(100vh - var(--th));
+      transition: margin-left .3s
+    }
+
+    /* ══ PAGE VIEWS ══ */
+    .page-view {
+      display: none
+    }
+
+    .page-view.active {
+      display: block
+    }
+
+    /* ══ BREADCRUMB ══ */
+    .bc-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px
+    }
+
+    .bc-left h4 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--txh);
+      margin: 0
+    }
+
+    .bc-left p {
+      font-size: 12px;
+      color: var(--mu);
+      margin: 3px 0 0
+    }
+
+    .breadcrumb {
+      margin: 0;
+      background: none;
+      padding: 0
+    }
+
+    .breadcrumb-item {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mu)
+    }
+
+    .breadcrumb-item a {
+      color: var(--pri);
+      text-decoration: none
+    }
+
+    .breadcrumb-item.active {
+      color: var(--mu)
+    }
+
+    .breadcrumb-item+.breadcrumb-item::before {
+      color: var(--mu)
+    }
+
+    /* ══ WELCOME ══ */
+    .wrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px
+    }
+
+    .wrow h4 {
+      font-weight: 800;
+      color: var(--txh);
+      margin: 0;
+      font-size: 20px
+    }
+
+    .wrow p {
+      color: var(--mu);
+      margin: 2px 0 0;
+      font-size: 13px
+    }
+
+    .osw {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap
+    }
+
+    .osw-i {
+      text-align: right
+    }
+
+    .osw-i .lbl {
+      font-size: 10px;
+      color: var(--mu);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .osw-i .val {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .osw-i .stars {
+      color: #f1b44c;
+      font-size: 11px
+    }
+
+    /* ══ STAT CARDS ══ */
+    .sc {
+      border-radius: var(--cr);
+      padding: 18px 20px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      border: none;
+      height: 100%
+    }
+
+    .sc::after {
+      content: '';
+      position: absolute;
+      right: -18px;
+      bottom: -18px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .sc::before {
+      content: '';
+      position: absolute;
+      right: 10px;
+      bottom: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07)
+    }
+
+    .sc-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: .85
+    }
+
+    .sc-val {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 4px 0 2px
+    }
+
+    .sc-sub {
+      font-size: 11px;
+      opacity: .8
+    }
+
+    .sc-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(255, 255, 255, .2);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px
+    }
+
+    .sc-ico {
+      position: absolute;
+      bottom: 14px;
+      right: 16px;
+      font-size: 28px;
+      opacity: .25
+    }
+
+    .sc-wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 34px;
+      opacity: .22
+    }
+
+    .c1 {
+      background: var(--c1)
+    }
+
+    .c2 {
+      background: var(--c2)
+    }
+
+    .c3 {
+      background: var(--c3)
+    }
+
+    .c4 {
+      background: var(--c4)
+    }
+
+    /* ══ DASH CARD ══ */
+    .dc {
+      background: var(--cbg);
+      border-radius: var(--cr);
+      box-shadow: 0 2px 12px var(--sh);
+      border: 1px solid var(--bd);
+      height: 100%;
+      transition: background .3s, border-color .3s
+    }
+
+    .dc-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .dc-hd h6 {
+      font-weight: 800;
+      color: var(--txh);
+      margin: 0;
+      font-size: 14px
+    }
+
+    .dc-hd p {
+      color: var(--mu);
+      font-size: 11px;
+      margin: 2px 0 0
+    }
+
+    .dc-body {
+      padding: 16px 18px
+    }
+
+    /* ══ BAR CHART ══ */
+    .osn {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 14px
+    }
+
+    .osn-i .v {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .osn-i .m {
+      font-size: 11px;
+      color: var(--mu);
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block
+    }
+
+    .bch {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 130px;
+      padding: 0 2px
+    }
+
+    .bg {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      flex: 1
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      transition: opacity .2s;
+      min-width: 5px
+    }
+
+    .bar:hover {
+      opacity: .7;
+      cursor: pointer
+    }
+
+    .brs {
+      background: var(--pri)
+    }
+
+    .brp {
+      background: var(--dng)
+    }
+
+    .brf {
+      background: var(--wrn)
+    }
+
+    .blbl {
+      display: flex;
+      gap: 5px;
+      padding: 5px 2px 0
+    }
+
+    .blbl span {
+      flex: 1;
+      text-align: center;
+      font-size: 9px;
+      color: var(--mu);
+      font-weight: 600
+    }
+
+    /* ══ MAP ══ */
+    .map-wrap {
+      background: var(--ibg);
+      border-radius: 8px;
+      height: 220px;
+      overflow: hidden
+    }
+
+    .map-wrap svg {
+      width: 100%;
+      height: 100%
+    }
+
+    /* ══ CUSTOMERS ══ */
+    .ci {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .ci:last-child {
+      border-bottom: none
+    }
+
+    .cav {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .cn {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txh)
+    }
+
+    .cr {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    /* ══ TECH ══ */
+    .tcard {
+      background: var(--ibg);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mu);
+      gap: 5px
+    }
+
+    .tcard i {
+      font-size: 24px
+    }
+
+    /* ══ TABLE PAGE ══ */
+    .page-table-header {
+      background: var(--cbg);
+      border-radius: var(--cr);
+      box-shadow: 0 2px 12px var(--sh);
+      border: 1px solid var(--bd);
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .table-list-card {
+      background: var(--cbg);
+      border-radius: var(--cr);
+      box-shadow: 0 2px 12px var(--sh);
+      border: 1px solid var(--bd);
+      overflow: hidden
+    }
+
+    .tl-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--bd);
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .tl-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .tl-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .tl-search {
+      display: flex;
+      align-items: center;
+      background: var(--ibg);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 5px 10px;
+      gap: 6px
+    }
+
+    .tl-search input {
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--tx);
+      font-family: 'Nunito', sans-serif;
+      width: 180px
+    }
+
+    .tl-search i {
+      color: var(--mu);
+      font-size: 13px
+    }
+
+    .tbl-wrap table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    .tbl-wrap table th {
+      background: var(--thdBg);
+      padding: 11px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 2px solid var(--bd);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none
+    }
+
+    .tbl-wrap table th:hover {
+      color: var(--pri)
+    }
+
+    .tbl-wrap table th.sort-asc::after {
+      content: ' ↑'
+    }
+
+    .tbl-wrap table th.sort-desc::after {
+      content: ' ↓'
+    }
+
+    .tbl-wrap table td {
+      padding: 11px 14px;
+      font-size: 13px;
+      color: var(--tx);
+      border-bottom: 1px solid var(--bd);
+      vertical-align: middle
+    }
+
+    .tbl-wrap table tr:hover td {
+      background: var(--hbg)
+    }
+
+    .tbl-wrap table tr:last-child td {
+      border-bottom: none
+    }
+
+    .td-name {
+      font-weight: 700;
+      color: var(--txh)
+    }
+
+    .td-sub {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    .tbl-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-top: 1px solid var(--bd);
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .tbl-pagination .pg-info {
+      font-size: 12px;
+      color: var(--mu)
+    }
+
+    .pg-btns {
+      display: flex;
+      gap: 4px
+    }
+
+    .pg-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--bd);
+      background: var(--cbg);
+      color: var(--mu);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .18s
+    }
+
+    .pg-btn:hover {
+      background: var(--prl);
+      color: var(--pri);
+      border-color: var(--pri)
+    }
+
+    .pg-btn.on {
+      background: var(--pri);
+      color: #fff;
+      border-color: var(--pri)
+    }
+
+    .per-page-sel {
+      background: var(--ibg);
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--tx);
+      outline: none;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif
+    }
+
+    /* ══ TABLE TABS ══ */
+    .tbl-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 14px 18px 0;
+      border-bottom: 1px solid var(--bd);
+      flex-wrap: wrap
+    }
+
+    .tbl-tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mu);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .18s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none
+    }
+
+    .tbl-tab:hover {
+      color: var(--pri)
+    }
+
+    .tbl-tab.on {
+      color: var(--pri);
+      border-bottom-color: var(--pri)
+    }
+
+    /* ══ SKELETON LOADER ══ */
+    @keyframes shimmer {
+      0% {
+        background-position: -700px 0
+      }
+
+      100% {
+        background-position: 700px 0
+      }
+    }
+
+    .skeleton {
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--bd) 25%, var(--hbg) 50%, var(--bd) 75%);
+      background-size: 700px 100%;
+      animation: shimmer 1.4s infinite
+    }
+
+    [data-theme=dark] .skeleton {
+      background: linear-gradient(90deg, #32384f 25%, #3d4460 50%, #32384f 75%);
+      background-size: 700px 100%
+    }
+
+    .sk-line {
+      height: 14px;
+      margin-bottom: 8px;
+      border-radius: 6px
+    }
+
+    .sk-circle {
+      border-radius: 50%
+    }
+
+    .sk-card {
+      background: var(--cbg);
+      border-radius: var(--cr);
+      border: 1px solid var(--bd);
+      padding: 20px
+    }
+
+    .sk-h {
+      height: 18px;
+      border-radius: 6px;
+      margin-bottom: 14px
+    }
+
+    .sk-para {
+      height: 12px;
+      border-radius: 4px;
+      margin-bottom: 8px
+    }
+
+    .sk-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .sk-row:last-child {
+      border-bottom: none
+    }
+
+    /* Page loader overlay */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity .4s
+    }
+
+    .page-loader.hide {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .loader-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--bd);
+      border-top-color: var(--pri);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    .loader-bar-wrap {
+      width: 220px;
+      height: 4px;
+      background: var(--bd);
+      border-radius: 4px;
+      overflow: hidden
+    }
+
+    .loader-bar {
+      height: 100%;
+      background: var(--pri);
+      border-radius: 4px;
+      animation: loadbar 1.8s ease forwards
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes loadbar {
+      0% {
+        width: 0
+      }
+
+      60% {
+        width: 75%
+      }
+
+      100% {
+        width: 100%
+      }
+    }
+
+    .loader-txt {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mu)
+    }
+
+    /* ══ TOASTER ══ */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none
+    }
+
+    .toast-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--cbg);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 14px 16px;
+      min-width: 280px;
+      max-width: 360px;
+      box-shadow: 0 8px 32px var(--sh);
+      pointer-events: all;
+      animation: toastIn .3s ease;
+      transition: opacity .3s, transform .3s
+    }
+
+    .toast-msg.hide {
+      opacity: 0;
+      transform: translateX(30px)
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(30px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    .toast-body {
+      flex: 1
+    }
+
+    .toast-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--txh)
+    }
+
+    .toast-sub {
+      font-size: 12px;
+      color: var(--mu);
+      margin-top: 2px
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: var(--mu);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      line-height: 1;
+      flex-shrink: 0
+    }
+
+    .toast-close:hover {
+      color: var(--txh)
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      border-radius: 0 0 12px 12px;
+      animation: toastProg linear forwards
+    }
+
+    @keyframes toastProg {
+      from {
+        width: 100%
+      }
+
+      to {
+        width: 0
+      }
+    }
+
+    .toast-msg {
+      position: relative;
+      overflow: hidden
+    }
+
+    .t-success .toast-icon {
+      background: #d1fae5;
+      color: #065f46
+    }
+
+    .t-danger .toast-icon {
+      background: #fee2e2;
+      color: #991b1b
+    }
+
+    .t-warning .toast-icon {
+      background: #fef3c7;
+      color: #92400e
+    }
+
+    .t-info .toast-icon {
+      background: #dbeafe;
+      color: #1e40af
+    }
+
+    .t-success .toast-progress {
+      background: var(--suc)
+    }
+
+    .t-danger .toast-progress {
+      background: var(--dng)
+    }
+
+    .t-warning .toast-progress {
+      background: var(--wrn)
+    }
+
+    .t-info .toast-progress {
+      background: var(--inf)
+    }
+
+    /* ══ COMPONENTS PAGE ══ */
+    .comp-section {
+      margin-bottom: 32px
+    }
+
+    .comp-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--txh);
+      margin-bottom: 4px
+    }
+
+    .comp-sub {
+      font-size: 12px;
+      color: var(--mu);
+      margin-bottom: 14px
+    }
+
+    .comp-demo {
+      background: var(--cbg);
+      border: 1px solid var(--bd);
+      border-radius: var(--cr);
+      padding: 20px;
+      margin-bottom: 8px
+    }
+
+    .comp-code-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--mu);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px
+    }
+
+    /* Scale variants */
+    .sc-demo-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .sc-xs {
+      padding: 2px 8px !important;
+      font-size: 10px !important;
+      border-radius: 4px !important
+    }
+
+    .sc-sm {
+      padding: 4px 10px !important;
+      font-size: 11px !important;
+      border-radius: 5px !important
+    }
+
+    .sc-md {
+      padding: 7px 14px !important;
+      font-size: 13px !important;
+      border-radius: 7px !important
+    }
+
+    .sc-lg {
+      padding: 10px 20px !important;
+      font-size: 15px !important;
+      border-radius: 8px !important
+    }
+
+    .sc-xl {
+      padding: 13px 26px !important;
+      font-size: 17px !important;
+      border-radius: 10px !important
+    }
+
+    /* Scale cards */
+    .scale-card-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .scard {
+      background: var(--pri);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .scard-xs {
+      width: 60px;
+      height: 50px;
+      font-size: 9px;
+      border-radius: 5px
+    }
+
+    .scard-sm {
+      width: 80px;
+      height: 65px;
+      font-size: 10px;
+      border-radius: 6px
+    }
+
+    .scard-md {
+      width: 110px;
+      height: 85px;
+      font-size: 12px
+    }
+
+    .scard-lg {
+      width: 140px;
+      height: 110px;
+      font-size: 14px
+    }
+
+    .scard-xl {
+      width: 180px;
+      height: 140px;
+      font-size: 16px
+    }
+
+    .scard i {
+      opacity: .8
+    }
+
+    /* Loader demos */
+    .loader-demo-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap
+    }
+
+    .spin-xs {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--bd);
+      border-top-color: var(--pri);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    .spin-sm {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--bd);
+      border-top-color: var(--pri);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    .spin-md {
+      width: 38px;
+      height: 38px;
+      border: 3px solid var(--bd);
+      border-top-color: var(--pri);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    .spin-lg {
+      width: 52px;
+      height: 52px;
+      border: 4px solid var(--bd);
+      border-top-color: var(--pri);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    .spin-lbl {
+      font-size: 10px;
+      color: var(--mu);
+      text-align: center;
+      margin-top: 4px;
+      font-weight: 700
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--pri);
+      animation: pulse 1.2s ease-in-out infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+
+      50% {
+        transform: scale(1.5);
+        opacity: .5
+      }
+    }
+
+    .bounce-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--pri);
+      animation: bounce 1s ease infinite
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-10px)
+      }
+    }
+
+    .bars-loader {
+      display: flex;
+      gap: 3px;
+      align-items: flex-end;
+      height: 28px
+    }
+
+    .bl-bar {
+      width: 5px;
+      background: var(--pri);
+      border-radius: 3px;
+      animation: blbar 1s ease infinite
+    }
+
+    .bl-bar:nth-child(1) {
+      animation-delay: 0s;
+      height: 14px
+    }
+
+    .bl-bar:nth-child(2) {
+      animation-delay: .15s;
+      height: 20px
+    }
+
+    .bl-bar:nth-child(3) {
+      animation-delay: .3s;
+      height: 28px
+    }
+
+    .bl-bar:nth-child(4) {
+      animation-delay: .15s;
+      height: 20px
+    }
+
+    .bl-bar:nth-child(5) {
+      animation-delay: 0s;
+      height: 14px
+    }
+
+    @keyframes blbar {
+
+      0%,
+      100% {
+        transform: scaleY(.5)
+      }
+
+      50% {
+        transform: scaleY(1)
+      }
+    }
+
+    .ring-loader {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: var(--pri);
+      border-right-color: var(--inf);
+      animation: spin .8s linear infinite
+    }
+
+    .prog-loader {
+      width: 120px;
+      height: 6px;
+      background: var(--bd);
+      border-radius: 4px;
+      overflow: hidden
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--pri), var(--inf));
+      animation: progIndeterminate 1.5s ease infinite
+    }
+
+    @keyframes progIndeterminate {
+      0% {
+        width: 30%;
+        margin-left: -30%
+      }
+
+      100% {
+        width: 30%;
+        margin-left: 100%
+      }
+    }
+
+    /* ══ TABLE COMPONENT ══ */
+    .or td {
+      font-size: 12.5px;
+      vertical-align: middle;
+      padding: 9px 12px;
+      color: var(--tx)
+    }
+
+    .or td:first-child {
+      font-weight: 700;
+      color: var(--txh)
+    }
+
+    .oid {
+      font-size: 11px;
+      color: var(--mu)
+    }
+
+    thead th {
+      background: var(--thdBg) !important;
+      color: var(--mu) !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      border-color: var(--bd) !important
+    }
+
+    .table {
+      --bs-table-bg: transparent !important;
+      --bs-table-border-color: var(--bd)
+    }
+
+    .table-hover>tbody>tr:hover>* {
+      background: var(--hbg)
+    }
+
+    /* ══ BADGES ══ */
+    .bs-s {
+      background: #d1fae5;
+      color: #065f46
+    }
+
+    .bs-d {
+      background: #fee2e2;
+      color: #991b1b
+    }
+
+    .bs-w {
+      background: #fef3c7;
+      color: #92400e
+    }
+
+    .bs-i {
+      background: #dbeafe;
+      color: #1e40af
+    }
+
+    [data-theme=dark] .bs-s {
+      background: #064e3b;
+      color: #6ee7b7
+    }
+
+    [data-theme=dark] .bs-d {
+      background: #7f1d1d;
+      color: #fca5a5
+    }
+
+    [data-theme=dark] .bs-w {
+      background: #78350f;
+      color: #fcd34d
+    }
+
+    [data-theme=dark] .bs-i {
+      background: #1e3a5f;
+      color: #93c5fd
+    }
+
+    /* ══ OVERLAYS ══ */
+    .sb-ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 1050
+    }
+
+    .sb-ov.show {
+      display: block
+    }
+
+    .sp-ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      z-index: 3050
+    }
+
+    .sp-ov.show {
+      display: block
+    }
+
+    /* ══ TOASTER DEMO BUTTONS ══ */
+    .toast-demo-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    /* ══ ANIMATIONS ══ */
+    @keyframes fu {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .sc,
+    .dc {
+      animation: fu .4s ease both
+    }
+
+    .sc:nth-child(1) {
+      animation-delay: .05s
+    }
+
+    .sc:nth-child(2) {
+      animation-delay: .1s
+    }
+
+    .sc:nth-child(3) {
+      animation-delay: .15s
+    }
+
+    .sc:nth-child(4) {
+      animation-delay: .2s
+    }
+
+    /* ══ RESPONSIVE ══ */
+    @media(max-width:991.98px) {
+      .sidebar {
+        transform: translateX(-100%)
+      }
+
+      .sidebar.open {
+        transform: translateX(0)
+      }
+
+      .topbar {
+        left: 0
+      }
+
+      .main {
+        margin-left: 0
+      }
+
+      .sb-tog {
+        display: block
+      }
+    }
+
+    @media(max-width:767.98px) {
+      .tb-title {
+        display: none
+      }
+
+      .tb-search {
+        max-width: none
+      }
+    }
+
+    @media(max-width:575.98px) {
+      .main {
+        padding: 14px
+      }
+
+      .osw {
+        display: none
+      }
+
+      .topbar {
+        padding: 0 14px
+      }
+
+      .dd-panel {
+        width: 270px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAGE LOADER -->
+  <div class="page-loader" id="pageLoader">
+    <!-- <div class="logo-icon" style="width:50px;height:50px;font-size:20px;margin-bottom:8px">V</div> -->
+    <div class="loader-spinner"></div>
+    <!-- <div class="loader-bar-wrap">
+      <div class="loader-bar"></div>
+    </div> -->
+    <div class="loader-txt">Loading Dashboard…</div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- OVERLAYS -->
+  <div class="sb-ov" id="sbOv" onclick="toggleSB()"></div>
+  <div class="sp-ov" id="spOv" onclick="closeSP()"></div>
+
+  <!-- ═══ SETTINGS PANEL ═══ -->
+  <div class="sp" id="sp">
+    <div class="sp-hd">
+      <h6><i class="bi bi-palette me-2"></i>Theme Customizer</h6>
+      <button class="btn btn-sm btn-light border" onclick="closeSP()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="sp-body">
+      <div class="sp-sec">
+        <div class="sp-lbl">Color Mode</div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-sm flex-fill" id="btnL" onclick="setTheme('light')"
+            style="font-size:12px;font-weight:700"><i class="bi bi-sun me-1"></i>Light</button>
+          <button class="btn btn-light border btn-sm flex-fill" id="btnD" onclick="setTheme('dark')"
+            style="font-size:12px;font-weight:700"><i class="bi bi-moon me-1"></i>Dark</button>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="sp-lbl">Sidebar Color</div>
+        <div class="sw-row" id="sbColors">
+          <div class="csw on" style="background:#fff;border-color:#dee2e6" onclick="setSbColor(this,'#fff')"></div>
+          <div class="csw" style="background:#222536" onclick="setSbColor(this,'#222536')"></div>
+          <div class="csw" style="background:#5b73e8" onclick="setSbColor(this,'#5b73e8')"></div>
+          <div class="csw" style="background:#0f172a" onclick="setSbColor(this,'#0f172a')"></div>
+          <div class="csw" style="background:#1e3a5f" onclick="setSbColor(this,'#1e3a5f')"></div>
+          <div class="csw" style="background:#064e3b" onclick="setSbColor(this,'#064e3b')"></div>
+          <div class="csw" style="background:#7c3aed" onclick="setSbColor(this,'#7c3aed')"></div>
+          <div class="csw" style="background:#991b1b" onclick="setSbColor(this,'#991b1b')"></div>
+        </div>
+        <div class="sp-lbl">Sidebar Image</div>
+        <div class="d-flex gap-2 flex-wrap" id="sbImgs">
+          <div class="isw" style="background:linear-gradient(135deg,#667eea,#764ba2)"
+            onclick="setSbImg(this,'https://images.unsplash.com/photo-1557683316-973673baf926?w=400&q=80')">Img 1</div>
+          <div class="isw" style="background:linear-gradient(135deg,#f093fb,#f5576c)"
+            onclick="setSbImg(this,'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80')">Img 2
+          </div>
+          <div class="isw" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"
+            onclick="setSbImg(this,'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80')">Img 3
+          </div>
+          <div class="isw on" onclick="clrSbImg(this)">None</div>
+        </div>
+      </div>
+      <div class="sp-sec">
+        <div class="sp-lbl">Header Color</div>
+        <div class="sw-row" id="tbColors">
+          <div class="csw on" style="background:#fff;border-color:#dee2e6" onclick="setTbColor(this,'#fff')"></div>
+          <div class="csw" style="background:#222536" onclick="setTbColor(this,'#222536')"></div>
+          <div class="csw" style="background:#5b73e8" onclick="setTbColor(this,'#5b73e8')"></div>
+          <div class="csw" style="background:#0f172a" onclick="setTbColor(this,'#0f172a')"></div>
+          <div class="csw" style="background:#7c3aed" onclick="setTbColor(this,'#7c3aed')"></div>
+          <div class="csw" style="background:#064e3b" onclick="setTbColor(this,'#064e3b')"></div>
+        </div>
+        <div class="sp-lbl">Header Image</div>
+        <div class="d-flex gap-2 flex-wrap" id="tbImgs">
+          <div class="isw" style="background:linear-gradient(135deg,#667eea,#764ba2)"
+            onclick="setTbImg(this,'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=80')">Img 1</div>
+          <div class="isw" style="background:linear-gradient(135deg,#f093fb,#f5576c)"
+            onclick="setTbImg(this,'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&q=80')">Img 2
+          </div>
+          <div class="isw on" onclick="clrTbImg(this)">None</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <a href="#" class="sb-logo" onclick="navTo('dashboard');return false">
+      <div class="logo-icon">V</div>
+      <span class="logo-txt">Valex</span>
+    </a>
+
+    <div class="nav-sec">Main</div>
+    <ul class="snav">
+      <li><a href="#" id="nav-dashboard" class="active" onclick="navTo('dashboard');return false"><i
+            class="bi bi-grid-1x2-fill"></i>Dashboard<span class="nbadge">6</span></a></li>
+    </ul>
+
+    <div class="nav-sec">General</div>
+    <ul class="snav">
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-emoji-smile"></i>Icons<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Bootstrap Icons</a></li>
+          <li><a href="#" onclick="return false">Feather Icons</a></li>
+          <li><a href="#" onclick="return false">Material Icons</a></li>
+        </ul>
+      </li>
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-bar-chart-line"></i>Charts<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Line Charts</a></li>
+          <li><a href="#" onclick="return false">Bar Charts</a></li>
+          <li><a href="#" onclick="return false">Pie Charts</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="nav-sec">Web Apps</div>
+    <ul class="snav">
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-grid"></i>Apps<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Calendar</a></li>
+          <li><a href="#" onclick="return false">Chat</a></li>
+          <li><a href="#" onclick="return false">Email</a></li>
+          <li><a href="#" onclick="return false">File Manager</a></li>
+        </ul>
+      </li>
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-layers"></i>Elements<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Alerts</a></li>
+          <li><a href="#" onclick="return false">Buttons</a></li>
+          <li><a href="#" onclick="return false">Cards</a></li>
+        </ul>
+      </li>
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-cpu"></i>Advanced UI<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Sweet Alerts</a></li>
+          <li><a href="#" onclick="return false">Lightbox</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="nav-sec">Tables</div>
+    <ul class="snav">
+      <li>
+        <button class="nlnk" id="nav-tables-toggle" onclick="toggleSub(this)"><i class="bi bi-table"></i>Tables<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub" id="tables-sub">
+          <li><a href="#" id="nav-table-basic" onclick="navTo('table-basic');return false">Basic Tables</a></li>
+          <li><a href="#" id="nav-table-orders" onclick="navTo('table-orders');return false">Orders Table</a></li>
+          <li><a href="#" id="nav-table-customers" onclick="navTo('table-customers');return false">Customers Table</a>
+          </li>
+          <li><a href="#" id="nav-table-products" onclick="navTo('table-products');return false">Products Table</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="nav-sec">Components</div>
+    <ul class="snav">
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-ui-checks"></i>Forms<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Form Elements</a></li>
+          <li><a href="#" onclick="return false">Validation</a></li>
+          <li><a href="#" onclick="return false">Wizard</a></li>
+        </ul>
+      </li>
+      <li><a href="#" id="nav-components" onclick="navTo('components');return false"><i class="bi bi-box-seam"></i>UI
+          Components</a></li>
+      <li><a href="#" id="nav-skeleton" onclick="navTo('skeleton');return false"><i
+            class="bi bi-layout-text-window"></i>Skeleton Loader</a></li>
+    </ul>
+
+    <div class="nav-sec">Multi Levels</div>
+    <ul class="snav">
+      <li>
+        <button class="nlnk" onclick="toggleSub(this)"><i class="bi bi-diagram-3"></i>Menu Levels<i
+            class="bi bi-chevron-right arrow"></i></button>
+        <ul class="sub">
+          <li><a href="#" onclick="return false">Level 1.1</a></li>
+          <li><a href="#" onclick="return false">Level 1.2</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="sb-footer">
+      <div class="sb-footer-lbl">Quick Theme</div>
+      <div class="sw-row">
+        <div class="csw" style="background:#5b73e8" title="Blue" onclick="setSbColor(null,'#5b73e8')"></div>
+        <div class="csw" style="background:#0f172a" title="Dark" onclick="setSbColor(null,'#0f172a')"></div>
+        <div class="csw" style="background:#fff;border-color:#dee2e6" title="White" onclick="setSbColor(null,'#fff')">
+        </div>
+        <div class="csw" style="background:#7c3aed" title="Purple" onclick="setSbColor(null,'#7c3aed')"></div>
+      </div>
+      <button class="btn btn-sm w-100"
+        style="background:var(--prl);color:var(--pri);font-size:12px;font-weight:700;border-radius:8px"
+        onclick="openSP()">
+        <i class="bi bi-sliders me-1"></i>Customize
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ TOPBAR ═══ -->
+  <header class="topbar" id="topbar">
+    <button class="sb-tog" onclick="toggleSB()"><i class="bi bi-list"></i></button>
+    <div class="tb-title" id="tbTitleWrap">
+      <h6 id="tbTitle">Sales Dashboard</h6>
+      <small id="tbSub">Monitor performance &amp; analytics</small>
+    </div>
+    <div class="tb-search">
+      <i class="bi bi-search srch-ico-abs"></i>
+      <input type="text" class="srch-inp" id="gSearch" placeholder="Search pages, orders, customers…" autocomplete="off"
+        oninput="doSearch(this.value)" onfocus="showSD()" onblur="hideSD()" />
+      <div class="srch-dd" id="searchDD">
+        <div id="srchRes"></div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <button class="thtog" id="thtog" onclick="toggleTheme()" title="Toggle Dark/Light"></button>
+      <a href="#" class="tb-icon d-none d-md-flex" id="btnFS" onclick="doFS(event)" title="Fullscreen"><i
+          class="bi bi-fullscreen" id="fsIco"></i></a>
+      <div class="tbdiv d-none d-sm-block"></div>
+      <div class="tb-dd">
+        <a href="#" class="tb-icon" onclick="togDD(event,'ddNotif')" title="Notifications"><i
+            class="bi bi-bell"></i><span class="bdot"></span></a>
+        <div class="dd-panel" id="ddNotif">
+          <div class="dd-hd">
+            <h6>Notifications <span class="badge ms-1" style="background:var(--dng);color:#fff;font-size:10px">4</span>
+            </h6><a href="#" onclick="return false">Mark all read</a>
+          </div>
+          <div class="dd-item">
+            <div class="dd-ico" style="background:#dbeafe;color:#1e40af"><i class="bi bi-cart3"></i></div>
+            <div class="flex-grow-1">
+              <div class="dd-t">New order received</div>
+              <div class="dd-s">Order #VLX-0045 — MacBook Air</div>
+            </div>
+            <div class="dd-time">2m</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-ico" style="background:#d1fae5;color:#065f46"><i class="bi bi-check-circle"></i></div>
+            <div class="flex-grow-1">
+              <div class="dd-t">Payment confirmed</div>
+              <div class="dd-s">$2,450 received for #VLX-0041</div>
+            </div>
+            <div class="dd-time">15m</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-ico" style="background:#fef3c7;color:#92400e"><i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="dd-t">Low stock alert</div>
+              <div class="dd-s">iPhone 16 — only 3 units left</div>
+            </div>
+            <div class="dd-time">1h</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-ico" style="background:#fee2e2;color:#991b1b"><i class="bi bi-x-circle"></i></div>
+            <div class="flex-grow-1">
+              <div class="dd-t">Order cancelled</div>
+              <div class="dd-s">Order #VLX-0031 — iPad Air</div>
+            </div>
+            <div class="dd-time">3h</div>
+          </div>
+          <div class="dd-ft"><a href="#" onclick="return false">View all notifications</a></div>
+        </div>
+      </div>
+      <div class="tb-dd">
+        <a href="#" class="tb-icon d-none d-sm-flex" onclick="togDD(event,'ddMsg')" title="Messages"><i
+            class="bi bi-envelope"></i><span class="bdot" style="background:var(--suc)"></span></a>
+        <div class="dd-panel" id="ddMsg">
+          <div class="dd-hd">
+            <h6>Messages <span class="badge ms-1" style="background:var(--suc);color:#fff;font-size:10px">3</span></h6>
+            <a href="#" onclick="return false">View all</a>
+          </div>
+          <div class="dd-item">
+            <div class="dd-av" style="background:linear-gradient(135deg,#5b73e8,#a78bfa)">SM</div>
+            <div class="flex-grow-1">
+              <div class="dd-t">Samantha Melo</div>
+              <div class="dd-s">The Q4 report is ready for review.</div>
+            </div>
+            <div class="dd-time">5m</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-av" style="background:linear-gradient(135deg,#34c38f,#06b6d4)">JD</div>
+            <div class="flex-grow-1">
+              <div class="dd-t">John Doe</div>
+              <div class="dd-s">New UI mockups are uploaded.</div>
+            </div>
+            <div class="dd-time">30m</div>
+          </div>
+          <div class="dd-item">
+            <div class="dd-av" style="background:linear-gradient(135deg,#f46a6a,#f1b44c)">AK</div>
+            <div class="flex-grow-1">
+              <div class="dd-t">Amy Khan</div>
+              <div class="dd-s">Can we reschedule today's meeting?</div>
+            </div>
+            <div class="dd-time">2h</div>
+          </div>
+          <div class="dd-ft"><a href="#" onclick="return false">Go to Inbox</a></div>
+        </div>
+      </div>
+      <div class="tbdiv d-none d-sm-block"></div>
+      <a href="#" class="tb-icon d-none d-sm-flex" onclick="openSP();return false" title="Customize"><i
+          class="bi bi-gear"></i></a>
+      <div class="tb-dd">
+        <div class="tb-avatar" onclick="togDD(event,'ddProfile')">SM</div>
+        <div class="dd-panel" id="ddProfile" style="width:220px">
+          <div class="pr-head">
+            <div class="pr-av">SM</div>
+            <div class="pr-name">Samantha Melo</div>
+            <div class="pr-role">Administrator</div>
+          </div>
+          <a href="#" class="pm-item" onclick="return false"><i class="bi bi-person"></i>My Profile</a>
+          <a href="#" class="pm-item" onclick="return false"><i class="bi bi-wallet2"></i>My Wallet</a>
+          <a href="#" class="pm-item" onclick="openSP();return false"><i class="bi bi-gear"></i>Settings</a>
+          <a href="#" class="pm-item" onclick="return false"><i class="bi bi-lock"></i>Lock Screen</a>
+          <a href="#" class="pm-item" style="color:var(--dng)" onclick="return false"><i class="bi bi-box-arrow-right"
+              style="color:var(--dng)"></i>Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="main" id="mainContent">
+
+    <!-- ▸ DASHBOARD PAGE -->
+    <div class="page-view active" id="page-dashboard">
+      <!-- <div class="wrow">
+        <div>
+          <h4>Hi, welcome back!</h4>
+          <p>Sales monitoring dashboard template.</p>
+        </div>
+        <div class="osw">
+          <div class="osw-i">
+            <div class="lbl">Customer Ratings</div>
+            <div class="stars">★★★★★ (14,873)</div>
+          </div>
+          <div class="osw-i">
+            <div class="lbl">Online Sales</div>
+            <div class="val" style="color:var(--suc)">563,275</div>
+          </div>
+          <div class="osw-i">
+            <div class="lbl">Offline Sales</div>
+            <div class="val">783,675</div>
+          </div>
+        </div>
+      </div> -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sc c1">
+            <div class="sc-lbl">Today Orders</div>
+            <div class="sc-val">$5,74.12</div>
+            <div class="sc-sub">Compared to last week</div><span class="sc-badge">+127</span><i
+              class="bi bi-cart3 sc-ico"></i><svg class="sc-wave" viewBox="0 0 200 34" preserveAspectRatio="none">
+              <path d="M0,17 C40,5 80,30 120,17 C160,5 185,22 200,17 L200,34 L0,34 Z" fill="rgba(255,255,255,.25)" />
+            </svg>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sc c2">
+            <div class="sc-lbl">Today Earnings</div>
+            <div class="sc-val">$1,230.17</div>
+            <div class="sc-sub">Compared to last week</div><span class="sc-badge">+23.05%</span><i
+              class="bi bi-currency-dollar sc-ico"></i><svg class="sc-wave" viewBox="0 0 200 34"
+              preserveAspectRatio="none">
+              <path d="M0,20 C50,8 90,28 140,15 C170,7 190,22 200,18 L200,34 L0,34 Z" fill="rgba(255,255,255,.25)" />
+            </svg>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sc c3">
+            <div class="sc-lbl">Total Earnings</div>
+            <div class="sc-val">$7,125.70</div>
+            <div class="sc-sub">Compared to last week</div><span class="sc-badge">+32.89%</span><i
+              class="bi bi-graph-up sc-ico"></i><svg class="sc-wave" viewBox="0 0 200 34" preserveAspectRatio="none">
+              <path d="M0,15 C30,25 70,10 110,20 C150,30 180,12 200,18 L200,34 L0,34 Z" fill="rgba(255,255,255,.25)" />
+            </svg>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sc c4">
+            <div class="sc-lbl">Product Sold</div>
+            <div class="sc-val">$4,820.50</div>
+            <div class="sc-sub">Compared to last week</div><span class="sc-badge">+156.5</span><i
+              class="bi bi-box-seam sc-ico"></i><svg class="sc-wave" viewBox="0 0 200 34" preserveAspectRatio="none">
+              <path d="M0,22 C40,12 80,26 120,14 C155,5 180,20 200,15 L200,34 L0,34 Z" fill="rgba(255,255,255,.25)" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-7">
+          <div class="dc">
+            <div class="dc-hd">
+              <div>
+                <h6>Order Status</h6>
+                <p>Track your order from ship date to arrival.</p>
+              </div><button class="btn btn-sm btn-light border" style="font-size:12px"><i
+                  class="bi bi-three-dots"></i></button>
+            </div>
+            <div class="dc-body">
+              <div class="osn">
+                <div class="osn-i">
+                  <div class="v">120,750</div>
+                  <div class="m"><span class="dot" style="background:var(--pri)"></span>Success</div>
+                </div>
+                <div class="osn-i">
+                  <div class="v">56,108</div>
+                  <div class="m"><span class="dot" style="background:var(--dng)"></span>Pending</div>
+                </div>
+                <div class="osn-i">
+                  <div class="v">32,895</div>
+                  <div class="m"><span class="dot" style="background:var(--wrn)"></span>Failed</div>
+                </div>
+              </div>
+              <div class="bch" id="bChart"></div>
+              <div class="blbl" id="bLbl"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="dc">
+            <div class="dc-hd">
+              <div>
+                <h6>Sales Revenue — USA</h6>
+                <p>Performance across all states.</p>
+              </div>
+            </div>
+            <div class="dc-body p-2">
+              <div class="map-wrap"><svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg">
+                  <g stroke="#fff" stroke-width="1.5">
+                    <rect x="60" y="60" width="90" height="80" rx="4" fill="#5b73e8" opacity=".7" />
+                    <rect x="155" y="60" width="80" height="80" rx="4" fill="#93c5fd" />
+                    <rect x="240" y="60" width="70" height="80" rx="4" fill="#5b73e8" opacity=".5" />
+                    <rect x="240" y="145" width="70" height="85" rx="4" fill="#bfdbfe" />
+                    <rect x="315" y="60" width="70" height="85" rx="4" fill="#93c5fd" />
+                    <rect x="315" y="145" width="70" height="85" rx="4" fill="#5b73e8" opacity=".6" />
+                    <rect x="390" y="80" width="65" height="70" rx="4" fill="#dbeafe" />
+                    <rect x="390" y="150" width="65" height="80" rx="4" fill="#bfdbfe" />
+                    <rect x="460" y="80" width="65" height="70" rx="4" fill="#5b73e8" opacity=".4" />
+                    <rect x="460" y="150" width="65" height="80" rx="4" fill="#93c5fd" />
+                    <rect x="530" y="90" width="60" height="65" rx="4" fill="#dbeafe" />
+                    <rect x="530" y="155" width="60" height="75" rx="4" fill="#bfdbfe" />
+                    <rect x="595" y="90" width="55" height="65" rx="4" fill="#5b73e8" opacity=".8" />
+                    <rect x="595" y="155" width="55" height="75" rx="4" fill="#f97316" opacity=".7" />
+                    <rect x="655" y="100" width="50" height="60" rx="4" fill="#dbeafe" />
+                    <rect x="655" y="160" width="50" height="70" rx="4" fill="#93c5fd" />
+                    <rect x="710" y="100" width="50" height="60" rx="4" fill="#5b73e8" opacity=".5" />
+                    <rect x="710" y="160" width="50" height="70" rx="4" fill="#dbeafe" />
+                    <rect x="765" y="100" width="45" height="55" rx="4" fill="#ef4444" opacity=".6" />
+                    <rect x="815" y="100" width="45" height="55" rx="4" fill="#dbeafe" />
+                    <rect x="765" y="160" width="45" height="70" rx="4" fill="#93c5fd" />
+                    <rect x="815" y="160" width="45" height="70" rx="4" fill="#5b73e8" opacity=".7" />
+                    <rect x="390" y="235" width="130" height="80" rx="4" fill="#fbbf24" opacity=".6" />
+                    <rect x="525" y="235" width="130" height="80" rx="4" fill="#5b73e8" opacity=".4" />
+                    <rect x="660" y="235" width="100" height="80" rx="4" fill="#dbeafe" />
+                    <rect x="765" y="235" width="95" height="80" rx="4" fill="#93c5fd" />
+                    <rect x="660" y="320" width="100" height="80" rx="4" fill="#5b73e8" opacity=".6" />
+                    <rect x="765" y="320" width="60" height="80" rx="4" fill="#dbeafe" />
+                    <rect x="390" y="320" width="130" height="100" rx="4" fill="#ef4444" opacity=".5" />
+                    <rect x="70" y="420" width="100" height="70" rx="4" fill="#5b73e8" opacity=".3" /><text x="120"
+                      y="460" font-size="9" fill="#6b7280" text-anchor="middle">AK</text>
+                    <rect x="190" y="440" width="60" height="40" rx="4" fill="#5b73e8" opacity=".5" /><text x="220"
+                      y="465" font-size="9" fill="#fff" text-anchor="middle">HI</text>
+                  </g>
+                </svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="dc">
+            <div class="dc-hd">
+              <div>
+                <h6>Recent Customers</h6>
+                <p>Buyer of goods/services.</p>
+              </div>
+            </div>
+            <div class="dc-body p-0 px-3">
+              <div class="ci">
+                <div class="cav" style="background:linear-gradient(135deg,#5b73e8,#a78bfa)">SM</div>
+                <div>
+                  <div class="cn">Samantha Melo</div>
+                  <div class="cr">Full-Stack Dev</div>
+                </div><span class="badge bs-s ms-auto">Active</span>
+              </div>
+              <div class="ci">
+                <div class="cav" style="background:linear-gradient(135deg,#34c38f,#06b6d4)">JD</div>
+                <div>
+                  <div class="cn">John Doe</div>
+                  <div class="cr">UI/UX Designer</div>
+                </div><span class="badge bs-i ms-auto">New</span>
+              </div>
+              <div class="ci">
+                <div class="cav" style="background:linear-gradient(135deg,#f46a6a,#f1b44c)">AK</div>
+                <div>
+                  <div class="cn">Amy Khan</div>
+                  <div class="cr">Product Manager</div>
+                </div><span class="badge bs-w ms-auto">Pending</span>
+              </div>
+              <div class="ci">
+                <div class="cav" style="background:linear-gradient(135deg,#f1b44c,#fb923c)">RL</div>
+                <div>
+                  <div class="cn">Robert Lee</div>
+                  <div class="cr">Data Scientist</div>
+                </div><span class="badge bs-s ms-auto">Active</span>
+              </div>
+              <div class="ci">
+                <div class="cav" style="background:linear-gradient(135deg,#50a5f1,#5b73e8)">PC</div>
+                <div>
+                  <div class="cn">Priya Chandra</div>
+                  <div class="cr">DevOps Engineer</div>
+                </div><span class="badge bs-d ms-auto">Inactive</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="dc h-100">
+            <div class="dc-hd">
+              <div>
+                <h6>Tech Stack</h6>
+                <p>Built with modern tech.</p>
+              </div>
+            </div>
+            <div class="dc-body">
+              <div class="row g-2">
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-bootstrap-fill" style="color:#7952b3"></i>Bootstrap</div>
+                </div>
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-filetype-html" style="color:#e34c26"></i>HTML5</div>
+                </div>
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-filetype-css" style="color:#264de4"></i>CSS3</div>
+                </div>
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-filetype-js" style="color:#f0db4f"></i>JS</div>
+                </div>
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-database-fill" style="color:#336791"></i>SQL</div>
+                </div>
+                <div class="col-4">
+                  <div class="tcard"><i class="bi bi-cloud-fill" style="color:#4285f4"></i>Cloud</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-xl-6">
+          <div class="dc">
+            <div class="dc-hd">
+              <div>
+                <h6>Recent Orders</h6>
+                <p>Latest purchase instructions.</p>
+              </div><button class="btn btn-sm" style="font-size:12px;font-weight:700;color:var(--pri)"
+                onclick="navTo('table-orders')">View All</button>
+            </div>
+            <div class="dc-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th style="padding:10px 12px">ORDER</th>
+                      <th style="padding:10px 12px">DATE</th>
+                      <th style="padding:10px 12px">TOTAL</th>
+                      <th style="padding:10px 12px">STATUS</th>
+                      <th style="padding:10px 12px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="or">
+                      <td>#VLX-0041<br><span class="oid">MacBook Pro</span></td>
+                      <td>Jan 15</td>
+                      <td>$2,450</td>
+                      <td><span class="badge bs-s">Delivered</span></td>
+                      <td><a href="#" class="btn btn-sm btn-light border" style="font-size:11px"
+                          onclick="navTo('table-orders');return false">View</a></td>
+                    </tr>
+                    <tr class="or">
+                      <td>#VLX-0038<br><span class="oid">iPhone 16</span></td>
+                      <td>Jan 12</td>
+                      <td>$999</td>
+                      <td><span class="badge bs-w">Processing</span></td>
+                      <td><a href="#" class="btn btn-sm btn-light border" style="font-size:11px"
+                          onclick="navTo('table-orders');return false">View</a></td>
+                    </tr>
+                    <tr class="or">
+                      <td>#VLX-0035<br><span class="oid">AirPods Max</span></td>
+                      <td>Jan 10</td>
+                      <td>$549</td>
+                      <td><span class="badge bs-i">Shipped</span></td>
+                      <td><a href="#" class="btn btn-sm btn-light border" style="font-size:11px"
+                          onclick="navTo('table-orders');return false">View</a></td>
+                    </tr>
+                    <tr class="or">
+                      <td>#VLX-0031<br><span class="oid">iPad Air</span></td>
+                      <td>Jan 8</td>
+                      <td>$799</td>
+                      <td><span class="badge bs-d">Cancelled</span></td>
+                      <td><a href="#" class="btn btn-sm btn-light border" style="font-size:11px"
+                          onclick="navTo('table-orders');return false">View</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ▸ TABLE PAGES (basic, orders, customers, products) -->
+    <div class="page-view" id="page-table-basic"></div>
+    <div class="page-view" id="page-table-orders"></div>
+    <div class="page-view" id="page-table-customers"></div>
+    <div class="page-view" id="page-table-products"></div>
+
+    <!-- ▸ COMPONENTS PAGE -->
+    <div class="page-view" id="page-components">
+      <div class="bc-wrap">
+        <div class="bc-left">
+          <h4>UI Components</h4>
+          <p>Scalable UI components with size variants, loaders, and toasters.</p>
+        </div>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" onclick="navTo('dashboard');return false">Home</a></li>
+            <li class="breadcrumb-item active">Components</li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- SCALE OF COMPONENTS -->
+      <div class="dc mb-4">
+        <div class="dc-hd">
+          <div>
+            <h6><i class="bi bi-arrows-angle-expand me-2" style="color:var(--pri)"></i>Scale of Components</h6>
+            <p>All components available in 5 sizes — xs, sm, md, lg, xl</p>
+          </div>
+        </div>
+        <div class="dc-body">
+          <!-- Buttons Scale -->
+          <div class="comp-section">
+            <div class="comp-title">Button Sizes</div>
+            <div class="comp-sub">Five scale variants from extra-small to extra-large</div>
+            <div class="comp-demo sc-demo-row">
+              <button class="btn btn-primary sc-xs">XS Button</button>
+              <button class="btn btn-primary sc-sm">SM Button</button>
+              <button class="btn btn-primary sc-md">MD Button</button>
+              <button class="btn btn-primary sc-lg">LG Button</button>
+              <button class="btn btn-primary sc-xl">XL Button</button>
+            </div>
+            <div class="comp-demo sc-demo-row mt-2">
+              <button class="btn btn-outline-primary sc-xs">XS Outline</button>
+              <button class="btn btn-success sc-sm">SM Success</button>
+              <button class="btn btn-warning sc-md" style="color:#fff">MD Warning</button>
+              <button class="btn btn-danger sc-lg">LG Danger</button>
+              <button class="btn btn-dark sc-xl">XL Dark</button>
+            </div>
+          </div>
+          <!-- Cards Scale -->
+          <div class="comp-section">
+            <div class="comp-title">Card Sizes</div>
+            <div class="comp-sub">Cards scaled across 5 dimensions</div>
+            <div class="comp-demo scale-card-row">
+              <div class="scard scard-xs"><i class="bi bi-grid" style="font-size:14px"></i><span>XS</span></div>
+              <div class="scard scard-sm" style="background:var(--suc)"><i class="bi bi-grid"
+                  style="font-size:16px"></i><span>SM</span></div>
+              <div class="scard scard-md" style="background:var(--dng)"><i class="bi bi-grid"
+                  style="font-size:20px"></i><span>MD</span></div>
+              <div class="scard scard-lg" style="background:var(--wrn)"><i class="bi bi-grid"
+                  style="font-size:26px"></i><span>LG</span></div>
+              <div class="scard scard-xl" style="background:linear-gradient(135deg,#7c3aed,#5b73e8)"><i
+                  class="bi bi-grid" style="font-size:32px"></i><span>XL</span></div>
+            </div>
+          </div>
+          <!-- Badges Scale -->
+          <div class="comp-section">
+            <div class="comp-title">Badge Sizes</div>
+            <div class="comp-sub">Inline badges at different scales</div>
+            <div class="comp-demo" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span class="badge bs-s" style="font-size:9px;padding:2px 6px">XS Badge</span>
+              <span class="badge bs-i" style="font-size:10px;padding:3px 8px">SM Badge</span>
+              <span class="badge bs-w" style="font-size:12px;padding:4px 10px">MD Badge</span>
+              <span class="badge bs-d" style="font-size:13px;padding:5px 12px">LG Badge</span>
+              <span class="badge" style="background:var(--pri);color:#fff;font-size:15px;padding:6px 16px">XL
+                Badge</span>
+            </div>
+          </div>
+          <!-- Avatar Scale -->
+          <div class="comp-section">
+            <div class="comp-title">Avatar Sizes</div>
+            <div class="comp-sub">User avatars at 5 sizes</div>
+            <div class="comp-demo" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+              <div
+                style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#5b73e8,#a78bfa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:9px">
+                SM</div>
+              <div
+                style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#34c38f,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px">
+                SM</div>
+              <div
+                style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#f46a6a,#f1b44c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px">
+                MD</div>
+              <div
+                style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#f1b44c,#fb923c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px">
+                LG</div>
+              <div
+                style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#5b73e8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px">
+                XL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADER SHOWCASE -->
+      <div class="dc mb-4">
+        <div class="dc-hd">
+          <div>
+            <h6><i class="bi bi-arrow-repeat me-2" style="color:var(--pri)"></i>Loaders</h6>
+            <p>CSS-only loading indicators for all use cases</p>
+          </div>
+        </div>
+        <div class="dc-body">
+          <div class="comp-section">
+            <div class="comp-title">Spinner Sizes</div>
+            <div class="comp-sub">Rotating spinners from tiny to large</div>
+            <div class="comp-demo loader-demo-row">
+              <div class="text-center">
+                <div class="spin-xs"></div>
+                <div class="spin-lbl">XS</div>
+              </div>
+              <div class="text-center">
+                <div class="spin-sm"></div>
+                <div class="spin-lbl">SM</div>
+              </div>
+              <div class="text-center">
+                <div class="spin-md"></div>
+                <div class="spin-lbl">MD</div>
+              </div>
+              <div class="text-center">
+                <div class="spin-lg"></div>
+                <div class="spin-lbl">LG</div>
+              </div>
+              <div class="text-center">
+                <div class="ring-loader"></div>
+                <div class="spin-lbl">Ring</div>
+              </div>
+            </div>
+          </div>
+          <div class="comp-section">
+            <div class="comp-title">Loader Variants</div>
+            <div class="comp-sub">Pulse, bounce, bars, and progress bar animations</div>
+            <div class="comp-demo loader-demo-row">
+              <div class="text-center">
+                <div class="pulse-dot" style="margin:0 auto"></div>
+                <div class="spin-lbl">Pulse</div>
+              </div>
+              <div class="text-center">
+                <div class="bounce-dot" style="margin:0 auto"></div>
+                <div class="spin-lbl">Bounce</div>
+              </div>
+              <div class="text-center">
+                <div class="bars-loader" style="margin:0 auto"></div>
+                <div class="spin-lbl">Bars</div>
+              </div>
+              <div class="text-center" style="min-width:130px">
+                <div class="prog-loader" style="margin:0 auto 6px">
+                  <div class="prog-fill"></div>
+                </div>
+                <div class="spin-lbl">Progress</div>
+              </div>
+              <div class="text-center">
+                <div style="display:flex;gap:4px;align-items:center">
+                  <div class="bounce-dot" style="animation-delay:0s;background:var(--pri)"></div>
+                  <div class="bounce-dot" style="animation-delay:.15s;background:var(--inf)"></div>
+                  <div class="bounce-dot" style="animation-delay:.3s;background:var(--suc)"></div>
+                </div>
+                <div class="spin-lbl">Dots</div>
+              </div>
+            </div>
+          </div>
+          <div class="comp-section">
+            <div class="comp-title">Full-Page Loader</div>
+            <div class="comp-sub">Trigger the animated page loader overlay</div>
+            <div class="comp-demo">
+              <button class="btn btn-primary sc-md me-2" onclick="showPageLoader()"><i
+                  class="bi bi-arrow-repeat me-1"></i>Show Page Loader</button>
+              <button class="btn btn-outline-secondary sc-md" onclick="showSkelPage()"><i
+                  class="bi bi-layout-text-window me-1"></i>Show Skeleton Screen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOASTER SHOWCASE -->
+      <div class="dc mb-4">
+        <div class="dc-hd">
+          <div>
+            <h6><i class="bi bi-bell me-2" style="color:var(--pri)"></i>Toast Notifications</h6>
+            <p>Live toast messages with 4 types and auto-dismiss</p>
+          </div>
+        </div>
+        <div class="dc-body">
+          <div class="comp-section">
+            <div class="comp-title">Toast Types</div>
+            <div class="comp-sub">Click any button to fire a toast notification</div>
+            <div class="comp-demo toast-demo-row">
+              <button class="btn sc-md" style="background:#d1fae5;color:#065f46;font-weight:700"
+                onclick="toast('success','Success!','Your changes have been saved successfully.')"><i
+                  class="bi bi-check-circle me-1"></i>Success Toast</button>
+              <button class="btn sc-md" style="background:#fee2e2;color:#991b1b;font-weight:700"
+                onclick="toast('danger','Error!','Something went wrong. Please try again.')"><i
+                  class="bi bi-x-circle me-1"></i>Error Toast</button>
+              <button class="btn sc-md" style="background:#fef3c7;color:#92400e;font-weight:700"
+                onclick="toast('warning','Warning!','This action cannot be undone.')"><i
+                  class="bi bi-exclamation-triangle me-1"></i>Warning Toast</button>
+              <button class="btn sc-md" style="background:#dbeafe;color:#1e40af;font-weight:700"
+                onclick="toast('info','Info','New data is available. Refresh to update.')"><i
+                  class="bi bi-info-circle me-1"></i>Info Toast</button>
+            </div>
+          </div>
+          <div class="comp-section">
+            <div class="comp-title">Toast Queue</div>
+            <div class="comp-sub">Fire multiple toasts at once</div>
+            <div class="comp-demo">
+              <button class="btn btn-primary sc-md" onclick="fireMultiToast()"><i class="bi bi-stack me-1"></i>Fire All
+                4 Toasts</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ▸ SKELETON PAGE -->
+    <div class="page-view" id="page-skeleton">
+      <div class="bc-wrap">
+        <div class="bc-left">
+          <h4>Skeleton Loaders</h4>
+          <p>Content placeholder animations for loading states</p>
+        </div>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" onclick="navTo('dashboard');return false">Home</a></li>
+            <li class="breadcrumb-item active">Skeleton</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sk-card">
+            <div class="skeleton sk-h" style="width:60%"></div>
+            <div class="skeleton sk-para" style="width:80%"></div>
+            <div class="skeleton sk-para" style="width:50%"></div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sk-card">
+            <div class="skeleton sk-h" style="width:55%"></div>
+            <div class="skeleton sk-para" style="width:90%"></div>
+            <div class="skeleton sk-para" style="width:40%"></div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sk-card">
+            <div class="skeleton sk-h" style="width:70%"></div>
+            <div class="skeleton sk-para" style="width:75%"></div>
+            <div class="skeleton sk-para" style="width:60%"></div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="sk-card">
+            <div class="skeleton sk-h" style="width:65%"></div>
+            <div class="skeleton sk-para" style="width:85%"></div>
+            <div class="skeleton sk-para" style="width:45%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-12 col-lg-4">
+          <div class="sk-card">
+            <div class="d-flex align-items-center gap-3 mb-16" style="margin-bottom:16px">
+              <div class="skeleton sk-circle" style="width:48px;height:48px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div class="skeleton sk-line" style="width:70%;margin-bottom:6px"></div>
+                <div class="skeleton sk-line" style="width:50%;height:10px"></div>
+              </div>
+            </div>
+            <div class="skeleton sk-line" style="height:100px;border-radius:8px;margin-bottom:12px"></div>
+            <div class="skeleton sk-para" style="width:100%"></div>
+            <div class="skeleton sk-para" style="width:85%"></div>
+            <div class="skeleton sk-para" style="width:60%"></div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-8">
+          <div class="sk-card">
+            <div class="skeleton sk-h" style="width:30%;margin-bottom:16px"></div>
+            <div class="sk-row">
+              <div class="skeleton sk-circle" style="width:36px;height:36px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div class="skeleton sk-line" style="width:45%;margin-bottom:5px"></div>
+                <div class="skeleton sk-line" style="width:65%;height:10px"></div>
+              </div>
+              <div class="skeleton" style="width:60px;height:22px;border-radius:20px"></div>
+            </div>
+            <div class="sk-row">
+              <div class="skeleton sk-circle" style="width:36px;height:36px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div class="skeleton sk-line" style="width:55%;margin-bottom:5px"></div>
+                <div class="skeleton sk-line" style="width:40%;height:10px"></div>
+              </div>
+              <div class="skeleton" style="width:60px;height:22px;border-radius:20px"></div>
+            </div>
+            <div class="sk-row">
+              <div class="skeleton sk-circle" style="width:36px;height:36px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div class="skeleton sk-line" style="width:35%;margin-bottom:5px"></div>
+                <div class="skeleton sk-line" style="width:70%;height:10px"></div>
+              </div>
+              <div class="skeleton" style="width:60px;height:22px;border-radius:20px"></div>
+            </div>
+            <div class="sk-row">
+              <div class="skeleton sk-circle" style="width:36px;height:36px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div class="skeleton sk-line" style="width:60%;margin-bottom:5px"></div>
+                <div class="skeleton sk-line" style="width:50%;height:10px"></div>
+              </div>
+              <div class="skeleton" style="width:60px;height:22px;border-radius:20px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ══════════════════════════════════════════════════
+       PAGE LOADER
+    ══════════════════════════════════════════════════ */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('pageLoader').classList.add('hide');
+        setTimeout(() => document.getElementById('pageLoader').style.display = 'none', 400);
+        toast('success', 'Welcome back!', 'Valex dashboard loaded successfully.');
+      }, 1800);
+    });
+    function showPageLoader() {
+      const el = document.getElementById('pageLoader');
+      el.style.display = 'flex'; el.classList.remove('hide');
+      const bar = el.querySelector('.loader-bar');
+      bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = 'loadbar 2s ease forwards';
+      setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.style.display = 'none', 400) }, 2200);
+    }
+
+    /* ══════════════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════════════ */
+    function toggleSB() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sbOv').classList.toggle('show');
+    }
+    function toggleSub(btn) {
+      const sub = btn.nextElementSibling;
+      const was = sub.classList.contains('open');
+      document.querySelectorAll('.sub.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.nlnk.open').forEach(b => b.classList.remove('open'));
+      if (!was) { sub.classList.add('open'); btn.classList.add('open') }
+    }
+
+    /* ══════════════════════════════════════════════════
+       NAVIGATION
+    ══════════════════════════════════════════════════ */
+    const pageMeta = {
+      'dashboard': { title: 'Sales Dashboard', sub: 'Monitor performance & analytics' },
+      'table-basic': { title: 'Basic Tables', sub: 'Tables › Basic Tables' },
+      'table-orders': { title: 'Orders Table', sub: 'Tables › Orders' },
+      'table-customers': { title: 'Customers Table', sub: 'Tables › Customers' },
+      'table-products': { title: 'Products Table', sub: 'Tables › Products' },
+      'components': { title: 'UI Components', sub: 'Components › Scale, Loaders, Toasters' },
+      'skeleton': { title: 'Skeleton Loaders', sub: 'Components › Skeleton Loader' },
+    };
+    const tablePages = ['table-basic', 'table-orders', 'table-customers', 'table-products'];
+
+    function navTo(id) {
+      // close mobile sidebar
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sbOv').classList.remove('show');
+
+      // show/hide pages
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-' + id);
+      if (target) { target.classList.add('active'); if (!target.innerHTML.trim() || target.dataset.rendered !== '1') renderTablePage(id, target) }
+
+      // topbar title
+      const meta = pageMeta[id] || { title: id, sub: '' };
+      document.getElementById('tbTitle').textContent = meta.title;
+      document.getElementById('tbSub').textContent = meta.sub;
+
+      // active nav
+      document.querySelectorAll('.snav a').forEach(a => a.classList.remove('active'));
+      document.querySelectorAll('.sub a').forEach(a => a.classList.remove('active'));
+      const navEl = document.getElementById('nav-' + id);
+      if (navEl) navEl.classList.add('active');
+
+      // open tables sub if table page
+      if (tablePages.includes(id)) {
+        const sub = document.getElementById('tables-sub');
+        const btn = document.getElementById('nav-tables-toggle');
+        sub.classList.add('open'); btn.classList.add('open');
+      }
+
+      closeAllDD();
+    }
+
+    /* ══════════════════════════════════════════════════
+       TABLE PAGE RENDERER
+    ══════════════════════════════════════════════════ */
+    const tableConfigs = {
+      'table-basic': {
+        title: 'Basic Tables', path: ['Home', 'Tables', 'Basic Tables'],
+        tabs: ['All', 'Active', 'Inactive'],
+        cols: ['#', 'Name', 'Email', 'Role', 'Status', 'Joined', 'Action'],
+        data: [
+          ['SM', 'Samantha Melo', 's.melo@valex.io', 'Full-Stack Dev', 'Active', 'Jan 15, 2026'],
+          ['JD', 'John Doe', 'j.doe@valex.io', 'UI/UX Designer', 'Active', 'Jan 12, 2026'],
+          ['AK', 'Amy Khan', 'a.khan@valex.io', 'Product Manager', 'Pending', 'Jan 10, 2026'],
+          ['RL', 'Robert Lee', 'r.lee@valex.io', 'Data Scientist', 'Active', 'Jan 8, 2026'],
+          ['PC', 'Priya Chandra', 'p.chandra@valex.io', 'DevOps Engineer', 'Inactive', 'Jan 5, 2026'],
+          ['MC', 'Mark Chen', 'm.chen@valex.io', 'Backend Dev', 'Active', 'Dec 28, 2025'],
+          ['LT', 'Lisa Torres', 'l.torres@valex.io', 'QA Engineer', 'Pending', 'Dec 20, 2025'],
+          ['BK', 'Brian Kim', 'b.kim@valex.io', 'Security Analyst', 'Active', 'Dec 15, 2025'],
+        ],
+        colors: ['#5b73e8', '#34c38f', '#f46a6a', '#f1b44c', '#50a5f1', '#7c3aed', '#fb923c', '#06b6d4'],
+        statusKey: 5
+      },
+      'table-orders': {
+        title: 'Orders Table', path: ['Home', 'Tables', 'Orders'],
+        tabs: ['All Orders', 'Delivered', 'Processing', 'Cancelled'],
+        cols: ['Order ID', 'Product', 'Customer', 'Date', 'Amount', 'Status', 'Action'],
+        data: [
+          ['#VLX-0041', 'MacBook Pro', 'Samantha Melo', 'Jan 15, 2026', '$2,450', 'Delivered'],
+          ['#VLX-0038', 'iPhone 16', 'John Doe', 'Jan 12, 2026', '$999', 'Processing'],
+          ['#VLX-0035', 'AirPods Max', 'Amy Khan', 'Jan 10, 2026', '$549', 'Shipped'],
+          ['#VLX-0031', 'iPad Air', 'Robert Lee', 'Jan 8, 2026', '$799', 'Cancelled'],
+          ['#VLX-0028', 'Apple Watch', 'Priya Chandra', 'Jan 5, 2026', '$429', 'Delivered'],
+          ['#VLX-0025', 'MacBook Air', 'Mark Chen', 'Dec 28, 2025', '$1,299', 'Delivered'],
+          ['#VLX-0022', 'iPhone 15 Pro', 'Lisa Torres', 'Dec 20, 2025', '$1,099', 'Processing'],
+          ['#VLX-0019', 'Mac Mini', 'Brian Kim', 'Dec 15, 2025', '$699', 'Shipped'],
+        ],
+        statusKey: 5
+      },
+      'table-customers': {
+        title: 'Customers Table', path: ['Home', 'Tables', 'Customers'],
+        tabs: ['All', 'VIP', 'Regular', 'New'],
+        cols: ['#', 'Customer', 'Contact', 'Location', 'Orders', 'Spent', 'Type', 'Action'],
+        data: [
+          ['SM', 'Samantha Melo', 's.melo@valex.io', 'New York, USA', '24', '$12,450', 'VIP'],
+          ['JD', 'John Doe', 'j.doe@valex.io', 'London, UK', '18', '$8,999', 'Regular'],
+          ['AK', 'Amy Khan', 'a.khan@valex.io', 'Dubai, UAE', '32', '$21,049', 'VIP'],
+          ['RL', 'Robert Lee', 'r.lee@valex.io', 'Sydney, AUS', '9', '$4,299', 'Regular'],
+          ['PC', 'Priya Chandra', 'p.chandra@valex.io', 'Mumbai, IN', '5', '$2,100', 'New'],
+          ['MC', 'Mark Chen', 'm.chen@valex.io', 'Singapore', '14', '$7,830', 'Regular'],
+          ['LT', 'Lisa Torres', 'l.torres@valex.io', 'Madrid, ES', '41', '$31,200', 'VIP'],
+          ['BK', 'Brian Kim', 'b.kim@valex.io', 'Seoul, KR', '7', '$3,450', 'New'],
+        ],
+        colors: ['#5b73e8', '#34c38f', '#f46a6a', '#f1b44c', '#50a5f1', '#7c3aed', '#fb923c', '#06b6d4'],
+        statusKey: 6
+      },
+      'table-products': {
+        title: 'Products Table', path: ['Home', 'Tables', 'Products'],
+        tabs: ['All', 'In Stock', 'Low Stock', 'Out of Stock'],
+        cols: ['SKU', 'Product', 'Category', 'Price', 'Stock', 'Sold', 'Status', 'Action'],
+        data: [
+          ['PRD-001', 'MacBook Pro 14"', 'Laptops', '$2,450', '48', '312', 'In Stock'],
+          ['PRD-002', 'iPhone 16 Pro', 'Phones', '$999', '12', '841', 'Low Stock'],
+          ['PRD-003', 'AirPods Max', 'Audio', '$549', '65', '201', 'In Stock'],
+          ['PRD-004', 'iPad Air M2', 'Tablets', '$799', '0', '178', 'Out of Stock'],
+          ['PRD-005', 'Apple Watch S9', 'Wearables', '$429', '33', '455', 'In Stock'],
+          ['PRD-006', 'MacBook Air M3', 'Laptops', '$1,299', '7', '289', 'Low Stock'],
+          ['PRD-007', 'iPhone 15 Pro', 'Phones', '$1,099', '21', '632', 'In Stock'],
+          ['PRD-008', 'Mac Mini M4', 'Desktops', '$699', '0', '97', 'Out of Stock'],
+        ],
+        statusKey: 6
+      }
+    };
+
+    function statusBadge(s) {
+      s = s || '';
+      const m = { Delivered: 'bs-s', Active: 'bs-s', 'In Stock': 'bs-s', VIP: 'bs-i', Regular: 'bs-i', New: 'bs-i', Processing: 'bs-w', Pending: 'bs-w', 'Low Stock': 'bs-w', Shipped: 'bs-i', Cancelled: 'bs-d', Inactive: 'bs-d', 'Out of Stock': 'bs-d' };
+      return `<span class="badge ${m[s] || 'bs-i'}">${s}</span>`;
+    }
+
+    function renderTablePage(id, el) {
+      const cfg = tableConfigs[id]; if (!cfg) { return }
+      el.dataset.rendered = '1';
+      const bcHtml = cfg.path.map((p, i) => i === cfg.path.length - 1 ? `<li class="breadcrumb-item active">${p}</li>` : `<li class="breadcrumb-item"><a href="#" onclick="return false">${p}</a></li>`).join('');
+      const tabsHtml = cfg.tabs.map((t, i) => `<button class="tbl-tab${i === 0 ? ' on' : ''}" onclick="switchTab(this)">${t}</button>`).join('');
+      const thHtml = cfg.cols.map((c, i) => `<th onclick="sortTable(this,${i})" style="padding:11px 14px">${c}</th>`).join('');
+      const tbHtml = cfg.data.map((row, ri) => {
+        const cells = row.map((cell, ci) => {
+          if (ci === 0 && cfg.colors) { return `<td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:${cfg.colors[ri % cfg.colors.length]};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0">${cell}</div></div></td>` }
+          if (ci === cfg.statusKey) { return `<td>${statusBadge(cell)}</td>` }
+          if (ci === cfg.cols.length - 1) { return `<td><div style="display:flex;gap:6px"><button class="btn btn-sm" style="background:var(--prl);color:var(--pri);font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700" onclick="toast('info','Viewing','Opening record details...')"><i class="bi bi-eye"></i></button><button class="btn btn-sm" style="background:#fef3c7;color:#92400e;font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700" onclick="toast('warning','Edit','Edit mode activated.')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;font-size:11px;padding:3px 10px;border-radius:6px;font-weight:700" onclick="toast('danger','Deleted','Record has been removed.')"><i class="bi bi-trash3"></i></button></div></td>` }
+          return `<td>${cell}</td>`;
+        }).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+
+      el.innerHTML = `
+  <div class="bc-wrap">
+    <div class="bc-left"><h4>${cfg.title}</h4><p>Manage and filter your ${cfg.title.toLowerCase()} data.</p></div>
+    <nav><ol class="breadcrumb">${bcHtml}</ol></nav>
+  </div>
+  <div class="table-list-card">
+    <div class="tbl-tabs">${tabsHtml}</div>
+    <div class="tl-toolbar">
+      <div class="tl-toolbar-left">
+        <div class="tl-search"><i class="bi bi-search"></i><input type="text" placeholder="Search ${cfg.title.toLowerCase()}…" oninput="filterTable(this)" id="tblSearch-${id}"/></div>
+        <button class="btn btn-sm" style="background:var(--prl);color:var(--pri);font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px" onclick="toast('info','Export','Exporting table data as CSV…')"><i class="bi bi-download me-1"></i>Export</button>
+        <button class="btn btn-sm" style="background:var(--pri);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px" onclick="toast('success','Add New','Opening create form…')"><i class="bi bi-plus me-1"></i>Add New</button>
+      </div>
+      <div class="tl-toolbar-right">
+        <select class="per-page-sel" onchange="toast('info','Per Page','Showing '+this.value+' rows per page.')">
+          <option>10</option><option>25</option><option>50</option><option>100</option>
+        </select>
+        <button class="btn btn-sm btn-light border" style="font-size:12px" onclick="toast('info','Filter','Advanced filter panel coming soon.')"><i class="bi bi-funnel"></i></button>
+        <button class="btn btn-sm btn-light border" style="font-size:12px" onclick="toast('info','Columns','Column visibility settings.')"><i class="bi bi-layout-three-columns"></i></button>
+      </div>
+    </div>
+    <div class="tbl-wrap" id="tblWrap-${id}"><table><thead><tr>${thHtml}</tr></thead><tbody id="tblBody-${id}">${tbHtml}</tbody></table></div>
+    <div class="tbl-pagination">
+      <div class="pg-info">Showing <b>1–${cfg.data.length}</b> of <b>${cfg.data.length}</b> entries</div>
+      <div class="pg-btns">
+        <button class="pg-btn" onclick="toast('info','Prev','No previous page.')"><i class="bi bi-chevron-left"></i></button>
+        <button class="pg-btn on">1</button>
+        <button class="pg-btn" onclick="toast('info','Next','No next page.')">2</button>
+        <button class="pg-btn" onclick="toast('info','Next','No next page.')"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>`;
+    }
+
+    function switchTab(btn) {
+      btn.closest('.tbl-tabs').querySelectorAll('.tbl-tab').forEach(t => t.classList.remove('on'));
+      btn.classList.add('on');
+    }
+
+    function filterTable(inp) {
+      const q = inp.value.toLowerCase();
+      const id = inp.id.replace('tblSearch-', '');
+      const tbody = document.getElementById('tblBody-' + id);
+      if (!tbody) return;
+      Array.from(tbody.rows).forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    let sortDir = {};
+    function sortTable(th, ci) {
+      const table = th.closest('table');
+      const tbody = table.querySelector('tbody');
+      const key = th.textContent.trim() + ci;
+      sortDir[key] = sortDir[key] === 'asc' ? 'desc' : 'asc';
+      table.querySelectorAll('th').forEach(t => { t.classList.remove('sort-asc', 'sort-desc') });
+      th.classList.add(sortDir[key] === 'asc' ? 'sort-asc' : 'sort-desc');
+      const rows = Array.from(tbody.rows);
+      rows.sort((a, b) => {
+        const av = (a.cells[ci] || {}).textContent.trim();
+        const bv = (b.cells[ci] || {}).textContent.trim();
+        const n = v => parseFloat(v.replace(/[^0-9.-]/g, ''));
+        if (!isNaN(n(av)) && !isNaN(n(bv))) return sortDir[key] === 'asc' ? n(av) - n(bv) : n(bv) - n(av);
+        return sortDir[key] === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    }
+
+    /* skeleton demo shortcut */
+    function showSkelPage() { navTo('skeleton') }
+
+    /* ══════════════════════════════════════════════════
+       THEME
+    ══════════════════════════════════════════════════ */
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.getElementById('thtog').classList.toggle('on', t === 'dark');
+      document.getElementById('btnL').className = 'btn btn-sm flex-fill ' + (t === 'light' ? 'btn-primary' : 'btn-light border');
+      document.getElementById('btnD').className = 'btn btn-sm flex-fill ' + (t === 'dark' ? 'btn-primary' : 'btn-light border');
+    }
+    function toggleTheme() { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark') }
+    setTheme('light');
+
+    /* ══════════════════════════════════════════════════
+       FULLSCREEN
+    ══════════════════════════════════════════════════ */
+    function doFS(e) {
+      e.preventDefault();
+      if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); document.getElementById('fsIco').className = 'bi bi-fullscreen-exit' }
+      else { document.exitFullscreen(); document.getElementById('fsIco').className = 'bi bi-fullscreen' }
+    }
+
+    /* ══════════════════════════════════════════════════
+       DROPDOWNS
+    ══════════════════════════════════════════════════ */
+    function togDD(e, id) { e.preventDefault(); const p = document.getElementById(id); const was = p.classList.contains('show'); closeAllDD(); if (!was) p.classList.add('show') }
+    function closeAllDD() { document.querySelectorAll('.dd-panel').forEach(p => p.classList.remove('show')) }
+    document.addEventListener('click', e => { if (!e.target.closest('.tb-dd') && !e.target.closest('.tb-avatar')) closeAllDD() });
+
+    /* ══════════════════════════════════════════════════
+       SEARCH
+    ══════════════════════════════════════════════════ */
+    const sData = [
+      {
+        c: 'Pages', items: [
+          { ic: 'bi-grid-1x2-fill', bg: '#dbeafe', cl: '#1e40af', t: 'Dashboard', s: 'Main analytics page', page: 'dashboard' },
+          { ic: 'bi-table', bg: '#fef3c7', cl: '#92400e', t: 'Orders Table', s: 'All purchase orders', page: 'table-orders' },
+          { ic: 'bi-table', bg: '#d1fae5', cl: '#065f46', t: 'Customers Table', s: 'Customer management', page: 'table-customers' },
+          { ic: 'bi-table', bg: '#f3e8ff', cl: '#6b21a8', t: 'Products Table', s: 'Product catalogue', page: 'table-products' },
+          { ic: 'bi-box-seam', bg: '#dbeafe', cl: '#1e40af', t: 'UI Components', s: 'Scale, Loaders, Toasters', page: 'components' },
+          { ic: 'bi-layout-text-window', bg: '#fee2e2', cl: '#991b1b', t: 'Skeleton Loaders', s: 'Loading state UI', page: 'skeleton' },
+        ]
+      },
+      {
+        c: 'Orders', items: [
+          { ic: 'bi-cart3', bg: '#d1fae5', cl: '#065f46', t: 'Order #VLX-0041', s: 'MacBook Pro — Delivered', page: 'table-orders' },
+          { ic: 'bi-cart3', bg: '#fef3c7', cl: '#92400e', t: 'Order #VLX-0038', s: 'iPhone 16 — Processing', page: 'table-orders' },
+        ]
+      },
+      {
+        c: 'Customers', items: [
+          { ic: 'bi-person', bg: '#f3e8ff', cl: '#6b21a8', t: 'Samantha Melo', s: 'Full-Stack Developer', page: 'table-customers' },
+          { ic: 'bi-person', bg: '#dbeafe', cl: '#1e40af', t: 'John Doe', s: 'UI/UX Designer', page: 'table-customers' },
+        ]
+      },
+    ];
+    function doSearch(q) {
+      const dd = document.getElementById('searchDD'), res = document.getElementById('srchRes');
+      q = q.trim().toLowerCase();
+      if (!q) { dd.classList.remove('show'); return }
+      dd.classList.add('show');
+      let html = '', tot = 0;
+      sData.forEach(cat => {
+        const f = cat.items.filter(i => i.t.toLowerCase().includes(q) || i.s.toLowerCase().includes(q));
+        if (f.length) {
+          html += `<div class="srch-sec">${cat.c}</div>`;
+          f.forEach(item => {
+            html += `<a href="#" class="srch-itm" onclick="navTo('${item.page || 'dashboard'}');return false">
+          <div class="srch-ico-box" style="background:${item.bg};color:${item.cl}"><i class="bi ${item.ic}"></i></div>
+          <div><div class="srch-itm-t">${hl(item.t, q)}</div><div class="srch-itm-s">${item.s}</div></div>
+        </a>`;
+            tot++;
+          });
+        }
+      });
+      if (!tot) html = `<div class="srch-empty"><i class="bi bi-search" style="font-size:22px;display:block;margin-bottom:8px"></i>No results for "<b>${q}</b>"</div>`;
+      res.innerHTML = html;
+    }
+    function hl(t, q) { return t.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark style="background:#fef08a;border-radius:2px;padding:0 1px">$1</mark>') }
+    function showSD() { if (document.getElementById('gSearch').value.trim()) document.getElementById('searchDD').classList.add('show') }
+    function hideSD() { setTimeout(() => document.getElementById('searchDD').classList.remove('show'), 200) }
+
+    /* ══════════════════════════════════════════════════
+       SETTINGS PANEL
+    ══════════════════════════════════════════════════ */
+    function openSP() { document.getElementById('sp').classList.add('open'); document.getElementById('spOv').classList.add('show'); closeAllDD() }
+    function closeSP() { document.getElementById('sp').classList.remove('open'); document.getElementById('spOv').classList.remove('show') }
+    function isDark(hex) { if (!hex || hex === '#fff' || hex === '#ffffff') return false; const c = hex.replace('#', ''); if (c.length < 6) return false; return (.299 * parseInt(c.slice(0, 2), 16) + .587 * parseInt(c.slice(2, 4), 16) + .114 * parseInt(c.slice(4, 6), 16)) < 130 }
+    function setSbColor(el, color) { const sb = document.getElementById('sidebar'); sb.classList.remove('sb-img'); sb.style.background = color; const dk = isDark(color); sb.querySelectorAll('.logo-txt,.nav-sec,.snav li a,.snav li .nlnk,.sb-footer-lbl,.sub li a').forEach(e => e.style.color = dk ? 'rgba(255,255,255,.7)' : ''); sb.querySelectorAll('.sb-logo').forEach(e => e.style.borderBottomColor = dk ? 'rgba(255,255,255,.12)' : ''); sb.querySelectorAll('.sb-footer').forEach(e => e.style.borderTopColor = dk ? 'rgba(255,255,255,.12)' : ''); if (el) { document.querySelectorAll('#sbColors .csw').forEach(s => s.classList.remove('on')); el.classList.add('on') } }
+    function setSbImg(el, url) { const sb = document.getElementById('sidebar'); sb.classList.add('sb-img'); sb.style.background = `url('${url}')`; sb.style.backgroundSize = 'cover'; sb.style.backgroundPosition = 'center'; document.querySelectorAll('#sbImgs .isw').forEach(s => s.classList.remove('on')); el.classList.add('on') }
+    function clrSbImg(el) { const sb = document.getElementById('sidebar'); sb.classList.remove('sb-img'); sb.style.background = 'var(--sbg)'; sb.querySelectorAll('.logo-txt,.nav-sec,.snav li a,.snav li .nlnk,.sb-footer-lbl,.sub li a').forEach(e => e.style.color = ''); document.querySelectorAll('#sbImgs .isw').forEach(s => s.classList.remove('on')); el.classList.add('on') }
+    function setTbColor(el, color) { const tb = document.getElementById('topbar'); tb.classList.remove('tb-img'); tb.style.background = color; const dk = isDark(color); tb.querySelectorAll('.tb-icon,.tb-title h6,.tb-title small').forEach(e => e.style.color = dk ? 'rgba(255,255,255,.85)' : ''); tb.querySelectorAll('.tbdiv').forEach(e => e.style.background = dk ? 'rgba(255,255,255,.25)' : ''); if (el) { document.querySelectorAll('#tbColors .csw').forEach(s => s.classList.remove('on')); el.classList.add('on') } }
+    function setTbImg(el, url) { const tb = document.getElementById('topbar'); tb.classList.add('tb-img'); tb.style.background = `url('${url}')`; tb.style.backgroundSize = 'cover'; tb.style.backgroundPosition = 'center'; document.querySelectorAll('#tbImgs .isw').forEach(s => s.classList.remove('on')); el.classList.add('on') }
+    function clrTbImg(el) { const tb = document.getElementById('topbar'); tb.classList.remove('tb-img'); tb.style.background = 'var(--tbg)'; tb.querySelectorAll('.tb-icon,.tb-title h6,.tb-title small').forEach(e => e.style.color = ''); document.querySelectorAll('#tbImgs .isw').forEach(s => s.classList.remove('on')); el.classList.add('on') }
+
+    /* ══════════════════════════════════════════════════
+       TOAST SYSTEM
+    ══════════════════════════════════════════════════ */
+    function toast(type, title, msg, dur = 4000) {
+      const icons = { success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+      const el = document.createElement('div');
+      el.className = `toast-msg t-${type}`;
+      el.innerHTML = `
+    <div class="toast-icon"><i class="bi ${icons[type] || 'bi-bell-fill'}"></i></div>
+    <div class="toast-body"><div class="toast-title">${title}</div><div class="toast-sub">${msg}</div></div>
+    <button class="toast-close" onclick="closeToast(this.parentElement)"><i class="bi bi-x"></i></button>
+    <div class="toast-progress" style="animation-duration:${dur}ms"></div>`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => closeToast(el), dur);
+    }
+    function closeToast(el) { el.classList.add('hide'); setTimeout(() => el.remove(), 320) }
+    function fireMultiToast() {
+      setTimeout(() => toast('success', 'Success!', 'Operation completed successfully.'), 0);
+      setTimeout(() => toast('danger', 'Error!', 'Something went wrong. Please retry.'), 300);
+      setTimeout(() => toast('warning', 'Warning!', 'This action is irreversible.'), 600);
+      setTimeout(() => toast('info', 'Info', 'New updates are available.'), 900);
+    }
+
+    /* ══════════════════════════════════════════════════
+       BAR CHART
+    ══════════════════════════════════════════════════ */
+    const mo = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const cd = [{ s: 75, p: 45, f: 25 }, { s: 60, p: 55, f: 30 }, { s: 90, p: 40, f: 20 }, { s: 80, p: 60, f: 35 }, { s: 70, p: 50, f: 28 }, { s: 95, p: 35, f: 22 }, { s: 85, p: 65, f: 40 }, { s: 78, p: 45, f: 32 }, { s: 92, p: 38, f: 18 }, { s: 88, p: 52, f: 26 }, { s: 72, p: 48, f: 34 }, { s: 100, p: 42, f: 20 }];
+    const bc = document.getElementById('bChart'), bl = document.getElementById('bLbl');
+    cd.forEach(d => { const g = document.createElement('div'); g.className = 'bg';['s', 'p', 'f'].forEach(k => { const b = document.createElement('div'); b.className = 'bar ' + (k === 's' ? 'brs' : k === 'p' ? 'brp' : 'brf'); b.style.height = `${(d[k] / 120) * 100}%`; b.title = `${k === 's' ? 'Success' : k === 'p' ? 'Pending' : 'Failed'}: ${d[k]}`; g.appendChild(b) }); bc.appendChild(g) });
+    mo.forEach(m => { const s = document.createElement('span'); s.textContent = m; bl.appendChild(s) });
+  </script>
+</body>
+</html>
+
+<!-- FORM ELEMENTS IN FORMS ALSO ADD TYPE OF GRID AND IN CARD FORM AND MODAL POPUP ALSO
+LOGIN PAGE WITH OTP OR WITHOUT OTP WITH USERNAME AND PASSWORD CAPTCHA BOTH EITHER LOGIN WITH OTP EITHER USERNAME & PASSWORD -->

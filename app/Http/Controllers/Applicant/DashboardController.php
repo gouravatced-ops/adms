@@ -44,14 +44,14 @@ class DashboardController extends Controller
             'totallots' => RegistrationFile::count(),
 
             // User stats
-            'todayDataentryCount' => Allottee::where('created_by', $userId)
+            'todayDataentryCount' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)
                 ->whereDate('created_at', $today)
                 ->where('is_step_completed', 1)
                 ->count(),
 
-            'totalDataentryByUser' => Allottee::where('created_by', $userId)->count(),
+            'totalDataentryByUser' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)->count(),
 
-            'totalPendingdataentryFile' => Allottee::where('created_by', $userId)
+            'totalPendingdataentryFile' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)
                 ->where('is_step_completed', 0)
                 ->count(),
         ];
