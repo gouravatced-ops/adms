@@ -254,7 +254,7 @@
                                         <polyline points="9 15 11 17 15 13"></polyline>
 
                                     </svg>
-                                    <span class="ml-3">Lease Free Hold</span>
+                                    <span class="ml-3">Free Lease Hold</span>
                                 </div>
                                 <i class="fas fa-chevron-down text-xs submenu-icon"
                                     style="transition: transform 0.3s;"></i>

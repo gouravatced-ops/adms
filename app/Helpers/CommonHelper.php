@@ -225,7 +225,7 @@ if (!function_exists('getDebugIndex')) {
     function getDebugIndex($data)
     {
         echo '<pre>';
-        print_r($data);
+        print_r($data->toArray());
         echo '</pre>';
         die();
     }

@@ -210,7 +210,7 @@ class AdminController extends Controller
             ],
 
             'labels' => [
-                'totalreceivingFile' => 'Total Files',
+                'totalreceivingFile' => 'Total Received Files',
                 'totalscannedFile'   => 'Scanned Files',
 
                 'totalAllotteeFile'  => 'Total Allottees',

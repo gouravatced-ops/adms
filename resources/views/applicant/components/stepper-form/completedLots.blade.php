@@ -16,7 +16,9 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-
+    @php
+        return getDebugIndex($registrations); // Set the current step for the stepper
+    @endphp
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
 
@@ -97,7 +99,7 @@
                                 <td class="py-2">
                                     {{ getDivisionName($registration->division_id) ?? 'N/A' }}
                                 </td>
-                                <td>Sanned By <br> {{ $registration->scanned_named_by ?? 'System' }}</td>
+                                <td>Scanned By <br> {{ $registration->scanned_named_by ?? 'System' }}</td>
                                 <td>{{ formatDateTime($registration->updated_at) }}</td>
                                 <td>
                                     <a href="{{ route('applicant.dataentry.completed.lots.files', $registration->encoded_register_no) }}"

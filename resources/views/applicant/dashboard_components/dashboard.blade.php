@@ -49,7 +49,7 @@
 
     /* text area */
     .stat-info p {
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-weight: 600;
         letter-spacing: 0.3px;
         text-transform: uppercase;
@@ -316,7 +316,7 @@
     <div class="stat-card card-scheme-4">
         <div class="card-content">
             <div class="stat-info">
-                <p>Total Data Entry File</p>
+                <p>Total Data Entry Files</p>
                 <div class="stat-number"><span class="count-animate" data-target="{{ $totalDataentryFile }}">0</span></div>
             </div>
             <div class="stat-icon">
@@ -334,7 +334,7 @@
     <div class="stat-card card-scheme-5">
         <div class="card-content">
             <div class="stat-info">
-                <p>Total Checked File</p>
+                <p>Total Checked Files</p>
                 <div class="stat-number"><span class="count-animate" data-target="{{ $totalcheckedFile }}">0</span></div>
             </div>
             <div class="stat-icon">
@@ -350,7 +350,7 @@
     <div class="stat-card card-scheme-6">
         <div class="card-content">
             <div class="stat-info">
-                <p>Total Approved File</p>
+                <p>Total Approved Files</p>
                 <div class="stat-number"><span class="count-animate" data-target="{{ $totalapprovedFile }}">0</span></div>
             </div>
             <div class="stat-icon">

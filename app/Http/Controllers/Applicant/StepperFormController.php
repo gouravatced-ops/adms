@@ -339,10 +339,6 @@ class StepperFormController extends Controller
             $query = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files' => function ($q) {
-                        $q->where('allottee_status', 'scanned');
-                    },
-
                     'lotAssignments as completed_files' => function ($q) use ($userId) {
                         $q->where('assigned_to', $userId)
                             ->where('status', 'completed');

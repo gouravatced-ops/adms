@@ -735,7 +735,7 @@
                         background: {{ $isFreeHold ? '#4CAF50' : '#ff9800' }};
                     ">
 
-                        {{ $isFreeHold ? 'Free Hold Property' : 'Lease Hold Property' }}
+                        {{ $isFreeHold ? 'Free Lease Hold Property' : 'Lease Hold Property' }}
 
                     </span>
 
