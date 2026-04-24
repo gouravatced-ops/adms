@@ -10,6 +10,7 @@ use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 
@@ -27,8 +28,28 @@ class DashboardController extends Controller
 
         $stats = [
             // RegisterAllottee
-            'totalreceivingFile' => RegisterAllottee::count(),
-            'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')->count(),
+            'totalreceivingFile' => RegisterAllottee::sum(
+                DB::raw("
+                    COALESCE(
+                        CASE 
+                            WHEN parent_id IS NULL 
+                                THEN no_of_files + no_of_supplement
+                            ELSE 
+                                no_of_supplement
+                        END
+                    ,0)
+                ")
+            ),
+
+            'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')
+                ->sum(DB::raw("
+                    CASE 
+                        WHEN parent_id IS NULL 
+                            THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
+                        ELSE 
+                            COALESCE(no_of_supplement,0)
+                    END
+                ")),
 
             // Allottee
             'totalAllotteeFile' => Allottee::whereNotNull('register_file_id')->count(),

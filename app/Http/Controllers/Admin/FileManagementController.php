@@ -230,19 +230,38 @@ class FileManagementController extends Controller
     {
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
-        set_time_limit(300);
 
+        // ✅ Decode register ID
         $registerNo = base64_decode($registerId, true);
-
-        if ($registerNo === false) {
-            return redirect()->back()->with('error', 'Invalid register ID');
+        if (!$registerNo) {
+            return back()->with('error', 'Invalid register ID');
         }
 
-        $register = RegistrationFile::where('register_no', $registerNo)->first();
+        // ✅ Get register details
+        $register = RegistrationFile::where('register_no', $registerNo)->firstOrFail();
         $registerDivision = Division::where('id', $register->division_id)->value('name');
         $lotNumber = strtoupper($register->lot_no);
         $lotcreateDate = Carbon::parse($register->created_at)->format('d/m/Y');
         $lotTime = Carbon::parse($register->created_at)->format('h:i A');
+
+        // ============================================================
+        // ✅ STEP 1: ALL RECORDS ACROSS ALL REGISTERS (for correct global numbering)
+        // ============================================================
+        $allRecords = RegisterAllottee::query()
+            ->orderBy('created_at', 'asc')
+            ->select([
+                'id',
+                'register_id',
+                'property_number',
+                'confirm_received',
+                'confirm_same_allottee_name',
+                'no_of_supplement',
+            ])
+            ->get();
+
+        // ============================================================
+        // ✅ STEP 2: CURRENT REGISTER ALLOTTEES WITH JOINS
+        // ============================================================
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
@@ -251,25 +270,105 @@ class FileManagementController extends Controller
             ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
             ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
             ->where('ra.register_id', $registerNo)
-            ->orderByDesc('ra.created_at')
+            ->orderBy('ra.created_at', 'asc')
             ->select([
-                'ra.*',
-                'd.name  as dname',
-                'sd.name as subname',
-                'pc.name as cname',
-                'pt.name as pname',
-                'qt.quarter_code as quarter_code',
+                'ra.id',
+                'ra.property_number',
+                'ra.prefix',
+                'ra.allottee_name',
+                'ra.allottee_middle_name',
+                'ra.allottee_surname',
+                'ra.confirm_received',
+                'ra.confirm_same_allottee_name',
+                'ra.no_of_files',
+                'ra.no_of_supplement',
+                'ra.remarks',
+                'd.name as division_name',
+                'sd.name as subdivision_name',
+                'pc.name as category_name',
+                'pt.name as type_name',
+                'qt.quarter_code',
             ])
             ->get();
 
         if ($allottees->isEmpty()) {
-            return redirect()->back()->with('error', 'No records found');
+            return back()->with('error', 'No records found');
         }
 
+        // ============================================================
+        // ✅ STEP 3: CALCULATE FILE COUNTERS FOR GLOBAL SEQUENCE
+        // ============================================================
+        $fileCounters = [];
+        $fileMap = [];
+
+        foreach ($allRecords as $record) {
+            $propertyNumber = $record->property_number;
+
+            if (!isset($fileCounters[$propertyNumber])) {
+                $fileCounters[$propertyNumber] = 1;
+            }
+
+            // Calculate total files for this record
+            $totalFiles = 0;
+
+            if ($record->confirm_received === "No" && $record->confirm_same_allottee_name === "No") {
+                // New file case: 1 main file + supplement files
+                $totalFiles = 1 + ($record->no_of_supplement ?? 0);
+            } elseif ($record->confirm_received === "Yes" && $record->confirm_same_allottee_name === "Yes") {
+                // Existing file case: only supplement files
+                $totalFiles = ($record->no_of_supplement ?? 0);
+            }
+
+            // Generate file labels for this record
+            for ($i = 0; $i < $totalFiles; $i++) {
+                $fileMap[$record->id][] = 'File ' . $fileCounters[$propertyNumber];
+                $fileCounters[$propertyNumber]++;
+            }
+        }
+
+        // ============================================================
+        // ✅ STEP 4: PROCESS CURRENT REGISTER ROWS WITH FILE LABELS
+        // ============================================================
+        $processedRows = [];
+
+        foreach ($allottees as $allottee) {
+            $files = $fileMap[$allottee->id] ?? [];
+
+            foreach ($files as $fileLabel) {
+                $processedRows[] = [
+                    'property_number' => $allottee->property_number ?? '',
+                    'prefix' => $allottee->prefix ?? '',
+                    'allottee_name' => $allottee->allottee_name ?? '',
+                    'allottee_middle_name' => $allottee->allottee_middle_name ?? '',
+                    'allottee_surname' => $allottee->allottee_surname ?? '',
+                    'full_name' => trim(($allottee->prefix ?? '') . ' ' . ($allottee->allottee_name ?? '') . ' ' . ($allottee->allottee_middle_name ?? '') . ' ' . ($allottee->allottee_surname ?? '')),
+                    'file_label' => $fileLabel,
+                    'division' => $allottee->division_name ?? '',
+                    'subdivision' => $allottee->subdivision_name ?? '',
+                    'category' => $allottee->category_name ?? '',
+                    'type' => $allottee->type_name ?? '',
+                    'quarter_code' => $allottee->quarter_code ?? '',
+                    'remarks' => $allottee->remarks ?? '',
+                    'no_of_files' => $allottee->no_of_files ?? 0,
+                    'no_of_supplement' => $allottee->no_of_supplement ?? 0,
+                    'confirm_received' => $allottee->confirm_received ?? 'No',
+                    'confirm_same_allottee_name' => $allottee->confirm_same_allottee_name ?? 'No',
+                ];
+            }
+        }
+
+        // If no processed rows (edge case), return error
+        if (empty($processedRows)) {
+            return back()->with('error', 'No file records to export');
+        }
+
+        // ============================================================
+        // ✅ STEP 5: PREPARE PDF DATA
+        // ============================================================
         $data = [
             'title' => 'COMPUTER Ed. - Files Receiving',
             'date' => date('d/m/Y'),
-            'allottees' => $allottees,
+            'allottees' => $processedRows,
             'registerNo' => $registerNo,
             'lotDivision' => $registerDivision,
             'lotNumber' => $lotNumber,
@@ -285,6 +384,10 @@ class FileManagementController extends Controller
             ],
         ];
 
+        // return $data;
+        // ============================================================
+        // ✅ STEP 6: GENERATE PDF
+        // ============================================================
         $pdf = Pdf::loadView('exports.register-allottees', $data)
             ->setPaper('A4', 'portrait')
             ->setOption('defaultFont', 'dejavu sans');
@@ -295,7 +398,7 @@ class FileManagementController extends Controller
 
         $directory = public_path("uploads/{$registerNo}/files");
 
-        if (! File::exists($directory)) {
+        if (!File::exists($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
 

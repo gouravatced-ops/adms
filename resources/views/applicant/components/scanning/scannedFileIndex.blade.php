@@ -139,7 +139,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="7" class="p-0">
+                                <td colspan="8" class="p-0">
                                     <div class="table-responsive">
                                         <table class="table table-bordered mb-0">
                                             <tbody>
@@ -161,6 +161,11 @@
                                                     {{-- Total Column (colspan 2 + different background) --}}
                                                     <td colspan="2" style="background:#e6f4ea; font-weight:600;">
                                                         Total : {{ $totalPages }}
+                                                    </td>
+
+                                                    <td style="background: #4ec3fa3b;">
+                                                        <strong>No of Files </strong> :
+                                                        {{ $file->no_of_files }}
                                                     </td>
 
                                                     <td style="background: #faee4e3b;">

@@ -184,8 +184,8 @@ class ScannedController extends Controller
                 ->where('ra.register_id', $registerNo)
                 ->where('ra.allottee_status', 'received')
                 ->where('ra.is_active', 1)
+                ->where('ra.created_by', auth()->id())
                 ->orderByDesc('ra.created_at')
-                ->where('created_by', auth()->id())
                 ->select([
                     'ra.*',
                     'd.name  as dname',
@@ -193,7 +193,14 @@ class ScannedController extends Controller
                     'pc.name as cname',
                     'pt.name as pname',
                     'qt.quarter_code as quarter_code',
-                    'ra.no_of_files as total_files',
+                    DB::raw("
+                        CASE 
+                            WHEN ra.parent_id IS NOT NULL 
+                                THEN COALESCE(ra.no_of_supplement,0)
+                            ELSE 
+                                (COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0))
+                        END as total_files
+                    "),
                 ]);
 
             // Apply search filters
@@ -222,6 +229,7 @@ class ScannedController extends Controller
 
             // Paginate results
             $registerAllottee = $query->paginate(25);
+            // return $registerAllottee;
 
             // Prepare data for response
             $encodedRegisterNo = base64_encode($registerNo);

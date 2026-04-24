@@ -12,7 +12,11 @@ class RegistrationFile extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'register_no',
+        'lot_no',
         'division_id',
+        'allowed_files',
+        'total_files',
         'lots_subadmin_approved',
         'divisional_approval',
         'remarks',

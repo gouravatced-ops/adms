@@ -295,7 +295,7 @@
     </div>
 
     <!-- 3. Total Allottees - scheme 3 -->
-    <div class="stat-card card-scheme-3">
+    <!-- <div class="stat-card card-scheme-3">
         <div class="card-content">
             <div class="stat-info">
                 <p>Total Allottees</p>
@@ -310,10 +310,10 @@
                 </svg>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- 4. Total Data Entry File - scheme 4 -->
-    <div class="stat-card card-scheme-4">
+    <!-- <div class="stat-card card-scheme-4">
         <div class="card-content">
             <div class="stat-info">
                 <p>Total Data Entry Files</p>
@@ -328,7 +328,7 @@
                 </svg>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- 5. Total Checked File - scheme 5 -->
     <div class="stat-card card-scheme-5">

@@ -113,6 +113,7 @@ Route::middleware('auth:web')->group(function () {
 
     // Automatic file receiving
     Route::post('/filereceving/check-property-number', [FileRecevingController::class, 'checkPropertyNumber'])->name('admin.automatic.filereceving.check-property-number');
+    Route::post('/filereceving/check-property-number-for-receiving', [FileRecevingController::class, 'checkPropertyNumberForRecivingFileAdd'])->name('admin.automatic.filereceving.check-property-number-for-receiving');
 
     // filinlingExport
     Route::get('/filereceving/export/{registerId}', [FileRecevingController::class, 'filesExports'])->name('admin.filereceving.export');

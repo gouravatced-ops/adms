@@ -85,7 +85,13 @@
 
         @php
             $role = auth('admin')->user()->role;
-            $allowedStats = ['totalreceivingFile', 'totalscannedFile' , 'totalAllotteeFile' , 'totaltransferFile' , 'totalDataentryFile', 'totalcheckedFile' , 'totalapprovedFile', 'totalhandoverreadyLots'];
+            if($role == 'council_office') {
+                $allowedStats = ['totalreceivingFile', 'totalscannedFile' , 'totalcheckedFile' , 'totalapprovedFile', 'totalhandoverreadyLots'];
+                $specialStats = ['totalAllotteeFile' , 'totaltransferFile' , 'totalDataentryFile'];
+            } else {
+                 $allowedStats = ['totalreceivingFile', 'totalscannedFile' , 'totalcheckedFile' , 'totalapprovedFile'];
+                 $specialStats = [];
+            }
         @endphp
 
         @foreach($stats as $key => $value)
@@ -209,6 +215,39 @@
             </div>
         </div>
     </div>
+
+    <!-- special stats for council office -->
+    <div class="row mt-3">
+        @foreach($stats as $key => $value)
+            @if(!in_array($key, $specialStats))
+                @continue
+            @endif
+            @php
+                $bgClass = $bgClasses[$loop->index % count($bgClasses)];
+            @endphp
+            <div class="col-sm-4 col-xl-4 mb-4">
+                <div class="card custom-card {{$bgClass}} border-0 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center">
+
+                        <div class="avatar avatar-lg bg-primary-lt text-primary me-3">
+                            {!! $icons[$key] ?? '' !!}
+                        </div>
+
+                        <div>
+                            <div class="text-uppercase">
+                                {{ $labels[$key] ?? $key }}
+                            </div>
+                            <h2 class="mb-0 fw-bold">
+                                {{ $value }}
+                            </h2>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
     @endif
     @if (auth('admin')->user()->role == 'approver')
     <div class="row">

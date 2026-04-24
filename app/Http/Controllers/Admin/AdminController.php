@@ -174,8 +174,28 @@ class AdminController extends Controller
 
         return [
             'stats' => [
-                'totalreceivingFile' => RegisterAllottee::count(),
-                'totalscannedFile'   => RegisterAllottee::whereNotNull('scanned_by')->count(),
+                'totalreceivingFile' => RegisterAllottee::sum(
+                    DB::raw("
+                    COALESCE(
+                        CASE 
+                            WHEN parent_id IS NULL 
+                                THEN no_of_files + no_of_supplement
+                            ELSE 
+                                no_of_supplement
+                        END
+                    ,0)
+                ")
+                ),
+
+                'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')
+                    ->sum(DB::raw("
+                    CASE 
+                        WHEN parent_id IS NULL 
+                            THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
+                        ELSE 
+                            COALESCE(no_of_supplement,0)
+                    END
+                ")),
 
                 'totalAllotteeFile'  => Allottee::whereNotNull('register_file_id')->count(),
                 'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
@@ -213,10 +233,10 @@ class AdminController extends Controller
                 'totalreceivingFile' => 'Total Received Files',
                 'totalscannedFile'   => 'Scanned Files',
 
-                'totalAllotteeFile'  => 'Total Allottees',
+                'totalAllotteeFile'  => 'TATO Files',
                 // 'totaltransferFile'  => 'Transferred Files',
 
-                'totalDataentryFile' => 'Data Entered',
+                'totalDataentryFile' => 'DTED Files',
                 'totalcheckedFile'   => 'Checked Files',
                 'totalapprovedFile'  => 'Approved Files',
 
@@ -229,7 +249,7 @@ class AdminController extends Controller
                 'todayApproved' => 'Today Approved',
                 'totalApproved' => 'Total Approved',
             ],
-            
+
             'icons' => [
                 'totalreceivingFile' => '<i class="bx bx-file fs-2 text-primary"></i>',
                 'totalscannedFile'   => '<i class="bx bx-scan fs-2 text-warning"></i>',

@@ -187,27 +187,40 @@
             color: #000;
         }
 
-        /* Data Table */
+        
+        /* ========== DATA TABLE - COMPACT PADDING & MARGIN ========== */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0px 0px 20px;
-            font-size: 10px;
-            padding-right: 15px;
+            margin: 4px 0 0 0;
+            /* removed left margin completely */
+            font-size: 8.8px;
+            /* slight reduction for cleaner fit */
+            table-layout: fixed;
         }
 
         .data-table th {
             color: #000000;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #999;
+            border: 1px solid #888;
             font-size: 10px;
+            padding: 3px 2px;
+            background-color: #f7f7f7;
         }
 
         .data-table td {
-            border: 1px solid #999;
-            padding: 1px 2px;
+            border: 1px solid #888;
+            padding: 2px 3px;
+            /* minimal padding - shrink */
             vertical-align: middle;
+            word-break: break-word;
+        }
+
+        /* Force avoid page break inside any table row - critical fix */
+        .data-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .text-center {
@@ -292,6 +305,24 @@
 </head>
 
 <body>
+        @php
+        // ============================================================
+        // OPTIMIZED PAGINATION LOGIC: SPLIT ALLOTTEES INTO CHUNKS OF 15
+        // Ensures NO page break inside any table row (blade 15 records per page)
+        // ============================================================
+        $chunkSize = 15;
+        // if $allottees is a collection or array, ensure we can chunk properly
+        $allotteesArray = is_array($allottees) ? $allottees : ($allottees ?? []);
+        $totalAllottees = count($allotteesArray);
+        $chunks = [];
+        for ($i = 0; $i < $totalAllottees; $i += $chunkSize) {
+            $chunks[] = array_slice($allotteesArray, $i, $chunkSize);
+        }
+        // if no allottees, still one empty chunk to render structure
+        if (empty($chunks)) {
+            $chunks = [[]];
+        }
+    @endphp
     @foreach ($copies as $copyIndex => $copyType)
         <div class="page-wrapper {{ $copyIndex > 0 ? 'page-break' : '' }}">
 
@@ -358,30 +389,30 @@
                 <thead>
                     <tr>
                         <th style="width: 4%;">Sl No.</th>
-                        <th style="width: 10%;">Division</th>
-                        <th style="width: 12%;">Sub-division</th>
+                        <th style="width: 15%;">Division</th>
+                        <th style="width: 15%;">Sub-division</th>
                         <th style="width: 11%;">Property Category</th>
                         <th style="width: 8%;">Type of <br> Property</th>
                         <th style="width: 8%;">Income Category</th>
                         <th style="width: 9%;">Property No.</th>
                         <th style="width: 18%;">Allottee Name</th>
-                        <th style="width: 20%;">Physical File Status</th>
+                        <th style="width: 10%;">Physical File</th>
                     </tr>
                 </thead>
-                <tbody>
+               <tbody>
                     @forelse($allottees as $index => $allottee)
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ $allottee->dname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->subname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->cname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->pname ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee->quarter_code ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee->property_number ?? 'N/A' }}</td>
-                            <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}
-                                {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}
+                            <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
+                            <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
+                            <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
+                            <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
+                            <td>
+                                {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
                             </td>
-                            <td>{{ $allottee->remarks ?? 'N/A' }}</td>
+                            <td>{{ $allottee['file_label'] ?? $allottee->file_label ?? 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>

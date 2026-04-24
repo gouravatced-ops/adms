@@ -1,6 +1,6 @@
 @extends('applicant.dashboard_layouts.main')
 
-@section('title', 'Edit Allottee')
+@section('title', 'Edit Allottee Details - File Receiving Register')
 
 @section('content')
     <style>
@@ -351,9 +351,7 @@
                     <div class="field">
                         <label class="label">No. of Files</label>
                         <select name="no_of_files" required>
-                            <option value="">-- Select No. of Files --</option>
-
-                            @for ($i = 1; $i <= 8; $i++)
+                            @for ($i = 1; $i <= 1; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_files) && $allottes->no_of_files == $i ? 'selected' : '' }}>
                                     {{ $i }}
@@ -367,7 +365,7 @@
                     <div class="field">
                         <label class="label">No. of Supplement</label>
                         <select name="no_of_supplement" required>
-                            @for ($i = 0; $i <= 6; $i++)
+                            @for ($i = 1; $i <= 9; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_supplement) && $allottes->no_of_supplement == $i ? 'selected' : '' }}>
                                     {{ $i }}

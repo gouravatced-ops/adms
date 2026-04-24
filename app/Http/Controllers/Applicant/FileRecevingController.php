@@ -364,6 +364,9 @@ class FileRecevingController extends Controller
             } else {
                 $data['parent_id'] = null;
             }
+            if (!isset($data['has_supplement']) || $data['has_supplement'] == 'No') {
+                $data['no_of_supplement'] = 0;
+            }
             $data['created_by'] = auth()->id();
             $data['ip_address'] = $request->ip();
             $allottee = RegisterAllottee::create($data);
@@ -572,7 +575,6 @@ class FileRecevingController extends Controller
 
     public function checkPropertyNumber(Request $request)
     {
-        // return $request->all();
         $validated = $request->validate([
             'division_id'       => ['required', 'integer'],
             'sub_division_id'   => ['required', 'integer'],
@@ -582,21 +584,19 @@ class FileRecevingController extends Controller
             'allottee_id'       => ['nullable', 'integer'],
         ]);
 
-        $allottee = RegisterAllottee::query()
+        // ✅ Base Query
+        $baseQuery = RegisterAllottee::query()
             ->where('division_id', $validated['division_id'])
             ->where('sub_division_id', $validated['sub_division_id'])
             ->where('property_number', $validated['property_number'])
-            ->when(!empty($validated['pcategory_id']), function ($q) use ($validated) {
-                $q->where('pcategory_id', $validated['pcategory_id']);
-            })
-            ->when(!empty($validated['p_type_id']), function ($q) use ($validated) {
-                $q->where('p_type_id', $validated['p_type_id']);
-            })
-            ->when(!empty($validated['allottee_id']), function ($q) use ($validated) {
-                $q->where('id', '!=', $validated['allottee_id']);
-            })
+            ->when($validated['pcategory_id'] ?? null, fn($q, $v) => $q->where('pcategory_id', $v))
+            ->when($validated['p_type_id'] ?? null, fn($q, $v) => $q->where('p_type_id', $v))
+            ->when($validated['allottee_id'] ?? null, fn($q, $v) => $q->where('id', '!=', $v));
+
+        $latest = (clone $baseQuery)
             ->select([
                 'id',
+                'parent_id',
                 'prefix',
                 'allottee_name',
                 'allottee_middle_name',
@@ -604,26 +604,103 @@ class FileRecevingController extends Controller
                 'no_of_files',
                 'no_of_supplement',
             ])
+            ->latest()
             ->first();
 
-        if (!$allottee) {
+        if (!$latest) {
             return response()->json([
                 'status' => false,
                 'message' => 'Property not found',
             ]);
         }
 
+        $rootId = $latest->id;
+
+        while ($parent = RegisterAllottee::where('id', $rootId)->value('parent_id')) {
+            $rootId = $parent;
+        }
+
+        $ids = [$rootId];
+        $queue = [$rootId];
+
+        while (!empty($queue)) {
+            $children = RegisterAllottee::whereIn('parent_id', $queue)->pluck('id')->toArray();
+            $ids = array_merge($ids, $children);
+            $queue = $children;
+        }
+
+        $totalSupplement = RegisterAllottee::whereIn('id', $ids)
+            ->sum('no_of_supplement');
+
         return response()->json([
             'status' => true,
             'data' => [
-                'id_exits' => $allottee->id,
-                'prefix' => $allottee->prefix,
-                'allottee_name' => $allottee->allottee_name,
-                'allottee_middle_name' => $allottee->allottee_middle_name,
-                'allottee_surname' => $allottee->allottee_surname,
-                'no_of_files' => $allottee->no_of_files,
-                'no_of_supplement' => $allottee->no_of_supplement,
+                'id_exits' => $latest->id,
+                'prefix' => $latest->prefix,
+                'allottee_name' => $latest->allottee_name,
+                'allottee_middle_name' => $latest->allottee_middle_name,
+                'allottee_surname' => $latest->allottee_surname,
+                'no_of_files' => $latest->no_of_files,
+                'no_of_supplement' => $totalSupplement,
             ]
+        ]);
+    }
+
+    public function checkPropertyNumberForRecivingFileAdd(Request $request)
+    {
+        $validated = $request->validate([
+            'property_number' => ['required', 'string']
+        ]);
+
+        $collection = RegisterAllottee::with(['division:id,name', 'subDivision:id,name'])
+            ->where('property_number', $validated['property_number'])
+            ->latest() // same as orderBy('created_at', 'desc')
+            ->get();
+
+        // Transform list
+        $data = $collection->map(function ($item) {
+            return [
+                'property_number'   => $item->property_number,
+                'allottee_name'     => trim(
+                    $item->prefix . ' ' .
+                        $item->allottee_name . ' ' .
+                        $item->allottee_middle_name . ' ' .
+                        $item->allottee_surname
+                ),
+                'division'          => $item->division->name ?? null,
+                'subdivision'       => $item->subDivision->name ?? null,
+                'parent_id'         => $item->parent_id,
+                'no_of_files'       => $item->no_of_files,
+                'no_of_supplement'  => $item->no_of_supplement,
+                'creadted_at'       => $item->created_at->format('d-m-Y H:i:s'),
+            ];
+        });
+
+        // 👉 total rows
+        $totalRows = $collection->count();
+
+        // 👉 parent row
+        $parent = $collection->firstWhere('parent_id', null);
+
+        // 👉 total_files calculation
+        $totalFiles = 0;
+
+        if ($parent) {
+            $parentTotal = ($parent->no_of_files ?? 0) + ($parent->no_of_supplement ?? 0);
+
+            $childSupplement = $collection
+                ->whereNotNull('parent_id')
+                ->sum('no_of_supplement');
+
+            $totalFiles = $parentTotal + $childSupplement;
+        }
+
+        return response()->json([
+            'status'      => true,
+            'exists'      => $data->isNotEmpty(),
+            'total_rows'  => $totalRows,
+            'total_files' => $totalFiles,
+            'data'        => $data->values(),
         ]);
     }
 
@@ -640,7 +717,7 @@ class FileRecevingController extends Controller
         }
 
         $register = RegistrationFile::where('register_no', $registerNo)->first();
-        $registerDivision = Division::where('id' , $register->division_id)->value('name');
+        $registerDivision = Division::where('id', $register->division_id)->value('name');
         $lotNumber = strtoupper($register->lot_no);
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
@@ -688,7 +765,7 @@ class FileRecevingController extends Controller
 
         $todayDate = $this->generateRegisterNo();
         $smallcaseLots = strtolower($lotNumber);
-        $filename = $smallcaseLots.'_'.$todayDate . '-ced-jshb-receiving.pdf';
+        $filename = $smallcaseLots . '_' . $todayDate . '-ced-jshb-receiving.pdf';
 
         $directory = public_path("uploads/{$registerNo}/files");
 
