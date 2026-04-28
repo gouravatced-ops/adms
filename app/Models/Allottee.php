@@ -69,6 +69,8 @@ class Allottee extends Model
         'name_transfer_status',
         'free_hold_status',
         'step_remarks',
+        'is_first_time_register',
+        'is_earlier_cancelled',
         'allottee_create_date',
         'create_ip_address',
         'update_ip_address',

@@ -167,6 +167,23 @@
                                                 <path d="M9 14l3-3 3 3"></path>
                                             </svg>
                                         </a>
+
+                                        <a href="{{ route('applicant.master.file', $file->allotteeId) }}"
+                                        class="action-btn badge-not-started"
+                                        title="Upload Master File">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+
+                                                <!-- Box -->
+                                                <rect x="3" y="14" width="18" height="7" rx="2"></rect>
+
+                                                <!-- Arrow -->
+                                                <path d="M12 3v11"></path>
+                                                <path d="M8 7l4-4 4 4"></path>
+                                            </svg>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

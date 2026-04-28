@@ -194,7 +194,7 @@
             border-collapse: collapse;
             margin: 4px 0 0 0;
             /* removed left margin completely */
-            font-size: 8.8px;
+            font-size: 12px;
             /* slight reduction for cleaner fit */
             table-layout: fixed;
         }
@@ -204,7 +204,7 @@
             text-align: center;
             font-weight: bold;
             border: 1px solid #888;
-            font-size: 10px;
+            font-size: 12px;
             padding: 3px 2px;
             background-color: #f7f7f7;
         }
@@ -412,7 +412,8 @@
                             <td>
                                 {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
                             </td>
-                            <td>{{ $allottee['file_label'] ?? $allottee->file_label ?? 'N/A' }}</td>
+                            <!-- <td>{{ $allottee['file_label'] ?? $allottee->file_label ?? 'N/A' }}</td> -->
+                             <td>File 1</td>
                         </tr>
                     @empty
                         <tr>

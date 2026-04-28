@@ -152,7 +152,9 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
         Route::get('/basic/documents/{encodedId}', [StepperFormController::class, 'documentList'])->name('documents.upload');
+        Route::get('/master/documents/{encodedId}', [StepperFormController::class, 'masterDocumentList'])->name('master.file');
         Route::post('/basic/documents/store', [StepperFormController::class, 'uploadDocument'])->name('basicdocuments.store');
+        Route::post('/master/documents/store', [StepperFormController::class, 'masterUpload'])->name('masterdocuments.store');
     });
 
     // data entry 

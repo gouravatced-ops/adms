@@ -61,7 +61,7 @@
                                         </a>
                                     </td>
 
-                                    <td>{{ $item->total_files }}</td>
+                                    <td>{{ $item->total_received_files }}</td>
 
                                     <td>
                                         <span class="badge bg-info">{{ $item->allowed_files }}</span>

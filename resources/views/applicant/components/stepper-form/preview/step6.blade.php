@@ -782,6 +782,30 @@ Step 5 : -
 
 {{-- ── Allottee Step Form Remarks ── --}}
 <div class="form-section" style="margin-top:10px;">
+    <div class="form-grid" style="grid-template-columns: repeat(2, 1fr) !important;">
+        <div class="field">
+            <label class="field-label">
+                Is this property FIRST TIME registered or not ?
+            </label>
+            <select name="is_first_time_register" id="is_first_time_register" class="custom-input">
+                <option value="1" {{ (old('is_first_time_register', $applicant->is_first_time_register) == '1') ? 'selected' : '' }}>
+                    Yes</option>
+                <option value="0" {{ (old('is_first_time_register', $applicant->is_first_time_register) == '0') ? 'selected' : '' }}>
+                    No</option>
+            </select>
+        </div>
+        <!-- <div class="field">
+            <label class="field-label">
+                Is this property earlier cancelled or not ?
+            </label>
+            <select name="is_earlier_cancelled" id="is_earlier_cancelled" class="custom-input">
+                <option value="1" {{ (old('is_earlier_cancelled', $applicant->is_earlier_cancelled) == '1') ? 'selected' : '' }}>
+                    Yes</option>
+                <option value="0" {{ (old('is_earlier_cancelled', $applicant->is_earlier_cancelled) == '0') ? 'selected' : '' }}>
+                    No</option>
+            </select>
+        </div> -->
+    </div>
     <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
         <div class="field">
             <label class="field-label">

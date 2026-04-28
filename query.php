@@ -33,3 +33,10 @@ ALTER TABLE `file_registrations` ADD `divisional_approval_at` VARCHAR(100) NULL 
 
 INSERT INTO `admins` (`id`, `admin_details_id`, `mobile_no`, `admin_name`, `profile_path`, `alt_mobile_no`, `email_id`, `password`, `prev_password`, `role`, `gender`, `division_id`, `designation`, `otp_verified_at`, `last_login`, `last_ip`, `password_created_at`, `created_at`, `updated_at`) VALUES (NULL, '4', '9834579834', 'Ajit Kumar', NULL, NULL, 'ajit.jshb@computered.co.in', '$2y$12$kydyORdyxUaaPqx6E.3wxe5Tpx8R9kWuqbTG9BXiGM4FGEz0yHxAK', NULL, 'registar', 'Male', '4', 'HEAD OF OFFICE', '2026-04-10 17:55:53', '2026-04-10 17:55:53', '49.37.75.101', '2026-04-12 12:30:54', '2026-02-04 14:56:19', '2026-04-13 12:31:29');
 ALTER TABLE `allottees` ADD `divisional_approved_by` INT NULL DEFAULT NULL AFTER `divisional_remaks`;
+
+
+// new allottee
+ALTER TABLE `allottees` ADD `is_first_time_register` INT NOT NULL DEFAULT '0' AFTER `is_emi_active`, ADD `is_earlier_cancelled` INT NOT NULL DEFAULT '0' AFTER `is_first_time_register`;
+
+CREATE TABLE `allottee_master_documents` ( `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, `allottee_id` BIGINT UNSIGNED NOT NULL, `register_allottee_id` BIGINT UNSIGNED NOT NULL, `property_number` VARCHAR(50) NOT NULL, `file_label` VARCHAR(50) NOT NULL, -- File 1, File 2... `confirm_received` ENUM('Yes','No') DEFAULT 'No', `confirm_same_allottee_name` ENUM('Yes','No') DEFAULT 'No', `read_file` TINYINT(1) DEFAULT 0, `is_checked` TINYINT(1) DEFAULT 0, `checked_at` TIMESTAMP NULL DEFAULT NULL, `is_read_divisional` TINYINT(1) DEFAULT 0, `is_approved_divisional` TINYINT(1) DEFAULT 0, `approved_at` TIMESTAMP NULL DEFAULT NULL, `uploaded_at` TIMESTAMP NULL DEFAULT NULL, `reuploaded_at` TIMESTAMP NULL DEFAULT NULL, `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP );
+ALTER TABLE `allottee_master_documents` ADD `file_path` VARCHAR(255) NULL DEFAULT NULL AFTER `confirm_same_allottee_name`, ADD `file_name` VARCHAR(255) NULL DEFAULT NULL AFTER `file_path`;

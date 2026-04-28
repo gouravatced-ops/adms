@@ -480,6 +480,8 @@ class PreviewController extends Controller
             $allottee->is_step_completed = 1;
             $allottee->sub_admin_allottee_verify = 0;
             $allottee->step_remarks = $request->remarks;
+            $allottee->is_first_time_register = $request->is_first_time_register ?? 0;
+            $allottee->is_earlier_cancelled = $request->is_earlier_cancelled ?? 0;
             $allottee->save();
             // Update RegisterAllottee
             RegisterAllottee::where('id', $allottee->register_file_id)

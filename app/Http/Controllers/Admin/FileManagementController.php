@@ -41,44 +41,65 @@ class FileManagementController extends Controller
     public function LotsList(Request $request)
     {
         try {
+
             $registrations = RegistrationFile::query()
-                ->with(['creator:id,name', 'allottees:id,register_id,allottee_status'])
+                ->with('creator:id,name')
+
+                ->withCount([
+                    'allottees as scanned_count' => fn($q) => $q->where('allottee_status', 'scanned'),
+                    'allottees as dataentry_count' => fn($q) => $q->where('allottee_status', 'dataentry'),
+                    'allottees as handover_count' => fn($q) => $q->where('allottee_status', 'handover'),
+                ])
+
+                ->select('*')
+                ->selectSub(function ($q) {
+                    $q->from('register_allottees')
+                        ->selectRaw("
+                            SUM(
+                                CASE 
+                                    WHEN parent_id IS NULL 
+                                        THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
+                                    ELSE 
+                                        COALESCE(no_of_supplement,0)
+                                END
+                            )
+                        ")
+                        ->whereColumn('register_allottees.register_id', 'file_registrations.register_no');
+                }, 'total_received_files')
+
                 ->latest()
                 ->get()
+
                 ->map(function ($item) {
 
-                    $statuses = $item->allottees
-                        ->pluck('allottee_status')
-                        ->map(fn($s) => strtolower(trim($s)))
-                        ->toArray();
-
-                    if (!empty($statuses)) {
-                        if (in_array('handover', $statuses)) {
-                            $item->current_stage = 'Handover';
-                            $item->badge_color = 'success';
-                        } elseif (in_array('dataentry', $statuses)) {
-                            $item->current_stage = 'Data Entry';
-                            $item->badge_color = 'info';
-                        } elseif (in_array('scanned', $statuses)) {
-                            $item->current_stage = 'Scanning';
-                            $item->badge_color = 'warning';
-                        } else {
-                            $item->current_stage = 'Receiving';
-                            $item->badge_color = 'secondary';
-                        }
+                    // 🎯 Stage logic (FAST)
+                    if ($item->handover_count > 0) {
+                        $item->current_stage = 'Handover';
+                        $item->badge_color = 'success';
+                    } elseif ($item->dataentry_count > 0) {
+                        $item->current_stage = 'Data Entry';
+                        $item->badge_color = 'info';
+                    } elseif ($item->scanned_count > 0) {
+                        $item->current_stage = 'Scanning';
+                        $item->badge_color = 'warning';
                     } else {
                         $item->current_stage = 'Receiving';
                         $item->badge_color = 'secondary';
                     }
 
+                    // 🎯 Other fields
                     $item->encoded_register_no = base64_encode($item->register_no);
                     $item->created_named_by = $item->creator->name ?? 'System';
+                    $item->total_received_files = $item->total_received_files ?? 0;
 
                     return $item;
                 });
 
+            // return $registrations;
             return view('admin.components.filereceiving.alllots', compact('registrations'));
+
         } catch (\Throwable $e) {
+
             Log::error('Register list failed', [
                 'error' => $e->getMessage(),
                 'line'  => $e->getLine(),
@@ -231,22 +252,18 @@ class FileManagementController extends Controller
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
 
-        // ✅ Decode register ID
         $registerNo = base64_decode($registerId, true);
         if (!$registerNo) {
             return back()->with('error', 'Invalid register ID');
         }
 
-        // ✅ Get register details
         $register = RegistrationFile::where('register_no', $registerNo)->firstOrFail();
         $registerDivision = Division::where('id', $register->division_id)->value('name');
         $lotNumber = strtoupper($register->lot_no);
         $lotcreateDate = Carbon::parse($register->created_at)->format('d/m/Y');
         $lotTime = Carbon::parse($register->created_at)->format('h:i A');
 
-        // ============================================================
-        // ✅ STEP 1: ALL RECORDS ACROSS ALL REGISTERS (for correct global numbering)
-        // ============================================================
+
         $allRecords = RegisterAllottee::query()
             ->orderBy('created_at', 'asc')
             ->select([
@@ -259,9 +276,7 @@ class FileManagementController extends Controller
             ])
             ->get();
 
-        // ============================================================
-        // ✅ STEP 2: CURRENT REGISTER ALLOTTEES WITH JOINS
-        // ============================================================
+
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
@@ -295,9 +310,6 @@ class FileManagementController extends Controller
             return back()->with('error', 'No records found');
         }
 
-        // ============================================================
-        // ✅ STEP 3: CALCULATE FILE COUNTERS FOR GLOBAL SEQUENCE
-        // ============================================================
         $fileCounters = [];
         $fileMap = [];
 
@@ -307,28 +319,23 @@ class FileManagementController extends Controller
             if (!isset($fileCounters[$propertyNumber])) {
                 $fileCounters[$propertyNumber] = 1;
             }
-
             // Calculate total files for this record
             $totalFiles = 0;
 
             if ($record->confirm_received === "No" && $record->confirm_same_allottee_name === "No") {
-                // New file case: 1 main file + supplement files
                 $totalFiles = 1 + ($record->no_of_supplement ?? 0);
             } elseif ($record->confirm_received === "Yes" && $record->confirm_same_allottee_name === "Yes") {
-                // Existing file case: only supplement files
                 $totalFiles = ($record->no_of_supplement ?? 0);
+            } elseif ($record->confirm_received === "Yes" && $record->confirm_same_allottee_name === "No") {
+                $totalFiles = 1 + ($record->no_of_supplement ?? 0);
             }
 
-            // Generate file labels for this record
             for ($i = 0; $i < $totalFiles; $i++) {
                 $fileMap[$record->id][] = 'File ' . $fileCounters[$propertyNumber];
                 $fileCounters[$propertyNumber]++;
             }
         }
 
-        // ============================================================
-        // ✅ STEP 4: PROCESS CURRENT REGISTER ROWS WITH FILE LABELS
-        // ============================================================
         $processedRows = [];
 
         foreach ($allottees as $allottee) {
@@ -362,9 +369,6 @@ class FileManagementController extends Controller
             return back()->with('error', 'No file records to export');
         }
 
-        // ============================================================
-        // ✅ STEP 5: PREPARE PDF DATA
-        // ============================================================
         $data = [
             'title' => 'COMPUTER Ed. - Files Receiving',
             'date' => date('d/m/Y'),

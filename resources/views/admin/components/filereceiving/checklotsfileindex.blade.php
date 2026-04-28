@@ -87,7 +87,7 @@
                             <th>Property Details</th>
                             <th>Remarks</th>
                             <th>Dates</th>
-                            <!-- <th>Action</th> -->
+                            <th>Action</th>
                         </tr>
                     </thead>
 
@@ -294,7 +294,7 @@
                             <td>
                                 {{ formatDateTime($item->updated_at ?? '--') }}
                             </td>
-                            <!-- <td>
+                            <td>
                                 <div class="d-flex justify-content-center gap-1">
 
                                     {{-- Preview --}}
@@ -317,7 +317,7 @@
                                         </svg>
                                     </a>
                                 </div>
-                            </td> -->
+                            </td>
                         </tr>
                         @empty
                         <tr>

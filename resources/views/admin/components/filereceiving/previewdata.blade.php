@@ -47,6 +47,12 @@
         font-size: 12px;
         font-weight: 600;
     }
+    
+    .table:not(.table-dark) th {
+        background-color: #f8f9fa;
+        color: #000000;
+        font-weight: 700;
+    }
 </style>
 <div class="container-xxl flex-grow-1">
     <h6 class="py-3 mb-2">
@@ -60,9 +66,6 @@
                 @if(auth('admin')->user()->role === 'approver')
                 @if ($registration?->divisional_approval == 1)
                 <span class="status-completed">✓</span>
-                @elseif($registration?->divisional_approval == 0)
-                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
-                        style="font-size: 10px;"></i></span>
                 @elseif($registration?->divisional_approval === 2)
                 <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                 Remark: <span
@@ -73,9 +76,6 @@
                 @if(auth('admin')->user()->role === 'council_office')
                 @if ($registration?->sub_admin_allottee_verify == 1)
                 <span class="status-completed">✓</span>
-                @elseif($registration?->sub_admin_allottee_verify == 0)
-                <span class="status-pending" title="Sub Admin Pending"><i class="bx bx-hourglass bx-tada"
-                        style="font-size: 10px;"></i></span>
                 @elseif($registration?->sub_admin_allottee_verify === 2)
                 <span class="status-rejected" title="Sub Admin Rejected">✗</span>
                 Remark: <span
@@ -226,7 +226,9 @@
                         </tr>
                         <tr>
                             <td><strong>Quarter Type</strong></td>
-                            <td>{{ $registration?->quarterType?->quarter_name ?? 'N/A' }}</td>
+                            <td>
+                                {{ $registration?->quarterType?->quarter_code ?? 'N/A' }}
+                            </td>
                             <td><strong>Total Pages</strong></td>
                             <td>{{ $registration?->total_pages ?? 'N/A' }}</td>
                         </tr>
@@ -242,18 +244,18 @@
                                 N/A
                                 @endif
                             </td>
-                            <td><strong>Free Hold Status</strong></td>
+                            <td><strong>Free Lease Hold</strong></td>
                             <td>
-                                @if (isset($registration?->free_hold_status))
-                                <span
-                                    class="badge {{ $registration?->free_hold_status == 'yes' ? 'bg-success' : 'bg-secondary' }}">
-                                    {{ ucfirst($registration?->free_hold_status) }}
-                                </span>
+                                @if($registration?->free_hold_status === 'yes')
+                                    <span class="badge bg-success">Yes</span>
+                                @elseif($registration?->free_hold_status === 'no')
+                                    <span class="badge bg-secondary">N/A</span>
                                 @else
-                                N/A
+                                    <span>N/A</span>
                                 @endif
                             </td>
                         </tr>
+                        @if(auth('admin')->user()->role === 'council_office')
                         <tr>
                             <td><strong>Created By</strong></td>
                             <td>{{ $registration?->Usercreator?->name ?? 'N/A' }}</td>
@@ -261,6 +263,7 @@
                             <td>{{ isset($registration?->created_at) ? \Carbon\Carbon::parse($registration?->created_at)?->format('d-m-Y H:i:s') : 'N/A' }}
                             </td>
                         </tr>
+                        @endif
                         @if ($hasParent)
                         <tr>
                             <td><strong>Parent Name</strong></td>
@@ -272,7 +275,7 @@
 
                         @if (!empty($registration?->allottee_document_path))
                         <tr>
-                            <th class="bg-light" width="20%"><strong>Document Folder</strong></th>
+                            <th class="bg-light" width="20%" style="color: #000000;"><strong>Document Folder</strong></th>
                             <td colspan="8">
                                 <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                     <span id="docPath{{ $registration?->id }}" class="text-break">
@@ -378,7 +381,12 @@
                                     <th class="bg-light">Application No</th>
                                     <td>{{ $registration?->application_no ?? 'N/A' }}</td>
                                     <th class="bg-light" colspan="3">Application Date</th>
-                                    <td>{{ ($registration?->application_day ?? '') . '/' . ($registration?->application_month ?? '') . '/' . ($registration?->application_year ?? '') ?: 'N/A' }}
+                                    <td>
+                                        @if(isset($registration?->application_day) && isset($registration?->application_month) && isset($registration?->application_year))
+                                            {{ $registration->application_day }}/{{ $registration->application_month }}/{{ $registration->application_year }}
+                                        @else
+                                            N/A
+                                        @endif
                                     </td>
                                 </tr>
                                 <tr>
@@ -1133,6 +1141,7 @@
                 }
             </script>
             {{-- Step Information --}}
+            @if(auth('admin')->user()->role === 'council_office')
             @if (isset($registration?->current_step) || isset($registration?->step_remarks))
             <div class="table-responsive mt-4">
                 <table class="table table-bordered">
@@ -1147,17 +1156,19 @@
                             <th width="30%" class="bg-light">Current Step</th>
                             <td>{{ $registration?->current_step ?? 'N/A' }}</td>
                         </tr>
+                        @if(auth('admin')->user()->role === 'council_office')
                         <tr>
                             <th class="bg-light">Step Completed</th>
                             <td><span
-                                    class="badge {{ ($registration?->is_step_completed ?? 0) == 1 ? 'bg-success' : 'bg-warning' }}">{{ ($registration?->is_step_completed ?? 0) == 1 ? 'Yes' : 'No' }}</span>
+                                    class="badge {{ ($registration?->is_step_completed ?? 0) == 1 ? 'bg-success' : 'bg-warning' }}">{{ ($registration?->is_step_completed ?? 0) == 1 ? 'Yes' : 'N/A' }}</span>
                             </td>
                         </tr>
-                        @if (($registration?->name_transfer_status ?? '') == 'yes')
+                        @endif
+                        @if (($registration?->name_transfer_status ?? '') == 'yes' && auth('admin')->user()->role === 'council_office')
                         <tr>
                             <th class="bg-light">Transaction Entry Completed</th>
                             <td>
-                                <span class="badge {{ ($registration?->is_trans_entry_completed ?? 0) == 1 ? 'bg-success' : 'bg-warning' }}">{{ ($registration?->is_trans_entry_completed ?? 0) == 1 ? 'Yes' : 'No' }}</span>
+                                <span class="badge {{ ($registration?->is_trans_entry_completed ?? 0) == 1 ? 'bg-success' : 'bg-warning' }}">{{ ($registration?->is_trans_entry_completed ?? 0) == 1 ? 'Yes' : 'N/A' }}</span>
                             </td>
                         </tr>
                         @endif
@@ -1170,6 +1181,7 @@
                     </tbody>
                 </table>
             </div>
+            @endif
             @endif
 
             {{-- Verify / Revert Buttons --}}
@@ -1376,20 +1388,20 @@
     })
 </script>
 <script>
-function handleStatus() {
-    const status = document.querySelector('input[name="status"]:checked').value;
-    const remarks = document.getElementById('remarks');
-    const label = document.getElementById('remarkLabel');
+    function handleStatus() {
+        const status = document.querySelector('input[name="status"]:checked').value;
+        const remarks = document.getElementById('remarks');
+        const label = document.getElementById('remarkLabel');
 
-    if (status === 'checked') {
-        remarks.value = 'Checked';
-        remarks.required = false;
-        label.innerText = '(Optional)';
-    } else {
-        remarks.value = '';
-        remarks.required = true;
-        label.innerText = '(Required)';
+        if (status === 'checked') {
+            remarks.value = 'Checked';
+            remarks.required = false;
+            label.innerText = '(Optional)';
+        } else {
+            remarks.value = '';
+            remarks.required = true;
+            label.innerText = '(Required)';
+        }
     }
-}
 </script>
 @endsection

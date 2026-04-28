@@ -17,7 +17,7 @@
         </div>
     @endif
     @php
-        return getDebugIndex($registrations); // Set the current step for the stepper
+        #return getDebugIndex($registrations); // Set the current step for the stepper
     @endphp
     <div class="card" style="box-shadow:none;">
         <div class="compact-card overflow-hidden">
