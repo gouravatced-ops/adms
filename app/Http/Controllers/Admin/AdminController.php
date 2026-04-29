@@ -11,7 +11,7 @@ use App\Models\Division;
 use App\Models\SubDivision;
 use App\Models\Allottee;
 use App\Models\RegisterAllottee;
-use App\Models\RegistrationFile;
+use App\Models\AllotteeMasterDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -202,7 +202,7 @@ class AdminController extends Controller
                 // 'totaltransferFile'  => Allottee::whereNull('register_file_id')
                 //     ->whereNotNull('parent_id')->count(),
 
-                'totalcheckedFile'   => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)->count(),
+                'totalcheckedFile'   => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_checked', 1)->count(),
                 'totalapprovedFile'  => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
 
                 // 'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),

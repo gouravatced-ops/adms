@@ -781,14 +781,14 @@ class StepperFormController extends Controller
         }
     }
 
-    public function masterDocumentList(string $encryptedId , $originalId = NULL)
+    public function masterDocumentList(string $encryptedId, $originalId = NULL)
     {
         try {
             $allotteeId = decrypt($encryptedId);
 
             $file = Allottee::findOrFail($allotteeId);
             $registerId = encrypt($file->register_id);
-            if($originalId != NULL){
+            if ($originalId != NULL) {
                 $fromDataEntry = 1;
             } else {
                 $fromDataEntry = 0;
@@ -842,6 +842,9 @@ class StepperFormController extends Controller
                 ];
             }
 
+            $confirmReceived = $current->confirm_received;
+            $confirmSameAllotteeName = $current->confirm_same_allottee_name;
+
             $documents =  $output;
             $completedDocuments = AllotteeMasterDocument::where('allottee_id', $file->id)
                 ->orderBy('id')
@@ -853,7 +856,9 @@ class StepperFormController extends Controller
                     'documents',
                     'completedDocuments',
                     'registerId',
-                    'fromDataEntry'
+                    'fromDataEntry',
+                    'confirmReceived',
+                    'confirmSameAllotteeName'
                 )
             );
         } catch (\Throwable $e) {
@@ -862,6 +867,57 @@ class StepperFormController extends Controller
             ]);
             return redirect()->back()
                 ->with('error', 'Unable to get file mapping.');
+        }
+    }
+
+    public function nametransfermasterDocumentList(string $encryptedId)
+    {
+        try {
+            $allotteeId = decrypt($encryptedId);
+
+            $file = Allottee::findOrFail($allotteeId);
+            $registerId = encrypt($file->register_id);
+
+            $output = [];
+
+            for ($i = 1; $i <= 1; $i++) {
+                $output[] = [
+                    'allottee_id' => $file->id,
+                    'register_allottee_id' => NULL,
+                    'property_number' => $file->property_number,
+                    'file_label' => 'File-1',
+                    'no_of_files' => 1,
+                    'no_of_supplement' => 0,
+                    'confirm_received' => 'No',
+                    'confirm_same_allottee_name' => 'No',
+                ];
+            }
+
+            $confirmReceived = 'No';
+            $confirmSameAllotteeName = 'No';
+            $completedDocuments = AllotteeMasterDocument::where('allottee_id', $file->id)
+                ->orderBy('id')
+                ->get();
+
+            $documents =  $output;
+
+            return view(
+                'applicant.components.stepper-form.nametransfermasterupload',
+                compact(
+                    'file',
+                    'documents',
+                    'completedDocuments',
+                    'registerId',
+                    'confirmReceived',
+                    'confirmSameAllotteeName'
+                )
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Name Transfer Master Document List Error', [
+                'message' => $e->getMessage(),
+            ]);
+            return redirect()->back()
+                ->with('error', 'Unable to get name transfer master document list.');
         }
     }
 
@@ -899,9 +955,11 @@ class StepperFormController extends Controller
         try {
             $validated = $request->validate([
                 'allottee_id' => 'required|integer',
-                'register_allottee_id' => 'required|integer',
+                'register_allottee_id' => 'nullable|integer',
                 'file_label' => 'required|string|max:255',
                 'uploadpath' => 'required|string',
+                'confirm_received' => 'nullable|string',
+                'confirm_same_allottee_name' => 'nullable|string',
                 'document_file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,doc,docx',
             ]);
 
@@ -964,6 +1022,8 @@ class StepperFormController extends Controller
                 ],
                 [
                     'property_number' => $applicant->property_number,
+                    'confirm_received' => $validated['confirm_received'] ?? 'No',
+                    'confirm_same_allottee_name' => $validated['confirm_same_allottee_name'] ?? 'No',
                     'file_path' => $filePath,
                     'file_name' => $fileName,
                     'uploaded_at' => now(),
@@ -1016,15 +1076,20 @@ class StepperFormController extends Controller
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
-        
         $registerId = RegisterAllottee::whereKey($id)->value('register_id');
         $originalId = $id;
+        $mainparentId = RegisterAllottee::whereKey($id)->value('parent_id');
+        $finalId = $id;
 
-        // Get parent_id
-        $parentId = RegisterAllottee::whereKey($id)->value('parent_id');
+        while (true) {
+            $parentId = RegisterAllottee::whereKey($finalId)->value('parent_id');
 
-        // If parent exists, use it, else keep original
-        $finalId = $parentId ?? $id;
+            if (is_null($parentId)) {
+                break; // reached top parent
+            }
+
+            $finalId = $parentId;
+        }
 
         // Fetch applicant using finalId
         $applicant = Allottee::with([
@@ -1035,14 +1100,15 @@ class StepperFormController extends Controller
             'quarterType'
         ])->where('register_file_id', $finalId)->first();
 
-        
-        // If step completed AND it's child (has parent)
-        if ($applicant && $applicant->is_step_completed == 1 && $parentId !== null) {
+
+        // If parent id exists dataentry already completed and step is completed then move to master document list
+        if ($applicant && $applicant->is_step_completed == 1 && $mainparentId !== null) {
             // Encrypt finalId
             $encryptedId = encrypt($applicant->id);
             RegisterAllottee::where('id', $originalId)
                 ->update([
                     'allottee_status' => 'dataentry',
+                    'grand_parent_id' => $finalId,
                 ]);
             return $this->masterDocumentList($encryptedId, $originalId);
         }

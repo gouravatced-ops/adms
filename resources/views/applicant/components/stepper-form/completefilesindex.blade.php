@@ -169,8 +169,8 @@
                                         </a>
 
                                         <a href="{{ route('applicant.master.file', $file->allotteeId) }}"
-                                        class="action-btn badge-not-started"
-                                        title="Upload Master File">
+                                            class="action-btn badge-not-started"
+                                            title="Upload Master File">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                                                 viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" stroke-width="2"

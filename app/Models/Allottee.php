@@ -195,4 +195,9 @@ class Allottee extends Model
     {
         return $this->belongsTo(RegistrationFile::class, 'register_id');
     }
+
+    public function masterDocuments()
+    {
+        return $this->hasMany(AllotteeMasterDocument::class, 'allottee_id', 'id')->orderBy('file_label', 'asc');
+    }
 }

@@ -178,7 +178,7 @@
 
                                 <td>
                                     <strong class="fw-semibold">
-                                        {{ $file->no_of_files }}
+                                        {{ $file->total_files }}
                                     </strong>
                                 </td>
                                 <td style="background: #7fffd4 !important;">

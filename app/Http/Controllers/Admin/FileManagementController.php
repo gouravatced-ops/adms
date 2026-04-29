@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\RegisterAllottee;
 use App\Models\RegistrationFile;
 use App\Models\AllotteeDocument;
+use App\Models\AllotteeMasterDocument;
 use App\Models\Division;
 use App\Models\ExportedFile;
 use App\Models\Allottee;
@@ -97,7 +98,6 @@ class FileManagementController extends Controller
 
             // return $registrations;
             return view('admin.components.filereceiving.alllots', compact('registrations'));
-
         } catch (\Throwable $e) {
 
             Log::error('Register list failed', [
@@ -773,7 +773,6 @@ class FileManagementController extends Controller
 
     public function dataentryLotsFileList($encodedId, $page)
     {
-        // return $this->receivingLotsFileList($encodedId, $page);
         try {
             $registerNo = base64_decode($encodedId);
 
@@ -784,27 +783,43 @@ class FileManagementController extends Controller
                 'propertyType',
                 'quarterType',
             ];
-            // return $assignedAllotteeIds;
-            $query = Allottee::query()
+
+            // ✅ Step 1: Get finalIds (optimized memory)
+            $finalIds = RegisterAllottee::where('register_id', $registerNo)
+                ->get()
+                ->map(fn($item) => $item->grand_parent_id ?? $item->id)
+                ->unique()
+                ->values();
+
+            // ✅ Step 2: Single query (normal + transfer files)
+            $files = Allottee::query()
                 ->with($baseRelations)
-                ->where('register_id', $registerNo)
-                ->where('sub_admin_allottee_verify', 0);
+                ->where(function ($q) use ($finalIds, $registerNo) {
+                    $q->whereIn('register_file_id', $finalIds)
+                        ->orWhere(function ($q2) use ($registerNo) {
+                            $q2->whereNull('register_file_id')
+                                ->where('register_id', $registerNo);
+                        });
+                })
+                ->where('sub_admin_allottee_verify', 0)
+                ->paginate(50)
+                ->through(function ($item) {
+                    $item->allotteeId = encrypt($item->id);
+                    return $item;
+                });
 
-            $registerAllottee = $query->paginate(50)->through(function ($item) {
-                $item->allotteeId = encrypt($item->id);
-                return $item;
-            });
-            // return $files;
-            $files = $registerAllottee;
-            $pageNo = $page;
+            // ✅ Step 3: Register info (safe)
+            $registers = RegistrationFile::where('register_no', $registerNo)->firstOrFail();
+            $allVerified = 0;
 
-            // If all rows have sub_admin_allottee_verify == 1 then 1 else 0
-            $allVerified = $query->where('sub_admin_allottee_verify', '!=', 1)->exists() ? 0 : 1;
-
-            $registers  = RegistrationFile::where('register_no', $registerNo)->first();
-            $registerId = $registers->id;
-            $Lots = $registers->lot_no;
-            return view('admin.components.filereceiving.dataentryfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo', 'allVerified'));
+            return view('admin.components.filereceiving.dataentryfileindex', [
+                'files'      => $files,
+                'registerId' => $registers->id,
+                'pageNo'     => $page,
+                'Lots'       => $registers->lot_no,
+                'registerNo' => $registerNo,
+                'allVerified' => $allVerified
+            ]);
         } catch (\Throwable $e) {
 
             Log::error('File list failed', [
@@ -832,7 +847,8 @@ class FileManagementController extends Controller
                 'accountLedger',
                 'documentData.document',
                 'creator',
-                'jointAllottees'
+                'jointAllottees',
+                'masterDocuments'
             ];
             $file = Allottee::query()
                 ->with($relationWith)
@@ -869,6 +885,45 @@ class FileManagementController extends Controller
             return response()->json(['success' => true]);
         } catch (\Throwable $e) {
             Log::error('Mark document as read failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['success' => false], 500);
+        }
+    }
+
+    public function markMasterDocumentAsRead($id)
+    {
+        // return $id;
+        try {
+            $document = AllotteeMasterDocument::findOrFail($id);
+            if (auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin') {
+                $document->update(['is_read_divisional' => 1]);
+            } else {
+                $document->update(['read_file' => 1]);
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            Log::error('Mark document as read failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['success' => false], 500);
+        }
+    }
+
+    public function approveMasterDocument($encryptedId)
+    {
+        // return $id;
+        try {
+            $id = decrypt($encryptedId);
+            $document = AllotteeMasterDocument::findOrFail($id);
+            $document->update(['is_checked' => 1]);
+
+            return back()->with('success', 'Master document approved successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Approve master document failed', [
                 'error' => $e->getMessage()
             ]);
 

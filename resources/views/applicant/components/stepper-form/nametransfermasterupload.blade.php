@@ -405,7 +405,7 @@
                 <p class="header-subtitle">Upload or re-upload documents for the selected allottee.</p>
             </div>
             <div>
-                <a href="{{ route('applicant.dataentry.completed.lots.files', $registerId) }}">
+                <a href="{{ route('nametransfer.dataentry.completed') }}">
                     <button class="btn-info">Back</button>
                 </a>
             </div>

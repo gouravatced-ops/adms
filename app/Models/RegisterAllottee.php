@@ -28,6 +28,7 @@ class RegisterAllottee extends Model
         'no_of_files',
         'no_of_supplement',
         'parent_id',
+        'grand_parent_id',
         'created_by',
         'updated_by',
         'ip_address',

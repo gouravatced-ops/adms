@@ -40,3 +40,6 @@ ALTER TABLE `allottees` ADD `is_first_time_register` INT NOT NULL DEFAULT '0' AF
 
 CREATE TABLE `allottee_master_documents` ( `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, `allottee_id` BIGINT UNSIGNED NOT NULL, `register_allottee_id` BIGINT UNSIGNED NOT NULL, `property_number` VARCHAR(50) NOT NULL, `file_label` VARCHAR(50) NOT NULL, -- File 1, File 2... `confirm_received` ENUM('Yes','No') DEFAULT 'No', `confirm_same_allottee_name` ENUM('Yes','No') DEFAULT 'No', `read_file` TINYINT(1) DEFAULT 0, `is_checked` TINYINT(1) DEFAULT 0, `checked_at` TIMESTAMP NULL DEFAULT NULL, `is_read_divisional` TINYINT(1) DEFAULT 0, `is_approved_divisional` TINYINT(1) DEFAULT 0, `approved_at` TIMESTAMP NULL DEFAULT NULL, `uploaded_at` TIMESTAMP NULL DEFAULT NULL, `reuploaded_at` TIMESTAMP NULL DEFAULT NULL, `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP );
 ALTER TABLE `allottee_master_documents` ADD `file_path` VARCHAR(255) NULL DEFAULT NULL AFTER `confirm_same_allottee_name`, ADD `file_name` VARCHAR(255) NULL DEFAULT NULL AFTER `file_path`;
+
+ALTER TABLE `register_allottees` ADD `grand_parent_id` INT NULL DEFAULT NULL AFTER `parent_id`;
+ALTER TABLE `allottee_master_documents` CHANGE `register_allottee_id` `register_allottee_id` BIGINT(20) UNSIGNED NULL DEFAULT NULL;

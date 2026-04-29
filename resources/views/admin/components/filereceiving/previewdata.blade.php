@@ -47,7 +47,7 @@
         font-size: 12px;
         font-weight: 600;
     }
-    
+
     .table:not(.table-dark) th {
         background-color: #f8f9fa;
         color: #000000;
@@ -247,11 +247,11 @@
                             <td><strong>Free Lease Hold</strong></td>
                             <td>
                                 @if($registration?->free_hold_status === 'yes')
-                                    <span class="badge bg-success">Yes</span>
+                                <span class="badge bg-success">Yes</span>
                                 @elseif($registration?->free_hold_status === 'no')
-                                    <span class="badge bg-secondary">N/A</span>
+                                <span class="badge bg-secondary">N/A</span>
                                 @else
-                                    <span>N/A</span>
+                                <span>N/A</span>
                                 @endif
                             </td>
                         </tr>
@@ -302,6 +302,61 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Master Document list with read and approved button  -->
+            @if($registration?->masterDocuments?->count() > 0 && auth('admin')->user()->role === 'council_office')
+            <h5 class="mb-3"><b>Master Document:</b></h5>
+
+            <div class="d-flex flex-wrap row">
+
+                @foreach($registration->masterDocuments as $file)
+
+                <div class="col-3 mb-3">
+                    <div class="border rounded shadow-sm h-100">
+
+                        {{-- Top Section --}}
+                        <div class="px-3 py-2 text-center" style="font-size: medium;">
+                            <strong>{{ $file['file_label'] }}</strong>
+                            @if($file['is_checked'] == 1)
+                                <span class="status-completed" title="Checked">✓</span>
+                            @else
+                                <span class="status-pending" title="Pending">
+                                    <i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i>
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Footer Section --}}
+                        <div class="border-top px-2 py-2 d-flex justify-content-between">
+
+                            {{-- Read --}}
+                            <button type="button"
+                                class="btn btn-md btn-primary"
+                                onclick="viewDocument('{{ route('admin.masterdocuments.mark-read', $file['id']) }}', '{{ asset($file['file_path']) }}')">
+                                {{ $file['read_file'] == 1 ? '✓ Read' : 'View' }}
+                            </button>
+
+                            {{-- Approve --}}
+                            <form action="{{ route('admin.lots.dataentry.file.approveMasterDocument', ['encryptedId' => encrypt($file['id'])]) }}"
+                                method="POST"
+                                class="w-50 ms-1">
+                                @csrf
+                                <button type="submit"
+                                    class="btn btn-md w-100 {{ $file['is_checked'] ? 'btn-secondary' : 'btn-success' }}"
+                                    {{ $file['is_checked'] ? 'disabled' : '' }}>
+                                    {{ $file['is_checked'] ? 'Checked' : 'Check' }}
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                @endforeach
+            </div>
+            <br>
+            @endif
+
 
             {{-- Tab Navigation --}}
             <ul class="nav nav-tabs mb-3" id="filePreviewTab" role="tablist">
@@ -383,9 +438,9 @@
                                     <th class="bg-light" colspan="3">Application Date</th>
                                     <td>
                                         @if(isset($registration?->application_day) && isset($registration?->application_month) && isset($registration?->application_year))
-                                            {{ $registration->application_day }}/{{ $registration->application_month }}/{{ $registration->application_year }}
+                                        {{ $registration->application_day }}/{{ $registration->application_month }}/{{ $registration->application_year }}
                                         @else
-                                            N/A
+                                        N/A
                                         @endif
                                     </td>
                                 </tr>

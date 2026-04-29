@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Applicant;
 use App\Models\User;
 use App\Models\RegisterAllottee;
 use App\Models\RegistrationFile;
+use App\Models\AllotteeMasterDocument;
 use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +58,7 @@ class DashboardController extends Controller
                 ->whereNotNull('parent_id')
                 ->count(),
             'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
-            'totalcheckedFile' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)->count(),
+            'totalcheckedFile' => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_checked', 1)->count(),
             'totalapprovedFile' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
 
             // RegistrationFile
