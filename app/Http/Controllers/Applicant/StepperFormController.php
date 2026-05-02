@@ -798,7 +798,8 @@ class StepperFormController extends Controller
                 ->where('is_active', 1)
                 ->firstOrFail();
 
-            $previousRecords = RegisterAllottee::where('property_number', $current->property_number)
+            if($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
+                $previousRecords = RegisterAllottee::where('property_number', $current->property_number)
                 ->where('is_active', 1)
                 ->where('created_at', '<', $current->created_at)
                 ->orderBy('created_at', 'asc')
@@ -808,6 +809,9 @@ class StepperFormController extends Controller
                     'no_of_files',
                     'no_of_supplement'
                 ]);
+            } else {
+                $previousRecords = [];
+            }
 
             $offset = 0;
 
@@ -823,6 +827,8 @@ class StepperFormController extends Controller
                 $total = (int)$current->no_of_files + (int)$current->no_of_supplement;
             } elseif ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
                 $total = (int)$current->no_of_supplement;
+            } elseif ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'No') {
+                $total = (int)$current->no_of_files + (int)$current->no_of_supplement;
             } else {
                 $total = 0;
             }

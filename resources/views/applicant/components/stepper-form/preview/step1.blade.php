@@ -194,7 +194,7 @@
                 </label>
                 <div class="input-group">
                     @php $prefixes = ['Shri', 'Smt.', 'Miss', 'Dr.', 'Md.', 'Late', 'M/S' , 'Maj.' , 'Capt.']; @endphp
-                    <select name="prefix" class="prefix-select" disabled>
+                    <select name="prefix" class="prefix-select">
                         @foreach ($prefixes as $prefix)
                             <option value="{{ $prefix }}"
                                 {{ ($applicant->prefix ?? '') === $prefix ? 'selected' : '' }}>
@@ -203,10 +203,7 @@
                         @endforeach
                     </select>
                     <input type="text" name="allottee_name" class="custom-input only-alphabet"
-                        value="{{ $applicant->allottee_name ?? '' }}" placeholder="e.g. Rajesh" disabled>
-                    <input type="hidden" name="">
-                    <input type="hidden" name="prefix" value="{{ $applicant->prefix ?? '' }}">
-                    <input type="hidden" name="allottee_name" value="{{ $applicant->allottee_name ?? '' }}">
+                        value="{{ $applicant->allottee_name ?? '' }}" placeholder="e.g. Rajesh">
                 </div>
             </div>
 
