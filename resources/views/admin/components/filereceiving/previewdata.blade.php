@@ -1142,7 +1142,7 @@
 
                                     <td>
                                         <span class="badge bg-{{ $hasFile ? 'success' : 'secondary' }}">
-                                            {{ $hasFile ? 'Uploaded' : 'Pending' }}
+                                            {{ $hasFile ? 'Uploaded' : 'Data Not Found' }}
                                         </span>
                                     </td>
 

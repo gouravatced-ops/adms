@@ -785,7 +785,7 @@ Step 5 : -
     <div class="form-grid" style="grid-template-columns: repeat(2, 1fr) !important;">
         <div class="field">
             <label class="field-label">
-                Is this property FIRST TIME registered or not ?
+                Has This Property been registered?
             </label>
             <select name="is_first_time_register" id="is_first_time_register" class="custom-input">
                 <option value="1" {{ (old('is_first_time_register', $applicant->is_first_time_register) == '1') ? 'selected' : '' }}>

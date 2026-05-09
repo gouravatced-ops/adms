@@ -798,17 +798,17 @@ class StepperFormController extends Controller
                 ->where('is_active', 1)
                 ->firstOrFail();
 
-            if($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
+            if ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
                 $previousRecords = RegisterAllottee::where('property_number', $current->property_number)
-                ->where('is_active', 1)
-                ->where('created_at', '<', $current->created_at)
-                ->orderBy('created_at', 'asc')
-                ->get([
-                    'confirm_received',
-                    'confirm_same_allottee_name',
-                    'no_of_files',
-                    'no_of_supplement'
-                ]);
+                    ->where('is_active', 1)
+                    ->where('created_at', '<', $current->created_at)
+                    ->orderBy('created_at', 'asc')
+                    ->get([
+                        'confirm_received',
+                        'confirm_same_allottee_name',
+                        'no_of_files',
+                        'no_of_supplement'
+                    ]);
             } else {
                 $previousRecords = [];
             }
@@ -1116,6 +1116,11 @@ class StepperFormController extends Controller
                     'allottee_status' => 'dataentry',
                     'grand_parent_id' => $finalId,
                 ]);
+
+            // lots completed
+            LotAssignment::where('allottee_id', $originalId)->update([
+                'status' => 'completed',
+            ]);
             return $this->masterDocumentList($encryptedId, $originalId);
         }
 

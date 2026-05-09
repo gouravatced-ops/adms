@@ -784,14 +784,14 @@ class FileManagementController extends Controller
                 'quarterType',
             ];
 
-            // ✅ Step 1: Get finalIds (optimized memory)
+            // Step 1: Get finalIds (optimized memory)
             $finalIds = RegisterAllottee::where('register_id', $registerNo)
                 ->get()
                 ->map(fn($item) => $item->grand_parent_id ?? $item->id)
                 ->unique()
                 ->values();
 
-            // ✅ Step 2: Single query (normal + transfer files)
+            // Step 2: Single query (normal + transfer files)
             $files = Allottee::query()
                 ->with($baseRelations)
                 ->where(function ($q) use ($finalIds, $registerNo) {
@@ -808,7 +808,7 @@ class FileManagementController extends Controller
                     return $item;
                 });
 
-            // ✅ Step 3: Register info (safe)
+            // Step 3: Register info (safe)
             $registers = RegistrationFile::where('register_no', $registerNo)->firstOrFail();
             $allVerified = 0;
 
