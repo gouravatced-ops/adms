@@ -633,7 +633,7 @@ class NameTransferController extends Controller
     public function indexStart($encodedId)
     {
         try {
-            $id = decrypt($encodedId);
+           $id = decrypt($encodedId);
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
@@ -642,6 +642,7 @@ class NameTransferController extends Controller
         $existingapplicant = Allottee::select([
             'id',
             'register_id',
+            'register_file_id',
             'division_id',
             'subdivision_id',
             'pcategory_id',
@@ -1049,7 +1050,26 @@ class NameTransferController extends Controller
             $allottmentNumber = $request->allotment_no;
         }
 
+        $registerAllottee = [
+            'register_id' => $request->register_id,
+        ];
+
+        if (!empty($request->register_file_id)) {
+            $registerAllottee = RegisterAllottee::where('parent_id', $request->register_file_id)->first();
+
+            if ($registerAllottee) {
+                $registerAllottee = [
+                    'register_id'      => $registerAllottee->register_id,
+                    'register_file_id' => $registerAllottee->id,
+                ];
+            }
+        }
+
+        // return $registerAllottee;
+        
         $data = [
+            'register_id' => $registerAllottee['register_id'],
+            'register_file_id' => $registerAllottee['register_file_id'] ?? NULL,
             'scheme_id' => $request->scheme_id,
             'application_no' => $request->application_no,
             'application_day' => $request->application_day,
@@ -1059,6 +1079,12 @@ class NameTransferController extends Controller
             'allotment_day' => $request->allotment_day,
             'allotment_month' => $request->allotment_month,
             'allotment_year' => $request->allotment_year,
+            'division_id' => $request->division_id,
+            'subdivision_id' => $request->subdivision_id,
+            'pcategory_id' => $request->pcategory_id,
+            'property_type_id' => $request->property_type_id,
+            'quarter_id' => $request->quarter_id,
+            'property_number' => $request->property_number,
 
             'prefix' => $request->prefix,
             'allottee_name' => $request->allottee_name,
@@ -1106,15 +1132,6 @@ class NameTransferController extends Controller
 
         $password = $this->generatePassword();
         $applicant = Allottee::create($data + [
-
-            'register_id' => $request->register_id,
-            'division_id' => $request->division_id,
-            'subdivision_id' => $request->subdivision_id,
-            'pcategory_id' => $request->pcategory_id,
-            'property_type_id' => $request->property_type_id,
-            'quarter_id' => $request->quarter_id,
-            'property_number' => $request->property_number,
-
             'username' => $username,
             'password' => Hash::make($password),
             'cedjshb' => encrypt($password),
@@ -1169,6 +1186,7 @@ class NameTransferController extends Controller
         $parent = Allottee::where('id', $applicant->parent_id)->first();
         if ($parent->is_trans_entry_completed == 0) {
             $parent->update([
+                'name_transfer_status' => 'yes',
                 'is_trans_entry_completed' => 1,
                 'updated_by' => auth()->id(),
                 'update_ip_address' => $request->ip()

@@ -366,31 +366,77 @@
         }
     }
 
-    .notes-section {
-        margin-top: 20px;
-        padding: 14px 18px;
-        border-radius: 6px;
-        border-left: 4px solid #2a5298;
-        background: #f4f7fb;
+    .notes-section.info {
+        background: #f4f8ff;
+        border: 1px solid #dbe7ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
     }
 
-    .notes-section.info {
-        border-left-color: #17a2b8;
-        background: #e8f7fb;
+    /* Main Layout */
+    .notice-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    /* Left Content */
+    .notice-content {
+        flex: 1;
     }
 
     .notes-title {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 600;
-        margin: 0 0 6px;
-        color: #1e3c72;
+        color: #1e3a8a;
+        margin-bottom: 6px;
     }
 
     .notes-text {
         font-size: 14px;
-        color: #444;
+        color: #475569;
         margin: 0;
         line-height: 1.5;
+    }
+
+    /* Right Button */
+    .notice-action {
+        flex-shrink: 0;
+    }
+
+    .action-btn-info {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: #2563eb;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: 0.25s ease;
+    }
+
+    .action-btn-info:hover {
+        background: #1d4ed8;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+
+        .notice-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .notice-action {
+            margin-top: 10px;
+        }
     }
 </style>
 
@@ -436,13 +482,50 @@
             </div>
         </div>
 
-        <!-- Notes -->
         @if(!empty($fromDataEntry))
+
         <div class="notes-section info">
-            <h3 class="notes-title">Note</h3>
-            <p class="notes-text">
-                You were redirected here because this allottee’s data entry has already been completed. <span style="color:red;">Please Don't Back !</span>
-            </p>
+
+            <div class="notice-wrapper">
+
+                {{-- Left Side --}}
+                <div class="notice-content">
+                    <h3 class="notes-title">Important Notice</h3>
+
+                    <p class="notes-text">
+                        If the allottee data entry has already been completed and no Transfer File exists,
+                        then please upload the Master File.
+
+                        Otherwise, you can continue the existing Name Transfer data entry by clicking the
+                        <strong>“Continue To Name Transfer”</strong> button below.
+
+                        <span style="color:red;">“ Please do not upload the Master File ”</span> again if you want to continue the Name Transfer process.
+                    </p>
+                </div>
+
+                {{-- Right Side --}}
+                <span style="color:red;">Continue To Name Transfer ➡</span>
+                <div class="notice-action">
+                    <a href="{{ route('nametransfer.apply.index', encrypt($file->id)) }}"
+                        class="action-btn-info"
+                        title="Continue Name Transfer">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="22"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M3 21c0-4 3-7 6-7s6 3 6 7"></path>
+                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                            <line x1="16" y1="11" x2="22" y2="11"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
         @endif
 
@@ -513,6 +596,7 @@
 </div>
 
 <input type="hidden" id="allotteeId" value="{{ $file['id'] ?? '' }}">
+<input type="hidden" id="original_register_file_id" value="{{ $originalId ?? '' }}">
 <input type="hidden" id="uploadPath" value="{{ $file['allottee_document_path'] ?? '' }}">
 <input type="hidden" id="confirm_received" value="{{ $confirmReceived ?? '' }}">
 <input type="hidden" id="confirm_same_allottee_name" value="{{ $confirmSameAllotteeName ?? '' }}">

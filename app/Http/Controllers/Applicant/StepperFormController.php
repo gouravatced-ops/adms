@@ -280,6 +280,7 @@ class StepperFormController extends Controller
             $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo, $hasFullLotAssignment) {
                 $item->encoded_register_no = $encodedRegisterNo;
                 $item->allotteeId = encrypt($item->id);
+                $item->allotteeId_encrpted_id = $item->id;
                 $item->assignment_type = $hasFullLotAssignment ? 'full_lot' : 'partial';
 
                 return $item;
@@ -864,6 +865,7 @@ class StepperFormController extends Controller
                     'registerId',
                     'fromDataEntry',
                     'confirmReceived',
+                    'originalId',
                     'confirmSameAllotteeName'
                 )
             );
@@ -1037,6 +1039,21 @@ class StepperFormController extends Controller
                 ]
             );
 
+            if (!empty($validated['register_allottee_id'])) {
+
+                $allotteeId = $validated['register_allottee_id'];
+
+                RegisterAllottee::whereKey($allotteeId)->update([
+                    'allottee_status' => 'dataentry',
+                    'grand_parent_id' => $applicant->register_file_id,
+                ]);
+
+                LotAssignment::where('allottee_id', $allotteeId)
+                    ->update([
+                        'status' => 'completed',
+                    ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Uploaded successfully',
@@ -1111,16 +1128,7 @@ class StepperFormController extends Controller
         if ($applicant && $applicant->is_step_completed == 1 && $mainparentId !== null) {
             // Encrypt finalId
             $encryptedId = encrypt($applicant->id);
-            RegisterAllottee::where('id', $originalId)
-                ->update([
-                    'allottee_status' => 'dataentry',
-                    'grand_parent_id' => $finalId,
-                ]);
-
-            // lots completed
-            LotAssignment::where('allottee_id', $originalId)->update([
-                'status' => 'completed',
-            ]);
+            $originalId = $originalId;
             return $this->masterDocumentList($encryptedId, $originalId);
         }
 

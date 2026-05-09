@@ -191,6 +191,7 @@
     @csrf
     <input type="hidden" name="allottee_id" value="{{ $applicant->id ?? '' }}">
     <input type="hidden" name="register_id" value="{{ $applicant->register_id ?? '' }}">
+    <input type="hidden" name="register_file_id" value="{{ $applicant->register_file_id ?? '' }}">
     <input type="hidden" name="division_id" value="{{ $applicant->division_id ?? '' }}">
     <input type="hidden" name="subdivision_id" value="{{ $applicant->subdivision_id ?? '' }}">
     <input type="hidden" name="pcategory_id" value="{{ $applicant->pcategory_id ?? '' }}">
