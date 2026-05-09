@@ -365,7 +365,7 @@
                     <div class="field">
                         <label class="label">No. of Supplement</label>
                         <select name="no_of_supplement" required>
-                            @for ($i = 1; $i <= 9; $i++)
+                            @for ($i = 0; $i <= 9; $i++)
                                 <option value="{{ $i }}"
                                     {{ isset($allottes->no_of_supplement) && $allottes->no_of_supplement == $i ? 'selected' : '' }}>
                                     {{ $i }}
