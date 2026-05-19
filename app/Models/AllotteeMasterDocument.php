@@ -26,6 +26,7 @@ class AllotteeMasterDocument extends Model
         'is_checked',
         'checked_at',
         'is_read_divisional',
+        'divisional_master_approved_by',
         'is_approved_divisional',
         'approved_at',
         'uploaded_at',
@@ -55,22 +56,10 @@ class AllotteeMasterDocument extends Model
         'is_approved_divisional' => 0,
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors
-    |--------------------------------------------------------------------------
-    */
-
     public function getFileUrlAttribute()
     {
         return $this->file_path ? asset($this->file_path) : null;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes (VERY USEFUL)
-    |--------------------------------------------------------------------------
-    */
 
     public function scopeChecked($query)
     {
@@ -86,12 +75,6 @@ class AllotteeMasterDocument extends Model
     {
         return $query->where('is_approved_divisional', 1);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships (optional but recommended)
-    |--------------------------------------------------------------------------
-    */
 
     public function allottee()
     {

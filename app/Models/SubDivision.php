@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class SubDivision extends Model
 {
     use HasFactory;
+
     protected $table = 'sub_divisions';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -28,5 +30,17 @@ class SubDivision extends Model
     public function allottees()
     {
         return $this->hasMany(Allottee::class, 'subdivision_id');
+    }
+
+    public function allotteeMasterDocuments()
+    {
+        return $this->hasManyThrough(
+            AllotteeMasterDocument::class,
+            Allottee::class,
+            'subdivision_id',
+            'allottee_id',
+            'id',
+            'id'
+        );
     }
 }

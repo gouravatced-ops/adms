@@ -73,40 +73,42 @@ class AdminController extends Controller
             'division_id' => $divisionId,
             'status' => 1
         ])
-            ->withCount([
-                'allottees as total_files_count' => fn($q) => $q->where('is_step_completed', 1),
+        ->withCount([
 
-                'allottees as verified_files_count' => fn($q) =>
-                $q->where('is_step_completed', 1)->where('sub_admin_allottee_verify', 1),
+            'allottees as total_files_count' => fn($q) =>
+                $q->where('is_step_completed', 1),
 
-                'allottees as approved_files_count' => fn($q) =>
-                $q->where('is_step_completed', 1)->where('divisional_approval', 1),
+            'allotteeMasterDocuments as verified_files_count' => fn($q) =>
+                $q->where('is_checked', 1),
 
-                'allottees as pending_files_count' => fn($q) =>
-                $q->where('is_step_completed', 1)
-                    ->where(function ($sub) {
-                        $sub->whereNull('sub_admin_allottee_verify')
-                            ->orWhere('sub_admin_allottee_verify', '!=', 1);
-                    }),
-            ])
-            ->get()
-            ->map(fn($item) => tap($item, function ($i) {
-                $i->progress_percent = $i->total_files_count > 0
-                    ? round(($i->verified_files_count / $i->total_files_count) * 100)
-                    : 0;
-            }));
+            'allotteeMasterDocuments as approved_files_count' => fn($q) =>
+                $q->where('is_approved_divisional', 1),
+        ])
+        ->get()
+        ->map(fn($item) => tap($item, function ($i) {
+
+            $i->progress_percent = $i->total_files_count > 0
+                ? round(($i->verified_files_count / $i->total_files_count) * 100)
+                : 0;
+        }));
 
         // Chart Data Optimized
         $dates = collect(range(0, 29))->mapWithKeys(fn($i) => [
             now()->subDays($i)->format('Y-m-d') => 0
         ])->reverse();
 
-        $raw = DB::table('allottees')
-            ->selectRaw("DATE(divisional_approved_date) as date, COUNT(*) as total")
-            ->where('division_id', $divisionId)
-            ->where('divisional_approval', 1)
-            ->whereNotNull('divisional_approved_date')
-            ->whereDate('divisional_approved_date', '>=', now()->subDays(29))
+        $raw = DB::table('allottee_master_documents as amd')
+            ->join('allottees as a', 'a.id', '=', 'amd.allottee_id')
+
+            ->selectRaw("DATE(amd.approved_at) as date, COUNT(*) as total")
+
+            ->where('a.division_id', $divisionId)
+
+            ->where('amd.is_approved_divisional', 1)
+            ->whereNotNull('amd.approved_at')
+
+            ->whereDate('amd.approved_at', '>=', now()->subDays(29))
+
             ->groupBy('date')
             ->pluck('total', 'date');
 
@@ -203,7 +205,7 @@ class AdminController extends Controller
                 //     ->whereNotNull('parent_id')->count(),
 
                 'totalcheckedFile'   => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_checked', 1)->count(),
-                'totalapprovedFile'  => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
+                'totalapprovedFile'  => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_approved_divisional', 1)->count(),
 
                 // 'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
                 // 'totallots'              => RegistrationFile::count(),
@@ -219,13 +221,15 @@ class AdminController extends Controller
                     ->count(),
 
                 // Approved (User Based)
-                'todayApproved' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)
-                    ->where('divisional_approved_by', $userId)
-                    ->whereDate('divisional_approved_date', $today)
+                'todayApproved' => AllotteeMasterDocument::whereNotNull('allottee_id')
+                    ->where('is_approved_divisional', 1)
+                    ->where('divisional_master_approved_by', $userId)
+                    ->whereDate('approved_at', $today)
                     ->count(),
 
-                'totalApproved' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)
-                    ->where('divisional_approved_by', $userId)
+                'totalApproved' => AllotteeMasterDocument::whereNotNull('allottee_id')
+                    ->where('is_approved_divisional', 1)
+                    ->where('divisional_master_approved_by', $userId)
                     ->count(),
             ],
 

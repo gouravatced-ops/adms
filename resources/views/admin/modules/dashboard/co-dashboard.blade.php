@@ -270,33 +270,33 @@
                     </div>
 
                     <div class="row text-center mb-3">
-                        <div class="col-3 border-end">
+                        <div class="col-4 border-end">
                             <div class="fw-bold fs-4 text-dark">
                                 {{ $item->total_files_count }}
                             </div>
                             <small class="text-muted">Total</small>
                         </div>
 
-                        <div class="col-3 border-end">
+                        <div class="col-4 border-end">
                             <div class="fw-bold fs-4 text-primary">
                                 {{ $item->verified_files_count }}
                             </div>
                             <small class="text-muted">Checked</small>
                         </div>
 
-                        <div class="col-3 border-end">
+                        <div class="col-4">
                             <div class="fw-bold fs-4 text-success">
                                 {{ $item->approved_files_count }}
                             </div>
                             <small class="text-muted">Approved</small>
                         </div>
 
-                        <div class="col-3">
+                        <!-- <div class="col-3">
                             <div class="fw-bold fs-4 text-warning">
                                 {{ $item->pending_files_count }}
                             </div>
                             <small class="text-muted">Pending</small>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- <div class="progress progress-sm mb-2" style="height: 8px;">

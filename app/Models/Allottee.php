@@ -200,4 +200,9 @@ class Allottee extends Model
     {
         return $this->hasMany(AllotteeMasterDocument::class, 'allottee_id', 'id')->orderBy('file_label', 'asc');
     }
+
+    public function allotteeMasterDocuments()
+    {
+        return $this->hasMany(AllotteeMasterDocument::class, 'allottee_id');
+    }
 }

@@ -54,6 +54,11 @@
         font-weight: 700;
     }
 </style>
+
+@php
+    $allDocumentsApproved = $registration->masterDocuments
+    ->every(fn($doc) => $doc->is_approved_divisional == 1);
+@endphp
 <div class="container-xxl flex-grow-1">
     <h6 class="py-3 mb-2">
         <span class="invert-text-white">Dashboard / File Preview</span>
@@ -87,9 +92,9 @@
                 @if(auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin')
                 <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-danger btn-sm" {{ $allDocumentsApproved ? '' : 'disabled' }}>
                         <i class="bx bx-check-shield me-1"></i>
-                        Approved
+                        APPROVE
                     </button>
                 </form>
                 @endif
@@ -318,11 +323,11 @@
                         <div class="px-3 py-2 text-center" style="font-size: medium;">
                             <strong>{{ $file['file_label'] }}</strong>
                             @if($file['is_checked'] == 1)
-                                <span class="status-completed" title="Checked">✓</span>
+                            <span class="status-completed" title="Checked">✓</span>
                             @else
-                                <span class="status-pending" title="Pending">
-                                    <i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i>
-                                </span>
+                            <span class="status-pending" title="Pending">
+                                <i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i>
+                            </span>
                             @endif
                         </div>
 
@@ -345,6 +350,59 @@
                                     class="btn btn-md w-100 {{ $file['is_checked'] ? 'btn-secondary' : 'btn-success' }}"
                                     {{ $file['is_checked'] ? 'disabled' : '' }}>
                                     {{ $file['is_checked'] ? 'Checked' : 'Check' }}
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                @endforeach
+            </div>
+            <br>
+            @endif
+
+            @if($registration?->masterDocuments?->count() > 0 && (auth('admin')->user()->role === 'divisional_admin' || auth('admin')->user()->role === 'approver'))
+            <h5 class="mb-3"><b>Master Document:</b></h5>
+
+            <div class="d-flex flex-wrap row">
+
+                @foreach($registration->masterDocuments as $file)
+
+                <div class="col-3 mb-3">
+                    <div class="border rounded shadow-sm h-100">
+
+                        {{-- Top Section --}}
+                        <div class="px-3 py-2 text-center" style="font-size: medium;">
+                            <strong>{{ $file['file_label'] }}</strong>
+                            @if($file['is_approved_divisional'] == 1)
+                            <span class="status-completed" title="Approved">✓</span>
+                            @else
+                            <span class="status-pending" title="Pending">
+                                <i class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i>
+                            </span>
+                            @endif
+                        </div>
+
+                        {{-- Footer Section --}}
+                        <div class="border-top px-2 py-2 d-flex justify-content-between">
+
+                            {{-- Read --}}
+                            <button type="button"
+                                class="btn btn-md btn-primary"
+                                onclick="viewDocument('{{ route('admin.masterdocuments.mark-read', $file['id']) }}', '{{ asset($file['file_path']) }}')">
+                                {{ $file['is_read_divisional'] == 1 ? '✓ Read' : 'View' }}
+                            </button>
+
+                            {{-- Approve --}}
+                            <form action="{{ route('admin.lots.dataentry.file.approveMasterDocument', ['encryptedId' => encrypt($file['id'])]) }}"
+                                method="POST"
+                                class="w-50 ms-1">
+                                @csrf
+                                <button type="submit"
+                                    class="btn btn-md w-100 {{ $file['is_approved_divisional'] ? 'btn-secondary' : 'btn-success' }}"
+                                    {{ $file['is_approved_divisional'] ? 'disabled' : '' }}>
+                                    {{ $file['is_approved_divisional'] ? 'Approved' : 'Approve' }}
                                 </button>
                             </form>
 
@@ -1244,10 +1302,12 @@
                 @if(auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin')
                 <form action="{{ route('admin.lots.dataentry.file.approve', $registration?->encrypted_id) }}" method="POST">
                     @csrf
-
-                    <button type="submit" class="btn btn-primary btn-md">
+                    <button
+                        type="submit"
+                        class="btn btn-danger btn-md"
+                        {{ $allDocumentsApproved ? '' : 'disabled' }}>
                         <i class="bx bx-check-shield me-1"></i>
-                        Approved
+                        APPROVE
                     </button>
                 </form>
                 @endif

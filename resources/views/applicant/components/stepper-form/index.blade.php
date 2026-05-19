@@ -1451,6 +1451,7 @@
 
             submitApplication: function() {
                 const stepRemarks = document.getElementById('step_remarks')?.value || '';
+                const isFirstTimeRegister = document.getElementById('is_first_time_register')?.value || '';
                 fetch('{{ route('applicant.apply.step6.save') }}', {
                         method: 'POST',
                         headers: {
@@ -1461,7 +1462,8 @@
                         body: JSON.stringify({
                             applicant_id: this.config.applicantId,
                             final_submission: true,
-                            remarks: stepRemarks
+                            remarks: stepRemarks,
+                            is_first_time_register : isFirstTimeRegister,
                         })
                     })
                     .then(res => res.json())

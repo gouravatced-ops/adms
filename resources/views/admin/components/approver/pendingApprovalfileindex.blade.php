@@ -328,11 +328,19 @@
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
+                                    @php
+                                    $isCouncilOffice = auth('admin')->user()->role === 'council_office';
+
+                                    $label = $isCouncilOffice ? 'View File' : 'View More';
+                                    $btnColor = $isCouncilOffice ? 'btn-primary' : 'btn-danger';
+                                    $titleLabel = $isCouncilOffice ? 'View' : 'View More';
+                                    @endphp
 
                                     {{-- Preview --}}
                                     <a href="{{ route('admin.file.preview', encrypt($item->id)) }}"
-                                        class="btn btn-sm btn-primary text-white"
-                                        title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">
+                                        class="btn btn-sm {{$btnColor}} text-white"
+                                        title="{{ $titleLabel }} of {{ $allotteeName }} File"
+                                        data-bs-toggle="tooltip">
 
                                         {{-- Eye Preview SVG --}}
                                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -347,7 +355,8 @@
                                             <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
-                                        &nbsp; View File
+
+                                        &nbsp; {{ $label }}
                                     </a>
                                 </div>
                             </td>
@@ -533,7 +542,7 @@
     let allSelected = false;
 
     if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', function () {
+        selectAllBtn.addEventListener('click', function() {
             allSelected = !allSelected;
 
             checkboxes.forEach(cb => {
@@ -547,7 +556,7 @@
     }
 
     // Submit on button click
-    bulkBtn.addEventListener('click', function () {
+    bulkBtn.addEventListener('click', function() {
         if (confirm('Are you sure to approve selected records?')) {
             bulkForm.submit();
         }

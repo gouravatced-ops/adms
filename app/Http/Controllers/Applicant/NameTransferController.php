@@ -653,6 +653,7 @@ class NameTransferController extends Controller
             'current_step',
             'is_trans_entry_completed',
             'allotment_year',
+            'name_transfer_status'
         ])
             ->with([
                 'division:id,name',
@@ -1054,7 +1055,7 @@ class NameTransferController extends Controller
             'register_id' => $request->register_id,
         ];
 
-        if (!empty($request->register_file_id)) {
+        if (!empty($request->register_file_id) && $request->name_transfer_status == 'no') {
             $registerAllottee = RegisterAllottee::where('parent_id', $request->register_file_id)->first();
 
             if ($registerAllottee) {

@@ -919,7 +919,19 @@ class FileManagementController extends Controller
         try {
             $id = decrypt($encryptedId);
             $document = AllotteeMasterDocument::findOrFail($id);
-            $document->update(['is_checked' => 1]);
+            if (auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin') {
+                $document->update([
+                    'is_approved_divisional'      => 1,
+                    'divisional_master_approved_by'   => auth('admin')->user()->id,
+                    'approved_at' => date('Y-m-d H:i:s'),
+                ]);
+            } else {
+                $document->update(['is_checked' => 1]);
+                $document->update([
+                    'is_checked'      => 1,
+                    'checked_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
 
             return back()->with('success', 'Master document approved successfully.');
         } catch (\Throwable $e) {
