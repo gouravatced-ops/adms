@@ -653,7 +653,7 @@ class FileRecevingController extends Controller
         ]);
 
         $collection = RegisterAllottee::with(['division:id,name', 'subDivision:id,name'])
-            ->where('property_number', $validated['property_number'])
+            ->where('property_number', $validated['property_number'])->where('is_active', 1)
             ->latest() // same as orderBy('created_at', 'desc')
             ->get();
 
@@ -727,6 +727,7 @@ class FileRecevingController extends Controller
             ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
             ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
             ->where('ra.register_id', $registerNo)
+            ->where('ra.is_active', 1)
             ->orderByDesc('ra.created_at')
             ->select([
                 'ra.*',

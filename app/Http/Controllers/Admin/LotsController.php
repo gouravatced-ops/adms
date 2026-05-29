@@ -130,6 +130,7 @@ class LotsController extends Controller
 
                 ->where('allottee_status', 'scanned')
                 ->where('register_id', $Id)
+                ->where('is_active', 1)
 
                 ->whereDoesntHave('lotAssignments', function ($q) {
                     $q->where('assignment_type', 'partial');

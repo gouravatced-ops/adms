@@ -82,7 +82,8 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('admin.receiving.files.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}" class="btn btn-primary text-white me-2" title="View Lot Files">
+                                        <a href="{{ route('admin.receiving.files.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}"
+                                            class="btn btn-primary text-white me-2" title="View Lot Files">
                                             <!-- Custom List/File SVG Icon -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

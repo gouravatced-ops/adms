@@ -8,17 +8,11 @@
 
         <div class="card mb-4">
             <div class="card-header bg-info d-flex justify-content-between align-items-center">
-                <h5 class="text-white mb-0">Lot Receiving Files</h5>
+                <h5 class="text-white mb-0">Lot Files</h5>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-dark btn-sm">
-                        <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($registerNo)]) }}"
-                            class="text-decoration-none text-white">
-                            Export Files
-                        </a>
-                    </button>
                     &nbsp;
                     <button type="button" class="btn btn-light btn-sm">
-                        <a href="{{ route('admin.receiving.lots.index') }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('admin.manage.lots.index') }}" class="text-decoration-none text-dark">
                             ← Back
                         </a>
                     </button>
@@ -50,6 +44,7 @@
                                 <th>Division Details</th>
                                 <th>Property Details</th>
                                 <th>Remarks</th>
+                                <th>Status</th>
                                 <th>Dates</th>
                                 <th>Action</th> <!-- Edit file -->
                             </tr>
@@ -86,6 +81,7 @@
                                         <small class="text-dark d-block">Property No:
                                             {{ $item->property_number ?? 'N/A' }}</small>
                                         <small class="text-dark d-block">No. of Files: {{ $fileCount }}</small>
+                                        {{-- <small class="text-dark d-block">Id: {{ $item->id }}</small> --}}
                                     </td>
                                     <td>
                                         <div>{{ $item->division->name ?? 'N/A' }}</div>
@@ -98,6 +94,18 @@
                                     </td>
                                     <td>
                                         <span class="badge bg-warning text-dark">{{ $item->file_remarks ?? 'N/A' }}</span>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge
+                                                    @if ($item->allottee_status == 'received') bg-primary
+                                                    @elseif($item->allottee_status == 'scanned') bg-warning text-dark
+                                                    @elseif($item->allottee_status == 'handover') bg-success
+                                                    @elseif($item->allottee_status == 'dataentry') bg-info
+                                                    @else bg-secondary @endif
+                                                ">
+                                            {{ ucfirst($item->allottee_status ?? 'N/A') }}
+                                        </span>
                                     </td>
                                     <td>
                                         {{ formatDateTime($item->updated_at ?? now()) }}
@@ -114,6 +122,25 @@
                                                 <path d="M13 12l3 3" />
                                             </svg>
                                         </a>
+                                        @if ($item->allottee_status == 'received' || $item->allottee_status == 'scanned')
+                                            <a href="{{ route('admin.lots.file.delete', $item->primary_id_encrpted) }}"
+                                                class="btn btn-danger text-white me-2"
+                                                title="Delete {{ $allotteeName }} File"
+                                                onclick="return confirm('Are you sure you want to delete this file?')">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                                    <path d="M10 11v6"></path>
+                                                    <path d="M14 11v6"></path>
+                                                    <path d="M9 6V4h6v2"></path>
+
+                                                </svg>
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

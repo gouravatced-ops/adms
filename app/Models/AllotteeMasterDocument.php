@@ -22,6 +22,8 @@ class AllotteeMasterDocument extends Model
         'confirm_same_allottee_name',
         'file_path',
         'file_name',
+        'is_reupload',
+        'reupload_at',
         'read_file',
         'is_checked',
         'checked_at',

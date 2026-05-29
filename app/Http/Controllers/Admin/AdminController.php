@@ -73,24 +73,24 @@ class AdminController extends Controller
             'division_id' => $divisionId,
             'status' => 1
         ])
-        ->withCount([
+            ->withCount([
 
-            'allottees as total_files_count' => fn($q) =>
+                'allottees as total_files_count' => fn($q) =>
                 $q->where('is_step_completed', 1),
 
-            'allotteeMasterDocuments as verified_files_count' => fn($q) =>
+                'allotteeMasterDocuments as verified_files_count' => fn($q) =>
                 $q->where('is_checked', 1),
 
-            'allotteeMasterDocuments as approved_files_count' => fn($q) =>
+                'allotteeMasterDocuments as approved_files_count' => fn($q) =>
                 $q->where('is_approved_divisional', 1),
-        ])
-        ->get()
-        ->map(fn($item) => tap($item, function ($i) {
+            ])
+            ->get()
+            ->map(fn($item) => tap($item, function ($i) {
 
-            $i->progress_percent = $i->total_files_count > 0
-                ? round(($i->verified_files_count / $i->total_files_count) * 100)
-                : 0;
-        }));
+                $i->progress_percent = $i->total_files_count > 0
+                    ? round(($i->verified_files_count / $i->total_files_count) * 100)
+                    : 0;
+            }));
 
         // Chart Data Optimized
         $dates = collect(range(0, 29))->mapWithKeys(fn($i) => [
@@ -176,25 +176,26 @@ class AdminController extends Controller
 
         return [
             'stats' => [
-                'totalreceivingFile' => RegisterAllottee::sum(
-                    DB::raw("
-                    COALESCE(
-                        CASE 
-                            WHEN parent_id IS NULL 
-                                THEN no_of_files + no_of_supplement
-                            ELSE 
-                                no_of_supplement
-                        END
-                    ,0)
-                ")
-                ),
+                'totalreceivingFile' =>  RegisterAllottee::where('is_active', 1)
+                    ->sum(
+                        DB::raw("
+                            COALESCE(
+                                CASE
+                                    WHEN parent_id IS NULL
+                                        THEN no_of_files + no_of_supplement
+                                    ELSE
+                                        no_of_supplement
+                                END
+                            ,0)
+                        ")
+                    ),
 
-                'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')
+                'totalscannedFile' => RegisterAllottee::where('is_active', 1)->whereNotNull('scanned_by')
                     ->sum(DB::raw("
-                    CASE 
-                        WHEN parent_id IS NULL 
+                    CASE
+                        WHEN parent_id IS NULL
                             THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
-                        ELSE 
+                        ELSE
                             COALESCE(no_of_supplement,0)
                     END
                 ")),

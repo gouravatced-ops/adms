@@ -44,7 +44,9 @@
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
-
+                        @php
+                            #getDebugIndex($registrations);
+                        @endphp
                         <tbody>
                             @forelse ($registrations as $key => $item)
                                 <tr class="{{ $item->highlighted ? 'table-warning' : '' }}">
@@ -56,7 +58,8 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}">
+                                        <a
+                                            href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}">
                                             <span class="badge bg-primary">{{ $item->lot_no }}</span>
                                         </a>
                                     </td>
@@ -82,6 +85,20 @@
                                     </td>
 
                                     <td class="text-center">
+                                        <a href="{{ route('admin.manage.lots.file.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}"
+                                            class="btn btn-primary text-white me-2" title="View Lot Files">
+                                            <!-- Custom List/File SVG Icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M8 6h13"></path>
+                                                <path d="M8 12h13"></path>
+                                                <path d="M8 18h13"></path>
+                                                <path d="M3 6h.01"></path>
+                                                <path d="M3 12h.01"></path>
+                                                <path d="M3 18h.01"></path>
+                                            </svg>
+                                        </a>
                                         <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}"
                                             class="btn btn-danger text-white me-2" title="View Lot Files">
                                             <!-- PDF File with Download Arrow SVG -->

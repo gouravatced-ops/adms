@@ -29,25 +29,26 @@ class DashboardController extends Controller
 
         $stats = [
             // RegisterAllottee
-            'totalreceivingFile' => RegisterAllottee::sum(
-                DB::raw("
-                    COALESCE(
-                        CASE 
-                            WHEN parent_id IS NULL 
-                                THEN no_of_files + no_of_supplement
-                            ELSE 
-                                no_of_supplement
-                        END
-                    ,0)
-                ")
-            ),
+            'totalreceivingFile' => RegisterAllottee::where('is_active', 1)
+                ->sum(
+                    DB::raw("
+                        COALESCE(
+                            CASE
+                                WHEN parent_id IS NULL
+                                    THEN no_of_files + no_of_supplement
+                                ELSE
+                                    no_of_supplement
+                            END
+                        ,0)
+                    ")
+                ),
 
-            'totalscannedFile' => RegisterAllottee::whereNotNull('scanned_by')
+            'totalscannedFile' => RegisterAllottee::where('is_active', 1)->whereNotNull('scanned_by')
                 ->sum(DB::raw("
-                    CASE 
-                        WHEN parent_id IS NULL 
+                    CASE
+                        WHEN parent_id IS NULL
                             THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
-                        ELSE 
+                        ELSE
                             COALESCE(no_of_supplement,0)
                     END
                 ")),

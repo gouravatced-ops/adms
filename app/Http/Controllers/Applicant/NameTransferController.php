@@ -259,8 +259,8 @@ class NameTransferController extends Controller
 
             $transferAllottee = Allottee::selectRaw("
                 allottees.*,
-                CASE 
-                    WHEN name_transfer_status = 'no' 
+                CASE
+                    WHEN name_transfer_status = 'no'
                          AND is_trans_entry_completed = 0
                     THEN 'Current Allottee'
                     ELSE 'Transfer Allottee'
@@ -633,7 +633,7 @@ class NameTransferController extends Controller
     public function indexStart($encodedId)
     {
         try {
-           $id = decrypt($encodedId);
+            $id = decrypt($encodedId);
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
@@ -1067,7 +1067,7 @@ class NameTransferController extends Controller
         }
 
         // return $registerAllottee;
-        
+
         $data = [
             'register_id' => $registerAllottee['register_id'],
             'register_file_id' => $registerAllottee['register_file_id'] ?? NULL,

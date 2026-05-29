@@ -42,7 +42,6 @@ class FileManagementController extends Controller
     public function LotsList(Request $request)
     {
         try {
-
             $registrations = RegistrationFile::query()
                 ->with('creator:id,name')
 
@@ -57,10 +56,10 @@ class FileManagementController extends Controller
                     $q->from('register_allottees')
                         ->selectRaw("
                             SUM(
-                                CASE 
-                                    WHEN parent_id IS NULL 
+                                CASE
+                                    WHEN parent_id IS NULL
                                         THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
-                                    ELSE 
+                                    ELSE
                                         COALESCE(no_of_supplement,0)
                                 END
                             )
@@ -95,7 +94,6 @@ class FileManagementController extends Controller
 
                     return $item;
                 });
-
             // return $registrations;
             return view('admin.components.filereceiving.alllots', compact('registrations'));
         } catch (\Throwable $e) {
@@ -108,6 +106,65 @@ class FileManagementController extends Controller
 
             return back()->with('error', 'Failed to load register list.');
         }
+    }
+
+    public function LotsFilesList($encodedId, $page)
+    {
+        try {
+            $Id = base64_decode($encodedId);
+            $relationWith = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'registration',
+            ];
+            $files = RegisterAllottee::query()
+
+                ->with($relationWith)
+                ->where('register_id', $Id)
+                ->where('is_active', 1)
+
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+
+                    $item->register_no = $item->registration->register_no ?? '';
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->lot_no = $item->registration->lot_no ?? '';
+                    $item->primary_id_encrpted = encrypt($item->id);
+                    return $item;
+                });
+            // return $files;
+            $pageNo = $page;
+            $registers  = RegistrationFile::where('register_no', $Id)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            $registerNo  = $Id;
+            return view('admin.components.filereceiving.lotfileIndex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function deleteLotsFiles($encryptedId)
+    {
+        $id = decrypt($encryptedId);
+
+        $file = RegisterAllottee::where('id', $id)->firstOrFail();
+
+        $file->update([
+            'is_active' => 0,
+        ]);
+
+        return redirect()->route('admin.manage.lots.file.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+            ->with('success', 'File Deleted successfully.');
     }
 
     public function receivingLotsList(Request $request)
@@ -164,6 +221,7 @@ class FileManagementController extends Controller
 
                 ->where('allottee_status', 'received')
                 ->where('register_id', $Id)
+                ->where('is_active', 1)
 
                 ->latest()
                 ->paginate(25)
@@ -199,6 +257,7 @@ class FileManagementController extends Controller
             $file = RegisterAllottee::query()
                 ->with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
                 ->where('id', $id)
+                ->where('is_active', 1)
                 ->where('allottee_status', 'received')
                 ->firstOrFail();
             $file->encoded_register_no = base64_encode($file->register_id);
@@ -265,6 +324,7 @@ class FileManagementController extends Controller
 
 
         $allRecords = RegisterAllottee::query()
+            ->where('is_active', 1)
             ->orderBy('created_at', 'asc')
             ->select([
                 'id',
@@ -279,6 +339,7 @@ class FileManagementController extends Controller
 
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
+            ->where('is_active', 1)
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
@@ -331,16 +392,17 @@ class FileManagementController extends Controller
             }
 
             for ($i = 0; $i < $totalFiles; $i++) {
-                $fileMap[$record->id][] = 'File ' . $fileCounters[$propertyNumber];
+                $fileMap[$record->id][] = 'File ' . $fileCounters[$propertyNumber] . ' ' . $propertyNumber;
                 $fileCounters[$propertyNumber]++;
             }
         }
 
         $processedRows = [];
+        $filestak = [];
 
         foreach ($allottees as $allottee) {
             $files = $fileMap[$allottee->id] ?? [];
-
+            $filestak[] = $files;
             foreach ($files as $fileLabel) {
                 $processedRows[] = [
                     'property_number' => $allottee->property_number ?? '',
@@ -363,6 +425,8 @@ class FileManagementController extends Controller
                 ];
             }
         }
+
+        // return $filestak;
 
         // If no processed rows (edge case), return error
         if (empty($processedRows)) {
@@ -475,6 +539,7 @@ class FileManagementController extends Controller
 
                 ->where('allottee_status', 'scanned')
                 ->where('register_id', $Id)
+                ->where('is_active', 1)
 
                 ->latest()
                 ->paginate(25)
@@ -510,6 +575,7 @@ class FileManagementController extends Controller
             $file = RegisterAllottee::query()
                 ->with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
                 ->where('id', $id)
+                ->where('is_active', 1)
                 ->where('allottee_status', 'scanned')
                 ->firstOrFail();
             $file->encoded_register_no = base64_encode($file->register_id);
@@ -1283,5 +1349,202 @@ class FileManagementController extends Controller
         ]);
 
         return response()->download($filePath);
+    }
+
+    public function masterFileReUploadsPendingList()
+    {
+        $masterFiles = AllotteeMasterDocument::from('allottee_master_documents as amd')
+
+            ->leftJoin('register_allottees as ra', 'ra.id', '=', 'amd.register_allottee_id')
+            ->leftJoin('file_registrations as rf', 'rf.register_no', '=', 'ra.register_id')
+            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
+            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
+            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
+
+            ->where('amd.is_reupload', 0)
+
+            ->orderBy('amd.created_at', 'DESC')
+
+            ->select([
+                'amd.id',
+                'amd.file_name',
+                'amd.file_path',
+                'amd.file_label',
+                'amd.uploaded_at',
+                'amd.is_reupload',
+
+                'rf.lot_no',
+                'rf.register_no',
+
+                'ra.property_number',
+                'ra.prefix',
+                'ra.allottee_name',
+                'ra.allottee_middle_name',
+                'ra.allottee_surname',
+
+                'd.name as division_name',
+                'sd.name as subdivision_name',
+                'pt.name as property_type',
+                'qt.quarter_code',
+            ])
+
+            ->get()
+
+            ->map(function ($item) {
+
+                $item->encrypted_id = encrypt($item->id);
+
+                $item->full_name = trim(
+                    ($item->prefix ?? '') . ' ' .
+                        ($item->allottee_name ?? '') . ' ' .
+                        ($item->allottee_middle_name ?? '') . ' ' .
+                        ($item->allottee_surname ?? '')
+                );
+
+                return $item;
+            });
+
+        return view(
+            'admin.components.master.index',
+            compact('masterFiles')
+        );
+    }
+
+    public function masterFileReUploadsCompletedList()
+    {
+        $masterFiles = AllotteeMasterDocument::from('allottee_master_documents as amd')
+
+            ->leftJoin('register_allottees as ra', 'ra.id', '=', 'amd.register_allottee_id')
+            ->leftJoin('file_registrations as rf', 'rf.register_no', '=', 'ra.register_id')
+            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
+            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
+            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
+
+            ->where('amd.is_reupload', 1)
+
+            ->orderBy('amd.created_at', 'DESC')
+
+            ->select([
+                'amd.id',
+                'amd.file_name',
+                'amd.file_path',
+                'amd.file_label',
+                'amd.uploaded_at',
+                'amd.is_reupload',
+
+                'rf.lot_no',
+                'rf.register_no',
+
+                'ra.property_number',
+                'ra.prefix',
+                'ra.allottee_name',
+                'ra.allottee_middle_name',
+                'ra.allottee_surname',
+
+                'd.name as division_name',
+                'sd.name as subdivision_name',
+                'pt.name as property_type',
+                'qt.quarter_code',
+            ])
+
+            ->get()
+
+            ->map(function ($item) {
+
+                $item->encrypted_id = encrypt($item->id);
+
+                $item->full_name = trim(
+                    ($item->prefix ?? '') . ' ' .
+                        ($item->allottee_name ?? '') . ' ' .
+                        ($item->allottee_middle_name ?? '') . ' ' .
+                        ($item->allottee_surname ?? '')
+                );
+
+                return $item;
+            });
+
+        return view(
+            'admin.components.master.index',
+            compact('masterFiles')
+        );
+    }
+
+    public function reUploadMasterFile(Request $request)
+    {
+        $request->validate([
+            'master_id' => 'required',
+            'rename_file' => 'required|string|max:255',
+            'pdf_file' => 'required|mimes:pdf|max:20480',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            // Decrypt ID
+            $masterId = decrypt($request->master_id);
+
+            // Get Master File
+            $masterFile = AllotteeMasterDocument::findOrFail($masterId);
+
+            // Old File Full Path
+            $oldFilePath = public_path($masterFile->file_path);
+
+            // Delete Old File
+            if (File::exists($oldFilePath)) {
+                File::delete($oldFilePath);
+            }
+
+            // File Extension
+            $extension = $request->file('pdf_file')->getClientOriginalExtension();
+
+            // Clean File Name
+            $renameFile = str_replace(' ', '_', trim($request->rename_file));
+
+            // New File Name
+            $newFileName = $renameFile;
+
+            // Directory
+            $directory = dirname(public_path($masterFile->file_path));
+
+            // Create Directory
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true, true);
+            }
+
+            // Upload File
+            $request->file('pdf_file')->move(
+                $directory,
+                $newFileName
+            );
+
+            // Relative File Path
+            $relativePath =
+                dirname($masterFile->file_path)
+                . '/'
+                . $newFileName;
+
+            // Update Master File
+            $masterFile->update([
+                'file_name' => $newFileName,
+                'file_path' => $relativePath,
+                'is_reupload' => 1,
+                'reupload_at' => now(),
+                'reuploaded_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Master PDF re uploaded successfully.');
+        } catch (\Exception $e) {
+
+            DB::rollback();
+
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
     }
 }
