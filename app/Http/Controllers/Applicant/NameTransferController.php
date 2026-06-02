@@ -255,68 +255,133 @@ class NameTransferController extends Controller
     {
         try {
             $userId = auth()->id();
-            $perPage = $request->input('per_page', 50);
+            $perPage = $request->input('per_page', 200);
+
+            // Get search parameters
+            $searchAllottee = $request->input('allottee');
+            $searchPropertyNo = $request->input('property_no');
+            $searchDivision = $request->input('division');
 
             $transferAllottee = Allottee::selectRaw("
-                allottees.*,
-                CASE
-                    WHEN name_transfer_status = 'no'
-                         AND is_trans_entry_completed = 0
-                    THEN 'Current Allottee'
-                    ELSE 'Transfer Allottee'
-                END as allottee_type
-            ")
-                // current / transfer records should always have parent
+                    allottees.*,
+                    CASE
+                        WHEN name_transfer_status = 'no'
+                            AND is_trans_entry_completed = 0
+                        THEN 'Current Allottee'
+                        ELSE 'Transfer Allottee'
+                    END as allottee_type
+                ")
                 ->whereNotNull('parent_id')
-
                 ->where('name_transfer_status', 'no')
                 ->where('is_trans_entry_completed', 0)
-                ->where('created_by', $userId)
+                ->where('created_by', $userId);
 
-                ->with([
-                    'division:id,name',
-                    'subDivision:id,name',
-                    'propertyCategory:id,name',
-                    'propertyType:id,name',
-                    'quarterType:quarter_id,quarter_code',
+            // Apply search filters - Search across current, parent, and grandparent
+            if (!empty($searchAllottee)) {
+                $transferAllottee->where(function ($query) use ($searchAllottee) {
+                    // Search in current allottee
+                    $query->where(function ($q) use ($searchAllottee) {
+                        $q->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('register_id', 'LIKE', "%{$searchAllottee}%");
+                    });
 
-                    // parent history
-                    'parent' => function ($q) {
+                    // Search in parent (previous allottee)
+                    $query->orWhereHas('parent', function ($q) use ($searchAllottee) {
+                        $q->where(function ($subQ) use ($searchAllottee) {
+                            $subQ->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%");
+                        });
+                    });
 
-                        $q->selectRaw("
-                        allottees.*,
-                        'Previous Allottee' as allottee_type
-                    ")
+                    // Search in grandparent (first allottee)
+                    $query->orWhereHas('parent.parent', function ($q) use ($searchAllottee) {
+                        $q->where(function ($subQ) use ($searchAllottee) {
+                            $subQ->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%");
+                        });
+                    });
+                });
+            }
 
-                            ->with([
-                                'parent' => function ($q2) {
+            if (!empty($searchPropertyNo)) {
+                $transferAllottee->where('property_number', 'LIKE', "%{$searchPropertyNo}%");
+            }
 
-                                    $q2->selectRaw("
-                                allottees.*,
-                                'First Allottee' as allottee_type
-                            ");
-                                }
-                            ]);
-                    }
-                ])
+            if (!empty($searchDivision)) {
+                $transferAllottee->whereHas('division', function ($query) use ($searchDivision) {
+                    $query->where('name', 'LIKE', "%{$searchDivision}%");
+                });
+            }
 
-                // only CURRENT allottee
-                ->where('name_transfer_status', 'no')
-
-                ->where('is_trans_entry_completed', 0)
-
+            $transferAllottee = $transferAllottee->with([
+                'division:id,name',
+                'subDivision:id,name',
+                'propertyCategory:id,name',
+                'propertyType:id,name',
+                'quarterType:quarter_id,quarter_code',
+                'parent' => function ($q) {
+                    $q->selectRaw("
+                    allottees.*,
+                    'Previous Allottee' as allottee_type
+                ")
+                        ->with([
+                            'parent' => function ($q2) {
+                                $q2->selectRaw("
+                            allottees.*,
+                            'First Allottee' as allottee_type
+                        ");
+                            }
+                        ]);
+                }
+            ])
                 ->orderByDesc('id')
-
                 ->paginate($perPage);
-            // return response()->json($transferAllottee);
+
+            // Preserve search parameters in pagination links
+            if (!empty($searchAllottee) || !empty($searchPropertyNo) || !empty($searchDivision)) {
+                $transferAllottee->appends([
+                    'allottee' => $searchAllottee,
+                    'property_no' => $searchPropertyNo,
+                    'division' => $searchDivision
+                ]);
+            }
+
             $divisions = getDivisions();
+
+            // For AJAX requests, return JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'transferAllottee' => $transferAllottee,
+                    'divisions' => $divisions,
+                    'searchParams' => [
+                        'allottee' => $searchAllottee,
+                        'property_no' => $searchPropertyNo,
+                        'division' => $searchDivision
+                    ]
+                ]);
+            }
+
             return view(
                 'applicant.components.nametransfer.completedLots',
                 compact('transferAllottee', 'divisions')
             );
         } catch (\Throwable $e) {
+            Log::error('Error in completedIndex: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
-            \Log::error($e);
+            if ($request->ajax()) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
 
             return back()->with('error', $e->getMessage());
         }

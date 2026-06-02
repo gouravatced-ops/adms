@@ -11,6 +11,7 @@ use App\Models\AllotteeMasterDocument;
 use App\Models\Division;
 use App\Models\ExportedFile;
 use App\Models\Allottee;
+use App\Models\LotAssignment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
@@ -155,16 +156,25 @@ class FileManagementController extends Controller
 
     public function deleteLotsFiles($encryptedId)
     {
-        $id = decrypt($encryptedId);
+        $file = RegisterAllottee::findOrFail(decrypt($encryptedId));
 
-        $file = RegisterAllottee::where('id', $id)->firstOrFail();
-
-        $file->update([
+        $updated = $file->update([
             'is_active' => 0,
         ]);
 
-        return redirect()->route('admin.manage.lots.file.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
-            ->with('success', 'File Deleted successfully.');
+        if ($updated) {
+            LotAssignment::where('allottee_id', $file->id)->delete();
+        }
+
+        return redirect()
+            ->route('admin.manage.lots.file.index', [
+                'encodedId' => base64_encode($file->register_id),
+                'page' => 1,
+            ])
+            ->with(
+                $updated ? 'success' : 'error',
+                $updated ? 'File deleted successfully.' : 'Failed to delete file.'
+            );
     }
 
     public function receivingLotsList(Request $request)
