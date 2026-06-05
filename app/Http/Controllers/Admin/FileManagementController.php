@@ -860,23 +860,11 @@ class FileManagementController extends Controller
                 'quarterType',
             ];
 
-            // Step 1: Get finalIds (optimized memory)
-            $finalIds = RegisterAllottee::where('register_id', $registerNo)
-                ->get()
-                ->map(fn($item) => $item->grand_parent_id ?? $item->id)
-                ->unique()
-                ->values();
-
             // Step 2: Single query (normal + transfer files)
             $files = Allottee::query()
                 ->with($baseRelations)
-                ->where(function ($q) use ($finalIds, $registerNo) {
-                    $q->whereIn('register_file_id', $finalIds)
-                        ->orWhere(function ($q2) use ($registerNo) {
-                            $q2->whereNull('register_file_id')
-                                ->where('register_id', $registerNo);
-                        });
-                })
+                ->where('register_id', $registerNo)
+                ->where('divisional_approval', 0)
                 ->where('sub_admin_allottee_verify', 0)
                 ->paginate(50)
                 ->through(function ($item) {
@@ -934,10 +922,12 @@ class FileManagementController extends Controller
 
             $file->documentData = AllotteeDocument::with('document')->where('allottee_id', $file->id)->get();
 
+            $schemeLists = getSchemeList($file->division_id, $file->subdivision_id, $file->pcategory_id, $file->property_type_id, $file->quarter_id);
+
             $fullName = $file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname;
             // return $file;
             $registration = $file;
-            return view('admin.components.filereceiving.previewdata', compact('registration', 'fullName'));
+            return view('admin.components.filereceiving.previewdata', compact('registration', 'fullName', 'schemeLists'));
         } catch (\Throwable $e) {
             Log::error('File preview failed', [
                 'error' => $e->getMessage()
@@ -1021,7 +1011,6 @@ class FileManagementController extends Controller
 
     public function approveDataEntry($encryptedId, Request $request)
     {
-        // return $request;
         try {
             $id = decrypt($encryptedId);
             $file = Allottee::where('id', $id)->firstOrFail();
@@ -1038,6 +1027,7 @@ class FileManagementController extends Controller
                 if (auth('admin')->user()->role == 'approver' || auth('admin')->user()->role == 'divisional_admin') {
                     // 1. Approve current file
                     $file->update([
+                        'scheme_id'                => $request->scheme_id,
                         'divisional_approval'      => 1,
                         'divisional_remaks'        => null,
                         'divisional_approved_date' => date('Y-m-d H:i:s'),

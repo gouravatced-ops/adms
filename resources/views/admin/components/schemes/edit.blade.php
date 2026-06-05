@@ -36,7 +36,7 @@
                     // print_r($scheme); die();
                 @endphp
 
-                <form action="{{ route('admin.schemes.update' , $scheme->id) }}" method="POST"
+                <form action="{{ route('admin.schemes.update', $scheme->id) }}" method="POST"
                     class="row g-3 align-items-end" id="schemeForm">
                     @csrf
                     @method('PUT')
@@ -175,7 +175,7 @@
                         <small class="text-muted">Total Units</small>
                     </div>
 
-                    <div class="row g-3">
+                    {{-- <div class="row g-3">
 
                         <!-- ===================================================== -->
                         <!-- HEADER -->
@@ -445,7 +445,7 @@
                                 class="form-control">
                         </div>
 
-                    </div>
+                    </div> --}}
 
                     <!-- ACTION BUTTONS -->
                     <div class="col-12 d-flex gap-2 mt-4">
