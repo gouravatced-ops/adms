@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Files Handover - COMPUTER Ed.</title>
     <style>
         @font-face {
@@ -12,6 +12,16 @@
             font-style: normal;
         }
 
+        @font-face {
+            font-family: 'NotoSansDevanagari';
+            src: url('{{ public_path('assets/fontspdf/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'KrutiDev';
+            src: url('{{ public_path('assets/fontspdf/KrutiDev010.ttf') }}') format('truetype');
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +29,7 @@
         }
 
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'NotoSansDevanagari', 'DejaVu Sans', sans-serif;
             font-size: 9px;
             color: #000;
             line-height: 1.4;
@@ -32,6 +42,7 @@
             margin-bottom: 25mm;
             margin-left: 10mm;
         }
+
 
         .page-wrapper {
             position: relative;
@@ -194,27 +205,43 @@
             color: #000;
         }
 
-        /* Data Table */
+
+        /* ========== DATA TABLE - ULTRA COMPACT PADDING & MARGIN ========== */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0px 0px 20px;
+            margin: 0;
+            /* no margin */
             font-size: 10px;
-            padding-right: 15px;
+            /* smaller font */
+            table-layout: fixed;
         }
 
         .data-table th {
             color: #000000;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #999;
+            border: 0.5px solid #888;
             font-size: 10px;
+            padding: 1px 2px;
+            /* minimal padding */
+            background-color: #f7f7f7;
         }
 
         .data-table td {
-            border: 1px solid #999;
-            padding: 1px 2px;
+            border: 0.5px solid #888;
+            padding: 0px 2px;
+            /* zero top/bottom padding */
             vertical-align: middle;
+            word-break: break-word;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+
+        /* Force avoid page break inside any table row - critical fix */
+        .data-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .text-center {
@@ -224,7 +251,8 @@
         .no-records {
             font-style: italic;
             color: #666;
-            padding: 20px !important;
+            padding: 4px !important;
+            text-align: center;
         }
 
         .footer {
@@ -398,28 +426,24 @@
                 </tbody>
             </table>
 
+
             <!-- Footer Signatures -->
             <div class="footer">
-                <br><br><br><br>
+                <p style="font-family:'KrutiDev'; font-size:16px; border-bottom: 1.5px solid #000;">
+                    eSa iqf"V djrk gw¡ fd esjs }kjk bl lwph dh lHkh QkbZyksa dk LdS.M <span
+                        style="
+                                    font-size:12px;
+                                    font-family: Arial, sans-serif;
+                                ">
+                        PDF
+                    </span> ,oa lEcfU/kr
+                    MkVk ,UVªh dks lR;kfir dj fy;k x;k gS ,oa mijksDr QkbZysa lqjf{kr :i ls dk;kZy; dks
+                    izkIr gks x;h gSaA
+                </p>
+                <br>
                 <table class="signature-table">
                     <tr>
                         <td class="left">
-                            <div class="line-row">
-                                Signature :
-                                <span class="line long"></span>
-                            </div>
-
-                            <div class="line-row">
-                                Handover from :
-                                <span class="line medium"></span>
-                            </div>
-
-                            <div class="sub-text">
-                                (Authorized signatory-COMPUTER Ed.)
-                            </div>
-                        </td>
-
-                        <td class="right">
                             <div class="line-row">
                                 Signature :
                                 <span class="line long"></span>
@@ -431,7 +455,23 @@
                             </div>
 
                             <div class="sub-text">
-                                (Nodal Officer-Jharkhand State Housing Board)
+                                (Authorized signatory-Jharkhand State Housing Board)
+                            </div>
+                        </td>
+
+                        <td class="right">
+                            <div class="line-row">
+                                Signature :
+                                <span class="line long"></span>
+                            </div>
+
+                            <div class="line-row">
+                                Handover by :
+                                <span class="line medium"></span>
+                            </div>
+
+                            <div class="sub-text">
+                                (Authorized signatory-COMPUTER Ed.)
                             </div>
                         </td>
                     </tr>

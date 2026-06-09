@@ -133,7 +133,7 @@
         color: #ef4444;
     }
 
-    .joint-field input, 
+    .joint-field input,
     .joint-field select {
         width: 100%;
         padding: 10px 12px;
@@ -144,11 +144,11 @@
         background: white;
     }
 
-    .joint-field input:focus, 
+    .joint-field input:focus,
     .joint-field select:focus {
         outline: none;
         border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .joint-name-group {
@@ -180,9 +180,9 @@
     #return getDebugIndex($applicant);
     // Decode existing joint allottees if any (for edit mode)
     $existingJointAllottees = [];
-    if(isset($applicant->joint_allottees_data) && is_string($applicant->joint_allottees_data)) {
+    if (isset($applicant->joint_allottees_data) && is_string($applicant->joint_allottees_data)) {
         $existingJointAllottees = json_decode($applicant->joint_allottees_data, true) ?: [];
-    } elseif(isset($applicant->joint_allottees) && count($applicant->joint_allottees) > 0) {
+    } elseif (isset($applicant->joint_allottees) && count($applicant->joint_allottees) > 0) {
         // If using relationship
         $existingJointAllottees = $applicant->jointAllottees->toArray() ?? [];
     }
@@ -200,7 +200,7 @@
     <input type="hidden" name="quarter_id" value="{{ $applicant->quarter_id ?? '' }}">
     <input type="hidden" name="property_number" value="{{ $applicant->property_number ?? '' }}">
     <input type="hidden" name="quarter_income_code" value="{{ $applicant->quarterType->quarter_code ?? '' }}">
-    
+
     {{-- Property summary pill --}}
     <div class="property-summary">
         <div class="prop-pill">
@@ -221,7 +221,7 @@
                     style="color: green;">{{ $applicant->propertyType->name }}</span></span>
         </div>
     </div>
-    
+
     {{-- ── Allottee Details ── --}}
     <div class="form-section" style="margin-top:10px;">
         <div class="form-grid" style="grid-template-columns: repeat(1, 1fr) !important;">
@@ -232,9 +232,9 @@
                 <div class="date-group">
                     <select name="allotment_day" class="custom-input">
                         <option value="">दिन / Day</option>
-                        <?php 
+                        <?php
                             $selectedDay = $applicant->allotment_day ?? '';
-                            for ($d = 1; $d <= 31; $d++): 
+                            for ($d = 1; $d <= 31; $d++):
                                 $day = str_pad($d, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $day ?>" <?= $selectedDay == $day ? 'selected' : '' ?>>
@@ -244,9 +244,9 @@
                     </select>
                     <select name="allotment_month" class="custom-input">
                         <option value="">माह / Month</option>
-                        <?php 
+                        <?php
                             $selectedMonth = $applicant->allotment_month ?? '';
-                            for ($m = 1; $m <= 12; $m++): 
+                            for ($m = 1; $m <= 12; $m++):
                                 $month = str_pad($m, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $month ?>" <?= $selectedMonth == $month ? 'selected' : '' ?>>
@@ -256,10 +256,10 @@
                     </select>
                     <select name="allotment_year" id="allotment_year" class="custom-input">
                         <option value="">वर्ष / Year</option>
-                        <?php 
+                        <?php
                             $selectedYear = $applicant->allotment_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1950; $y--): 
+                            for ($y = $currentYear; $y >= 1950; $y--):
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -269,7 +269,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="form-grid">
             <div class="field">
                 <label class="field-label">
@@ -434,6 +434,7 @@
                     'Destitute Widows' => 'Destitute Widows',
                     'Vidhaanmandal' => 'Vidhaanmandal',
                     'Vidhansabha' => 'Vidhansabha',
+                    'Staff Quota' => 'Staff Quota',
                 ];
 
                 $selectedCategory = old('allottee_category', $applicant->allottee_category ?? '');
@@ -506,9 +507,9 @@
                 <div class="input-group date-group">
                     <select name="date_of_birth_day" class="custom-input">
                         <option value="">दिन / Day</option>
-                        <?php 
+                        <?php
                             $selectedDay = $applicant->date_of_birth_day ?? '';
-                            for ($d = 1; $d <= 31; $d++): 
+                            for ($d = 1; $d <= 31; $d++):
                                 $day = str_pad($d, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $day ?>" <?= $selectedDay == $day ? 'selected' : '' ?>>
@@ -518,9 +519,9 @@
                     </select>
                     <select name="date_of_birth_month" class="custom-input">
                         <option value="">माह / Month</option>
-                        <?php 
+                        <?php
                             $selectedMonth = $applicant->date_of_birth_month ?? '';
-                            for ($m = 1; $m <= 12; $m++): 
+                            for ($m = 1; $m <= 12; $m++):
                                 $month = str_pad($m, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $month ?>" <?= $selectedMonth == $month ? 'selected' : '' ?>>
@@ -530,10 +531,10 @@
                     </select>
                     <select name="date_of_birth_year" class="custom-input">
                         <option value="">वर्ष / Year</option>
-                        <?php 
+                        <?php
                             $selectedYear = $applicant->date_of_birth_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1925; $y--): 
+                            for ($y = $currentYear; $y >= 1925; $y--):
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -568,134 +569,184 @@
         <div class="joint-allottee-header">
             <h3>Joint Allottee Details (सह-आवंटी विवरण)</h3>
             <button type="button" class="btn-add-joint" id="addJointAllotteeBtn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
                 </svg>
                 Add Joint Allottee
             </button>
         </div>
-        
+
         <div id="jointAllotteesContainer">
-            @if(count($existingJointAllottees) > 0)
-                @foreach($existingJointAllottees as $index => $joint)
-                <div class="joint-member-card" data-joint-index="{{ $index }}">
-                    <div class="joint-member-title">
-                        <span>Joint Allottee #<span class="joint-number">{{ $index + 1 }}</span></span>
-                        <button type="button" class="btn-remove-joint" onclick="removeJointAllottee(this)">Remove</button>
-                    </div>
-                    <div class="joint-form-grid">
-                        {{-- First Name with Prefix --}}
-                        <div class="joint-field">
-                            <label>First Name <span class="req-star">*</span></label>
-                            <div class="joint-name-group">
-                                <select name="joint_allottee_prefix[]" class="joint-prefix-select">
-                                    <option value="Shri" {{ ($joint['prefix'] ?? 'Shri') == 'Shri' ? 'selected' : '' }}>Shri</option>
-                                    <option value="Smt." {{ ($joint['prefix'] ?? '') == 'Smt.' ? 'selected' : '' }}>Smt.</option>
-                                    <option value="Miss" {{ ($joint['prefix'] ?? '') == 'Miss' ? 'selected' : '' }}>Miss</option>
-                                    <option value="Dr." {{ ($joint['prefix'] ?? '') == 'Dr.' ? 'selected' : '' }}>Dr.</option>
-                                    <option value="Md." {{ ($joint['prefix'] ?? '') == 'Md.' ? 'selected' : '' }}>Md.</option>
-                                    <option value="Late" {{ ($joint['prefix'] ?? '') == 'Late' ? 'selected' : '' }}>Late</option>
-                                    <option value="M/S" {{ ($joint['prefix'] ?? '') == 'M/S' ? 'selected' : '' }}>M/S</option>
-                                    <option value="Maj." {{ ($joint['prefix'] ?? '') == 'Maj.' ? 'selected' : '' }}>Maj.</option>
-                                    <option value="Capt." {{ ($joint['prefix'] ?? '') == 'Capt.' ? 'selected' : '' }}>Capt.</option>
+            @if (count($existingJointAllottees) > 0)
+                @foreach ($existingJointAllottees as $index => $joint)
+                    <div class="joint-member-card" data-joint-index="{{ $index }}">
+                        <div class="joint-member-title">
+                            <span>Joint Allottee #<span class="joint-number">{{ $index + 1 }}</span></span>
+                            <button type="button" class="btn-remove-joint"
+                                onclick="removeJointAllottee(this)">Remove</button>
+                        </div>
+                        <div class="joint-form-grid">
+                            {{-- First Name with Prefix --}}
+                            <div class="joint-field">
+                                <label>First Name <span class="req-star">*</span></label>
+                                <div class="joint-name-group">
+                                    <select name="joint_allottee_prefix[]" class="joint-prefix-select">
+                                        <option value="Shri"
+                                            {{ ($joint['prefix'] ?? 'Shri') == 'Shri' ? 'selected' : '' }}>Shri
+                                        </option>
+                                        <option value="Smt."
+                                            {{ ($joint['prefix'] ?? '') == 'Smt.' ? 'selected' : '' }}>Smt.</option>
+                                        <option value="Miss"
+                                            {{ ($joint['prefix'] ?? '') == 'Miss' ? 'selected' : '' }}>Miss</option>
+                                        <option value="Dr."
+                                            {{ ($joint['prefix'] ?? '') == 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                                        <option value="Md."
+                                            {{ ($joint['prefix'] ?? '') == 'Md.' ? 'selected' : '' }}>Md.</option>
+                                        <option value="Late"
+                                            {{ ($joint['prefix'] ?? '') == 'Late' ? 'selected' : '' }}>Late</option>
+                                        <option value="M/S"
+                                            {{ ($joint['prefix'] ?? '') == 'M/S' ? 'selected' : '' }}>M/S</option>
+                                        <option value="Maj."
+                                            {{ ($joint['prefix'] ?? '') == 'Maj.' ? 'selected' : '' }}>Maj.</option>
+                                        <option value="Capt."
+                                            {{ ($joint['prefix'] ?? '') == 'Capt.' ? 'selected' : '' }}>Capt.</option>
+                                    </select>
+                                    <input type="text" name="joint_allottee_name[]"
+                                        class="joint-first-name only-alphabet"
+                                        value="{{ $joint['first_name'] ?? '' }}" placeholder="First Name" required>
+                                </div>
+                            </div>
+
+                            {{-- Middle Name --}}
+                            <div class="joint-field">
+                                <label>Middle Name</label>
+                                <input type="text" name="joint_allottee_middle_name[]"
+                                    class="joint-middle-name only-alphabet" value="{{ $joint['middle_name'] ?? '' }}"
+                                    placeholder="Middle Name (Optional)">
+                            </div>
+
+                            {{-- Last Name --}}
+                            <div class="joint-field">
+                                <label>Last Name </label>
+                                <input type="text" name="joint_allottee_surname[]"
+                                    class="joint-last-name only-alphabet" value="{{ $joint['last_name'] ?? '' }}"
+                                    placeholder="Last Name">
+                            </div>
+
+                            {{-- First Name (Hindi) with Prefix --}}
+                            <div class="joint-field">
+                                <label>First Name (Hindi)</label>
+                                <div class="joint-name-group">
+                                    <select name="joint_allottee_prefix_hindi[]" class="joint-prefix-hindi-select">
+                                        <option value="श्री"
+                                            {{ ($joint['prefix_hindi'] ?? 'श्री') == 'श्री' ? 'selected' : '' }}>श्री
+                                        </option>
+                                        <option value="श्रीमती"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'श्रीमती' ? 'selected' : '' }}>श्रीमती
+                                        </option>
+                                        <option value="सुश्री"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'सुश्री' ? 'selected' : '' }}>सुश्री
+                                        </option>
+                                        <option value="डॉ."
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'डॉ.' ? 'selected' : '' }}>डॉ.
+                                        </option>
+                                        <option value="मो."
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'मो.' ? 'selected' : '' }}>मो.
+                                        </option>
+                                        <option value="स्व०"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'स्व०' ? 'selected' : '' }}>स्व०
+                                        </option>
+                                        <option value="मेसर्स"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'मेसर्स' ? 'selected' : '' }}>मेसर्स
+                                        </option>
+                                        <option value="मेजर"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'मेजर' ? 'selected' : '' }}>मेजर
+                                        </option>
+                                        <option value="कैप्टन"
+                                            {{ ($joint['prefix_hindi'] ?? '') == 'कैप्टन' ? 'selected' : '' }}>कैप्टन
+                                        </option>
+                                    </select>
+                                    <input type="text" name="joint_allottee_name_hindi[]"
+                                        class="joint-first-name-hindi only-hindi"
+                                        value="{{ $joint['first_name_hindi'] ?? '' }}" placeholder="प्रथम नाम">
+                                </div>
+                            </div>
+
+                            {{-- Middle Name (Hindi) --}}
+                            <div class="joint-field">
+                                <label>Middle Name (Hindi)</label>
+                                <input type="text" name="joint_allottee_middle_name_hindi[]"
+                                    class="joint-middle-name-hindi only-hindi"
+                                    value="{{ $joint['middle_name_hindi'] ?? '' }}"
+                                    placeholder="मध्य नाम (वैकल्पिक)">
+                            </div>
+
+                            {{-- Last Name (Hindi) --}}
+                            <div class="joint-field">
+                                <label>Last Name (Hindi) </label>
+                                <input type="text" name="joint_allottee_surname_hindi[]"
+                                    class="joint-last-name-hindi only-hindi"
+                                    value="{{ $joint['last_name_hindi'] ?? '' }}" placeholder="अंतिम नाम">
+                            </div>
+
+                            {{-- Gender --}}
+                            <div class="joint-field">
+                                <label>Gender <span class="req-star">*</span></label>
+                                <select name="joint_allottee_gender[]" class="joint-gender" required>
+                                    <option value="">Select</option>
+                                    <option value="Male" {{ ($joint['gender'] ?? '') == 'Male' ? 'selected' : '' }}>
+                                        Male</option>
+                                    <option value="Female"
+                                        {{ ($joint['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
+                                    <option value="Transgender"
+                                        {{ ($joint['gender'] ?? '') == 'Transgender' ? 'selected' : '' }}>Transgender
+                                    </option>
                                 </select>
-                                <input type="text" name="joint_allottee_name[]" class="joint-first-name only-alphabet" 
-                                    value="{{ $joint['first_name'] ?? '' }}" placeholder="First Name" required>
+                            </div>
+
+                            {{-- Aadhar Number (Optional) --}}
+                            <div class="joint-field">
+                                <label>Aadhar Number</label>
+                                <input type="text" name="joint_allottee_aadhar[]" class="joint-aadhar only-number"
+                                    value="{{ $joint['aadhar'] ?? '' }}" placeholder="12-digit Aadhar (Optional)"
+                                    maxlength="12">
+                            </div>
+
+                            {{-- PAN Number (Optional) --}}
+                            <div class="joint-field">
+                                <label>PAN Number</label>
+                                <input type="text" name="joint_allottee_pan[]" class="joint-pan pan-input"
+                                    value="{{ $joint['pan'] ?? '' }}" placeholder="ABCDE1234F (Optional)"
+                                    maxlength="10">
+                            </div>
+
+                            {{-- Other Document Type --}}
+                            <div class="joint-field">
+                                <label>Other Document Type</label>
+                                <select name="joint_allottee_doc_type[]" class="joint-doc-type">
+                                    <option value="">Select Document Type</option>
+                                    <option value="driving_license"
+                                        {{ ($joint['doc_type'] ?? '') == 'driving_license' ? 'selected' : '' }}>Driving
+                                        License</option>
+                                    <option value="passport"
+                                        {{ ($joint['doc_type'] ?? '') == 'passport' ? 'selected' : '' }}>Passport
+                                    </option>
+                                    <option value="voter_id"
+                                        {{ ($joint['doc_type'] ?? '') == 'voter_id' ? 'selected' : '' }}>Voter ID
+                                    </option>
+                                </select>
+                            </div>
+
+                            {{-- Other Document Number --}}
+                            <div class="joint-field">
+                                <label>Other Document Number</label>
+                                <input type="text" name="joint_allottee_doc_number[]" class="joint-doc-number"
+                                    value="{{ $joint['doc_number'] ?? '' }}"
+                                    placeholder="Document Number (Optional)">
                             </div>
                         </div>
-                        
-                        {{-- Middle Name --}}
-                        <div class="joint-field">
-                            <label>Middle Name</label>
-                            <input type="text" name="joint_allottee_middle_name[]" class="joint-middle-name only-alphabet" 
-                                value="{{ $joint['middle_name'] ?? '' }}" placeholder="Middle Name (Optional)">
-                        </div>
-                        
-                        {{-- Last Name --}}
-                        <div class="joint-field">
-                            <label>Last Name </label>
-                            <input type="text" name="joint_allottee_surname[]" class="joint-last-name only-alphabet" 
-                                value="{{ $joint['last_name'] ?? '' }}" placeholder="Last Name">
-                        </div>
-                        
-                        {{-- First Name (Hindi) with Prefix --}}
-                        <div class="joint-field">
-                            <label>First Name (Hindi)</label>
-                            <div class="joint-name-group">
-                                <select name="joint_allottee_prefix_hindi[]" class="joint-prefix-hindi-select">
-                                    <option value="श्री" {{ ($joint['prefix_hindi'] ?? 'श्री') == 'श्री' ? 'selected' : '' }}>श्री</option>
-                                    <option value="श्रीमती" {{ ($joint['prefix_hindi'] ?? '') == 'श्रीमती' ? 'selected' : '' }}>श्रीमती</option>
-                                    <option value="सुश्री" {{ ($joint['prefix_hindi'] ?? '') == 'सुश्री' ? 'selected' : '' }}>सुश्री</option>
-                                    <option value="डॉ." {{ ($joint['prefix_hindi'] ?? '') == 'डॉ.' ? 'selected' : '' }}>डॉ.</option>
-                                    <option value="मो." {{ ($joint['prefix_hindi'] ?? '') == 'मो.' ? 'selected' : '' }}>मो.</option>
-                                    <option value="स्व०" {{ ($joint['prefix_hindi'] ?? '') == 'स्व०' ? 'selected' : '' }}>स्व०</option>
-                                    <option value="मेसर्स" {{ ($joint['prefix_hindi'] ?? '') == 'मेसर्स' ? 'selected' : '' }}>मेसर्स</option>
-                                    <option value="मेजर" {{ ($joint['prefix_hindi'] ?? '') == 'मेजर' ? 'selected' : '' }}>मेजर</option>
-                                    <option value="कैप्टन" {{ ($joint['prefix_hindi'] ?? '') == 'कैप्टन' ? 'selected' : '' }}>कैप्टन</option>
-                                </select>
-                                <input type="text" name="joint_allottee_name_hindi[]" class="joint-first-name-hindi only-hindi" 
-                                    value="{{ $joint['first_name_hindi'] ?? '' }}" placeholder="प्रथम नाम">
-                            </div>
-                        </div>
-                        
-                        {{-- Middle Name (Hindi) --}}
-                        <div class="joint-field">
-                            <label>Middle Name (Hindi)</label>
-                            <input type="text" name="joint_allottee_middle_name_hindi[]" class="joint-middle-name-hindi only-hindi" 
-                                value="{{ $joint['middle_name_hindi'] ?? '' }}" placeholder="मध्य नाम (वैकल्पिक)">
-                        </div>
-                        
-                        {{-- Last Name (Hindi) --}}
-                        <div class="joint-field">
-                            <label>Last Name (Hindi) </label>
-                            <input type="text" name="joint_allottee_surname_hindi[]" class="joint-last-name-hindi only-hindi" 
-                                value="{{ $joint['last_name_hindi'] ?? '' }}" placeholder="अंतिम नाम">
-                        </div>
-                        
-                        {{-- Gender --}}
-                        <div class="joint-field">
-                            <label>Gender <span class="req-star">*</span></label>
-                            <select name="joint_allottee_gender[]" class="joint-gender" required>
-                                <option value="">Select</option>
-                                <option value="Male" {{ ($joint['gender'] ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
-                                <option value="Female" {{ ($joint['gender'] ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
-                                <option value="Transgender" {{ ($joint['gender'] ?? '') == 'Transgender' ? 'selected' : '' }}>Transgender</option>
-                            </select>
-                        </div>
-                        
-                        {{-- Aadhar Number (Optional) --}}
-                        <div class="joint-field">
-                            <label>Aadhar Number</label>
-                            <input type="text" name="joint_allottee_aadhar[]" class="joint-aadhar only-number" 
-                                value="{{ $joint['aadhar'] ?? '' }}" placeholder="12-digit Aadhar (Optional)" maxlength="12">
-                        </div>
-                        
-                        {{-- PAN Number (Optional) --}}
-                        <div class="joint-field">
-                            <label>PAN Number</label>
-                            <input type="text" name="joint_allottee_pan[]" class="joint-pan pan-input" 
-                                value="{{ $joint['pan'] ?? '' }}" placeholder="ABCDE1234F (Optional)" maxlength="10">
-                        </div>
-                        
-                        {{-- Other Document Type --}}
-                        <div class="joint-field">
-                            <label>Other Document Type</label>
-                            <select name="joint_allottee_doc_type[]" class="joint-doc-type">
-                                <option value="">Select Document Type</option>
-                                <option value="driving_license" {{ ($joint['doc_type'] ?? '') == 'driving_license' ? 'selected' : '' }}>Driving License</option>
-                                <option value="passport" {{ ($joint['doc_type'] ?? '') == 'passport' ? 'selected' : '' }}>Passport</option>
-                                <option value="voter_id" {{ ($joint['doc_type'] ?? '') == 'voter_id' ? 'selected' : '' }}>Voter ID</option>
-                            </select>
-                        </div>
-                        
-                        {{-- Other Document Number --}}
-                        <div class="joint-field">
-                            <label>Other Document Number</label>
-                            <input type="text" name="joint_allottee_doc_number[]" class="joint-doc-number" 
-                                value="{{ $joint['doc_number'] ?? '' }}" placeholder="Document Number (Optional)">
-                        </div>
                     </div>
-                </div>
                 @endforeach
             @endif
         </div>
@@ -725,22 +776,25 @@
                         <option value="Maj.">Maj.</option>
                         <option value="Capt.">Capt.</option>
                     </select>
-                    <input type="text" name="joint_allottee_name[]" class="joint-first-name only-alphabet" placeholder="First Name" required>
+                    <input type="text" name="joint_allottee_name[]" class="joint-first-name only-alphabet"
+                        placeholder="First Name" required>
                 </div>
             </div>
-            
+
             {{-- Middle Name --}}
             <div class="joint-field">
                 <label>Middle Name</label>
-                <input type="text" name="joint_allottee_middle_name[]" class="joint-middle-name only-alphabet" placeholder="Middle Name (Optional)">
+                <input type="text" name="joint_allottee_middle_name[]" class="joint-middle-name only-alphabet"
+                    placeholder="Middle Name (Optional)">
             </div>
-            
+
             {{-- Last Name --}}
             <div class="joint-field">
                 <label>Last Name </label>
-                <input type="text" name="joint_allottee_surname[]" class="joint-last-name only-alphabet" placeholder="Last Name">
+                <input type="text" name="joint_allottee_surname[]" class="joint-last-name only-alphabet"
+                    placeholder="Last Name">
             </div>
-            
+
             {{-- First Name (Hindi) with Prefix --}}
             <div class="joint-field">
                 <label>First Name (Hindi)</label>
@@ -756,22 +810,25 @@
                         <option value="मेजर">मेजर</option>
                         <option value="कैप्टन">कैप्टन</option>
                     </select>
-                    <input type="text" name="joint_allottee_name_hindi[]" class="joint-first-name-hindi only-hindi" placeholder="प्रथम नाम">
+                    <input type="text" name="joint_allottee_name_hindi[]"
+                        class="joint-first-name-hindi only-hindi" placeholder="प्रथम नाम">
                 </div>
             </div>
-            
+
             {{-- Middle Name (Hindi) --}}
             <div class="joint-field">
                 <label>Middle Name (Hindi)</label>
-                <input type="text" name="joint_allottee_middle_name_hindi[]" class="joint-middle-name-hindi only-hindi" placeholder="मध्य नाम (वैकल्पिक)">
+                <input type="text" name="joint_allottee_middle_name_hindi[]"
+                    class="joint-middle-name-hindi only-hindi" placeholder="मध्य नाम (वैकल्पिक)">
             </div>
-            
+
             {{-- Last Name (Hindi) --}}
             <div class="joint-field">
                 <label>Last Name (Hindi)</label>
-                <input type="text" name="joint_allottee_surname_hindi[]" class="joint-last-name-hindi only-hindi" placeholder="अंतिम नाम">
+                <input type="text" name="joint_allottee_surname_hindi[]" class="joint-last-name-hindi only-hindi"
+                    placeholder="अंतिम नाम">
             </div>
-            
+
             {{-- Gender --}}
             <div class="joint-field">
                 <label>Gender <span class="req-star">*</span></label>
@@ -782,19 +839,21 @@
                     <option value="Transgender">Transgender</option>
                 </select>
             </div>
-            
+
             {{-- Aadhar Number (Optional) --}}
             <div class="joint-field">
                 <label>Aadhar Number</label>
-                <input type="text" name="joint_allottee_aadhar[]" class="joint-aadhar only-number" placeholder="12-digit Aadhar (Optional)" maxlength="12">
+                <input type="text" name="joint_allottee_aadhar[]" class="joint-aadhar only-number"
+                    placeholder="12-digit Aadhar (Optional)" maxlength="12">
             </div>
-            
+
             {{-- PAN Number (Optional) --}}
             <div class="joint-field">
                 <label>PAN Number</label>
-                <input type="text" name="joint_allottee_pan[]" class="joint-pan pan-input" placeholder="ABCDE1234F (Optional)" maxlength="10">
+                <input type="text" name="joint_allottee_pan[]" class="joint-pan pan-input"
+                    placeholder="ABCDE1234F (Optional)" maxlength="10">
             </div>
-            
+
             {{-- Other Document Type --}}
             <div class="joint-field">
                 <label>Other Document Type</label>
@@ -805,11 +864,12 @@
                     <option value="voter_id">Voter ID</option>
                 </select>
             </div>
-            
+
             {{-- Other Document Number --}}
             <div class="joint-field">
                 <label>Other Document Number</label>
-                <input type="text" name="joint_allottee_doc_number[]" class="joint-doc-number" placeholder="Document Number (Optional)">
+                <input type="text" name="joint_allottee_doc_number[]" class="joint-doc-number"
+                    placeholder="Document Number (Optional)">
             </div>
         </div>
     </div>

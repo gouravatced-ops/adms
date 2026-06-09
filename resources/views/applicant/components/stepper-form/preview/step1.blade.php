@@ -75,9 +75,9 @@
                     <!-- Day -->
                     <select name="application_day" class="custom-input">
                         <option value="">दिन / Day</option>
-                        <?php 
+                        <?php
                             $selectedDay = $applicant->application_day ?? '';
-                            for ($d = 1; $d <= 31; $d++): 
+                            for ($d = 1; $d <= 31; $d++):
                                 $day = str_pad($d, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $day ?>" <?= $selectedDay == $day ? 'selected' : '' ?>>
@@ -88,9 +88,9 @@
                     <!-- Month -->
                     <select name="application_month" class="custom-input">
                         <option value="">माह / Month</option>
-                        <?php 
+                        <?php
                             $selectedMonth = $applicant->application_month ?? '';
-                            for ($m = 1; $m <= 12; $m++): 
+                            for ($m = 1; $m <= 12; $m++):
                                 $month = str_pad($m, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $month ?>" <?= $selectedMonth == $month ? 'selected' : '' ?>>
@@ -101,10 +101,10 @@
                     <!-- Year -->
                     <select name="application_year" class="custom-input" id="application_year">
                         <option value="">वर्ष / Year</option>
-                        <?php 
+                        <?php
                             $selectedYear = $applicant->application_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1960; $y--): 
+                            for ($y = $currentYear; $y >= 1960; $y--):
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -148,9 +148,9 @@
                     <!-- Day -->
                     <select name="allotment_day" class="custom-input">
                         <option value="">दिन / Day</option>
-                        <?php 
+                        <?php
                             $selectedDay = $applicant->allotment_day ?? '';
-                            for ($d = 1; $d <= 31; $d++): 
+                            for ($d = 1; $d <= 31; $d++):
                                 $day = str_pad($d, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $day ?>" <?= $selectedDay == $day ? 'selected' : '' ?>>
@@ -161,9 +161,9 @@
                     <!-- Month -->
                     <select name="allotment_month" class="custom-input">
                         <option value="">माह / Month</option>
-                        <?php 
+                        <?php
                             $selectedMonth = $applicant->allotment_month ?? '';
-                            for ($m = 1; $m <= 12; $m++): 
+                            for ($m = 1; $m <= 12; $m++):
                                 $month = str_pad($m, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $month ?>" <?= $selectedMonth == $month ? 'selected' : '' ?>>
@@ -174,10 +174,10 @@
                     <!-- Year -->
                     <select name="allotment_year" id="allotment_year" class="custom-input">
                         <option value="">वर्ष / Year</option>
-                        <?php 
+                        <?php
                             $selectedYear = $applicant->allotment_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1960; $y--): 
+                            for ($y = $currentYear; $y >= 1960; $y--):
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
@@ -354,6 +354,7 @@
                     'Destitute Widows' => 'Destitute Widows',
                     'Vidhaanmandal' => 'Vidhaanmandal',
                     'Vidhansabha' => 'Vidhansabha',
+                    'Staff Quota' => 'Staff Quota',
                 ];
 
                 $selectedCategory = old('allottee_category', $applicant->allottee_category ?? '');
@@ -437,9 +438,9 @@
                     <!-- Day -->
                     <select name="date_of_birth_day" class="custom-input">
                         <option value="">दिन / Day</option>
-                        <?php 
+                        <?php
                             $selectedDay = $applicant->date_of_birth_day ?? '';
-                            for ($d = 1; $d <= 31; $d++): 
+                            for ($d = 1; $d <= 31; $d++):
                                 $day = str_pad($d, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $day ?>" <?= $selectedDay == $day ? 'selected' : '' ?>>
@@ -450,9 +451,9 @@
                     <!-- Month -->
                     <select name="date_of_birth_month" class="custom-input">
                         <option value="">माह / Month</option>
-                        <?php 
+                        <?php
                             $selectedMonth = $applicant->date_of_birth_month ?? '';
-                            for ($m = 1; $m <= 12; $m++): 
+                            for ($m = 1; $m <= 12; $m++):
                                 $month = str_pad($m, 2, '0', STR_PAD_LEFT);
                         ?>
                         <option value="<?= $month ?>" <?= $selectedMonth == $month ? 'selected' : '' ?>>
@@ -463,10 +464,10 @@
                     <!-- Year -->
                     <select name="date_of_birth_year" class="custom-input">
                         <option value="">वर्ष / Year</option>
-                        <?php 
+                        <?php
                             $selectedYear = $applicant->date_of_birth_year ?? '';
                             $currentYear = date('Y');
-                            for ($y = $currentYear; $y >= 1925; $y--): 
+                            for ($y = $currentYear; $y >= 1925; $y--):
                         ?>
                         <option value="<?= $y ?>" <?= $selectedYear == $y ? 'selected' : '' ?>>
                             <?= $y ?>
