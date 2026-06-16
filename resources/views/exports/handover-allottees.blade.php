@@ -30,7 +30,7 @@
 
         body {
             font-family: 'NotoSansDevanagari', 'DejaVu Sans', sans-serif;
-            font-size: 9px;
+            font-size: 12px;
             color: #000;
             line-height: 1.4;
             padding: 15px;
@@ -47,6 +47,7 @@
         .page-wrapper {
             position: relative;
             min-height: 100vh;
+            margin-left: 20px;
         }
 
         /* Watermark */
@@ -101,7 +102,7 @@
             text-align: right;
         }
 
-        /* 🔹 Make ALL logos same size */
+        /* Make ALL logos same size */
         .logo-left img,
         .logo-right img {
             height: 35px;
@@ -131,14 +132,14 @@
 
         /* Address */
         .org-address {
-            font-size: 10px;
+            font-size: 12px;
             line-height: 1.3;
             margin-bottom: 3px;
         }
 
         /* Project Line */
         .org-project {
-            font-size: 10px;
+            font-size: 12px;
             font-style: italic;
             font-weight: bold;
         }
@@ -146,7 +147,7 @@
         /* Title Section */
         .document-title {
             text-align: center;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
             color: #000000;
@@ -162,7 +163,7 @@
 
 
         .project-name {
-            font-size: 10px;
+            font-size: 12px;
             margin-top: 5px;
             color: #222222;
             font-weight: bold;
@@ -193,7 +194,7 @@
         .receiving-time {
             display: table-cell;
             width: 50%;
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .receiving-time {
@@ -212,7 +213,7 @@
             border-collapse: collapse;
             margin: 0;
             /* no margin */
-            font-size: 10px;
+            font-size: 12px;
             /* smaller font */
             table-layout: fixed;
         }
@@ -222,7 +223,7 @@
             text-align: center;
             font-weight: bold;
             border: 0.5px solid #888;
-            font-size: 10px;
+            font-size: 12px;
             padding: 1px 2px;
             /* minimal padding */
             background-color: #f7f7f7;
@@ -234,7 +235,7 @@
             /* zero top/bottom padding */
             vertical-align: middle;
             word-break: break-word;
-            font-size: 10px;
+            font-size: 12px;
             line-height: 1.2;
         }
 
@@ -296,7 +297,7 @@
         }
 
         .sub-text {
-            font-size: 10px;
+            font-size: 12px;
             margin-top: 2px;
         }
 
@@ -400,7 +401,6 @@
                         <th style="width: 8%;">Income Category</th>
                         <th style="width: 9%;">Property No.</th>
                         <th style="width: 18%;">Allottee Name</th>
-                        <th style="width: 20%;">Physical File Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -416,7 +416,6 @@
                             <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}
                                 {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}
                             </td>
-                            <td>{{ $allottee->file_remarks ?? 'N/A' }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -429,7 +428,7 @@
 
             <!-- Footer Signatures -->
             <div class="footer">
-                <p style="font-family:'KrutiDev'; font-size:16px; border-bottom: 1.5px solid #000;">
+                <p style="font-family:'KrutiDev'; font-size:16px; border-bottom: 1.5px solid #000;margin-bottom:40px;">
                     eSa iqf"V djrk gw¡ fd esjs }kjk bl lwph dh lHkh QkbZyksa dk LdS.M <span
                         style="
                                     font-size:12px;
@@ -440,7 +439,6 @@
                     MkVk ,UVªh dks lR;kfir dj fy;k x;k gS ,oa mijksDr QkbZysa lqjf{kr :i ls dk;kZy; dks
                     izkIr gks x;h gSaA
                 </p>
-                <br>
                 <table class="signature-table">
                     <tr>
                         <td class="left">
