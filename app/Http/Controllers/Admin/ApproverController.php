@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RegisterAllottee;
 use App\Models\RegistrationFile;
-use App\Models\AllotteeMasterDocument;
-use App\Models\AllotteeDocument;
-use App\Models\Division;
-use App\Models\ExportedFile;
+use App\Models\SubDivision;
+use App\Models\PropertyType;
+use App\Models\PropertyCategory;
+use App\Models\PropertyMainType;
 use App\Models\Allottee;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
@@ -72,10 +72,7 @@ class ApproverController extends Controller
 
             $pendingfilecount = $registrations->count();
 
-            return view(
-                'admin.components.approver.pendingApprovalLots',
-                compact('registrations', 'pendingfilecount')
-            );
+            return view('admin.components.approver.pendingApprovalLots', compact('registrations', 'pendingfilecount'));
         } catch (\Throwable $e) {
 
             Log::error('Checked lots list failed', [
@@ -92,6 +89,16 @@ class ApproverController extends Controller
     {
         try {
             $registerNo = base64_decode($encodedId);
+            $registers = RegistrationFile::where('register_no', $registerNo)->first();
+            if (!$registers) {
+                return back()->with('error', 'Registration file not found.');
+            }
+
+            // Get filter data for dropdowns using helper functions
+            $subDivisions = getSubDivisions($registers->division_id);
+            $propertyCategories = getPropertyCategory();
+            $propertyTypes = PropertyType::all();
+            $propertySubCategories = PropertyMainType::all();
 
             $baseRelations = [
                 'division',
@@ -99,39 +106,132 @@ class ApproverController extends Controller
                 'propertyCategory',
                 'propertyType',
                 'quarterType',
+                'parent'
             ];
-            // return $assignedAllotteeIds;
+
             $query = Allottee::query()
                 ->with($baseRelations)
                 ->where('register_id', $registerNo)
                 ->where('sub_admin_allottee_verify', 1)
                 ->where('divisional_approval', 0);
 
-            // return $query->get();
-
-            $registerAllottee = $query->paginate(50)->through(function ($item) {
+            $registerAllottee = $query->paginate(50, ['*'], 'page', $page)->through(function ($item) {
                 $item->allotteeId = encrypt($item->id);
                 $item->encodedId = base64_encode($item->id);
                 return $item;
             });
+
             $files = $registerAllottee;
-            // return $files;
             $pageNo = $page;
 
-            // If all rows have divisional_approval == 1 then 1 else 0
             $allVerified = $query->where('divisional_approval', '!=', 1)->exists() ? 0 : 1;
 
-            $registers  = RegistrationFile::where('register_no', $registerNo)->first();
             $registerId = $registers->id;
             $Lots = $registers->lot_no;
-            return view('admin.components.approver.pendingApprovalfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo', 'allVerified'));
+            $encodedId = $encodedId;
+
+            return view('admin.components.approver.pendingApprovalfileindex', compact(
+                'files',
+                'registerId',
+                'pageNo',
+                'Lots',
+                'registerNo',
+                'allVerified',
+                'subDivisions',
+                'propertyTypes',
+                'propertyCategories',
+                'propertySubCategories',
+                'encodedId'
+            ));
         } catch (\Throwable $e) {
-
-            Log::error('File list failed', [
-                'error' => $e->getMessage()
-            ]);
-
+            Log::error('File list failed', ['error' => $e->getMessage()]);
             return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+    public function searchPendingFiles(Request $request)
+    {
+        try {
+            $page = $request->page ?? 1;
+            $registerNo = $request->register_no;
+
+            $baseRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'parent'
+            ];
+
+            $query = Allottee::query()
+                ->with($baseRelations)
+                ->where('register_id', $registerNo)
+                ->where('sub_admin_allottee_verify', 1)
+                ->where('divisional_approval', 0);
+
+            // Apply filters
+            if (!empty($request->name)) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('allottee_name', 'LIKE', '%' . $request->name . '%')
+                        ->orWhere('allottee_middle_name', 'LIKE', '%' . $request->name . '%')
+                        ->orWhere('allottee_surname', 'LIKE', '%' . $request->name . '%')
+                        ->orWhereRaw("CONCAT(COALESCE(prefix,''), ' ', COALESCE(allottee_name,''), ' ', COALESCE(allottee_middle_name,''), ' ', COALESCE(allottee_surname,'')) LIKE ?", ['%' . $request->name . '%']);
+                });
+            }
+
+            if (!empty($request->property_no)) {
+                $query->where('property_number', 'LIKE', '%' . $request->property_no . '%');
+            }
+
+            if (!empty($request->sub_division)) {
+                $query->where('subdivision_id', $request->sub_division);
+            }
+
+            if (!empty($request->property_type)) {
+                $query->where('property_type_id', $request->property_type);
+            }
+
+            if (!empty($request->property_category)) {
+                $query->where('pcategory_id', $request->property_category);
+            }
+
+            if (!empty($request->property_sub_category)) {
+                $query->where('property_subtype_id', $request->property_sub_category);
+            }
+
+            $files = $query->paginate(50, ['*'], 'page', $page);
+
+            $files->through(function ($item) {
+                $item->allotteeId = encrypt($item->id);
+                $item->encodedId = base64_encode($item->id);
+                return $item;
+            });
+
+            if ($request->ajax()) {
+                $html = view('admin.components.approver.partials.pending_files_table', compact('files'))->render();
+
+                return response()->json([
+                    'success' => true,
+                    'html' => $html,
+                    'has_more' => $files->hasMorePages(),
+                    'current_page' => $files->currentPage(),
+                    'last_page' => $files->lastPage()
+                ]);
+            }
+
+            return back();
+        } catch (\Throwable $e) {
+            Log::error('Search failed', ['error' => $e->getMessage()]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed to search files.'
+                ], 500);
+            }
+
+            return back()->with('error', 'Failed to search files.');
         }
     }
 

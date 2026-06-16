@@ -93,6 +93,7 @@ Route::get('/handover/file/exports/{registerId}', [FileManagementController::cla
 
 // approver lists
 Route::get('approver/pending/lots/list', [ApproverController::class, 'approverPendingLots'])->name('approver.pending-lots');
+Route::post('/pending/files/search', [ApproverController::class, 'searchPendingFiles'])->name('admin.pending.files.search');
 Route::get('/pending/approver/file/list/{encodedId}/{page}', [ApproverController::class, 'approverPendingFiles'])->name('admin.pending.files.index');
 Route::get('approved/lots/list', [ApproverController::class, 'approverApprovedLots'])->name('approver.approved-lots');
 Route::get('/approved/file/list/{encodedId}/{page}', [ApproverController::class, 'approverApprovedLotFiles'])->name('admin.approved.files.index');

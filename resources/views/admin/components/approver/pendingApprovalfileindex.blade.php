@@ -1,622 +1,620 @@
 @extends('admin.layouts.main')
 
 @section('admin-content')
-<style>
-    .status-completed {
-        display: inline-block;
-        width: 18px;
-        height: 18px;
-        background: #28a745;
-        color: white;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 18px;
-        font-size: 14px;
-        margin-left: 5px;
-    }
+    <style>
+        .status-completed {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
 
-    .status-pending {
-        width: 20px;
-        height: 20px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-left: 5px;
-        border-radius: 50%;
-        background: #ffc107;
-        color: #212529;
-        font-size: 12px;
-        font-weight: 600;
-    }
+        .status-pending {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #ffc107;
+            color: #212529;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-    .status-rejected {
-        width: 18px;
-        height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-left: 5px;
-        border-radius: 50%;
-        background: #dc3545;
-        color: #fff;
-        font-size: 12px;
-        font-weight: 600;
-    }
-</style>
-<div class="container-xxl flex-grow-1">
-    <h6 class="py-3 mb-2">
-        <span class="invert-text-white">Dashboard / Pending for Approval Files / {{ $Lots }} :
-            {{ $registerNo }}</span>
-    </h6>
-    @php
-    $isApprover = auth('admin')->user()->role === 'approver';
-    @endphp
-    <div class="card mb-4">
-        <div class="card-header {{ $isApprover ? 'bg-secondary' : 'bg-info' }} d-flex justify-content-between align-items-center">
-            <h5 class="text-white mb-0">Pending for Approval Files</h5>
-            <div class="btn-group">
-                @if (auth('admin')->user()->role == 'approver')
-                <button type="button" class="btn btn-light btn-sm">
-                    <a href="{{ route('approver.pending-lots') }}" class="text-decoration-none text-dark">
-                        ← Back
-                    </a>
-                </button>
-                @endif
-                @if (auth('admin')->user()->role == 'divisional_admin')
-                <button type="button" class="btn btn-dark btn-sm" id="selectAll">Select All</button>
-                &nbsp;
-                <button type="button" class="btn btn-light btn-sm">
-                    <a href="{{ route('approver.admin.pending-lots') }}" class="text-decoration-none text-dark">
-                        ← Back
-                    </a>
-                </button>
-                @endif
-            </div>
-        </div>
+        .status-rejected {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            border-radius: 50%;
+            background: #dc3545;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-        <div class="card-body mt-0 p-3">
-            {{-- Alerts --}}
-            @if (session('success'))
-            <div class="alert alert-success alert-dismissible">
-                {{ session('success') }}
-                <button class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
+        .pending-days {
+            color: #dc2626;
+            font-weight: 600;
+        }
 
-            @if (session('error'))
-            <div class="alert alert-danger alert-dismissible">
-                {{ session('error') }}
-                <button class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
+        .pending-hours {
+            color: #f59e0b;
+            font-weight: 600;
+        }
 
-            @if(auth('admin')->user()->role == 'divisional_admin')
-            <form id="bulkForm" action="{{ route('admin.selected.files.approved') }}" method="POST">
-                @csrf
+        .pending-mins {
+            color: #16a34a;
+            font-weight: 600;
+        }
 
-                <div class="mb-3">
-                    <button type="button" class="btn btn-primary" id="bulkAssignBtn" disabled>
-                        <i class="bx bx-check"></i> Approved Selected
-                    </button>
-                    <input type="hidden" name="encodedIdregister" value="{{ base64_encode($registerNo) }}">
-                    <span class="text-muted ms-2" id="selectedCount">0 items selected</span>
+        .pending-secs {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .not-pending {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        #searchLoadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+
+    <div class="container-xxl flex-grow-1">
+        <h6 class="py-3 mb-2">
+            <span class="invert-text-white">Dashboard / Pending for Approval Files / {{ $Lots }} :
+                {{ $registerNo }}</span>
+        </h6>
+
+        @php
+            $isApprover = auth('admin')->user()->role === 'approver';
+        @endphp
+
+        <div class="card mb-4">
+            <div
+                class="card-header {{ $isApprover ? 'bg-secondary' : 'bg-info' }} d-flex justify-content-between align-items-center">
+                <h5 class="text-white mb-0">Pending for Approval Files</h5>
+                <div class="btn-group">
+                    @if (auth('admin')->user()->role == 'approver')
+                        <button type="button" class="btn btn-light btn-sm">
+                            <a href="{{ route('approver.pending-lots') }}" class="text-decoration-none text-dark">
+                                ← Back
+                            </a>
+                        </button>
+                    @endif
+                    @if (auth('admin')->user()->role == 'divisional_admin')
+                        <button type="button" class="btn btn-dark btn-sm" id="selectAll">Select All</button>
+                        &nbsp;
+                        <button type="button" class="btn btn-light btn-sm">
+                            <a href="{{ route('approver.admin.pending-lots') }}" class="text-decoration-none text-dark">
+                                ← Back
+                            </a>
+                        </button>
+                    @endif
                 </div>
+            </div>
 
-                <div id="selectedInputs"></div> <!-- dynamic inputs -->
-            </form>
-            @endif
+            <div class="card-body mt-0 p-3">
+                {{-- Alerts --}}
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible">
+                        {{ session('success') }}
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-            <div class="table-responsive">
-                <table id="allLotsListTable" class="table table-striped table-bordered align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            @if (auth('admin')->user()->role == 'divisional_admin')
-                            <th width="40">#</th>
-                            @endif
-                            <th>Sl. no.</th>
-                            <th style="width:25%;">Allottee & Property</th>
-                            <th>Division / Property Details</th>
-                            <th>Checked On</th>
-                            <th>Current Status</th>
-                            <th>Action</th> <!-- Edit file -->
-                        </tr>
-                    </thead>
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible">
+                        {{ session('error') }}
+                        <button class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-                    <tbody>
-                        @forelse ($files as $key => $item)
-                        @php
-                        // Parse JSON pages data if exists
-                        $pagesData = json_decode($item->json_pages, true);
-                        $totalPages = $item->total_pages ?? 0;
-                        $fileCount = $item->no_of_files ?? 1;
-
-                        // Format property details
-                        $propertyType = $item->propertyType->name ?? 'N/A';
-                        $quarterInfo = $item->quarterType->quarter_code ?? 'N/A';
-
-                        // Format allottee name
-                        $allotteeName = trim(
-                        ($item->prefix ?? '') .
-                        ' ' .
-                        ($item->allottee_name ?? '') .
-                        ' ' .
-                        ($item->allottee_middle_name ?? '') .
-                        ' ' .
-                        ($item->allottee_surname ?? ''),
-                        );
-                        @endphp
-                        <tr class="{{ $item->highlighted ? 'table-warning' : '' }}"
-                            data-row-id="{{ $item->id }}">
-                            @if (auth('admin')->user()->role == 'divisional_admin')
-                            <td>
-                                <input type="checkbox" class="form-check-input row-checkbox"
-                                    value="{{ $item->encodedId }}">
-                            </td>
-                            @endif
-                            <td>{{ $key + 1 }}</td>
-                            <td>
-                                @php
-                                // Current allottee position for same property
-                                $allotteePosition = \App\Models\Allottee::where(
-                                'property_number',
-                                $item->property_number,
-                                )
-                                ->where(function ($q) use ($item) {
-                                $q->where('id', $item->id)
-                                ->orWhere('parent_id', $item->parent_id)
-                                ->orWhere('id', $item->parent_id);
-                                })
-                                ->orderBy('id')
-                                ->pluck('id')
-                                ->search($item->id);
-
-                                $position = $allotteePosition !== false ? $allotteePosition + 1 : null;
-
-                                $originalAllottee = trim(
-                                ($item->parent->prefix ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_name ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_middle_name ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_surname ?? ''),
-                                );
-                                @endphp
-
-                                @php
-                                $badges = [];
-
-                                $isTransferFile = !is_null($item->parent_id);
-                                $maxStep = $isTransferFile ? 4 : 6;
-
-                                // Original allottee for transfer files
-                                if ($isTransferFile && $item->parent) {
-                                $originalAllottee = trim(
-                                ($item->parent->prefix ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_name ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_middle_name ?? '') .
-                                ' ' .
-                                ($item->parent->allottee_surname ?? ''),
-                                );
-
-                                if ($originalAllottee) {
-                                $badges[] = [
-                                'text' => 'Previous: ' . $originalAllottee,
-                                'class' => 'bg-warning text-dark border',
-                                ];
-                                }
-                                }
-
-                                // Main status
-                                if (blank($item->allottee_document_path)) {
-                                $badges[] = [
-                                'text' => 'Document Not Uploaded',
-                                'class' => 'bg-dark',
-                                ];
-                                }
-
-                                if (
-                                (int) ($item->current_step ?? 0) >= $maxStep &&
-                                (int) ($item->is_step_completed ?? 0) === 1
-                                ) {
-                                $badges[] = [
-                                'text' => 'Completed',
-                                'class' => 'bg-success',
-                                ];
-                                } else {
-                                $badges[] = [
-                                'text' => 'Incomplete',
-                                'class' => 'bg-danger',
-                                ];
-
-                                $badges[] = [
-                                'text' => 'Step ' . ($item->current_step ?? 0) . '/' . $maxStep,
-                                'class' => 'bg-secondary',
-                                ];
-                                }
-
-                                // EMI status
-                                if (!empty($item->is_emi_active) && $item->is_emi_active == 'true') {
-                                $badges[] = [
-                                'text' => 'Active EMI',
-                                'class' => 'bg-info text-white',
-                                ];
-                                }
-
-                                // Name transfer
-                                if (strtolower($item->name_transfer_status ?? '') === 'yes') {
-                                $badges[] = [
-                                'text' => 'Name Transfer',
-                                'class' => 'bg-danger',
-                                ];
-
-                                if ((int) ($item->is_trans_entry_completed ?? 0) === 0) {
-                                $badges[] = [
-                                'text' => 'Transfer Incomplete',
-                                'class' => 'bg-warning text-dark',
-                                ];
-                                }
-                                }
-
-                                // Free hold
-                                if (strtolower($item->free_hold_status ?? '') === 'yes') {
-                                $badges[] = [
-                                'text' => 'Lease Free Hold',
-                                'class' => 'bg-success',
-                                ];
-
-                                if ((int) ($item->is_free_hold_completed ?? 0) === 0) {
-                                $badges[] = [
-                                'text' => 'Free Hold Incomplete',
-                                'class' => 'bg-warning text-dark',
-                                ];
-                                }
-                                }
-
-                                if ($position) {
-                                $badges[] = [
-                                'text' =>
-                                $position .
-                                ($position == 1
-                                ? 'st'
-                                : ($position == 2
-                                ? 'nd'
-                                : ($position == 3
-                                ? 'rd'
-                                : 'th'))) .
-                                ' Allottee',
-                                'class' => 'bg-primary',
-                                ];
-                                }
-                                @endphp
-                                <div class="fw-semibold"><a href="{{ route('admin.file.preview', encrypt($item->id)) }}" style="color:blue;"
-                                        title="Preview {{ $allotteeName }} File" data-bs-toggle="tooltip">{{ $allotteeName ?: 'N/A' }}</a>
-                                    @if ($item->divisional_approval == 1)
-                                    <span class="status-completed" title="Divisional Approved ">✓</span>
-                                    @elseif($item->divisional_approval == 0)
-                                    <span class="status-pending" title="Divisional Approval Pending"><i
-                                            class="bx bx-hourglass bx-tada" style="font-size: 10px;"></i></span>
-                                    @elseif($item->divisional_approval === 2)
-                                    <span class="status-rejected" title="Divisional Approval Rejected">✗</span>
-                                    @endif
-                                </div>
-                                <span class="d-block"><u>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></u></span>
-                                <span class="d-block">No. of Scanned Pages: {{ $fileCount }}</span>
-                                <div class="d-flex flex-wrap gap-1">
-                                    @foreach ($badges as $badge)
-                                    <span class="badge {{ $badge['class'] }}">
-                                        {{ $badge['text'] }}
-                                    </span>
+                {{-- Search Filters Section --}}
+                <div class="card mb-3 border">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="bx bx-search-alt me-1"></i> Search Filters
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control search-filter" id="searchName"
+                                    placeholder="Search by name..." autocomplete="off">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Property No</label>
+                                <input type="text" class="form-control search-filter" id="searchPropertyNo"
+                                    placeholder="Search property no..." autocomplete="off">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Sub Division</label>
+                                <select class="form-select search-filter" id="searchSubDivision">
+                                    <option value="">All Sub Divisions</option>
+                                    @foreach ($subDivisions ?? [] as $subDivision)
+                                        <option value="{{ $subDivision->id }}">{{ $subDivision->name }}</option>
                                     @endforeach
-                                </div>
-                            </td>
-                            <td>
-                                <div><b>{{ $item->division->name ?? 'N/A' }}</b></div>
-                                <div>Sub Division: <b>{{ $item->subDivision->name ?? 'N/A' }}</b></div>
-                                <div>Property No: <b>{{ $item->property_number ?? 'N/A' }}</b></div>
-                                <hr>
-                                <div><b>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</b></div>
-                                <div class="d-block">Quarter: <b>{{ $quarterInfo }}</b></div>
-                            </td>
-                            <td>
-                                {{ formatDateTime($item->sub_admin_checked_date ?? '-') }}
-                            </td>
-                            <td>
-                                <span class="pending-time" data-date="{{ $item->sub_admin_checked_date }}"></span>
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-center gap-1">
-                                    @php
-                                    $isCouncilOffice = auth('admin')->user()->role === 'council_office';
-
-                                    $label = $isCouncilOffice ? 'View File' : 'View More';
-                                    $btnColor = $isCouncilOffice ? 'btn-primary' : 'btn-danger';
-                                    $titleLabel = $isCouncilOffice ? 'View' : 'View More';
-                                    @endphp
-
-                                    {{-- Preview --}}
-                                    <a href="{{ route('admin.file.preview', encrypt($item->id)) }}"
-                                        class="btn btn-sm {{$btnColor}} text-white"
-                                        title="{{ $titleLabel }} of {{ $allotteeName }} File"
-                                        data-bs-toggle="tooltip">
-
-                                        {{-- Eye Preview SVG --}}
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            width="18"
-                                            height="18"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-
-                                        &nbsp; {{ $label }}
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">
-                                No Lots Files Found.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-
-                <!-- {{-- Verify Buttons --}}
-                @if ($allVerified && $allVerified == 1)
-                <div class="d-flex justify-content-center gap-2 my-4 flex-wrap">
-                    <button type="button"
-                        class="btn btn-primary btn-md"
-                        data-bs-toggle="modal"
-                        data-bs-target="#verifyDataEntryLotModal">
-                        <i class="bx bx-check-shield me-1"></i>
-                        Verify Lots
-                    </button>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Property Category</label>
+                                <select class="form-select search-filter" id="searchPropertyCategory">
+                                    <option value="">All Categories</option>
+                                    @foreach ($propertyCategories ?? [] as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Property Type</label>
+                                <select class="form-select search-filter" id="searchPropertyType">
+                                    <option value="">All Property Types</option>
+                                    @foreach ($propertyTypes ?? [] as $type)
+                                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Property Sub Categories</label>
+                                <select class="form-select search-filter" id="searchSubCategory">
+                                    <option value="">All Sub Categories</option>
+                                    @foreach ($propertySubCategories ?? [] as $subCategory)
+                                        <option value="{{ $subCategory->id }}">{{ $subCategory->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-secondary w-100" id="resetFilters">
+                                    <i class="bx bx-reset"></i> Reset Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                @endif -->
 
-                @if ($files->hasPages())
-                <div class="p-4 border-top">
-                    {{ $files->links('vendor.pagination.custom') }}
+                {{-- Loading Overlay --}}
+                <div id="searchLoadingOverlay">
+                    <div class="text-center bg-white p-4 rounded shadow">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h6>Searching files...</h6>
+                    </div>
                 </div>
+
+                @if (auth('admin')->user()->role == 'divisional_admin')
+                    <form id="bulkForm" action="{{ route('admin.selected.files.approved') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary" id="bulkAssignBtn" disabled>
+                                <i class="bx bx-check"></i> Approved Selected
+                            </button>
+                            <input type="hidden" name="encodedIdregister" value="{{ base64_encode($registerNo) }}">
+                            <span class="text-muted ms-2" id="selectedCount">0 items selected</span>
+                        </div>
+                        <div id="selectedInputs"></div>
+                    </form>
                 @endif
-            </div>
 
+                <div class="table-responsive" id="tableContainer">
+                    <div id="tableContent">
+                        {{-- Table content will be loaded here --}}
+                        @include('admin.components.approver.partials.pending_files_table')
+                    </div>
+                </div>
 
-            <div class="modal fade" id="verifyDataEntryLotModal" tabindex="-1"
-                aria-labelledby="verifyDataEntryLotModalLabel" aria-hidden="true">
-
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form
-                            action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => $registerNo]) }}"
-                            method="POST">
-                            @csrf
-
-                            <div class="modal-header bg-success text-white" style="padding: 10px !important;">
-                                <h5 class="modal-title text-white" id="verifyModalLabel{{ $item->id }}">
-                                    Verify & Approve Lot
-                                </h5>
-
-                                <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                            </div>
-
-                            <div class="modal-body">
-                                <div class="mb-3 p-3 border rounded bg-light">
-                                    <strong>Register:</strong> {{ $registerNo }} <br>
-                                    <strong>Lot No:</strong> {{ $Lots }}
+                {{-- Verify Modal --}}
+                <div class="modal fade" id="verifyDataEntryLotModal" tabindex="-1"
+                    aria-labelledby="verifyDataEntryLotModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="{{ route('admin.lots.dataentry.lots.approve', ['registerId' => $registerNo]) }}"
+                                method="POST">
+                                @csrf
+                                <div class="modal-header bg-success text-white" style="padding: 10px !important;">
+                                    <h5 class="modal-title text-white">Verify & Approve Lot</h5>
+                                    <button type="button" class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"></button>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        Remarks
-                                        <small class="text-muted">(Optional)</small>
-                                    </label>
-
-                                    <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>
+                                <div class="modal-body">
+                                    <div class="mb-3 p-3 border rounded bg-light">
+                                        <strong>Register:</strong> {{ $registerNo }} <br>
+                                        <strong>Lot No:</strong> {{ $Lots }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Remarks
+                                            <small class="text-muted">(Optional)</small>
+                                        </label>
+                                        <textarea name="remarks" rows="4" class="form-control" placeholder="Enter approval remarks..."></textarea>
+                                    </div>
+                                    <input type="hidden" name="status" value="verified">
                                 </div>
-
-                                <input type="hidden" name="status" value="verified">
-                            </div>
-                            <hr style="margin:0;">
-                            <div class="modal-footer" style="padding: 10px; !important;">
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                                    Cancel
-                                </button>
-
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bx bx-check-circle me-1"></i>
-                                    Verify & Approve
-                                </button>
-                            </div>
-                        </form>
+                                <hr style="margin:0;">
+                                <div class="modal-footer" style="padding: 10px !important;">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bx bx-check-circle me-1"></i> Verify & Approve
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</div>
 
-<style>
-    .table td,
-    .table th {
-        vertical-align: middle;
-    }
+    <script>
+        let searchTimeout;
+        let currentPage = 1;
+        let isLoading = false;
 
-    .badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
-    }
-
-    .btn-group .btn {
-        margin-left: 5px;
-    }
-
-    #selectedCount {
-        font-size: 0.9rem;
-    }
-
-    .modal-header .btn-close {
-        filter: brightness(0) invert(1);
-    }
-</style>
-<style>
-    .pending-days {
-        color: #dc2626;
-        font-weight: 600;
-    }
-
-    .pending-hours {
-        color: #f59e0b;
-        font-weight: 600;
-    }
-
-    .pending-mins {
-        color: #16a34a;
-        font-weight: 600;
-    }
-
-    .pending-secs {
-        color: #2563eb;
-        font-weight: 600;
-    }
-
-    .not-pending {
-        color: #6b7280;
-        font-style: italic;
-    }
-</style>
-<script>
-    const checkboxes = document.querySelectorAll('.row-checkbox');
-    const selectAllBtn = document.getElementById('selectAll');
-    const bulkBtn = document.getElementById('bulkAssignBtn');
-    const selectedCount = document.getElementById('selectedCount');
-    const selectedInputs = document.getElementById('selectedInputs');
-    const bulkForm = document.getElementById('bulkForm');
-
-    function updateSelection() {
-        let selected = [];
-
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                selected.push(cb.value);
+        function showLoading(show) {
+            const overlay = document.getElementById('searchLoadingOverlay');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+                isLoading = show;
             }
-        });
+        }
 
-        // Update count
-        selectedCount.innerText = selected.length + ' items selected';
+        function getFilterValues() {
+            return {
+                name: document.getElementById('searchName')?.value || '',
+                property_no: document.getElementById('searchPropertyNo')?.value || '',
+                sub_division: document.getElementById('searchSubDivision')?.value || '',
+                property_type: document.getElementById('searchPropertyType')?.value || '',
+                property_category: document.getElementById('searchPropertyCategory')?.value || '',
+                property_sub_category: document.getElementById('searchSubCategory')?.value || '',
+                page: currentPage,
+                register_no: '{{ $registerNo ?? '' }}',
+                encoded_id: '{{ $encodedId ?? '' }}'
+            };
+        }
 
-        // Enable/Disable button
-        bulkBtn.disabled = selected.length === 0;
+        async function performSearch() {
+            if (isLoading) return;
 
-        // Clear old inputs
-        selectedInputs.innerHTML = '';
+            showLoading(true);
 
-        // Create hidden inputs dynamically
-        selected.forEach(id => {
-            let input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'selectedId[]';
-            input.value = id;
-            selectedInputs.appendChild(input);
-        });
-    }
+            try {
+                const filters = getFilterValues();
+                const url = `{{ route('admin.pending.files.search') }}`;
 
-    // Individual checkbox change
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateSelection);
-    });
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(filters)
+                });
 
-    // Select All toggle
-    let allSelected = false;
+                if (!response.ok) throw new Error('Network response was not ok');
 
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', function() {
-            allSelected = !allSelected;
+                const data = await response.json();
 
-            checkboxes.forEach(cb => {
-                cb.checked = allSelected;
-            });
+                if (data.success) {
+                    const tableContainer = document.getElementById('tableContent');
+                    if (tableContainer) {
+                        tableContainer.innerHTML = data.html;
+                    }
 
-            this.innerText = allSelected ? 'Unselect All' : 'Select All';
+                    // Update URL without reload
+                    const urlParams = new URLSearchParams(window.location.search);
+                    Object.keys(filters).forEach(key => {
+                        if (filters[key] && key !== 'page' && key !== 'register_no' && key !== 'encoded_id') {
+                            urlParams.set(key, filters[key]);
+                        } else if (!filters[key] && key !== 'page' && key !== 'register_no' && key !==
+                            'encoded_id') {
+                            urlParams.delete(key);
+                        }
+                    });
+                    urlParams.set('page', currentPage);
+                    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+                    window.history.pushState({}, '', newUrl);
+
+                    reinitializeComponents();
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                const tableContainer = document.getElementById('tableContent');
+                if (tableContainer) {
+                    tableContainer.innerHTML =
+                        '<div class="alert alert-danger m-3">Error loading data. Please try again.</div>';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function reinitializeComponents() {
+            // Reinitialize checkboxes
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            const selectAllBtn = document.getElementById('selectAll');
+            const bulkBtn = document.getElementById('bulkAssignBtn');
+            const selectedCount = document.getElementById('selectedCount');
+            const selectedInputs = document.getElementById('selectedInputs');
+            const bulkForm = document.getElementById('bulkForm');
+
+            function updateSelection() {
+                let selected = [];
+                document.querySelectorAll('.row-checkbox').forEach(cb => {
+                    if (cb.checked) selected.push(cb.value);
+                });
+
+                if (selectedCount) selectedCount.innerText = selected.length + ' items selected';
+                if (bulkBtn) bulkBtn.disabled = selected.length === 0;
+
+                if (selectedInputs) {
+                    selectedInputs.innerHTML = '';
+                    selected.forEach(id => {
+                        let input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'selectedId[]';
+                        input.value = id;
+                        selectedInputs.appendChild(input);
+                    });
+                }
+            }
+
+            if (checkboxes.length) {
+                checkboxes.forEach(cb => cb.addEventListener('change', updateSelection));
+            }
+
+            if (selectAllBtn) {
+                let allSelected = false;
+                const newSelectAllBtn = selectAllBtn.cloneNode(true);
+                selectAllBtn.parentNode.replaceChild(newSelectAllBtn, selectAllBtn);
+
+                newSelectAllBtn.addEventListener('click', function() {
+                    allSelected = !allSelected;
+                    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = allSelected);
+                    this.innerText = allSelected ? 'Unselect All' : 'Select All';
+                    updateSelection();
+                });
+            }
+
+            if (bulkBtn && bulkForm) {
+                const newBulkBtn = bulkBtn.cloneNode(true);
+                bulkBtn.parentNode.replaceChild(newBulkBtn, bulkBtn);
+
+                newBulkBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure to approve selected records?')) {
+                        bulkForm.submit();
+                    }
+                });
+            }
 
             updateSelection();
-        });
-    }
 
-    // Submit on button click
-    bulkBtn.addEventListener('click', function() {
-        if (confirm('Are you sure to approve selected records?')) {
-            bulkForm.submit();
+            // Reinitialize pending times
+            updatePendingTimes();
         }
-    });
-</script>
-<script>
-    function updatePendingTimes() {
-        document.querySelectorAll('.pending-time').forEach(el => {
-            const rawDate = el.dataset.date;
 
-            if (!rawDate || rawDate === 'null') {
-                el.innerHTML = '<span class="not-pending">Not Pending</span>';
-                return;
+        function updatePendingTimes() {
+            document.querySelectorAll('.pending-time').forEach(el => {
+                const rawDate = el.dataset.date;
+                if (!rawDate || rawDate === 'null') {
+                    el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                    return;
+                }
+                const date = new Date(rawDate);
+                if (isNaN(date.getTime())) {
+                    el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                    return;
+                }
+                const now = new Date();
+                let diff = Math.floor((now - date) / 1000);
+                if (diff <= 0) {
+                    el.innerHTML = '<span class="not-pending">Not Pending</span>';
+                    return;
+                }
+                const days = Math.floor(diff / 86400);
+                diff %= 86400;
+                const hours = Math.floor(diff / 3600);
+                diff %= 3600;
+                const mins = Math.floor(diff / 60);
+                const secs = diff % 60;
+                let html = 'Pending for Approval Since <br>';
+                if (days) html += `<span class="pending-days">${days} day${days > 1 ? 's' : ''}</span> `;
+                if (hours) html += `<span class="pending-hours">${hours} hr${hours > 1 ? 's' : ''}</span> `;
+                if (mins) html += `<span class="pending-mins">${mins} min${mins > 1 ? 's' : ''}</span> `;
+                html += `<span class="pending-secs">${secs} sec${secs > 1 ? 's' : ''}</span>`;
+                el.innerHTML = html;
+            });
+        }
+
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentPage = 1;
+                performSearch();
+            }, 500);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category → Type cascade
+            const categorySelect = document.getElementById('searchPropertyCategory');
+            if (categorySelect) {
+                categorySelect.addEventListener('change', function() {
+                    const categoryId = this.value;
+                    const typeSelect = document.getElementById('searchPropertyType');
+                    const subCategorySelect = document.getElementById('searchSubCategory');
+                    
+                    if (typeSelect) {
+                        typeSelect.innerHTML = '<option value="">Loading...</option>';
+                        typeSelect.value = '';
+                    }
+                    if (subCategorySelect) {
+                        subCategorySelect.innerHTML = '<option value="">All Sub Categories</option>';
+                        subCategorySelect.value = '';
+                    }
+                    
+                    if (!categoryId) {
+                        if (typeSelect) {
+                            typeSelect.innerHTML = '<option value="">All Property Types</option>';
+                        }
+                        return;
+                    }
+                    
+                    fetch(`/get-property-types/${categoryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let options = '<option value="">All Property Types</option>';
+                            data.forEach(item => {
+                                options += `<option value="${item.id}">${item.name}</option>`;
+                            });
+                            if (typeSelect) {
+                                typeSelect.innerHTML = options;
+                            }
+                        })
+                        .catch(() => {
+                            if (typeSelect) {
+                                typeSelect.innerHTML = '<option value="">Error loading data</option>';
+                            }
+                        });
+                });
             }
 
-            const date = new Date(rawDate);
-
-            if (isNaN(date.getTime())) {
-                el.innerHTML = '<span class="not-pending">Not Pending</span>';
-                return;
+            // Type → Sub Category cascade
+            const typeSelect = document.getElementById('searchPropertyType');
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    const typeId = this.value;
+                    const subCategorySelect = document.getElementById('searchSubCategory');
+                    
+                    if (subCategorySelect) {
+                        subCategorySelect.innerHTML = '<option value="">Loading...</option>';
+                        subCategorySelect.value = '';
+                    }
+                    
+                    if (!typeId) {
+                        if (subCategorySelect) {
+                            subCategorySelect.innerHTML = '<option value="">All Sub Categories</option>';
+                        }
+                        return;
+                    }
+                    
+                    fetch(`/get-property-sub-types/${typeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let options = '<option value="">All Sub Categories</option>';
+                            data.forEach(item => {
+                                options += `<option value="${item.id}">${item.name}</option>`;
+                            });
+                            if (subCategorySelect) {
+                                subCategorySelect.innerHTML = options;
+                            }
+                        })
+                        .catch(() => {
+                            if (subCategorySelect) {
+                                subCategorySelect.innerHTML = '<option value="">Error loading data</option>';
+                            }
+                        });
+                });
             }
 
-            const now = new Date();
-            let diff = Math.floor((now - date) / 1000);
+            const searchInputs = ['searchName', 'searchPropertyNo', 'searchSubDivision',
+                'searchPropertyType', 'searchPropertyCategory', 'searchSubCategory'
+            ];
 
-            if (diff <= 0) {
-                el.innerHTML = '<span class="not-pending">Not Pending</span>';
-                return;
+            searchInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', debouncedSearch);
+                    element.addEventListener('change', debouncedSearch);
+                }
+            });
+
+            const resetBtn = document.getElementById('resetFilters');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    searchInputs.forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            if (element.tagName === 'SELECT') {
+                                element.value = '';
+                            } else {
+                                element.value = '';
+                            }
+                        }
+                    });
+                    currentPage = 1;
+                    performSearch();
+                });
             }
 
-            const days = Math.floor(diff / 86400);
-            diff %= 86400;
+            // Pagination handling
+            document.getElementById('tableContent')?.addEventListener('click', function(e) {
+                const paginationLink = e.target.closest('.pagination a');
+                if (paginationLink && !isLoading) {
+                    e.preventDefault();
+                    const url = new URL(paginationLink.href);
+                    const page = url.searchParams.get('page');
+                    if (page) {
+                        currentPage = parseInt(page);
+                        performSearch();
+                    }
+                }
+            });
 
-            const hours = Math.floor(diff / 3600);
-            diff %= 3600;
+            // Load filters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            let hasFilters = false;
+            searchInputs.forEach(id => {
+                const element = document.getElementById(id);
+                const paramName = id.replace('search', '').toLowerCase();
+                const paramValue = urlParams.get(paramName);
+                if (element && paramValue) {
+                    element.value = paramValue;
+                    hasFilters = true;
+                }
+            });
 
-            const mins = Math.floor(diff / 60);
-            const secs = diff % 60;
+            const pageParam = urlParams.get('page');
+            if (pageParam) currentPage = parseInt(pageParam);
 
-            let html = 'Pending for Approval Since <br>';
+            if (hasFilters) performSearch();
 
-            if (days) {
-                html += `<span class="pending-days">${days} day${days > 1 ? 's' : ''}</span> `;
-            }
-
-            if (hours) {
-                html += `<span class="pending-hours">${hours} hr${hours > 1 ? 's' : ''}</span> `;
-            }
-
-            if (mins) {
-                html += `<span class="pending-mins">${mins} min${mins > 1 ? 's' : ''}</span> `;
-            }
-
-            html += `<span class="pending-secs">${secs} sec${secs > 1 ? 's' : ''}</span>`;
-
-            el.innerHTML = html;
+            updatePendingTimes();
+            setInterval(updatePendingTimes, 1000);
         });
-    }
-
-    updatePendingTimes();
-    setInterval(updatePendingTimes, 1000);
-</script>
+    </script>
 @endsection

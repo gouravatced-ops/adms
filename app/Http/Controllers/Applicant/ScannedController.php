@@ -109,7 +109,7 @@ class ScannedController extends Controller
             $query = RegistrationFile::with(['allottees', 'scannedBy'])
                 ->where('created_by', auth()->id())
                 ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', 'scanned');
+                    $q->where('allottee_status', 'scanned')->where('is_active', 1);
                 })
                 ->orderByDesc('created_at');
 
