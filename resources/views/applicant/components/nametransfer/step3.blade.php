@@ -129,6 +129,12 @@
 
             {{-- Name Transfer Question --}}
             <div id="nameTransferSection" style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px;">
+                <script type="application/json" id="step3_documents_data">
+                    {
+                        "documentTransferList": @json($documents ?? []),
+                        "completedDocumentsList": @json($completedDocuments ?? [])
+                    }
+                </script>
                 <div style="display:flex; align-items:center; gap:15px;">
                     <label style="font-weight:600; font-size:13px;">Is this a Name Transfer case?</label>
                     <select id="nametransferValue" name="nametransferValue" class="custom-select"

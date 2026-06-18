@@ -730,20 +730,19 @@ class NameTransferController extends Controller
             ->findOrFail($id);
         $applicant = $existingapplicant;
 
+        $currentStep = 1;
+        $action = 'create';
+
         if ($existingapplicant->is_trans_entry_completed == 1) {
             $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
                 ->latest('id')
                 ->first();
 
             if ($childApplicant) {
-                $applicant = $childApplicant;
-                $currentStep = $applicant->current_step;
-                $action = 'update';
+                return redirect()->route('nametransfer.incomplete.apply.index', encrypt($childApplicant->id));
             }
-        } else {
-            $currentStep = 1;
-            $action = 'create';
         }
+
         $applicant->current_step = $currentStep;
         $applicant->action = $action;
         $getSchemeList = getSchemeList(
@@ -1028,7 +1027,19 @@ class NameTransferController extends Controller
                 ]);
             $this->trackStepStart($applicantId, $step);
 
-            return view($view, compact('applicant', 'completedDocuments'));
+            $completedIds = $completedDocuments->pluck('id');
+
+            $documents = DocumentMaster::where('document_category', 'nameTransfer')
+                ->where('status', 1)
+                ->whereNotIn('id', $completedIds)
+                ->orderBy('sort_order')
+                ->get([
+                    'id',
+                    'document_name as name',
+                    'document_key as key',
+                ]);
+
+            return view($view, compact('applicant', 'completedDocuments', 'documents'));
         }
 
         // STEP 4
