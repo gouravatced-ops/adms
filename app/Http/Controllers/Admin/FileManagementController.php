@@ -1280,33 +1280,120 @@ class FileManagementController extends Controller
         $lotNumber = strtoupper($register->lot_no);
         $lotcreateDate = Carbon::parse($register->handover_at)->format('d/m/Y');
         $lotTime = Carbon::parse($register->handover_at)->format('h:i A');
-        $allottees = Allottee::query()
-            ->from('allottees as ra')
-            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
-            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.subdivision_id')
-            ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
-            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.property_type_id')
-            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_id')
-            ->where('ra.register_id', $registerNo)
-            ->orderByDesc('ra.created_at')
+        $allRecords = RegisterAllottee::query()
+            ->where('is_active', 1)
+            ->orderBy('created_at', 'asc')
             ->select([
-                'ra.*',
-                'd.name  as dname',
-                'sd.name as subname',
-                'pc.name as cname',
-                'pt.name as pname',
-                'qt.quarter_code as quarter_code',
+                'id',
+                'register_id',
+                'property_number',
+                'confirm_received',
+                'confirm_same_allottee_name',
+                'no_of_supplement',
+            ])
+            ->get();
+
+
+        $allottees = RegisterAllottee::query()
+            ->from('register_allottees as ra')
+            ->where('is_active', 1)
+            ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
+            ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
+            ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
+            ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
+            ->leftJoin('quarter_type as qt', 'qt.quarter_id', '=', 'ra.quarter_type')
+            ->where('ra.register_id', $registerNo)
+            ->orderBy('ra.created_at', 'asc')
+            ->select([
+                'ra.id',
+                'ra.property_number',
+                'ra.prefix',
+                'ra.allottee_name',
+                'ra.allottee_middle_name',
+                'ra.allottee_surname',
+                'ra.confirm_received',
+                'ra.confirm_same_allottee_name',
+                'ra.no_of_files',
+                'ra.no_of_supplement',
+                'ra.remarks',
+                'd.name as division_name',
+                'sd.name as subdivision_name',
+                'pc.name as category_name',
+                'pt.name as type_name',
+                'qt.quarter_code',
             ])
             ->get();
 
         if ($allottees->isEmpty()) {
-            return redirect()->back()->with('error', 'No records found');
+            return back()->with('error', 'No records found');
+        }
+
+        $fileCounters = [];
+        $fileMap = [];
+
+        foreach ($allRecords as $record) {
+            $propertyNumber = $record->property_number;
+
+            if (!isset($fileCounters[$propertyNumber])) {
+                $fileCounters[$propertyNumber] = 1;
+            }
+            // Calculate total files for this record
+            $totalFiles = 0;
+
+            if ($record->confirm_received === "No" && $record->confirm_same_allottee_name === "No") {
+                $totalFiles = 1 + ($record->no_of_supplement ?? 0);
+            } elseif ($record->confirm_received === "Yes" && $record->confirm_same_allottee_name === "Yes") {
+                $totalFiles = ($record->no_of_supplement ?? 0);
+            } elseif ($record->confirm_received === "Yes" && $record->confirm_same_allottee_name === "No") {
+                $totalFiles = 1 + ($record->no_of_supplement ?? 0);
+            }
+
+            for ($i = 0; $i < $totalFiles; $i++) {
+                $fileMap[$record->id][] = 'File ' . $fileCounters[$propertyNumber] . ' ' . $propertyNumber;
+                $fileCounters[$propertyNumber]++;
+            }
+        }
+
+        $processedRows = [];
+        $filestak = [];
+
+        foreach ($allottees as $allottee) {
+            $files = $fileMap[$allottee->id] ?? [];
+            $filestak[] = $files;
+            foreach ($files as $fileLabel) {
+                $processedRows[] = [
+                    'property_number' => $allottee->property_number ?? '',
+                    'prefix' => $allottee->prefix ?? '',
+                    'allottee_name' => $allottee->allottee_name ?? '',
+                    'allottee_middle_name' => $allottee->allottee_middle_name ?? '',
+                    'allottee_surname' => $allottee->allottee_surname ?? '',
+                    'full_name' => trim(($allottee->prefix ?? '') . ' ' . ($allottee->allottee_name ?? '') . ' ' . ($allottee->allottee_middle_name ?? '') . ' ' . ($allottee->allottee_surname ?? '')),
+                    'file_label' => $fileLabel,
+                    'division' => $allottee->division_name ?? '',
+                    'subdivision' => $allottee->subdivision_name ?? '',
+                    'category' => $allottee->category_name ?? '',
+                    'type' => $allottee->type_name ?? '',
+                    'quarter_code' => $allottee->quarter_code ?? '',
+                    'remarks' => $allottee->remarks ?? '',
+                    'no_of_files' => $allottee->no_of_files ?? 0,
+                    'no_of_supplement' => $allottee->no_of_supplement ?? 0,
+                    'confirm_received' => $allottee->confirm_received ?? 'No',
+                    'confirm_same_allottee_name' => $allottee->confirm_same_allottee_name ?? 'No',
+                ];
+            }
+        }
+
+        // return $filestak;
+
+        // If no processed rows (edge case), return error
+        if (empty($processedRows)) {
+            return back()->with('error', 'No file records to export');
         }
 
         $data = [
             'title' => 'COMPUTER Ed. - Files Handover',
             'date' => date('d/m/Y'),
-            'allottees' => $allottees,
+            'allottees' => $processedRows,
             'registerNo' => $registerNo,
             'lotDivision' => $registerDivision,
             'lotNumber' => $lotNumber,

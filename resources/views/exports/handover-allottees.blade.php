@@ -407,14 +407,14 @@
                     @forelse($allottees as $index => $allottee)
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ $allottee->dname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->subname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->cname ?? 'N/A' }}</td>
-                            <td>{{ $allottee->pname ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee->quarter_code ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee->property_number ?? 'N/A' }}</td>
-                            <td>{{ $allottee->prefix }} {{ $allottee->allottee_name ?? ($allottee->name ?? 'N/A') }}
-                                {{ $allottee->allottee_middle_name ?? '' }} {{ $allottee->allottee_surname ?? '' }}
+                            <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
+                            <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
+                            <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
+                            <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
+                            <td>
+                                {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
                             </td>
                         </tr>
                     @empty
