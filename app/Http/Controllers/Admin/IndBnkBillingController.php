@@ -18,7 +18,7 @@ class IndBnkBillingController extends Controller
     public function billingList()
     {
         //  Total Allottee
-        $totalAllottee = RegisterAllottee::where('is_active', 1)->whereNotNull('scanned_by')
+        $totalAllottee = RegisterAllottee::whereIn('is_active', [0, 1])
             ->sum(DB::raw("
                     CASE
                         WHEN parent_id IS NULL
@@ -30,8 +30,7 @@ class IndBnkBillingController extends Controller
 
         // Generated Bills Count
         $generatedAllottee = RegisterAllottee::where('is_bill_generated', 1)
-            ->where('is_active', 1)
-            ->whereNotNull('scanned_by')
+            ->whereIn('is_active', [0, 1])
             ->sum(DB::raw("
             CASE
                 WHEN parent_id IS NULL
@@ -47,6 +46,47 @@ class IndBnkBillingController extends Controller
         // Next Billing Start
         $nextStart = $generatedAllottee + 1;
 
+        // Pending Lots and file counts
+        $pendingAllottees = RegisterAllottee::from('register_allottees as ra')
+            ->whereIn('ra.is_active', [0, 1])
+            // ->whereNotNull('ra.scanned_by')
+            ->where(function ($q) {
+                $q->whereNull('ra.is_bill_generated')
+                    ->orWhere('ra.is_bill_generated', 0);
+            })
+            ->leftJoin('file_registrations as fr', 'fr.register_no', '=', 'ra.register_id')
+            ->select(
+                'ra.id',
+                'ra.parent_id',
+                'ra.no_of_files',
+                'ra.no_of_supplement',
+                'ra.confirm_received',
+                'ra.confirm_same_allottee_name',
+                'fr.lot_no'
+            )
+            ->get();
+
+        $lotData = [];
+        $pendingLots = [];
+        
+        foreach ($pendingAllottees as $allottee) {
+            $lot = $allottee->lot_no;
+            if (!$lot) continue;
+            
+            $fileCount = is_null($allottee->parent_id) 
+                ? (($allottee->no_of_files ?? 0) + ($allottee->no_of_supplement ?? 0))
+                : ($allottee->no_of_supplement ?? 0);
+            
+            if (!isset($lotData[$lot])) {
+                $lotData[$lot] = 0;
+                $pendingLots[] = $lot;
+            }
+            $lotData[$lot] += $fileCount;
+        }
+
+        natsort($pendingLots);
+        $pendingLots = array_values($pendingLots);
+
         // Billing List
         $billingList = INDBNKBill::latest()->get();
         return view('admin.components.billing.index', compact(
@@ -54,14 +94,17 @@ class IndBnkBillingController extends Controller
             'generatedAllottee',
             'remainingAllottee',
             'nextStart',
-            'billingList'
+            'billingList',
+            'lotData',
+            'pendingLots'
         ));
     }
 
     public function generateBilling(Request $request)
     {
         $request->validate([
-            'total_files' => 'required|integer|min:1',
+            'start_lot' => 'required|string',
+            'end_lot' => 'required|string',
             'start_from' => 'required|integer|min:1',
             'end_at' => 'required|integer|min:1',
         ]);
@@ -71,21 +114,36 @@ class IndBnkBillingController extends Controller
         try {
 
             // Requested Values
-            $requiredFiles = (int) $request->total_files;
+            $startLot = $request->start_lot;
+            $endLot = $request->end_lot;
             $startFrom = (int) $request->start_from;
             $endAt = (int) $request->end_at;
 
+            // Get all lots to slice
+            $allLots = DB::table('file_registrations')->select('lot_no')->whereNotNull('lot_no')->distinct()->pluck('lot_no')->toArray();
+            natsort($allLots);
+            $allLots = array_values($allLots);
+
+            $startIndex = array_search($startLot, $allLots);
+            $endIndex = array_search($endLot, $allLots);
+
+            if ($startIndex === false || $endIndex === false || $startIndex > $endIndex) {
+                return redirect()->back()->with('error', 'Invalid lot range selected.');
+            }
+
+            $selectedLots = array_slice($allLots, $startIndex, $endIndex - $startIndex + 1);
+
             // Get Pending Allottees
             $allottees = RegisterAllottee::from('register_allottees as ra')
-                ->where('ra.is_active', 1)
-                ->whereNotNull('ra.scanned_by')
+                ->whereIn('ra.is_active', [0,1])
+                // ->whereNotNull('ra.scanned_by')
                 ->where(function ($q) {
                     $q->whereNull('ra.is_bill_generated')
                         ->orWhere('ra.is_bill_generated', 0);
                 })
-
                 ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
                 ->leftJoin('file_registrations as fr', 'fr.register_no', '=', 'ra.register_id')
+                ->whereIn('fr.lot_no', $selectedLots)
                 ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
                 ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
                 ->leftJoin('property_type as pt', 'pt.id', '=', 'ra.p_type_id')
@@ -95,6 +153,7 @@ class IndBnkBillingController extends Controller
 
                 ->select(
                     'ra.id',
+                    'ra.parent_id',
                     'ra.property_number',
                     'ra.register_id as registerNo',
                     'ra.prefix',
@@ -122,38 +181,12 @@ class IndBnkBillingController extends Controller
             foreach ($allottees as $allottee) {
 
                 // File Count Logic
-                $fileCount = 0;
+                $fileCount = is_null($allottee->parent_id) 
+                    ? (($allottee->no_of_files ?? 0) + ($allottee->no_of_supplement ?? 0))
+                    : ($allottee->no_of_supplement ?? 0);
 
-                if (
-                    $allottee->confirm_received === "No" &&
-                    $allottee->confirm_same_allottee_name === "No"
-                ) {
-
-                    $fileCount =
-                        1 + ($allottee->no_of_supplement ?? 0);
-                } elseif (
-                    $allottee->confirm_received === "Yes" &&
-                    $allottee->confirm_same_allottee_name === "Yes"
-                ) {
-
-                    $fileCount =
-                        ($allottee->no_of_supplement ?? 0);
-                } elseif (
-                    $allottee->confirm_received === "Yes" &&
-                    $allottee->confirm_same_allottee_name === "No"
-                ) {
-
-                    $fileCount =
-                        1 + ($allottee->no_of_supplement ?? 0);
-                }
-
-                // Stop If Limit Cross
-                if (($currentFiles + $fileCount) > $requiredFiles) {
-                    break;
-                }
-
+                // No File Limit Logic - include all in selected lots
                 $selectedAllottees[] = $allottee;
-
                 $currentFiles += $fileCount;
             }
 
@@ -228,30 +261,9 @@ class IndBnkBillingController extends Controller
         foreach ($selectedAllottees as $allottee) {
 
             // File Count Logic
-            $fileCount = 0;
-
-            if (
-                $allottee->confirm_received === "No" &&
-                $allottee->confirm_same_allottee_name === "No"
-            ) {
-
-                $fileCount =
-                    1 + ($allottee->no_of_supplement ?? 0);
-            } elseif (
-                $allottee->confirm_received === "Yes" &&
-                $allottee->confirm_same_allottee_name === "Yes"
-            ) {
-
-                $fileCount =
-                    ($allottee->no_of_supplement ?? 0);
-            } elseif (
-                $allottee->confirm_received === "Yes" &&
-                $allottee->confirm_same_allottee_name === "No"
-            ) {
-
-                $fileCount =
-                    1 + ($allottee->no_of_supplement ?? 0);
-            }
+            $fileCount = is_null($allottee->parent_id) 
+                ? (($allottee->no_of_files ?? 0) + ($allottee->no_of_supplement ?? 0))
+                : ($allottee->no_of_supplement ?? 0);
 
             // Generate File Labels
             for ($i = 1; $i <= $fileCount; $i++) {
