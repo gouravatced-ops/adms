@@ -271,31 +271,41 @@
                     <form action="{{ route('admin.indbnk.generate.bill') }}" method="POST">
                         @csrf
                         <div class="row">
+                            {{-- Start Lot --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    Start Lot
+                                </label>
+                                <select name="start_lot" id="start_lot" class="form-select form-select-lg" required>
+                                    <option value="">Select Start Lot</option>
+                                    @foreach($pendingLots as $lot)
+                                        <option value="{{ $lot }}">{{ $lot }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            {{-- End Lot --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    End Lot
+                                </label>
+                                <select name="end_lot" id="end_lot" class="form-select form-select-lg" required>
+                                    <option value="">Select End Lot</option>
+                                    @foreach($pendingLots as $lot)
+                                        <option value="{{ $lot }}">{{ $lot }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             {{-- Total File --}}
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-semibold">
                                     Number Of Allottee Files
                                 </label>
-                                <input type="number" name="total_files" class="form-control form-control-lg"
-                                    placeholder="Enter Total Files" min="1" max="{{ $remaining }}" required>
-                            </div>
-                            {{-- Start --}}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-semibold">
-                                    Billing Start From
-                                </label>
-                                <input type="number" name="start_from" class="form-control form-control-lg bg-light"
-                                    value="{{ $nextStart }}" readonly>
-                            </div>
-                            {{-- End --}}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-semibold">
-                                    Billing End At
-                                </label>
-                                <input type="number" name="end_at" id="end_at"
-                                    class="form-control form-control-lg bg-light" value="{{ $nextStart }}" readonly>
+                                <input type="number" name="total_files" id="total_files" class="form-control form-control-lg bg-light"
+                                    placeholder="0" readonly required>
                             </div>
                         </div>
+                        <input type="hidden" name="start_from" id="start_from" value="{{ $nextStart }}">
+                        <input type="hidden" name="end_at" id="end_at" value="{{ $nextStart }}">
                         {{-- Footer --}}
                         <div class="d-flex justify-content-end mt-4">
                             <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">
@@ -314,19 +324,73 @@
     {{-- Script --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let totalInput = document.querySelector('input[name="total_files"]');
-            let startInput = document.querySelector('input[name="start_from"]');
-            let endInput = document.querySelector('#end_at');
-            totalInput.addEventListener('input', function() {
-                let total = parseInt(this.value) || 0;
-                let start = parseInt(startInput.value);
-                let maxLimit = {{ $totalAllottee }};
-                let end = (start + total) - 1;
-                if (end > maxLimit) {
-                    end = maxLimit;
+            let startLotInput = document.getElementById('start_lot');
+            let endLotInput = document.getElementById('end_lot');
+            let totalFilesInput = document.getElementById('total_files');
+            let startFromInput = document.getElementById('start_from');
+            let endAtInput = document.getElementById('end_at');
+            
+            let lotData = @json($lotData);
+            let pendingLots = @json($pendingLots);
+            let nextStart = {{ $nextStart }};
+
+            function calculateTotal() {
+                let startLot = startLotInput.value;
+                let endLot = endLotInput.value;
+                
+                if (startLot && endLot) {
+                    let startIndex = pendingLots.indexOf(startLot);
+                    let endIndex = pendingLots.indexOf(endLot);
+                    
+                    if (startIndex <= endIndex && startIndex !== -1 && endIndex !== -1) {
+                        let total = 0;
+                        for (let i = startIndex; i <= endIndex; i++) {
+                            let lot = pendingLots[i];
+                            total += lotData[lot] || 0;
+                        }
+                        totalFilesInput.value = total;
+                        endAtInput.value = nextStart + total - 1;
+                    } else {
+                        totalFilesInput.value = 0;
+                        endAtInput.value = nextStart;
+                    }
+                } else {
+                    totalFilesInput.value = '';
+                    endAtInput.value = nextStart;
                 }
-                endInput.value = end;
+            }
+
+            startLotInput.addEventListener('change', function() {
+                let startLot = this.value;
+                let startIndex = pendingLots.indexOf(startLot);
+                
+                // Clear current options in end_lot
+                endLotInput.innerHTML = '<option value="">Select End Lot</option>';
+                
+                if (startLot && startIndex !== -1) {
+                    // Only add options that are >= startIndex
+                    for (let i = startIndex; i < pendingLots.length; i++) {
+                        let lot = pendingLots[i];
+                        let option = document.createElement('option');
+                        option.value = lot;
+                        option.textContent = lot;
+                        endLotInput.appendChild(option);
+                    }
+                } else {
+                    // If no start lot selected, show all lots
+                    for (let i = 0; i < pendingLots.length; i++) {
+                        let lot = pendingLots[i];
+                        let option = document.createElement('option');
+                        option.value = lot;
+                        option.textContent = lot;
+                        endLotInput.appendChild(option);
+                    }
+                }
+                
+                calculateTotal();
             });
+
+            endLotInput.addEventListener('change', calculateTotal);
         });
     </script>
 @endsection
