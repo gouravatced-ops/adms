@@ -176,7 +176,7 @@ class AdminController extends Controller
 
         return [
             'stats' => [
-                'totalreceivingFile' =>  RegisterAllottee::whereIn('is_active', [0, 1])
+                'totalreceivingFile' =>  RegisterAllottee::where('is_active', 1)
                     ->sum(
                         DB::raw("
                             COALESCE(
@@ -190,7 +190,7 @@ class AdminController extends Controller
                         ")
                     ),
 
-                'totalscannedFile' => RegisterAllottee::whereIn('is_active', [0, 1])->whereNotNull('scanned_by')
+                'totalscannedFile' => RegisterAllottee::where('is_active', 1)
                     ->sum(DB::raw("
                     CASE
                         WHEN parent_id IS NULL
