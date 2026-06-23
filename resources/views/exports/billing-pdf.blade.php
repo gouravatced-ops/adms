@@ -30,6 +30,7 @@
             position: relative;
             min-height: 100vh;
             margin-left: 15px;
+            padding: 20px 0px 20px 0px;
         }
 
         /* Watermark */
@@ -293,8 +294,8 @@
 
 <body>
     @php
-        // Define chunk sizes: first page gets 42, second page gets 50
-        $chunkSizes = [42, 50];
+        // Define chunk sizes: first page gets 41, second page gets 49
+        $chunkSizes = [41, 49];
         $allotteesArray = is_array($allottees) ? $allottees : $allottees ?? [];
         $totalAllottees = count($allotteesArray);
         $chunks = [];
@@ -315,7 +316,7 @@
         // If there are remaining allottees after page 2, add them to subsequent pages
         if ($index < $totalAllottees) {
             $remaining = array_slice($allotteesArray, $index);
-            $remainingChunks = array_chunk($remaining, 50);
+            $remainingChunks = array_chunk($remaining, 49);
             foreach ($remainingChunks as $remainingChunk) {
                 $chunks[] = $remainingChunk;
                 $pageCounter++;
@@ -348,9 +349,6 @@
                                 <div class="org-address">
                                     L.I.G R/276, Harmu Colony, Ranchi, 834002.
                                 </div>
-                                <div class="org-project">
-                                    (A Project of Indian Bank, Harmu Colony Branch, Ranchi)
-                                </div>
                             </div>
                             <div class="logo-right">
                                 <img src="{{ $logo2 }}" alt="COMPUTER Ed.">
@@ -360,12 +358,12 @@
                     
                     <!-- Title - Only on First Page -->
                     <div class="document-title">
-                        <span>Scanned Files Statement</span>
+                        <span>JSHB Allottees Scanned Files Statement</span>
                     </div>
                     
                     <!-- Project - Only on First Page -->
                     <div class="project-name">
-                        Project Name - Allottee Data Management System (ADMS)
+                        Project Name - Digitization of JSHB Allottees
                         <strong style="float:right;">
                             Project Office : JSHB HQ
                         </strong>
@@ -392,14 +390,14 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width:5%;">Sl.No.</th>
-                            <th style="width:8%;">Lot</th>
+                            <th style="width:6%;">Sl.No.</th>
+                            <th style="width:7%;">Lot</th>
                             <th style="width:18%;">Div.</th>
-                            <th style="width:18%;">Sub Div.</th>
+                            <th style="width:18%;">Sub-Div.</th>
                             <th style="width:12%;">Type</th>
-                            <th style="width:6%;">Prop. No.</th>
+                            <th style="width:8%;">Prop. No.</th>
                             <th style="width:28%;">Allottee</th>
-                            <th style="width:6%;">PDF</th>
+                            <th style="width:5%;">PDF</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -410,9 +408,9 @@
                                         $startSerial = 0;
                                         for ($i = 0; $i < $pageIndex; $i++) {
                                             if ($i == 0) {
-                                                $startSerial += 42;
+                                                $startSerial += 41;
                                             } else {
-                                                $startSerial += 50;
+                                                $startSerial += 49;
                                             }
                                         }
                                     @endphp
@@ -421,10 +419,10 @@
                                 <td class="text-center">
                                     {{ $allottee['lotname'] ?? ($allottee->lotname ?? '-') }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-start">
                                     {{ $allottee['division'] ?? ($allottee->division ?? '-') }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-start">
                                     {{ $allottee['subdivision'] ?? ($allottee->subdivision ?? '-') }}
                                 </td>
                                 <td class="text-center">
@@ -455,16 +453,9 @@
                 <div class="footer">
 
                     <div class="page-info">
-                        Statement Book No. {{ $billNumber }}
+                        Allottee Scanned Files | Statement Book No. {{ $billNumber }}
                         |
                         Page {{ $pageIndex + 1 }}
-                        |
-                        Records: {{ count($chunk) }}
-                        @if($pageIndex == 0)
-                            (Max: 42)
-                        @else
-                            (Max: 50)
-                        @endif
                     </div>
                 </div>
             </div>
