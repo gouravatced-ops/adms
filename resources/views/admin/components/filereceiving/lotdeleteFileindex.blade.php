@@ -3,12 +3,12 @@
 @section('admin-content')
     <div class="container-xxl flex-grow-1">
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Lot Files List / {{ $Lots }} : {{ $registerNo }}</span>
+            <span class="invert-text-white">Dashboard / Deleted Lot Files List / {{ $Lots }} : {{ $registerNo }}</span>
         </h6>
 
         <div class="card mb-4">
             <div class="card-header bg-info d-flex justify-content-between align-items-center">
-                <h5 class="text-white mb-0">Lot Files</h5>
+                <h5 class="text-white mb-0">Deleted Lot Files</h5>
                 <div class="btn-group">
                     &nbsp;
                     <button type="button" class="btn btn-light btn-sm">
@@ -46,7 +46,7 @@
                                 <th>Remarks</th>
                                 <th>Status</th>
                                 <th>Dates</th>
-                                <th>Action</th> <!-- Edit file -->
+                                <th>Delete Reason</th>
                             </tr>
                         </thead>
 
@@ -111,39 +111,7 @@
                                         {{ formatDateTime($item->updated_at ?? now()) }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.receiving.file.fetch', $item->primary_id_encrpted) }}"
-                                            class="btn btn-primary text-white me-2" title="Edit {{ $allotteeName }} File">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                                <path d="M14 2v6h6" />
-                                                <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
-                                                <path d="M13 12l3 3" />
-                                            </svg>
-                                        </a>
-                                        @if ($item->allottee_status == 'received' || $item->allottee_status == 'scanned')
-                                            <form action="{{ route('admin.lots.file.delete', $item->primary_id_encrpted) }}" method="POST" class="d-inline" id="deleteForm-{{ $item->primary_id_encrpted }}">
-                                                @csrf
-                                                <input type="hidden" name="delete_reason" id="delete_reason-{{ $item->primary_id_encrpted }}">
-                                                <button type="button" class="btn btn-danger text-white me-2"
-                                                    title="Delete {{ $allotteeName }} File"
-                                                    onclick="promptDelete('{{ $item->primary_id_encrpted }}')">
-
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-
-                                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                                        <path d="M19 6l-1 14H6L5 6"></path>
-                                                        <path d="M10 11v6"></path>
-                                                        <path d="M14 11v6"></path>
-                                                        <path d="M9 6V4h6v2"></path>
-
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                        @endif
+                                        <span class="text-danger fw-semibold">{{ $item->delete_reason ?? 'No reason provided' }}</span>
                                     </td>
                                 </tr>
                             @empty
@@ -165,18 +133,6 @@
             </div>
         </div>
     </div>
-
-<script>
-    window.promptDelete = function(id) {
-        let reason = prompt("Please enter the reason for deletion:");
-        if (reason != null && reason.trim() !== "") {
-            document.getElementById('delete_reason-' + id).value = reason;
-            document.getElementById('deleteForm-' + id).submit();
-        } else if (reason != null) {
-            alert("Reason is required.");
-        }
-    }
-</script>
 @endsection
 
 @push('styles')
@@ -204,4 +160,3 @@
         }
     </style>
 @endpush
-

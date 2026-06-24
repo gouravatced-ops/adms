@@ -66,7 +66,8 @@ Route::get('/revert/file/list/1', [FileManagementController::class, 'revertLotsF
 // manage Lots
 Route::get('manage/lots/list', [FileManagementController::class, 'LotsList'])->name('admin.manage.lots.index');
 Route::get('manage/lots/list/file/index/{encodedId}/{page}', [FileManagementController::class, 'LotsFilesList'])->name('admin.manage.lots.file.index');
-Route::get('manage/lots/list/file/delete/{encodedId}', [FileManagementController::class, 'deleteLotsFiles'])->name('admin.lots.file.delete');
+Route::post('manage/lots/list/file/delete/{encodedId}', [FileManagementController::class, 'deleteLotsFiles'])->name('admin.lots.file.delete');
+Route::get('manage/lots/list/file/deleted/{encodedId}/{page}', [FileManagementController::class, 'deletedLotsFilesList'])->name('admin.deleted.lots.file.index');
 Route::get('/receiving/lots/list', [FileManagementController::class, 'receivingLotsList'])->name('admin.receiving.lots.index');
 Route::get('/receiving/file/list/{encodedId}/{page}', [FileManagementController::class, 'receivingLotsFileList'])->name('admin.receiving.files.index');
 Route::get('/receiving/file/exports/{registerId}', [FileManagementController::class, 'receivingfilesExports'])->name('admin.receiving.files.exports');

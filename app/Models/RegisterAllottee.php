@@ -37,6 +37,7 @@ class RegisterAllottee extends Model
         'updated_by',
         'is_active',
         'ip_address',
+        'delete_reason',
     ];
 
     public function division()

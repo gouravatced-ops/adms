@@ -85,39 +85,52 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('admin.manage.lots.file.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}"
-                                            class="btn btn-primary text-white me-2" title="View Lot Files">
-                                            <!-- Custom List/File SVG Icon -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M8 6h13"></path>
-                                                <path d="M8 12h13"></path>
-                                                <path d="M8 18h13"></path>
-                                                <path d="M3 6h.01"></path>
-                                                <path d="M3 12h.01"></path>
-                                                <path d="M3 18h.01"></path>
-                                            </svg>
-                                        </a>
-                                        <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}"
-                                            class="btn btn-danger text-white me-2" title="View Lot Files">
-                                            <!-- PDF File with Download Arrow SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
+                                        <div class="d-flex justify-content-center gap-2 flex-nowrap">
+                                            <a href="{{ route('admin.manage.lots.file.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}"
+                                                class="btn btn-primary btn-sm text-white" title="View Lot Files">
+                                                <!-- Custom List/File SVG Icon -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M8 6h13"></path>
+                                                    <path d="M8 12h13"></path>
+                                                    <path d="M8 18h13"></path>
+                                                    <path d="M3 6h.01"></path>
+                                                    <path d="M3 12h.01"></path>
+                                                    <path d="M3 18h.01"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="{{ route('admin.receiving.files.exports', ['registerId' => base64_encode($item->register_no)]) }}"
+                                                class="btn btn-danger btn-sm text-white" title="View Lot Files">
+                                                <!-- PDF File with Download Arrow SVG -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
 
-                                                <!-- File Shape -->
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                                <path d="M14 2v6h6"></path>
+                                                    <!-- File Shape -->
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                    <path d="M14 2v6h6"></path>
 
-                                                <!-- Download Arrow -->
-                                                <path d="M12 11v6"></path>
-                                                <path d="M9.5 14.5L12 17l2.5-2.5"></path>
+                                                    <!-- Download Arrow -->
+                                                    <path d="M12 11v6"></path>
+                                                    <path d="M9.5 14.5L12 17l2.5-2.5"></path>
 
-                                                <!-- Bottom Line -->
-                                                <path d="M8 20h8"></path>
-                                            </svg>
-                                        </a>
+                                                    <!-- Bottom Line -->
+                                                    <path d="M8 20h8"></path>
+                                                </svg>
+                                            </a>
+                                            @if($item->deleted_count > 0)
+                                            <a href="{{ route('admin.deleted.lots.file.index', ['encodedId' => $item->encoded_register_no, 'page' => 1]) }}"
+                                                class="btn btn-warning btn-sm text-dark d-flex align-items-center gap-1 px-2" title="History of delete allottee">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 3v18h18"/>
+                                                    <path d="M8 14l3-3 4 4 6-6"/>
+                                                    <path d="M21 9v6h-6"/>
+                                                </svg>
+                                                <span class="badge bg-danger rounded-pill px-1">{{ $item->deleted_count }}</span>
+                                            </a>
+                                            @endif
+                                        </div>
                                     </td>
 
                                 </tr>

@@ -82,3 +82,5 @@ INSERT INTO `admins` (`id`, `admin_details_id`, `mobile_no`, `admin_name`, `prof
 'parth.sadmin@computered.co.in', '$2y$12$kydyORdyxUaaPqx6E.3wxe5Tpx8R9kWuqbTG9BXiGM4FGEz0yHxAK', NULL, 'council_office',
 NULL, '0', NULL, '2026-05-29 10:45:49', '2026-05-29 10:45:49', '127.0.0.1', '2026-05-02 11:08:32', '2026-02-04
 14:56:19', '2026-05-29 10:45:49');
+
+ALTER TABLE `register_allottees` ADD `delete_reason` VARCHAR(255) NULL DEFAULT NULL AFTER `is_active`;

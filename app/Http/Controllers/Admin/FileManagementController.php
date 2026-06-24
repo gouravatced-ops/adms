@@ -44,17 +44,9 @@ class FileManagementController extends Controller
     {
         try {
             $registrations = RegistrationFile::query()
-                ->with('creator:id,name')
-
-                ->withCount([
-                    'allottees as scanned_count' => fn($q) => $q->where('allottee_status', 'scanned'),
-                    'allottees as dataentry_count' => fn($q) => $q->where('allottee_status', 'dataentry'),
-                    'allottees as handover_count' => fn($q) => $q->where('allottee_status', 'handover'),
-                ])
-
                 ->select('*')
                 ->selectSub(function ($q) {
-                    $q->from('register_allottees')
+                    $q->from('register_allottees')->where('is_active', 1)
                         ->selectRaw("
                             SUM(
                                 CASE
@@ -67,6 +59,13 @@ class FileManagementController extends Controller
                         ")
                         ->whereColumn('register_allottees.register_id', 'file_registrations.register_no');
                 }, 'total_received_files')
+                ->with('creator:id,name')
+                ->withCount([
+                    'allottees as scanned_count' => fn($q) => $q->where('allottee_status', 'scanned'),
+                    'allottees as dataentry_count' => fn($q) => $q->where('allottee_status', 'dataentry'),
+                    'allottees as handover_count' => fn($q) => $q->where('allottee_status', 'handover'),
+                    'allottees as deleted_count' => fn($q) => $q->where('is_active', 0),
+                ])
 
                 ->latest()
                 ->get()
@@ -154,13 +153,16 @@ class FileManagementController extends Controller
         }
     }
 
-    public function deleteLotsFiles($encryptedId)
+    public function deleteLotsFiles(Request $request, $encryptedId)
     {
         $file = RegisterAllottee::findOrFail(decrypt($encryptedId));
 
-        $updated = $file->update([
-            'is_active' => 0,
-        ]);
+        $updateData = ['is_active' => 0];
+        if ($request->has('delete_reason') && !empty($request->delete_reason)) {
+            $updateData['delete_reason'] = $request->delete_reason;
+        }
+
+        $updated = $file->update($updateData);
 
         if ($updated) {
             LotAssignment::where('allottee_id', $file->id)->delete();
@@ -175,6 +177,50 @@ class FileManagementController extends Controller
                 $updated ? 'success' : 'error',
                 $updated ? 'File deleted successfully.' : 'Failed to delete file.'
             );
+    }
+
+    public function deletedLotsFilesList($encodedId, $page)
+    {
+        try {
+            $Id = base64_decode($encodedId);
+            $relationWith = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'registration',
+            ];
+            $files = RegisterAllottee::query()
+
+                ->with($relationWith)
+                ->where('register_id', $Id)
+                ->where('is_active', 0)
+
+                ->latest()
+                ->paginate(25)
+                ->through(function ($item) {
+
+                    $item->register_no = $item->registration->register_no ?? '';
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->lot_no = $item->registration->lot_no ?? '';
+                    $item->primary_id_encrpted = encrypt($item->id);
+                    return $item;
+                });
+            $pageNo = $page;
+            $registers  = RegistrationFile::where('register_no', $Id)->first();
+            $registerId = $registers->id;
+            $Lots = $registers->lot_no;
+            $registerNo  = $Id;
+            return view('admin.components.filereceiving.lotdeleteFileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+        } catch (\Throwable $e) {
+
+            Log::error('File list failed', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'Failed to load file list.');
+        }
     }
 
     public function receivingLotsList(Request $request)
