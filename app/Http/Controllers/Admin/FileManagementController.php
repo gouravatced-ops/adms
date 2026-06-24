@@ -142,7 +142,7 @@ class FileManagementController extends Controller
             $registerId = $registers->id;
             $Lots = $registers->lot_no;
             $registerNo  = $Id;
-            return view('admin.components.filereceiving.lotfileIndex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+            return view('admin.components.filereceiving.lotfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
         } catch (\Throwable $e) {
 
             Log::error('File list failed', [
