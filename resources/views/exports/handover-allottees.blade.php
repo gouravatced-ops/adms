@@ -453,7 +453,7 @@
                             </div>
 
                             <div class="sub-text">
-                                (Authorized signatory-Jharkhand State Housing Board)
+                                (Authorized signatory)
                             </div>
                         </td>
 
@@ -469,7 +469,7 @@
                             </div>
 
                             <div class="sub-text">
-                                (Authorized signatory-COMPUTER Ed.)
+                                (Authorized signatory)
                             </div>
                         </td>
                     </tr>
