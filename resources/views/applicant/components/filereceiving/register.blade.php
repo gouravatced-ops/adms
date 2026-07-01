@@ -311,7 +311,7 @@
             <input type="hidden" name="register_id" value="{{ $register->register_no }}">
             <p class="mb-3"> Select how many files are allowed in this registration (Max 40): </p>
             <div class="field"> <label class="label required">Allowed Files</label> 
-                <input type="number" name="allowed_files" id="allowed_files" class="form-control mt-2" placeholder="Enter number manually (1-40)" min="1" max="40">
+                <input type="number" name="allowed_files" id="allowed_files" class="form-control mt-2" placeholder="Enter number manually (1-50)" min="1" max="50">
             </div>
             <br>
             <div class="field">
