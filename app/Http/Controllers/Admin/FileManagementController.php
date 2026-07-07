@@ -380,7 +380,7 @@ class FileManagementController extends Controller
 
 
         $allRecords = RegisterAllottee::query()
-            ->where('is_active', 1)
+            ->whereIn('is_active', [0,1])
             ->orderBy('created_at', 'asc')
             ->select([
                 'id',
@@ -395,7 +395,7 @@ class FileManagementController extends Controller
 
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
-            ->where('is_active', 1)
+            ->whereIn('ra.is_active', [0,1])
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
@@ -1327,7 +1327,7 @@ class FileManagementController extends Controller
         $lotcreateDate = Carbon::parse($register->handover_at)->format('d/m/Y');
         $lotTime = Carbon::parse($register->handover_at)->format('h:i A');
         $allRecords = RegisterAllottee::query()
-            ->where('is_active', 1)
+            ->whereIn('is_active', [0,1])
             ->orderBy('created_at', 'asc')
             ->select([
                 'id',
@@ -1342,7 +1342,7 @@ class FileManagementController extends Controller
 
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
-            ->where('is_active', 1)
+            ->whereIn('ra.is_active', [0,1])
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
