@@ -404,7 +404,8 @@ class LeaseFreeHoldController extends Controller
 
             // Update the allottee status
             Allottee::where('id', $allotteeId)->update([
-                'is_free_hold_completed' => 1,
+                'free_hold_status' => 'yes',
+                'is_free_hold_completed' => 1
             ]);
 
             $response = [

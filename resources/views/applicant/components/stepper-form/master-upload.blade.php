@@ -407,6 +407,25 @@
         flex-shrink: 0;
     }
 
+    .action-btn-success {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: #028d2c;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: 0.25s ease;
+    }
+
+    .action-btn-success:hover {
+        background: #02aa35;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
     .action-btn-info {
         width: 48px;
         height: 48px;
@@ -504,26 +523,50 @@
                 </div>
 
                 {{-- Right Side --}}
-                <span style="color:red;">Continue To Name Transfer ➡</span>
-                <div class="notice-action">
-                    <a href="{{ route('nametransfer.apply.index', encrypt($file->id)) }}"
-                        class="action-btn-info"
-                        title="Continue Name Transfer">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M3 21c0-4 3-7 6-7s6 3 6 7"></path>
-                            <line x1="19" y1="8" x2="19" y2="14"></line>
-                            <line x1="16" y1="11" x2="22" y2="11"></line>
-                        </svg>
-                    </a>
+                <div class="right-actions" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end; justify-content: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color:red;">Continue To Name Transfer ➡</span>
+                        <div class="notice-action" style="margin: 0;">
+                            <a href="{{ route('nametransfer.apply.index', encrypt($file->id)) }}" target="_blank"
+                                class="action-btn-info"
+                                title="Continue Name Transfer">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="22"
+                                    height="22"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M3 21c0-4 3-7 6-7s6 3 6 7"></path>
+                                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                                    <line x1="16" y1="11" x2="22" y2="11"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color:rgb(2, 206, 53);">Continue To Lease ➡</span>
+                        <div class="notice-action" style="margin: 0;">
+                            <a href="{{ route('lease.documents.upload', encrypt($file->id)) }}" target="_blank"
+                                class="action-btn-success" title="Continue To Lease">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+
+                                    <!-- File -->
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+
+                                    <!-- Upload Arrow -->
+                                    <path d="M12 18V11"></path>
+                                    <path d="M9 14l3-3 3 3"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
