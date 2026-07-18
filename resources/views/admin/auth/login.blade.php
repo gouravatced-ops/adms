@@ -75,9 +75,18 @@
             <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
         </div>
     </form>
-    <span>Forget Password</span><a href="{{ route('admin.forgot-password') }}">
-        <span>Click Here</span>
-    </a>
+    <div class="d-flex justify-content-between mt-2">
+        <div>
+            <span>Forget Password</span><a href="{{ route('admin.forgot-password') }}">
+                <span>Click Here</span>
+            </a>
+        </div>
+        <div>
+            <a href="{{ url('/') }}">
+                <i class="bx bx-arrow-back me-1"></i>Return to Home
+            </a>
+        </div>
+    </div>
     <script>
         document.getElementById('reload-captcha').addEventListener('click', function() {
             fetch("{{ route('captcha.reload') }}")

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Files Handover - COMPUTER Ed.</title>
+    <style>
+        @font-face {
+            font-family: 'bookman';
+            src: url('{{ public_path('assets/fontspdf/bookman.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'NotoSansDevanagari';
+            src: url('{{ public_path('assets/fontspdf/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'KrutiDev';
+            src: url('{{ public_path('assets/fontspdf/KrutiDev010.ttf') }}') format('truetype');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'NotoSansDevanagari', 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+            color: #000;
+            line-height: 1.4;
+            padding: 15px;
+        }
+
+        @page {
+            margin-top: 25mm;
+            margin-right: 10mm;
+            margin-bottom: 25mm;
+            margin-left: 10mm;
+        }
+
+
+        .page-wrapper {
+            position: relative;
+            min-height: 100vh;
+            margin-left: 20px;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 30px;
+            color: rgba(0, 0, 0, 0.05);
+            font-weight: bold;
+            z-index: -1;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: 10px;
+        }
+
+        /* Table Layout */
+        .header-content {
+            width: 100%;
+            display: table;
+            table-layout: fixed;
+        }
+
+        /* Three Columns */
+        .logo-left,
+        .org-info,
+        .logo-right {
+            display: table-cell;
+            vertical-align: middle;
+            /* Align all center vertically */
+        }
+
+        /* Column Widths */
+        .logo-left {
+            width: 25%;
+            text-align: left;
+        }
+
+        .org-info {
+            width: 50%;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .logo-right {
+            width: 25%;
+            text-align: right;
+        }
+
+        /* Make ALL logos same size */
+        .logo-left img,
+        .logo-right img {
+            height: 35px;
+            /* Fixed same height */
+            width: auto;
+        }
+
+        .logo-left img:last-child {
+            height: 45px;
+            max-width: 85%;
+        }
+
+        /* If two logos on left */
+        .logo-left img {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        /* Organization Name */
+        .org-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            font-family: 'bookman', serif;
+        }
+
+        /* Address */
+        .org-address {
+            font-size: 12px;
+            line-height: 1.3;
+            margin-bottom: 3px;
+        }
+
+        /* Project Line */
+        .org-project {
+            font-size: 12px;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* Title Section */
+        .document-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #000000;
+            letter-spacing: 1px;
+        }
+
+        .document-title span {
+            display: inline-block;
+            padding: 2px 6px;
+            border: 1px solid #000;
+            background: none;
+        }
+
+
+        .project-name {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #222222;
+            font-weight: bold;
+        }
+
+        /* Copy Info Box */
+        .copy-info {
+            padding: 6px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+
+        .copy-type {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+
+        .receiving-info {
+            display: table;
+            width: 100%;
+        }
+
+        .receiving-date,
+        .receiving-time {
+            display: table-cell;
+            width: 50%;
+            font-size: 12px;
+        }
+
+        .receiving-time {
+            text-align: right;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #000;
+        }
+
+
+        /* ========== DATA TABLE - ULTRA COMPACT PADDING & MARGIN ========== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            /* no margin */
+            font-size: 12px;
+            /* smaller font */
+            table-layout: fixed;
+        }
+
+        .data-table th {
+            color: #000000;
+            text-align: center;
+            font-weight: bold;
+            border: 0.5px solid #888;
+            font-size: 12px;
+            padding: 1px 2px;
+            /* minimal padding */
+            background-color: #f7f7f7;
+        }
+
+        .data-table td {
+            border: 0.5px solid #888;
+            padding: 0px 2px;
+            /* zero top/bottom padding */
+            vertical-align: middle;
+            word-break: break-word;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        /* Force avoid page break inside any table row - critical fix */
+        .data-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .no-records {
+            font-style: italic;
+            color: #666;
+            padding: 4px !important;
+            text-align: center;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            font-size: 12px;
+            border-top: 1.5px solid #000;
+        }
+
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .signature-table td {
+            width: 50%;
+            vertical-align: top;
+            padding: 0 10px;
+        }
+
+        .line-row {
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+
+        .line {
+            display: inline-block;
+            border-bottom: 1px dotted #000;
+            height: 10px;
+            vertical-align: middle;
+        }
+
+        .line.long {
+            width: 180px;
+        }
+
+        .line.medium {
+            width: 150px;
+        }
+
+        .sub-text {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .organization-name {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #ccc;
+        }
+
+        .org-label {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .page-info {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 7px;
+            color: #666;
+        }
+
+        /* Page break for multiple copies */
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+
+<body>
+    @foreach ($copies as $copyIndex => $copyType)
+        <div class="page-wrapper {{ $copyIndex > 0 ? 'page-break' : '' }}">
+
+            <!-- Watermark -->
+            <div class="watermark">{{ $copyType }}</div>
+
+            <!-- Header Section -->
+            <div class="header">
+                <div class="header-content">
+                    <!-- Left Logos -->
+                    <div class="logo-left">
+                        <img src="{{ $logo1 }}" alt="INDIAN BANK">
+                        <img src="{{ $logo3 }}" alt="JSHB Logo">
+                    </div>
+
+                    <!-- Organization Info -->
+                    <div class="org-info">
+                        <div class="org-name">COMPUTER Ed.</div>
+                        <div class="org-address">
+                            L.I.G R/276, Harmu Housing Colony,<br>
+                            Ranchi, Jharkhand, Pin: 834002
+                        </div>
+                        <div class="org-project">
+                            (A Project of Indian Bank, Harmu Colony Branch, Ranchi)
+                        </div>
+                    </div>
+
+                    <!-- Right Logo -->
+                    <div class="logo-right">
+                        <img src="{{ $logo2 }}" alt="COMPUTER Ed.">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Title -->
+            <div class="document-title">
+                <span>Files Handover Sheet</span>
+            </div>
+
+            <!-- Project Name -->
+            <div class="project-name">
+                Project Name - Allottee Data Management System (ADMS)
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Division
+                    :</strong> {{ $lotDivision }}
+            </div>
+
+            <!-- Copy Information Box -->
+            <div class="copy-info">
+                <div class="copy-type">{{ $copyType }}</div>
+                <div class="receiving-info">
+                    <div class="receiving-date">
+                        <span class="info-label"><strong>{{ $lotNumber }}</strong></span><br>
+                        <span class="info-label">Total Nos. of Physical Files Received:</span> {{ count($allottees) }}
+                    </div>
+                    <div class="receiving-time">
+                        <span class="info-label">Lot Approved On:</span> {{ $lotcreateDate }}<br>
+                        <span class="info-label">Time:</span> {{ $lotTime }}<br>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;">Sl No.</th>
+                        <th style="width: 10%;">Division</th>
+                        <th style="width: 12%;">Sub-division</th>
+                        <th style="width: 11%;">Property Category</th>
+                        <th style="width: 8%;">Type of <br> Property</th>
+                        <th style="width: 8%;">Income Category</th>
+                        <th style="width: 9%;">Property No.</th>
+                        <th style="width: 18%;">Allottee Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($allottees as $index => $allottee)
+                        <tr>
+                            <td class="text-center">{{ $index + 1 }}</td>
+                            <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
+                            <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
+                            <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
+                            <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
+                            <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
+                            <td>
+                                {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center no-records">No records found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+
+            <!-- Footer Signatures -->
+            <div class="footer">
+                <p style="font-family:'KrutiDev'; font-size:16px; border-bottom: 1.5px solid #000;margin-bottom:40px;">
+                    eSa iqf"V djrk gw¡ fd esjs }kjk bl lwph dh lHkh QkbZyksa dk LdS.M <span
+                        style="
+                                    font-size:12px;
+                                    font-family: Arial, sans-serif;
+                                ">
+                        PDF
+                    </span> ,oa lEcfU/kr
+                    MkVk ,UVªh dks lR;kfir dj fy;k x;k gS ,oa mijksDr QkbZysa lqjf{kr :i ls dk;kZy; dks
+                    izkIr gks x;h gSaA
+                </p>
+                <table class="signature-table">
+                    <tr>
+                        <td class="left">
+                            <div class="line-row">
+                                Signature :
+                                <span class="line long"></span>
+                            </div>
+
+                            <div class="line-row">
+                                Handover to :
+                                <span class="line medium"></span>
+                            </div>
+
+                            <div class="sub-text">
+                                (Authorized signatory)
+                            </div>
+                        </td>
+
+                        <td class="right">
+                            <div class="line-row">
+                                Signature :
+                                <span class="line long"></span>
+                            </div>
+
+                            <div class="line-row">
+                                Handover by :
+                                <span class="line medium"></span>
+                            </div>
+
+                            <div class="sub-text">
+                                (Authorized signatory)
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <!-- Page Info -->
+                <div class="page-info">
+                    REG ID. {{ $registerNo }} | Generated on {{ date('d/m/Y H:i:s') }}
+                </div>
+            </div>
+        </div>
+    @endforeach
+</body>
+
+</html>

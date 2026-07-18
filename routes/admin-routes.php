@@ -51,6 +51,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/update/admin-details', [AdminController::class, 'updateAdminDetails'])->name('update.admin-details');
 
         Route::post('/update/admin-password', [AdminController::class, 'updateAdminpassword'])->name('update.admin-password');
+        Route::post('/update/dashboard-password', [AdminController::class, 'updateDashboardPassword'])->name('update.dashboard-password');
 
         Route::post('/updateAdminOTP/password', [AdminController::class, 'sendChangePassOTP'])->name('updateAdminOTP.password');
 
@@ -70,8 +71,8 @@ Route::prefix('admin')->group(function () {
             require base_path('routes/admin/superadmin.php');
         });
 
-        // Council Office
-        Route::middleware(['admin.role:council_office'])->group(function () {
+        // Subadmin and Approver of Divisional
+        Route::middleware(['admin.role:council_office,approver,divisional_admin'])->group(function () {
             require base_path('routes/admin/council_office.php');
         });
 
@@ -81,4 +82,3 @@ Route::prefix('admin')->group(function () {
         });
     });
 });
-

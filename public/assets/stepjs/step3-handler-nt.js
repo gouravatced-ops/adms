@@ -59,7 +59,7 @@ const Step3Handler = (function () {
         manager: null,
         completedNameTransferDocs: [],
         applicantId: null,
-        documentConfigs: DOCUMENT_CONFIGS,
+        documentConfigs: { nameTransfer: [] },
         isLoading: false
     };
 
@@ -71,11 +71,29 @@ const Step3Handler = (function () {
     function init() {
         console.log("Step 5 Handler Initialized - Name Transfer Only");
 
+        // Parse JSON data from the DOM because script tags don't execute when injected via innerHTML
+        const dataElement = document.getElementById('step3_documents_data');
+        if (dataElement) {
+            try {
+                const data = JSON.parse(dataElement.textContent);
+                window.documentTransferList = data.documentTransferList;
+                window.completedDocumentsList = data.completedDocumentsList;
+            } catch (e) {
+                console.error("Failed to parse step 3 documents data", e);
+            }
+        }
+
+        // Dynamically load from window to ensure we get the latest
+        state.documentConfigs = {
+            nameTransfer: window.documentTransferList || []
+        };
+        const COMPLETED_DOCUMENTS = window.completedDocumentsList || [];
+
         cacheElements();
         state.applicantId = elements.applicantId?.value || "";
 
         // Load completed documents
-        loadCompletedDocuments();
+        loadCompletedDocuments(COMPLETED_DOCUMENTS);
 
         bindEvents();
         initializeUI();
@@ -97,10 +115,10 @@ const Step3Handler = (function () {
         document.addEventListener("click", handleDocumentClick);
     }
 
-    function loadCompletedDocuments() {
+    function loadCompletedDocuments(completedDocs) {
         // Load completed documents from server data
-        if (COMPLETED_DOCUMENTS && COMPLETED_DOCUMENTS.length > 0) {
-            state.completedNameTransferDocs = COMPLETED_DOCUMENTS.map(doc => ({
+        if (completedDocs && completedDocs.length > 0) {
+            state.completedNameTransferDocs = completedDocs.map(doc => ({
                 id: doc.document_id,
                 doc_no: doc.doc_no || "",
                 day: doc.day || "",
@@ -111,6 +129,8 @@ const Step3Handler = (function () {
                 has_file: doc.has_file || false,
                 file_name: doc.file_name || null
             }));
+        } else {
+            state.completedNameTransferDocs = [];
         }
     }
 

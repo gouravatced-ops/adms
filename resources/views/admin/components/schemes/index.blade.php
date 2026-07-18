@@ -30,7 +30,7 @@
                                 <th width="50">#</th>
                                 <th>Scheme Details</th>
                                 <th width="150">Lease Period & Units</th>
-                                <th width="200">Financial</th>
+                                {{-- <th width="200">Financial</th> --}}
                                 <th width="100">Status</th>
                                 <th width="150">Dates</th>
                                 @if (auth('admin')->user()->role == 'superadmin')
@@ -69,7 +69,7 @@
                                         </div>
                                     </td>
 
-                                    <td>
+                                    {{-- <td>
                                         <div class="d-flex flex-column">
                                             <strong
                                                 class="text-primary">₹{{ number_format($scheme->financial->property_total_cost, 2) }}</strong>
@@ -79,7 +79,7 @@
                                             <small>EMI: ₹{{ number_format($scheme->financial->emi_without_penalty, 2) }} ×
                                                 {{ $scheme->financial->emi_count }}</small>
                                         </div>
-                                    </td>
+                                    </td> --}}
 
                                     <td>
                                         <div class="d-flex flex-column gap-1">

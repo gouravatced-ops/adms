@@ -11,6 +11,23 @@ class RegistrationFile extends Model
     protected $table = 'file_registrations';
     public $timestamps = false;
 
+    protected $fillable = [
+        'register_no',
+        'lot_no',
+        'division_id',
+        'allowed_files',
+        'total_files',
+        'lots_subadmin_approved',
+        'divisional_approval',
+        'remarks',
+        'status',
+        'divisional_approval_at',
+        'handover_by',
+        'handover_at',
+        'scanned_by',
+        'created_by',
+    ];
+
 
     public function allottees()
     {
@@ -28,6 +45,15 @@ class RegistrationFile extends Model
             'register_id',     // Foreign key in register_allottees
             'register_no'      // Local key in registration_files
         );
+    }
+
+    public function registerAllotteeDetails()
+    {
+        return $this->hasMany(
+            RegisterAllottee::class,
+            'register_id',     // Foreign key in register_allottees
+            'register_no'      // Local key in registration_files
+        )->with('allottee');
     }
 
     public function creator()
@@ -48,5 +74,10 @@ class RegistrationFile extends Model
     public function lotAssignments()
     {
         return $this->hasMany(LotAssignment::class, 'lot_id');
+    }
+    
+    public function approvedBy()
+    {
+        return $this->belongsTo(Admin::class, 'handover_by');
     }
 }

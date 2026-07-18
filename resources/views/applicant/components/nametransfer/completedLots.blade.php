@@ -23,7 +23,7 @@
         <div class="compact-card overflow-hidden">
             <!-- Header with Search -->
             <div class="p-4 border-b" style="border-color: var(--gray-border);">
-                <div class="flex items-start justify-between mb-4">
+                <div class="flex items-start justify-between">
                     <div>
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
                             <i class="fas fa-folder-open"></i>
@@ -35,31 +35,35 @@
                 </div>
 
                 <!-- Search Box with Filters -->
-                {{-- <div class="search-container" style="margin-top: 10px;">
+                <div class="search-container" style="margin-top: 10px;">
                     <div class="row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                         <div class="col" style="flex: 1; min-width: 200px;">
-                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Search
+                            <label style="font-size: 1rem; color: #6c757d; margin-bottom: 4px; display: block;">Search
                                 Allottee</label>
                             <input type="text" id="searchAllottee" class="form-control search-input"
                                 placeholder="Search by name, application no, register id..." style="padding: 8px 12px;"
-                                autocomplete="off">
+                                autocomplete="off" value="{{ request('allottee') }}">
                         </div>
 
                         <div class="col" style="flex: 1; min-width: 150px;">
-                            <label style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Property
+                            <label style="font-size: 1rem; color: #6c757d; margin-bottom: 4px; display: block;">Property
                                 No</label>
                             <input type="text" id="searchPropertyNo" class="form-control search-input"
-                                placeholder="Search property number..." style="padding: 8px 12px;" autocomplete="off">
+                                placeholder="Search property number..." style="padding: 8px 12px;" autocomplete="off"
+                                value="{{ request('property_no') }}">
                         </div>
 
                         <div class="col" style="flex: 1; min-width: 150px;">
                             <label
-                                style="font-size: 12px; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
+                                style="font-size: 1rem; color: #6c757d; margin-bottom: 4px; display: block;">Division</label>
                             <select id="searchDivision" class="form-control search-select" style="padding: 8px 12px;">
                                 <option value="">All Divisions</option>
                                 @if (isset($divisions) && $divisions->count())
                                     @foreach ($divisions as $division)
-                                        <option value="{{ $division->name }}">{{ $division->name }}</option>
+                                        <option value="{{ $division->name }}"
+                                            {{ request('division') == $division->name ? 'selected' : '' }}>
+                                            {{ $division->name }}
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>
@@ -71,12 +75,12 @@
                                 <i class="fas fa-search"></i> Search
                             </button>
                             <button id="clearSearch" class="btn btn-secondary"
-                                style="padding: 8px 16px; white-space: nowrap; display: none;">
+                                style="padding: 8px 16px; white-space: nowrap; {{ request('allottee') || request('property_no') || request('division') ? '' : 'display: none;' }}">
                                 <i class="fas fa-times"></i> Clear
                             </button>
                         </div>
                     </div>
-                </div> --}}
+                </div>
             </div>
 
             <!-- Loading Indicator -->
@@ -155,18 +159,18 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <small class="text-muted mt-1">
+                                        <span class="text-muted mt-1">
                                             <strong>Property No: </strong><span
                                                 class="property-number">{{ $currentAllottee->property_number }}</span>
-                                        </small>
+                                        </span>
                                         <div class="mt-1">
                                             @if ($currentAllottee->application_no)
-                                                <small class="text-muted"><strong>App No:</strong>
-                                                    {{ $currentAllottee->application_no }}</small><br>
+                                                <span class="text-muted"><strong>App No:</strong>
+                                                    {{ $currentAllottee->application_no }}</span><br>
                                             @endif
                                             @if ($currentAllottee->allotment_no)
-                                                <small class="text-muted"><strong>Allotment No:</strong>
-                                                    {{ $currentAllottee->allotment_no }}</small>
+                                                <span class="text-muted"><strong>Allotment No:</strong>
+                                                    {{ $currentAllottee->allotment_no }}</span>
                                             @endif
                                         </div>
                                         @if ($currentAllottee->is_emi_active == 'true')
@@ -178,8 +182,8 @@
                                     <div class="d-flex flex-column">
                                         <span class="text-muted"><strong>Division:
                                             </strong>{{ $currentAllottee->division->name ?? ($currentAllottee->dname ?? 'N/A') }}</span>
-                                        <small class="text-muted"><strong>Sub Division:</strong>
-                                            {{ $currentAllottee->subDivision->name ?? ($currentAllottee->subname ?? 'N/A') }}</small>
+                                        <span class="text-muted"><strong>Sub Division:</strong>
+                                            {{ $currentAllottee->subDivision->name ?? ($currentAllottee->subname ?? 'N/A') }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -187,8 +191,8 @@
                                         <span><strong>{{ $currentAllottee->propertyCategory->name ?? ($currentAllottee->cname ?? 'N/A') }}</strong>
                                             –
                                             {{ $currentAllottee->propertyType->name ?? ($currentAllottee->pname ?? 'N/A') }}</span>
-                                        <small class="text-muted"><strong>Quarter:</strong>
-                                            <span>{{ $currentAllottee->quarterType->quarter_code ?? ($currentAllottee->quarter_code ?? 'N/A') }}</span></small>
+                                        <span class="text-muted"><strong>Quarter:</strong>
+                                            <span>{{ $currentAllottee->quarterType->quarter_code ?? ($currentAllottee->quarter_code ?? 'N/A') }}</span></span>
                                     </div>
                                 </td>
                                 <td>
@@ -218,15 +222,16 @@
                                     <div class="d-flex flex-column">
                                         {{ \Carbon\Carbon::parse($currentAllottee->created_at)->format('d M Y') }}
                                         @if ($hasParent && $parentAllottee)
-                                            <small class="text-muted">Transfer:
-                                                {{ \Carbon\Carbon::parse($parentAllottee->updated_at)->format('d M Y') }}</small>
+                                            <span class="text-muted">Transfer:
+                                                {{ \Carbon\Carbon::parse($parentAllottee->updated_at)->format('d M Y') }}</span>
                                         @endif
                                     </div>
                                 </td>
                                 <td class="py-2">
                                     <div class="flex gap-2">
-                                        {{-- {{ route('preview.apply.index', encrypt($currentAllottee->id)) }} --}}
-                                        <a href="#" class="action-btn action-btn-info" title="Data Entry">
+                                        {{-- {{ route('nametransfer.incomplete.apply.index', encrypt($currentAllottee->id)) }} --}}
+                                        <a href="{{ route('nametransfer.incomplete.apply.index', encrypt($currentAllottee->id)) }}"
+                                            class="action-btn action-btn-info" title="Data Entry">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" stroke-width="2">
                                                 <rect x="3" y="3" width="14" height="18" rx="2"></rect>
@@ -241,8 +246,8 @@
                                         <a href="{{ route('nametransfer.documents.upload', encrypt($currentAllottee->id)) }}"
                                             class="action-btn action-btn-warning" title="View Documents">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
                                                 <!-- File -->
                                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -253,6 +258,23 @@
                                                 <path d="M9 14l3-3 3 3"></path>
                                             </svg>
                                         </a>
+                                        @if ($currentAllottee->parent_id != null)
+                                            <a href="{{ route('applicant.nametransfer.master.file', encrypt($currentAllottee->id)) }}"
+                                                class="action-btn badge-not-started" title="Upload Master File">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                                    <!-- Box -->
+                                                    <rect x="3" y="14" width="18" height="7" rx="2">
+                                                    </rect>
+
+                                                    <!-- Arrow -->
+                                                    <path d="M12 3v11"></path>
+                                                    <path d="M8 7l4-4 4 4"></path>
+                                                </svg>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -291,46 +313,105 @@
                                                             </div>
                                                             <div class="row mt-2">
                                                                 <div class="col-md-6">
-                                                                    <small class="text-muted d-block">
+                                                                    <span class="text-muted d-block">
                                                                         <strong>Property No:</strong> <span
                                                                             class="property-number">{{ $parentAllottee->property_number }}</span>
-                                                                    </small>
+                                                                    </span>
                                                                     @if ($parentAllottee->application_no)
-                                                                        <small class="text-muted d-block mt-1">
+                                                                        <span class="text-muted d-block mt-1">
                                                                             <strong>Application No:</strong>
                                                                             {{ $parentAllottee->application_no }}
-                                                                        </small>
+                                                                        </span>
                                                                     @endif
                                                                     @if ($parentAllottee->allotment_no)
-                                                                        <small class="text-muted d-block mt-1">
+                                                                        <span class="text-muted d-block mt-1">
                                                                             <strong>Allotment No:</strong>
                                                                             {{ $parentAllottee->allotment_no }}
-                                                                        </small>
+                                                                        </span>
                                                                     @endif
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                    <small class="text-muted d-block">
+                                                                    <span class="text-muted d-block">
                                                                         <strong>Division:</strong>
                                                                         {{ $parentAllottee->division->name ?? ($parentAllottee->dname ?? 'N/A') }}
-                                                                    </small>
-                                                                    <small class="text-muted d-block mt-1">
+                                                                    </span>
+                                                                    <span class="text-muted d-block mt-1">
                                                                         <strong>Sub Division:</strong>
                                                                         {{ $parentAllottee->subDivision->name ?? ($parentAllottee->subname ?? 'N/A') }}
-                                                                    </small>
-                                                                    <small class="text-muted d-block mt-1">
+                                                                    </span>
+                                                                    <span class="text-muted d-block mt-1">
                                                                         <strong>Quarter Type:</strong>
                                                                         {{ $parentAllottee->quarterType->quarter_code ?? ($parentAllottee->quarter_code ?? 'N/A') }}
-                                                                    </small>
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
                                                                 @if ($parentAllottee->is_emi_active == 'true')
                                                                     <span class="custom-badge badge-info">EMI Active</span>
                                                                 @endif
-                                                                <small class="text-muted ms-2">
+                                                                <span class="text-muted ms-2">
                                                                     <strong>Transferred On:</strong>
                                                                     {{ \Carbon\Carbon::parse($parentAllottee->updated_at)->format('d M Y h:i A') }}
-                                                                </small>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex gap-2">
+                                                                {{-- {{ route('nametransfer.incomplete.apply.index', encrypt($parentAllottee->id)) }} --}}
+                                                                <a href="{{ route('nametransfer.incomplete.apply.index', encrypt($parentAllottee->id)) }}"
+                                                                    class="action-btn action-btn-info" title="Data Entry">
+                                                                    <svg width="20" height="20"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2">
+                                                                        <rect x="3" y="3" width="14" height="18"
+                                                                            rx="2"></rect>
+                                                                        <path d="M6 7h8"></path>
+                                                                        <path d="M6 11h6"></path>
+                                                                        <path d="M6 15h4"></path>
+                                                                        <circle cx="18" cy="17" r="4">
+                                                                        </circle>
+                                                                        <path d="M18 15v4"></path>
+                                                                        <path d="M16 17h4"></path>
+                                                                    </svg>
+                                                                </a>
+                                                                <a href="{{ route('nametransfer.documents.upload', encrypt($parentAllottee->id)) }}"
+                                                                    class="action-btn action-btn-warning"
+                                                                    title="View Documents">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22"
+                                                                        height="22" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2"
+                                                                        stroke-linecap="round" stroke-linejoin="round">
+
+                                                                        <!-- File -->
+                                                                        <path
+                                                                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                                        </path>
+                                                                        <polyline points="14 2 14 8 20 8"></polyline>
+
+                                                                        <!-- Upload Arrow -->
+                                                                        <path d="M12 18V11"></path>
+                                                                        <path d="M9 14l3-3 3 3"></path>
+                                                                    </svg>
+                                                                </a>
+                                                                @if ($parentAllottee->parent_id != null)
+                                                                    <a href="{{ route('applicant.nametransfer.master.file', encrypt($parentAllottee->id)) }}"
+                                                                        class="action-btn badge-not-started"
+                                                                        title="Upload Master File">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            width="22" height="22"
+                                                                            viewBox="0 0 24 24" fill="none"
+                                                                            stroke="currentColor" stroke-width="2"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round">
+
+                                                                            <!-- Box -->
+                                                                            <rect x="3" y="14" width="18"
+                                                                                height="7" rx="2"></rect>
+
+                                                                            <!-- Arrow -->
+                                                                            <path d="M12 3v11"></path>
+                                                                            <path d="M8 7l4-4 4 4"></path>
+                                                                        </svg>
+                                                                    </a>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </td>
@@ -371,46 +452,105 @@
                                                             </div>
                                                             <div class="row mt-2">
                                                                 <div class="col-md-6">
-                                                                    <small class="text-muted d-block">
+                                                                    <span class="text-muted d-block">
                                                                         <strong>Property No:</strong> <span
                                                                             class="property-number">{{ $grandParentAllottee->property_number }}</span>
-                                                                    </small>
+                                                                    </span>
                                                                     @if ($grandParentAllottee->application_no)
-                                                                        <small class="text-muted d-block mt-1">
+                                                                        <span class="text-muted d-block mt-1">
                                                                             <strong>Application No:</strong>
                                                                             {{ $grandParentAllottee->application_no }}
-                                                                        </small>
+                                                                        </span>
                                                                     @endif
                                                                     @if ($grandParentAllottee->allotment_no)
-                                                                        <small class="text-muted d-block mt-1">
+                                                                        <span class="text-muted d-block mt-1">
                                                                             <strong>Allotment No:</strong>
                                                                             {{ $grandParentAllottee->allotment_no }}
-                                                                        </small>
+                                                                        </span>
                                                                     @endif
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                    <small class="text-muted d-block">
+                                                                    <span class="text-muted d-block">
                                                                         <strong>Division:</strong>
                                                                         {{ $grandParentAllottee->division->name ?? ($grandParentAllottee->dname ?? 'N/A') }}
-                                                                    </small>
-                                                                    <small class="text-muted d-block mt-1">
+                                                                    </span>
+                                                                    <span class="text-muted d-block mt-1">
                                                                         <strong>Sub Division:</strong>
                                                                         {{ $grandParentAllottee->subDivision->name ?? ($grandParentAllottee->subname ?? 'N/A') }}
-                                                                    </small>
-                                                                    <small class="text-muted d-block mt-1">
+                                                                    </span>
+                                                                    <span class="text-muted d-block mt-1">
                                                                         <strong>Quarter Type:</strong>
                                                                         {{ $grandParentAllottee->quarterType->quarter_code ?? ($grandParentAllottee->quarter_code ?? 'N/A') }}
-                                                                    </small>
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                             <div class="mt-2">
                                                                 @if ($grandParentAllottee->is_emi_active == 'true')
                                                                     <span class="custom-badge badge-info">EMI Active</span>
                                                                 @endif
-                                                                <small class="text-muted ms-2">
+                                                                <span class="text-muted ms-2">
                                                                     <strong>Original Allotment:</strong>
                                                                     {{ \Carbon\Carbon::parse($grandParentAllottee->created_at)->format('d M Y') }}
-                                                                </small>
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex gap-2">
+                                                                {{-- {{ route('nametransfer.incomplete.apply.index', encrypt($grandParentAllottee->id)) }} --}}
+                                                                <a href="{{ route('nametransfer.incomplete.apply.index', encrypt($grandParentAllottee->id)) }}"
+                                                                    class="action-btn action-btn-info" title="Data Entry">
+                                                                    <svg width="20" height="20"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2">
+                                                                        <rect x="3" y="3" width="14" height="18"
+                                                                            rx="2"></rect>
+                                                                        <path d="M6 7h8"></path>
+                                                                        <path d="M6 11h6"></path>
+                                                                        <path d="M6 15h4"></path>
+                                                                        <circle cx="18" cy="17" r="4">
+                                                                        </circle>
+                                                                        <path d="M18 15v4"></path>
+                                                                        <path d="M16 17h4"></path>
+                                                                    </svg>
+                                                                </a>
+                                                                <a href="{{ route('nametransfer.documents.upload', encrypt($grandParentAllottee->id)) }}"
+                                                                    class="action-btn action-btn-warning"
+                                                                    title="View Documents">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="22"
+                                                                        height="22" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2"
+                                                                        stroke-linecap="round" stroke-linejoin="round">
+
+                                                                        <!-- File -->
+                                                                        <path
+                                                                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
+                                                                        </path>
+                                                                        <polyline points="14 2 14 8 20 8"></polyline>
+
+                                                                        <!-- Upload Arrow -->
+                                                                        <path d="M12 18V11"></path>
+                                                                        <path d="M9 14l3-3 3 3"></path>
+                                                                    </svg>
+                                                                </a>
+                                                                @if ($grandParentAllottee->parent_id != null)
+                                                                    <a href="{{ route('applicant.nametransfer.master.file', encrypt($grandParentAllottee->id)) }}"
+                                                                        class="action-btn badge-not-started"
+                                                                        title="Upload Master File">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            width="22" height="22"
+                                                                            viewBox="0 0 24 24" fill="none"
+                                                                            stroke="currentColor" stroke-width="2"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round">
+
+                                                                            <!-- Box -->
+                                                                            <rect x="3" y="14" width="18"
+                                                                                height="7" rx="2"></rect>
+
+                                                                            <!-- Arrow -->
+                                                                            <path d="M12 3v11"></path>
+                                                                            <path d="M8 7l4-4 4 4"></path>
+                                                                        </svg>
+                                                                    </a>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </td>
@@ -577,7 +717,7 @@
 
         .btn {
             padding: 6px 14px;
-            font-size: 12px;
+            font-size: 1rem;
             border-radius: 6px;
             cursor: pointer;
             border: none;
@@ -702,7 +842,7 @@
         }
 
         .text-muted {
-            color: #6c757d !important;
+            color: #44484d !important;
         }
 
         .text-primary {
@@ -754,7 +894,7 @@
         }
 
         .transfer-chain {
-            font-size: 12px;
+            font-size: 1rem;
         }
 
         .transfer-chain i {
@@ -813,7 +953,7 @@
                 toggleLoading(show) {
                     isSearching = show;
                     if (elements.loadingIndicator) {
-                        elements.loadingIndicator.style.display = show ? 'block' : 'none';
+                        elements.loadingIndicator.style.display = show ? 'flex' : 'none';
                     }
                     if (elements.table) {
                         elements.table.style.opacity = show ? '0.5' : '1';
@@ -827,19 +967,6 @@
                         return String(text).replace(regex, '<span class="highlight">$1</span>');
                     } catch {
                         return text;
-                    }
-                },
-
-                formatDate(dateString) {
-                    if (!dateString) return 'N/A';
-                    try {
-                        return new Date(dateString).toLocaleDateString('en-GB', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                        });
-                    } catch {
-                        return dateString;
                     }
                 },
 
@@ -861,10 +988,31 @@
                             el.innerHTML = highlighted;
                         }
                     });
+                },
+
+                performSearch(page = 1) {
+                    const params = this.getSearchParams();
+                    const url = new URL(window.location.href);
+
+                    // Build search URL
+                    if (params.allottee) url.searchParams.set('allottee', params.allottee);
+                    else url.searchParams.delete('allottee');
+
+                    if (params.property_no) url.searchParams.set('property_no', params.property_no);
+                    else url.searchParams.delete('property_no');
+
+                    if (params.division) url.searchParams.set('division', params.division);
+                    else url.searchParams.delete('division');
+
+                    if (page > 1) url.searchParams.set('page', page);
+                    else url.searchParams.delete('page');
+
+                    // Navigate to search URL
+                    window.location.href = url.toString();
                 }
             };
 
-            // Toggle functions for accordion (Plus button)
+            // Toggle functions for accordion
             window.toggleParent = function(currentId) {
                 const parentRow = document.getElementById(`parent-${currentId}`);
                 const expandIcon = document.querySelector(`#row-${currentId} .expand-icon i`);
@@ -927,126 +1075,56 @@
                 }
             };
 
-            // Load data function for AJAX search
-            async function loadData(page = 1, searchParams = null) {
-                if (isSearching) return;
-
-                const params = searchParams || utils.getSearchParams();
-
-                if (params.allottee && params.allottee.length < 2) return;
-
-                utils.toggleLoading(true);
-
-                try {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('page', page);
-
-                    Object.entries(params).forEach(([key, value]) => {
-                        if (value) url.searchParams.set(key, value);
-                    });
-
-                    const response = await fetch(url, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) throw new Error('Network response was not ok');
-
-                    const data = await response.json();
-
-                    if (data.transferAllottee?.data?.length) {
-                        // For AJAX, we need to reload the page or use a similar rendering approach
-                        // Since the template is complex, we'll reload the page with the search params
-                        window.location.href = url.toString();
-                    } else {
-                        showEmptyState(params);
-                        if (elements.paginationContainer) {
-                            elements.paginationContainer.style.display = 'none';
-                        }
-                    }
-
-                    currentSearch = {
-                        ...params
-                    };
-
-                    if (elements.clearButton) {
-                        elements.clearButton.style.display = utils.hasActiveSearch(params) ? 'inline-block' :
-                            'none';
-                    }
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    showError();
-                } finally {
-                    utils.toggleLoading(false);
-                }
+            // Apply highlights if search exists
+            if (currentSearch.allottee) {
+                utils.applyHighlights(currentSearch.allottee);
             }
-
-            function showEmptyState(searchParams) {
-                if (!elements.tableBody) return;
-                const message = utils.hasActiveSearch(searchParams) ? 'No files match your search criteria.' :
-                    'No current allottees pending data entry found';
-                elements.tableBody.innerHTML =
-                    `<tr><td colspan="7" class="text-center text-muted py-4"><div class="py-3"><i class="bx bx-folder-open bx-lg text-muted mb-3"></i><h6>No Files Found</h6><p class="mb-0">${message}</p></div></td></tr>`;
-            }
-
-            function showError() {
-                if (!elements.tableBody) return;
-                elements.tableBody.innerHTML =
-                    `<tr><td colspan="7" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error loading data. Please try again.</td></tr>`;
-            }
-
-            function attachPaginationListeners() {
-                if (!elements.paginationContainer) return;
-                const paginationLinks = elements.paginationContainer.querySelectorAll(
-                    'a[rel="prev"], a[rel="next"], a.page-link');
-                paginationLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const url = new URL(this.href);
-                        const page = url.searchParams.get('page');
-                        if (page) loadData(page, currentSearch);
-                    });
-                });
-            }
-
-            // Debounced search
-            const debouncedSearch = utils.debounce(() => {
-                const params = utils.getSearchParams();
-                if (JSON.stringify(params) !== JSON.stringify(currentSearch)) loadData(1, params);
-            }, 500);
 
             // Event listeners
-            if (elements.searchButton) elements.searchButton.addEventListener('click', () => loadData(1, utils
-                .getSearchParams()));
-            if (elements.clearButton) {
-                elements.clearButton.addEventListener('click', () => {
-                    if (elements.searchAllottee) elements.searchAllottee.value = '';
-                    if (elements.searchPropertyNo) elements.searchPropertyNo.value = '';
-                    if (elements.searchDivision) elements.searchDivision.value = '';
-                    if (utils.hasActiveSearch(currentSearch)) loadData(1, {});
-                    elements.clearButton.style.display = 'none';
-                    elements.searchAllottee?.focus();
+            if (elements.searchButton) {
+                elements.searchButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    utils.performSearch(1);
                 });
             }
 
-            [elements.searchAllottee, elements.searchPropertyNo].forEach(input => {
+            if (elements.clearButton) {
+                elements.clearButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Clear the search by redirecting without parameters
+                    const url = new URL(window.location.href);
+                    url.search = '';
+                    window.location.href = url.toString();
+                });
+            }
+
+            // Enter key search
+            const searchInputs = [elements.searchAllottee, elements.searchPropertyNo];
+            searchInputs.forEach(input => {
                 if (input) {
-                    input.addEventListener('keyup', (e) => {
-                        if (e.key === 'Enter') loadData(1, utils.getSearchParams());
-                        else debouncedSearch();
-                    });
-                    input.addEventListener('input', () => {
-                        if (elements.clearButton) elements.clearButton.style.display = utils
-                            .hasActiveSearch(utils.getSearchParams()) ? 'inline-block' : 'none';
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            utils.performSearch(1);
+                        }
                     });
                 }
             });
-            if (elements.searchDivision) elements.searchDivision.addEventListener('change', debouncedSearch);
-            if (elements.paginationContainer?.innerHTML.trim()) attachPaginationListeners();
-            if (elements.searchAllottee) elements.searchAllottee.focus();
+
+            // Show/hide clear button based on search params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (elements.clearButton) {
+                if (urlParams.has('allottee') || urlParams.has('property_no') || urlParams.has('division')) {
+                    elements.clearButton.style.display = 'inline-block';
+                } else {
+                    elements.clearButton.style.display = 'none';
+                }
+            }
+
+            // Focus search input on page load
+            if (elements.searchAllottee && !elements.searchAllottee.value) {
+                elements.searchAllottee.focus();
+            }
         })();
     </script>
 @endsection

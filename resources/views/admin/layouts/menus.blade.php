@@ -62,8 +62,8 @@
         </li>
 
         {{-- Divisions --}}
-        <li class="menu-item {{ request()->routeIs('admin.division.index', 'admin.division.create', 'admin.subdivision.create', 'admin.subdivision.index') ? 'active open' : '' }}"
-            style="">
+        <li
+            class="menu-item {{ request()->routeIs('admin.division.index', 'admin.division.create', 'admin.subdivision.create', 'admin.subdivision.index') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-sitemap"></i>
                 <div class="text-truncate" data-i18n="Divisions">Divisions</div>
@@ -158,8 +158,8 @@
         </li>
 
         {{-- Quarters --}}
-        <li class="menu-item {{ request()->routeIs('admin.quarter-types.create', 'admin.quarter-types.index') ? 'active open' : '' }}"
-            style="">
+        <li
+            class="menu-item {{ request()->routeIs('admin.quarter-types.create', 'admin.quarter-types.index') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -191,8 +191,8 @@
         </li>
 
         {{-- Schemes --}}
-        <li class="menu-item {{ request()->routeIs('admin.schemes.index', 'admin.schemes.create') ? 'active open' : '' }}"
-            style="">
+        <li
+            class="menu-item {{ request()->routeIs('admin.schemes.index', 'admin.schemes.create') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-layer"></i>
                 <div class="text-truncate" data-i18n="Divisions">Schemes</div>
@@ -237,8 +237,24 @@
             </a>
         </li>
 
-        <li class="menu-item {{ request()->routeIs('admin.receiving.lots.index', 'admin.scanning.lots.index') ? 'active open' : '' }}"
-            style="">
+        {{-- Checked Lots --}}
+        <li class="menu-item {{ request()->routeIs('admin.checked.lots.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.checked.lots.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-task"></i>
+                <div>All Checked Lots</div>
+            </a>
+        </li>
+
+        {{-- Checked Lots --}}
+        <li class="menu-item {{ request()->routeIs('admin.revert.lots.files.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.revert.lots.files.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-undo"></i>
+                <div>All Revert File</div>
+            </a>
+        </li>
+
+        <li
+            class="menu-item {{ request()->routeIs('admin.receiving.lots.index', 'admin.scanning.lots.index', 'admin.handover.lots.index') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-file"></i>
                 <div class="text-truncate" data-i18n="Divisions">Manage File</div>
@@ -256,8 +272,38 @@
                 {{-- File Scanned --}}
                 <li class="menu-item {{ request()->routeIs('admin.scanning.lots.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.scanning.lots.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-file-blank"></i>
+                        <i class="menu-icon tf-icons bx bx-file-find"></i>
                         <div>File Scanned</div>
+                    </a>
+                </li>
+
+                {{-- File Dataentry  --}}
+                <li class="menu-item {{ request()->routeIs('admin.dataentry.lots.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dataentry.lots.index') }}" class="menu-link">
+                        <span class="menu-icon"
+                            style="width:22px;height:22px;display:inline-flex;align-items:center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z" />
+                                <path d="M14 2v5h5" />
+                                <path d="M9 13l2 2 4-4" />
+                            </svg>
+                        </span>
+                        <div>File Dataentry</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ request()->routeIs('admin.handover.lots.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.handover.lots.index') }}" class="menu-link">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <path d="M9 15h6" />
+                            <path d="M12 12l3 3-3 3" />
+                        </svg>
+                        &nbsp;
+                        <div>Handover Lot Files</div>
                     </a>
                 </li>
             </ul>
@@ -278,53 +324,138 @@
                     </a>
                 </li>
 
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <div>Data Entry Lots</div>
-                    </a>
-                </li>
+                <!-- <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <div>Data Entry Lots</div>
+                </a>
+            </li>
 
-                <li class="menu-item">
-                    <a href="#" class="menu-link">
-                        <div>Completed Lots</div>
-                    </a>
-                </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link">
+                    <div>Completed Lots</div>
+                </a>
+            </li> -->
 
             </ul>
         </li>
 
         {{-- Handover --}}
-        <li class="menu-item">
-            <a href="#" class="menu-link">
-                <span class="menu-icon">
-                    <!-- Transfer SVG -->
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M7 7h10M7 7l4-4M7 7l4 4" />
-                        <path d="M17 17H7M17 17l-4-4M17 17l-4 4" />
-                    </svg>
-                </span>
-                <div>Handover File</div>
-            </a>
-        </li>
+        <!-- <li class="menu-item {{ request()->routeIs('admin.handover.lots.index') ? 'active' : '' }}">
+        <a href="{{ route('admin.handover.lots.index') }}" class="menu-link">
+            <span class="menu-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 7h10M7 7l4-4M7 7l4 4" />
+                    <path d="M17 17H7M17 17l-4-4M17 17l-4 4" />
+                </svg>
+            </span>
+            <div>Handover File</div>
+        </a>
+    </li> -->
 
         {{-- Allottee --}}
-        <li class="menu-item">
-            <a href="#" class="menu-link">
+        {{-- <li class="menu-item">
+        <a href="#" class="menu-link">
+            <span class="menu-icon">
+                <!-- Users SVG -->
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M9 21v-2a4 4 0 0 1 3-3.87" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+            </span>
+            <div>Allottee List</div>
+        </a>
+    </li> --}}
+
+        @if (auth('admin')->user()->email_id == 'parth.sadmin@computered.co.in')
+            {{-- Billing --}}
+            <li class="menu-item {{ request()->routeIs('admin.indbnk.billing.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.indbnk.billing.index') }}" class="menu-link">
+                    <span class="menu-icon">
+                        <!-- Bank / Billing SVG -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <!-- Bank Roof -->
+                            <path d="M3 10L12 4L21 10" />
+
+                            <!-- Columns -->
+                            <path d="M5 10V18" />
+                            <path d="M9 10V18" />
+                            <path d="M15 10V18" />
+                            <path d="M19 10V18" />
+
+                            <!-- Base -->
+                            <path d="M3 20H21" />
+                        </svg>
+                    </span>
+                    <div>INDBNK</div>
+                </a>
+            </li>
+        @endif
+
+        {{-- Master PDF Management --}}
+        <li class="menu-item {{ request()->routeIs('admin.master.pdffile.*') ? 'active open' : '' }}">
+
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+
                 <span class="menu-icon">
-                    <!-- Users SVG -->
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M9 21v-2a4 4 0 0 1 3-3.87" />
-                        <circle cx="12" cy="7" r="4" />
+
+                    <!-- PDF Management SVG -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <!-- File -->
+                        <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z" />
+
+                        <!-- Fold -->
+                        <path d="M14 2v5h5" />
+
+                        <!-- Shield -->
+                        <path d="M12 11v5" />
+                        <path d="M9.5 13.5L12 11l2.5 2.5" />
+
                     </svg>
+
                 </span>
-                <div>Allottee List</div>
+
+                <div>Master PDF</div>
+
             </a>
+
+            <ul class="menu-sub">
+
+                {{-- Pending Re Upload --}}
+                <li
+                    class="menu-item
+            {{ request()->routeIs('admin.master.pdffile.reupload.index') ? 'active' : '' }}">
+
+                    <a href="{{ route('admin.master.pdffile.reupload.index') }}" class="menu-link">
+
+                        <div>Pending PDF</div>
+
+                    </a>
+                </li>
+
+                {{-- Re Upload Completed --}}
+                <li
+                    class="menu-item
+                        {{ request()->routeIs('admin.master.pdffile.completed.index') ? 'active' : '' }}">
+
+                    <a href="{{ route('admin.master.pdffile.completed.index') }}" class="menu-link">
+
+                        <div>Completed</div>
+
+                    </a>
+                </li>
+
+            </ul>
+
         </li>
 
         {{-- Divisions --}}
-        <li class="menu-item {{ request()->routeIs('sub-admin.division.index', 'sub-admin.subdivision.index', 'sub-admin.quarter-types.index') ? 'active open' : '' }}"
-            style="">
+        <li
+            class="menu-item {{ request()->routeIs('sub-admin.division.index', 'sub-admin.subdivision.index', 'sub-admin.quarter-types.index') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-layer"></i>
                 <div class="text-truncate" data-i18n="Components">Components</div>
@@ -408,6 +539,99 @@
                 <i class="menu-icon tf-icons bx bx-layer"></i>
                 <div data-i18n="Incomplete Applications">Schemes List</div>
             </a>
+        </li>
+    @endif
+
+    @if (auth('admin')->user()->role == 'approver')
+        <li class="menu-item {{ request()->routeIs('council_office.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('council_office.dashboard') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div>Dashboard</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('approver.pending-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.pending-lots') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-time-five"></i>
+                <div>Lot Files Pending for Approval</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('approver.approved-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.approved-lots') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-check-shield"></i>
+                <div>Approved Lot Files</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('approver.handover-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.handover-lots') }}" class="menu-link">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M9 15h6" />
+                    <path d="M12 12l3 3-3 3" />
+                </svg>
+                &nbsp;&nbsp;&nbsp;
+                <div>Handover Lot Files</div>
+            </a>
+        </li>
+
+        <li class="menu-item">
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="menu-link border-0 bg-transparent w-100 text-start">
+                    <i class="menu-icon tf-icons bx bx-power-off"></i>
+                    <div>Log Out</div>
+                </button>
+            </form>
+        </li>
+    @endif
+
+    @if (auth('admin')->user()->role == 'divisional_admin')
+        <li class="menu-item {{ request()->routeIs('council_office.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('council_office.dashboard') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div>Dashboard</div>
+            </a>
+        </li>
+        <li class="menu-item {{ request()->routeIs('approver.admin.pending-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.admin.pending-lots') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-time-five"></i>
+                <div>Lot Files Pending for Approval</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('approver.admin.approved-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.admin.approved-lots') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-check-shield"></i>
+                <div>Approved Lot Files</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('approver.admin.handover-lots*') ? 'active' : '' }}">
+            <a href="{{ route('approver.admin.handover-lots') }}" class="menu-link">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M9 15h6" />
+                    <path d="M12 12l3 3-3 3" />
+                </svg>
+                &nbsp;&nbsp;&nbsp;
+                <div>Handover Lot Files</div>
+            </a>
+        </li>
+
+        <li class="menu-item">
+            <form method="POST" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="menu-link border-0 bg-transparent w-100 text-start">
+                    <i class="menu-icon tf-icons bx bx-power-off"></i>
+                    <div>Log Out</div>
+                </button>
+            </form>
         </li>
     @endif
 </ul>

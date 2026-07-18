@@ -33,7 +33,7 @@
         class="template-customizer-theme-css" />
 
     <link rel="stylesheet"
-        href="{{ asset('assets/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.cs') }}s" />
+        href="{{ asset('assets/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}s" />
     <link rel="stylesheet" href="{{ asset('assets/admin/assets/vendor/libs/apex-charts/apex-charts.css') }}" />
     <script src="{{ asset('assets/admin/assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/admin/assets/js/config.js') }}"></script>
@@ -44,6 +44,10 @@
 <style>
     .invert-text-white {
         color: #0380ec !important;
+    }
+
+    table tbody td {
+        color: #000 !important;
     }
 </style>
 
@@ -88,10 +92,10 @@
                             <div class="nav-item d-none d-md-flex">
                                 Welcome, <strong class="mx-1">{{ auth('admin')->user()->admin_name }}</strong>
                                 @if (auth('admin')->user()->role === 'council_office')
-                                    (Sub-Admin)
+                                (Sub-Admin)
                                 @endif
                                 @if (auth('admin')->user()->role === 'superadmin')
-                                    (Admin)
+                                (Admin)
                                 @endif
                                 to Allottee Data Management System
                             </div>
@@ -99,12 +103,21 @@
                             <!-- For mobile screens -->
                             <div class="nav-item d-flex d-md-none">
                                 Welcome, <strong class="mx-1">{{ auth('admin')->user()->admin_name }}</strong>
-                                to CGMS.
+                                to Allottee Data Management System
                             </div>
                         </div>
 
 
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
+                            @php
+                                $admin = auth('admin')->user();
+                            @endphp
+
+                            @if($admin->role === 'approver')
+                                <strong>({{ getDivisionName($admin->division_id) }})</strong>
+                            @elseif($admin->role === 'divisional_admin')
+                                <strong>(JSHB Admin)</strong>
+                            @endif
                             <!-- User -->
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
@@ -130,10 +143,16 @@
                                                         class="fw-medium d-block">{{ auth('admin')->user()->admin_name }}</span>
                                                     <small class="text-muted">
                                                         @if (auth('admin')->user()->role === 'council_office')
-                                                            SUB ADMIN
+                                                        SUB ADMIN
+                                                        @endif
+                                                        @if (auth('admin')->user()->role === 'approver')
+                                                        JSHB APPROVER
+                                                        @endif
+                                                        @if (auth('admin')->user()->role === 'divisional_admin')
+                                                        JSHB ADMIN
                                                         @endif
                                                         @if (auth('admin')->user()->role == 'superadmin')
-                                                            ADMIN
+                                                        ADMIN
                                                         @endif
                                                     </small>
                                                 </div>
@@ -210,6 +229,15 @@
             // Show loader
             $("#jspc-loader").removeClass('d-none');
             $("#loading-text").text("Please Wait...");
+        });
+    </script>
+    <script>
+        document.getElementById('reload-captcha').addEventListener('click', function() {
+            fetch("{{ route('captcha.reload') }}")
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('captcha-image').innerHTML = data.captcha;
+                });
         });
     </script>
     <script>

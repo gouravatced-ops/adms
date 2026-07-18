@@ -4,9 +4,14 @@ namespace App\Http\Controllers\Applicant;
 
 // use App\Models\StudentRegistration;
 use App\Models\User;
+use App\Models\RegisterAllottee;
+use App\Models\RegistrationFile;
+use App\Models\AllotteeMasterDocument;
+use App\Models\Allottee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 
@@ -16,11 +21,66 @@ class DashboardController extends Controller
     {
         $this->middleware('admin.auth');
     }
+
     public function index()
     {
-        return view('applicant.dashboard_components.dashboard');
-    }
+        $userId = auth()->id();
+        $today = now()->toDateString();
 
+        $stats = [
+            // RegisterAllottee
+            'totalreceivingFile' => RegisterAllottee::where('is_active', 1)
+                ->sum(
+                    DB::raw("
+                        COALESCE(
+                            CASE
+                                WHEN parent_id IS NULL
+                                    THEN no_of_files + no_of_supplement
+                                ELSE
+                                    no_of_supplement
+                            END
+                        ,0)
+                    ")
+                ),
+
+            'totalscannedFile' => RegisterAllottee::where('is_active', 1)->whereNotNull('scanned_by')
+                ->sum(DB::raw("
+                    CASE
+                        WHEN parent_id IS NULL
+                            THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
+                        ELSE
+                            COALESCE(no_of_supplement,0)
+                    END
+                ")),
+
+            // Allottee
+            'totalAllotteeFile' => Allottee::whereNotNull('register_file_id')->count(),
+            'totaltransferFile' => Allottee::whereNull('register_file_id')
+                ->whereNotNull('parent_id')
+                ->count(),
+            'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
+            'totalcheckedFile' => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_checked', 1)->count(),
+            'totalapprovedFile' => Allottee::whereNotNull('register_file_id')->where('divisional_approval', 1)->count(),
+
+            // RegistrationFile
+            'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
+            'totallots' => RegistrationFile::count(),
+
+            // User stats
+            'todayDataentryCount' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)
+                ->whereDate('created_at', $today)
+                ->where('is_step_completed', 1)
+                ->count(),
+
+            'totalDataentryByUser' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)->count(),
+
+            'totalPendingdataentryFile' => Allottee::whereNotNull('register_file_id')->where('created_by', $userId)
+                ->where('is_step_completed', 0)
+                ->count(),
+        ];
+        // return $stats;
+        return view('applicant.dashboard_components.dashboard', $stats);
+    }
 
     public function accountSettings()
     {

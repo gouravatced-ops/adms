@@ -22,4 +22,24 @@ class LotAssignment extends Model
         'updated_at',
         'status'
     ];
+
+    public function lot()
+    {
+        return $this->belongsTo(RegistrationFile::class, 'lot_id');
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function assigner()
+    {
+        return $this->belongsTo(Admin::class, 'assigned_by');
+    }
+
+    public function registerallottee()
+    {
+        return $this->belongsTo(RegisterAllottee::class, 'allottee_id');
+    }
 }

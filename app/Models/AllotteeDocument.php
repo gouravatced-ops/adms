@@ -21,6 +21,10 @@ class AllotteeDocument extends Model
         'remarks',
         'file_path',
         'file_name',
+        'is_sadmin_read',
+        'sadmin_read_date',
+        'is_divisional_read',
+        'divisional_read_date',
         'uploaded_by'
     ];
 

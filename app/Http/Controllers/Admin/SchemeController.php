@@ -45,15 +45,15 @@ class SchemeController extends Controller
             'total_units' => 'required|integer|min:1',
 
             // Financial
-            'property_total_cost' => 'required|numeric|min:0',
-            'down_payment_percentage' => 'required|numeric|min:0',
-            'emi_count' => 'required|integer|min:1',
+            // 'property_total_cost' => 'required|numeric|min:0',
+            // 'down_payment_percentage' => 'required|numeric|min:0',
+            // 'emi_count' => 'required|integer|min:1',
 
             // Quarter Fees
-            'quarter_fees' => 'required|array',
-            'quarter_fees.*.quarter_type_id' => 'required',
-            'quarter_fees.*.application_fee' => 'required|numeric|min:0',
-            'quarter_fees.*.emd_amount' => 'required|numeric|min:0',
+            // 'quarter_fees' => 'required|array',
+            // 'quarter_fees.*.quarter_type_id' => 'required',
+            // 'quarter_fees.*.application_fee' => 'required|numeric|min:0',
+            // 'quarter_fees.*.emd_amount' => 'required|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -71,34 +71,34 @@ class SchemeController extends Controller
                 'scheme_name_hindi' => $request->scheme_name_hindi,
                 'scheme_code' => $request->scheme_code,
                 'total_units' => $request->total_units,
-                'lease_period' => $request->lease_period,
+                'lease_period' => $request->lease_period ?? '90',
                 'initiation_year' => $request->initiation_year,
                 'scheme_start_date' => $request->scheme_start_date,
                 'scheme_end_date' => $request->scheme_end_date,
                 'created_by' => Auth::id(),
             ]);
 
-            $scheme->financial()->create([
-                'property_total_cost' => $request->property_total_cost,
-                'down_payment_percentage' => $request->down_payment_percentage,
-                'down_payment_amount' => $request->down_payment_amount,
-                'balance_amount' => $request->balance_amount,
-                'emi_count' => $request->emi_count,
-                'normal_interest_rate' => $request->normal_interest_rate,
-                'emi_without_penalty' => $request->emi_without_penalty,
-                'penalty_interest_rate' => $request->penalty_interest_rate,
-                'emi_with_penalty' => $request->emi_with_penalty,
-                'admin_charges' => $request->admin_charges,
-            ]);
+            // $scheme->financial()->create([
+            //     'property_total_cost' => $request->property_total_cost,
+            //     'down_payment_percentage' => $request->down_payment_percentage,
+            //     'down_payment_amount' => $request->down_payment_amount,
+            //     'balance_amount' => $request->balance_amount,
+            //     'emi_count' => $request->emi_count,
+            //     'normal_interest_rate' => $request->normal_interest_rate,
+            //     'emi_without_penalty' => $request->emi_without_penalty,
+            //     'penalty_interest_rate' => $request->penalty_interest_rate,
+            //     'emi_with_penalty' => $request->emi_with_penalty,
+            //     'admin_charges' => $request->admin_charges,
+            // ]);
 
-            foreach ($request->quarter_fees as $fee) {
+            // foreach ($request->quarter_fees as $fee) {
 
-                $scheme->quarterFees()->create([
-                    'quarter_type_id' => $fee['quarter_type_id'],
-                    'application_fee' => $fee['application_fee'],
-                    'emd_amount' => $fee['emd_amount'],
-                ]);
-            }
+            //     $scheme->quarterFees()->create([
+            //         'quarter_type_id' => $fee['quarter_type_id'],
+            //         'application_fee' => $fee['application_fee'],
+            //         'emd_amount' => $fee['emd_amount'],
+            //     ]);
+            // }
 
             DB::commit();
 
@@ -116,7 +116,7 @@ class SchemeController extends Controller
     }
 
     public function update(Request $request, $id)
-    {   
+    {
         DB::beginTransaction();
 
         try {
@@ -132,15 +132,15 @@ class SchemeController extends Controller
                 'total_units' => 'required|integer|min:1',
 
                 // Financial
-                'property_total_cost' => 'required|numeric|min:0',
-                'down_payment_percentage' => 'required|numeric|min:0',
-                'emi_count' => 'required|integer|min:1',
+                // 'property_total_cost' => 'required|numeric|min:0',
+                // 'down_payment_percentage' => 'required|numeric|min:0',
+                // 'emi_count' => 'required|integer|min:1',
 
                 // Quarter Fees
-                'quarter_fees' => 'required|array',
-                'quarter_fees.*.quarter_type_id' => 'required',
-                'quarter_fees.*.application_fee' => 'required|numeric|min:0',
-                'quarter_fees.*.emd_amount' => 'required|numeric|min:0',
+                // 'quarter_fees' => 'required|array',
+                // 'quarter_fees.*.quarter_type_id' => 'required',
+                // 'quarter_fees.*.application_fee' => 'required|numeric|min:0',
+                // 'quarter_fees.*.emd_amount' => 'required|numeric|min:0',
             ]);
 
             $scheme = Scheme::findOrFail($id);
@@ -157,45 +157,45 @@ class SchemeController extends Controller
                 'scheme_name_hindi'  => $request->scheme_name_hindi,
                 'scheme_code'        => $request->scheme_code,
                 'total_units'        => $request->total_units,
-                'lease_period'       => $request->lease_period,
+                'lease_period'       => $request->lease_period ?? '90',
                 'initiation_year'    => $request->initiation_year,
                 'scheme_start_date'  => $request->scheme_start_date,
                 'scheme_end_date'    => $request->scheme_end_date,
                 'updated_by' => Auth::id(),
             ]);
 
-            $scheme->financial()->updateOrCreate(
-                ['scheme_id' => $scheme->id],
-                [
-                    'property_total_cost'     => $request->property_total_cost,
-                    'down_payment_percentage' => $request->down_payment_percentage,
-                    'down_payment_amount'     => $request->down_payment_amount,
-                    'balance_amount'          => $request->balance_amount,
-                    'emi_count'               => $request->emi_count,
-                    'normal_interest_rate'    => $request->normal_interest_rate,
-                    'emi_without_penalty'     => $request->emi_without_penalty,
-                    'penalty_interest_rate'   => $request->penalty_interest_rate,
-                    'emi_with_penalty'        => $request->emi_with_penalty,
-                    'admin_charges'           => $request->admin_charges,
-                ]
-            );
+            // $scheme->financial()->updateOrCreate(
+            //     ['scheme_id' => $scheme->id],
+            //     [
+            //         'property_total_cost'     => $request->property_total_cost,
+            //         'down_payment_percentage' => $request->down_payment_percentage,
+            //         'down_payment_amount'     => $request->down_payment_amount,
+            //         'balance_amount'          => $request->balance_amount,
+            //         'emi_count'               => $request->emi_count,
+            //         'normal_interest_rate'    => $request->normal_interest_rate,
+            //         'emi_without_penalty'     => $request->emi_without_penalty,
+            //         'penalty_interest_rate'   => $request->penalty_interest_rate,
+            //         'emi_with_penalty'        => $request->emi_with_penalty,
+            //         'admin_charges'           => $request->admin_charges,
+            //     ]
+            // );
 
-            if ($request->has('quarter_fees')) {
+            // if ($request->has('quarter_fees')) {
 
-                foreach ($request->quarter_fees as $fee) {
+            //     foreach ($request->quarter_fees as $fee) {
 
-                    $scheme->quarterFees()->updateOrCreate(
-                        [
-                            'scheme_id'       => $scheme->id,
-                            'quarter_type_id' => $fee['quarter_type_id']
-                        ],
-                        [
-                            'application_fee' => $fee['application_fee'] ?? 0,
-                            'emd_amount'      => $fee['emd_amount'] ?? 0,
-                        ]
-                    );
-                }
-            }
+            //         $scheme->quarterFees()->updateOrCreate(
+            //             [
+            //                 'scheme_id'       => $scheme->id,
+            //                 'quarter_type_id' => $fee['quarter_type_id']
+            //             ],
+            //             [
+            //                 'application_fee' => $fee['application_fee'] ?? 0,
+            //                 'emd_amount'      => $fee['emd_amount'] ?? 0,
+            //             ]
+            //         );
+            //     }
+            // }
 
             DB::commit();
 

@@ -58,7 +58,7 @@
         <div class="compact-card overflow-hidden">
             <!-- Header with Search -->
             <div class="p-4 border-b" style="border-color: var(--gray-border);">
-                <div class="flex items-start justify-between mb-4">
+                <div class="flex items-start justify-between">
                     <div>
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -178,7 +178,7 @@
 
                                 <td>
                                     <strong class="fw-semibold">
-                                        {{ $file->no_of_files }}
+                                        {{ $file->total_files }}
                                     </strong>
                                 </td>
                                 <td style="background: #7fffd4 !important;">
@@ -187,7 +187,7 @@
                             </tr>
 
                             {{-- File Pages Inputs Row --}}
-                            @if ($file->no_of_files > 0)
+                            @if ($file->total_files > 0)
                                 <tr style="background:#f3efe5;">
                                     <td colspan="7">
                                         <form action="{{ route('applicant.scanning.store') }}" method="post"
@@ -199,7 +199,7 @@
 
                                             <div class="d-flex gap-2 flex-wrap align-items-center">
 
-                                                @for ($i = 1; $i <= $file->no_of_files; $i++)
+                                                @for ($i = 1; $i <= $file->total_files; $i++)
                                                     <input type="number" name="file_pages[]" value="0"
                                                         class="form-control w-auto page-input"
                                                         style="width: 80px !important;"

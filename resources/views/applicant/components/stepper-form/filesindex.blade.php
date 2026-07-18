@@ -23,7 +23,7 @@
         <div class="compact-card overflow-hidden">
             <!-- Header with Search -->
             <div class="p-4 border-b" style="border-color: var(--gray-border);">
-                <div class="flex items-start justify-between mb-4">
+                <div class="flex items-start justify-between">
                     <div>
                         <!-- Subtitle -->
                         <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -948,7 +948,7 @@
         }
 
         .text-muted {
-            color: #6c757d !important;
+            color: #44484d !important;
         }
 
         .table-light {

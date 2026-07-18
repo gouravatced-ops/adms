@@ -37,8 +37,12 @@
 
                             <ul class="nav nav-pills gap-2" id="assignmentTabs">
                                 <li class="nav-item">
-                                    <button type="button" class="nav-link active assignment-tab"
-                                        data-status="not_assigned">
+                                    <button type="button" class="nav-link  active assignment-tab" data-status="all">
+                                        All
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button type="button" class="nav-link assignment-tab" data-status="not_assigned">
                                         Not Assigned
                                     </button>
                                 </li>
@@ -52,11 +56,6 @@
                                         Fully Assigned
                                     </button>
                                 </li>
-                                <li class="nav-item">
-                                    <button type="button" class="nav-link assignment-tab" data-status="all">
-                                        All
-                                    </button>
-                                </li>
                             </ul>
                         </div>
                     </div>
@@ -67,12 +66,10 @@
                         <table id="adminListTable1" class="table table-striped table-bordered align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th>Sl No.</th>
                                     <th>Register No</th>
                                     <th>Lot No</th>
-                                    <th>Total Files</th>
-                                    <th>Assigned</th>
-                                    <th>Remaining</th>
+                                    <th>File Counts</th>
                                     <th>Division</th>
                                     <th>Scanned By</th>
                                     <th>Assignment Status</th>
@@ -102,15 +99,34 @@
                                         </td>
 
                                         <td>
-                                            <span class="fw-semibold">{{ $item->total_files ?? 0 }}</span>
-                                        </td>
+                                            <div class="d-flex flex-wrap gap-1">
 
-                                        <td>
-                                            <span class="badge bg-success">{{ $item->total_assigned_files ?? 0 }}</span>
-                                        </td>
+                                                <span class="badge bg-primary px-3 py-2">
+                                                    Total :
+                                                    <span class="fw-bold ms-1">{{ $item->total_files ?? 0 }}</span>
+                                                </span>
 
-                                        <td>
-                                            <span class="badge bg-danger">{{ $item->remaining_files ?? 0 }}</span>
+                                                <span class="badge bg-info px-3 py-2">
+                                                    Assigned :
+                                                    <span class="fw-bold ms-1">{{ $item->total_assigned_files ?? 0 }}</span>
+                                                </span>
+
+                                                <span class="badge bg-success px-3 py-2">
+                                                    Completed :
+                                                    <span class="fw-bold ms-1">{{ $item->total_completed ?? 0 }}</span>
+                                                </span>
+
+                                                <span class="badge bg-danger px-3 py-2">
+                                                    InComplete :
+                                                    <span class="fw-bold ms-1">{{ $item->total_assigned_files - $item->total_completed ?? 0 }}</span>
+                                                </span>
+
+                                                <span class="badge bg-warning text-dark px-3 py-2">
+                                                    Remaining :
+                                                    <span class="fw-bold ms-1">{{ $item->remaining_files ?? 0 }}</span>
+                                                </span>
+
+                                            </div>
                                         </td>
 
                                         <td>
@@ -162,19 +178,24 @@
                                                     class="btn btn-sm btn-info" title="Assigned User List">
                                                     <i class="bx bx-user-check"></i>
                                                 </a>
+                                                {{-- Assigned Files Status Checked  --}}
+                                                <a href="{{ route('admin.lots.assign.files.status', base64_encode($item->id)) }}"
+                                                    class="btn btn-sm btn-secondary" title="Assigned Files Status">
+                                                    <i class="bx bx-check-circle"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr id="noDataRow">
-                                        <td colspan="10" class="text-center text-muted">
+                                        <td colspan="9" class="text-center text-muted">
                                             No Lots Found.
                                         </td>
                                     </tr>
                                 @endforelse
 
                                 <tr id="filteredEmptyRow" style="display: none;">
-                                    <td colspan="10" class="text-center text-muted">
+                                    <td colspan="9" class="text-center text-muted">
                                         No records found for selected tab.
                                     </td>
                                 </tr>
@@ -335,7 +356,7 @@
                 });
             });
 
-            filterRows('not_assigned');
+            filterRows('all');
         });
     </script>
 @endsection

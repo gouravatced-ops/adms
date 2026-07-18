@@ -240,8 +240,8 @@ body {
 
 /* Text utilities */
 .text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
 }
 
 .text-gray-300 {
@@ -795,7 +795,7 @@ nav a {
 input[type="text"],
 input[type="number"],
 input[type="date"] {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     transition: all 200ms ease;
 }
 
@@ -909,7 +909,7 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="text"],
 input[type="number"],
 input[type="date"] {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
 }
 
 input[type="date"] {
@@ -958,7 +958,7 @@ svg {
 }
 
 .text-sm {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     line-height: 1.25rem;
 }
 
@@ -971,7 +971,7 @@ svg {
 }
 
 .text-\[var\(--text-gray\)\] {
-    color: var(--text-gray);
+    color: var(--navy-800);
 }
 
 /* Spacing utilities - NEW */
@@ -1015,7 +1015,7 @@ svg {
 }
 
 .text-sm {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     line-height: 1.25rem;
 }
 
@@ -1416,7 +1416,7 @@ a {
 .btn {
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -1514,7 +1514,7 @@ label {
 
 /* Text utilities */
 .text-sm {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     line-height: 1.25rem;
 }
 
@@ -1526,7 +1526,7 @@ label {
 .btn {
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -1603,7 +1603,7 @@ label {
 
 /* Icon spacing inside buttons */
 .btn i {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
 }
 
 /* Heading icon alignment */
@@ -1862,7 +1862,7 @@ h3 i {
 /* Table */
 table {
     background-color: var(--white);
-    font-size: 14px;
+    font-size: 16px;
 }
 
 thead {
@@ -2313,7 +2313,7 @@ input.readonly {
 }
 
 .text-sm {
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     /* 14px */
 }
 
@@ -2392,7 +2392,7 @@ select.duration-200 {
 }
 
 .text-xs {
-    font-size: 0.75rem;
+    font-size: 1.25rem;
     /* 12px */
 }
 
@@ -2610,7 +2610,7 @@ select.duration-200 {
     .alert {
         padding: 1rem 1.25rem;
         margin-bottom: 1rem;
-        font-size: 0.875rem;
+        font-size: 1.2rem;
     }
 
     .alert::before {

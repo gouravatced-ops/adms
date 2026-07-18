@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegisterAllottee extends Model
 {
+
     use HasFactory;
     protected $table = 'register_allottees';
     protected $fillable = [
@@ -28,9 +29,15 @@ class RegisterAllottee extends Model
         'no_of_files',
         'no_of_supplement',
         'parent_id',
+        'grand_parent_id',
+        'is_bill_generated',
+        'bill_id',
+        'bill_generated_at',
         'created_by',
         'updated_by',
+        'is_active',
         'ip_address',
+        'delete_reason',
     ];
 
     public function division()
@@ -76,5 +83,15 @@ class RegisterAllottee extends Model
     public function lotAssignments()
     {
         return $this->hasMany(LotAssignment::class, 'allottee_id');
+    }
+
+    public function bill()
+    {
+        return $this->belongsTo(INDBNKBill::class, 'bill_id');
+    }
+
+    public function billItems()
+    {
+        return $this->hasMany(INDBNKBillItem::class, 'allottee_id');
     }
 }

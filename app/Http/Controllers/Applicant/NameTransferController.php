@@ -62,7 +62,7 @@ class NameTransferController extends Controller
         return str_shuffle($password);
     }
 
-     public function index(Request $request)
+    public function index(Request $request)
     {
         try {
             $userId = auth()->id();
@@ -155,72 +155,233 @@ class NameTransferController extends Controller
         }
     }
 
-    public function completedIndex(Request $request)
+    public function inCompletedindex(Request $request)
     {
         try {
             $userId = auth()->id();
             $perPage = $request->input('per_page', 50);
 
-            $transferAllottee = Allottee::selectRaw("
-                allottees.*,
-                CASE 
-                    WHEN name_transfer_status = 'no' 
-                         AND is_trans_entry_completed = 0
-                    THEN 'Current Allottee'
-                    ELSE 'Transfer Allottee'
-                END as allottee_type
-            ")
-                // current / transfer records should always have parent
+            // Get search params
+            $searchParams = [
+                'allottee' => $request->query('allottee'),
+                'property_no' => $request->query('property_no'),
+                'division' => $request->query('division'),
+            ];
+
+            $baseRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType'
+
+            ];
+
+            // Optimized query with selective loading
+            $query = Allottee::with($baseRelations)->where('created_by', $userId)
+                ->whereNull('register_file_id')
                 ->whereNotNull('parent_id')
+                ->where('current_step', '<', 4) // 1,2,3 only
+                ->whereNull('allottee_document_path');
 
-                ->where('name_transfer_status', 'no')
-                ->where('is_trans_entry_completed', 0)
-                ->where('created_by', $userId)
+            // Apply search filters
+            if (!empty($searchParams['allottee'])) {
+                $query->where(function ($q) use ($searchParams) {
+                    $searchTerm = "%{$searchParams['allottee']}%";
+                    $q->where('allottee_name', 'LIKE', $searchTerm)
+                        ->orWhere('allottee_middle_name', 'LIKE', $searchTerm)
+                        ->orWhere('allottee_surname', 'LIKE', $searchTerm)
+                        ->orWhere('application_no', 'LIKE', $searchTerm)
+                        ->orWhere('register_id', 'LIKE', $searchTerm);
+                });
+            }
 
-                ->with([
-                    'division:id,name',
-                    'subDivision:id,name',
-                    'propertyCategory:id,name',
-                    'propertyType:id,name',
-                    'quarterType:quarter_id,quarter_code',
+            if (!empty($searchParams['property_no'])) {
+                $query->where('property_number', 'LIKE', "%{$searchParams['property_no']}%");
+            }
 
-                    // parent history
-                    'parent' => function ($q) {
+            if (!empty($searchParams['division'])) {
+                $query->where('division_id', $searchParams['division']);
+            }
 
-                        $q->selectRaw("
-                        allottees.*,
-                        'Previous Allottee' as allottee_type
-                    ")
+            // Paginate with query string preservation
+            $transferAllottee = $query->paginate($perPage)->withQueryString();
 
-                            ->with([
-                                'parent' => function ($q2) {
+            // AJAX Response
+            if ($request->ajax()) {
+                return response()->json([
+                    'transferAllottee' => [
+                        'data' => $transferAllottee->items(),
+                        'current_page' => $transferAllottee->currentPage(),
+                        'per_page' => $transferAllottee->perPage(),
+                        'total' => $transferAllottee->total(),
+                    ],
+                    'pagination' => $transferAllottee->links()->toHtml(),
+                    'search_params' => $searchParams,
+                ]);
+            }
 
-                                    $q2->selectRaw("
-                                allottees.*,
-                                'First Allottee' as allottee_type
-                            ");
-                                }
-                            ]);
-                    }
-                ])
+            // Cache divisions for better performance
+            $divisions = cache()->remember('divisions-list', 3600, function () {
+                return Division::orderBy('name')->get(['id', 'name']);
+            });
 
-                // only CURRENT allottee
-                ->where('name_transfer_status', 'no')
-
-                ->where('is_trans_entry_completed', 0)
-
-                ->orderByDesc('id')
-
-                ->paginate($perPage);
-            // return response()->json($transferAllottee);
-                $divisions = getDivisions();
             return view(
-                'applicant.components.nametransfer.completedLots',
-                compact('transferAllottee' , 'divisions')
+                'applicant.components.nametransfer.incompletentfile',
+                compact('transferAllottee', 'divisions')
             );
         } catch (\Throwable $e) {
+            Log::error('File index load failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-            \Log::error($e);
+            $errorMessage = app()->environment('production')
+                ? 'Failed to load files. Please try again.'
+                : $e->getMessage();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'error' => 'Failed to load files.',
+                    'message' => $errorMessage
+                ], 500);
+            }
+
+            return back()->with('error', $errorMessage);
+        }
+    }
+
+    public function completedIndex(Request $request)
+    {
+        try {
+            $userId = auth()->id();
+            $perPage = $request->input('per_page', 200);
+
+            // Get search parameters
+            $searchAllottee = $request->input('allottee');
+            $searchPropertyNo = $request->input('property_no');
+            $searchDivision = $request->input('division');
+
+            $transferAllottee = Allottee::selectRaw("
+                    allottees.*,
+                    CASE
+                        WHEN name_transfer_status = 'no'
+                            AND is_trans_entry_completed = 0
+                        THEN 'Current Allottee'
+                        ELSE 'Transfer Allottee'
+                    END as allottee_type
+                ")
+                ->whereNotNull('parent_id')
+                ->where('name_transfer_status', 'no')
+                ->where('is_trans_entry_completed', 0)
+                ->where('created_by', $userId);
+
+            // Apply search filters - Search across current, parent, and grandparent
+            if (!empty($searchAllottee)) {
+                $transferAllottee->where(function ($query) use ($searchAllottee) {
+                    // Search in current allottee
+                    $query->where(function ($q) use ($searchAllottee) {
+                        $q->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%")
+                            ->orWhere('register_id', 'LIKE', "%{$searchAllottee}%");
+                    });
+
+                    // Search in parent (previous allottee)
+                    $query->orWhereHas('parent', function ($q) use ($searchAllottee) {
+                        $q->where(function ($subQ) use ($searchAllottee) {
+                            $subQ->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%");
+                        });
+                    });
+
+                    // Search in grandparent (first allottee)
+                    $query->orWhereHas('parent.parent', function ($q) use ($searchAllottee) {
+                        $q->where(function ($subQ) use ($searchAllottee) {
+                            $subQ->where('allottee_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_middle_name', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allottee_surname', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('application_no', 'LIKE', "%{$searchAllottee}%")
+                                ->orWhere('allotment_no', 'LIKE', "%{$searchAllottee}%");
+                        });
+                    });
+                });
+            }
+
+            if (!empty($searchPropertyNo)) {
+                $transferAllottee->where('property_number', 'LIKE', "%{$searchPropertyNo}%");
+            }
+
+            if (!empty($searchDivision)) {
+                $transferAllottee->whereHas('division', function ($query) use ($searchDivision) {
+                    $query->where('name', 'LIKE', "%{$searchDivision}%");
+                });
+            }
+
+            $transferAllottee = $transferAllottee->with([
+                'division:id,name',
+                'subDivision:id,name',
+                'propertyCategory:id,name',
+                'propertyType:id,name',
+                'quarterType:quarter_id,quarter_code',
+                'parent' => function ($q) {
+                    $q->selectRaw("
+                    allottees.*,
+                    'Previous Allottee' as allottee_type
+                ")
+                        ->with([
+                            'parent' => function ($q2) {
+                                $q2->selectRaw("
+                            allottees.*,
+                            'First Allottee' as allottee_type
+                        ");
+                            }
+                        ]);
+                }
+            ])
+                ->orderByDesc('id')
+                ->paginate($perPage);
+
+            // Preserve search parameters in pagination links
+            if (!empty($searchAllottee) || !empty($searchPropertyNo) || !empty($searchDivision)) {
+                $transferAllottee->appends([
+                    'allottee' => $searchAllottee,
+                    'property_no' => $searchPropertyNo,
+                    'division' => $searchDivision
+                ]);
+            }
+
+            $divisions = getDivisions();
+
+            // For AJAX requests, return JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'transferAllottee' => $transferAllottee,
+                    'divisions' => $divisions,
+                    'searchParams' => [
+                        'allottee' => $searchAllottee,
+                        'property_no' => $searchPropertyNo,
+                        'division' => $searchDivision
+                    ]
+                ]);
+            }
+
+            return view(
+                'applicant.components.nametransfer.completedLots',
+                compact('transferAllottee', 'divisions')
+            );
+        } catch (\Throwable $e) {
+            Log::error('Error in completedIndex: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            if ($request->ajax()) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
 
             return back()->with('error', $e->getMessage());
         }
@@ -273,7 +434,7 @@ class NameTransferController extends Controller
                     'qt.quarter_code',
                     'a.is_step_completed',
                     'a.current_step',
-                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files'),
+                    'ra.no_of_files as total_files',
                 ])
 
                 ->orderByDesc('ra.created_at');
@@ -546,6 +707,7 @@ class NameTransferController extends Controller
         $existingapplicant = Allottee::select([
             'id',
             'register_id',
+            'register_file_id',
             'division_id',
             'subdivision_id',
             'pcategory_id',
@@ -556,6 +718,7 @@ class NameTransferController extends Controller
             'current_step',
             'is_trans_entry_completed',
             'allotment_year',
+            'name_transfer_status'
         ])
             ->with([
                 'division:id,name',
@@ -567,20 +730,19 @@ class NameTransferController extends Controller
             ->findOrFail($id);
         $applicant = $existingapplicant;
 
+        $currentStep = 1;
+        $action = 'create';
+
         if ($existingapplicant->is_trans_entry_completed == 1) {
             $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
                 ->latest('id')
                 ->first();
 
             if ($childApplicant) {
-                $applicant = $childApplicant;
-                $currentStep = $applicant->current_step;
-                $action = 'update';
+                return redirect()->route('nametransfer.incomplete.apply.index', encrypt($childApplicant->id));
             }
-        } else {
-            $currentStep = 1;
-            $action = 'create';
         }
+
         $applicant->current_step = $currentStep;
         $applicant->action = $action;
         $getSchemeList = getSchemeList(
@@ -631,9 +793,78 @@ class NameTransferController extends Controller
         );
     }
 
-    public function getStep($step, $applicantId)
+
+    public function inCompleteindexStart($encodedId)
     {
-        $view = "applicant.components.nametransfer.step{$step}";
+        try {
+            $id = decrypt($encodedId);
+        } catch (\Exception $e) {
+            abort(404, 'Invalid request.');
+        }
+
+        // Parent allottee
+        $existingapplicant = Allottee::with([
+            'division:id,name',
+            'subDivision:id,name',
+            'propertyCategory:id,name',
+            'propertyType:id,name',
+            'quarterType:quarter_id,quarter_code'
+        ])
+            ->findOrFail($id);
+        $applicant = $existingapplicant;
+        $action = 'update';
+        $applicant->action = $action;
+        $getSchemeList = getSchemeList(
+            $existingapplicant->division_id,
+            $existingapplicant->sub_division_id ?? $existingapplicant->subdivision_id,
+            $existingapplicant->pcategory_id,
+            $existingapplicant->p_type_id ?? $existingapplicant->property_type_id,
+            $existingapplicant->quarter_type ?? $existingapplicant->quarter_id
+        );
+
+        $applicant->joint_allottees_data = JointAllottee::where('allottee_id', $applicant->id)->get();
+
+        $this->trackStepStart($applicant->id, 1);
+
+        $completedDocuments = AllotteeDocument::where('allottee_id', $applicant->id)
+            ->join('document_master', 'document_master.id', '=', 'allottee_documents.document_id')
+            ->get([
+                'allottee_documents.*',
+                'document_master.id',
+                'document_master.document_name as name',
+                'document_master.document_key as key',
+                'allottee_documents.file_name',
+                'allottee_documents.file_path',
+            ]);
+
+        $completedIds = $completedDocuments->pluck('id');
+
+
+        $documents = DocumentMaster::where('document_category', 'nameTransfer')
+            ->where('status', 1)
+            ->whereNotIn('id', $completedIds)
+            ->orderBy('sort_order')
+            ->get([
+                'id',
+                'document_name as name',
+                'document_key as key',
+            ]);
+
+        return view(
+            'applicant.components.nametransfer.modifynt.index',
+            compact(
+                'existingapplicant',
+                'applicant',
+                'getSchemeList',
+                'documents',
+                'completedDocuments'
+            )
+        );
+    }
+
+    public function incompletegetStep($step, $applicantId)
+    {
+        $view = "applicant.components.nametransfer.modifynt.step{$step}";
 
         $baseRelations = [
             'division',
@@ -727,6 +958,119 @@ class NameTransferController extends Controller
             $applicant->quarter_id
         );
         // return $applicant;
+        $applicant->joint_allottees_data = JointAllottee::where('allottee_id', $applicant->id)->get();
+
+        return view($view, compact('applicant', 'getSchemeList'));
+    }
+
+    public function getStep($step, $applicantId)
+    {
+        $view = "applicant.components.nametransfer.step{$step}";
+
+        $baseRelations = [
+            'division',
+            'subDivision',
+            'propertyCategory',
+            'propertyType',
+        ];
+
+        // STEP 2
+        if ($step == 2) {
+
+            $applicant = AllotteesContactDetail::where('allottee_id', $applicantId)->first();
+
+            if ($applicant) {
+
+                $relationMap = [
+                    'father' => 'पिता',
+                    'husband' => 'पति',
+                ];
+
+                $applicant->relation_type_hindi = $relationMap[$applicant->relation_type] ?? null;
+
+                $districtFields = [
+                    'relation_district',
+                    'present_district',
+                    'permanent_district',
+                    'correspondence_district',
+                ];
+
+                foreach ($districtFields as $field) {
+                    $applicant->{$field . '_hindi'} = $applicant->$field ?? '';
+                }
+
+                $applicant->id = $applicant->allottee_id;
+
+                return view($view, compact('applicant'));
+            }
+            $this->trackStepStart($applicantId, $step);
+            $applicant = Allottee::with($baseRelations)->findOrFail($applicantId);
+
+            return view($view, compact('applicant'));
+        }
+
+        // STEP 3
+        if ($step == 3) {
+
+            $applicant = Allottee::with(array_merge($baseRelations, ['AllotProFinDetail']))
+                ->findOrFail($applicantId);
+
+            $completedDocuments = AllotteeDocument::where('allottee_id', $applicant->id)
+                ->join('document_master', 'document_master.id', '=', 'allottee_documents.document_id')
+                ->get([
+                    'allottee_documents.*',
+                    'document_master.id',
+                    'document_master.document_name as name',
+                    'document_master.document_key as key',
+                    'allottee_documents.file_name',
+                    'allottee_documents.file_path',
+                ]);
+            $this->trackStepStart($applicantId, $step);
+
+            $completedIds = $completedDocuments->pluck('id');
+
+            $documents = DocumentMaster::where('document_category', 'nameTransfer')
+                ->where('status', 1)
+                ->whereNotIn('id', $completedIds)
+                ->orderBy('sort_order')
+                ->get([
+                    'id',
+                    'document_name as name',
+                    'document_key as key',
+                ]);
+
+            return view($view, compact('applicant', 'completedDocuments', 'documents'));
+        }
+
+        // STEP 4
+        if ($step == 4) {
+
+            $relations = array_merge($baseRelations, [
+                'allotProFinDetail',
+                'alloteeAdresses',
+                'nomineesBank',
+                'accountLedger',
+                'documentData',
+            ]);
+
+            $this->trackStepStart($applicantId, $step);
+            $applicant = Allottee::with($relations)->findOrFail($applicantId);
+
+            return view($view, compact('applicant'));
+        }
+
+        // DEFAULT (STEP 1)
+        $applicant = Allottee::with($baseRelations)->findOrFail($applicantId);
+        $applicant->action = 'update';
+
+        $getSchemeList = getSchemeList(
+            $applicant->division_id,
+            $applicant->subdivision_id,
+            $applicant->pcategory_id,
+            $applicant->property_type_id,
+            $applicant->quarter_id
+        );
+        // return $applicant;
 
         return view($view, compact('applicant', 'getSchemeList'));
     }
@@ -783,7 +1127,26 @@ class NameTransferController extends Controller
             $allottmentNumber = $request->allotment_no;
         }
 
+        $registerAllottee = [
+            'register_id' => $request->register_id,
+        ];
+
+        if (!empty($request->register_file_id) && $request->name_transfer_status == 'no') {
+            $registerAllottee = RegisterAllottee::where('parent_id', $request->register_file_id)->first();
+
+            if ($registerAllottee) {
+                $registerAllottee = [
+                    'register_id'      => $registerAllottee->register_id,
+                    'register_file_id' => $registerAllottee->id,
+                ];
+            }
+        }
+
+        // return $registerAllottee;
+
         $data = [
+            'register_id' => $registerAllottee['register_id'],
+            'register_file_id' => $registerAllottee['register_file_id'] ?? NULL,
             'scheme_id' => $request->scheme_id,
             'application_no' => $request->application_no,
             'application_day' => $request->application_day,
@@ -793,6 +1156,12 @@ class NameTransferController extends Controller
             'allotment_day' => $request->allotment_day,
             'allotment_month' => $request->allotment_month,
             'allotment_year' => $request->allotment_year,
+            'division_id' => $request->division_id,
+            'subdivision_id' => $request->subdivision_id,
+            'pcategory_id' => $request->pcategory_id,
+            'property_type_id' => $request->property_type_id,
+            'quarter_id' => $request->quarter_id,
+            'property_number' => $request->property_number,
 
             'prefix' => $request->prefix,
             'allottee_name' => $request->allottee_name,
@@ -840,15 +1209,6 @@ class NameTransferController extends Controller
 
         $password = $this->generatePassword();
         $applicant = Allottee::create($data + [
-
-            'register_id' => $request->register_id,
-            'division_id' => $request->division_id,
-            'subdivision_id' => $request->subdivision_id,
-            'pcategory_id' => $request->pcategory_id,
-            'property_type_id' => $request->property_type_id,
-            'quarter_id' => $request->quarter_id,
-            'property_number' => $request->property_number,
-
             'username' => $username,
             'password' => Hash::make($password),
             'cedjshb' => encrypt($password),
@@ -903,6 +1263,7 @@ class NameTransferController extends Controller
         $parent = Allottee::where('id', $applicant->parent_id)->first();
         if ($parent->is_trans_entry_completed == 0) {
             $parent->update([
+                'name_transfer_status' => 'yes',
                 'is_trans_entry_completed' => 1,
                 'updated_by' => auth()->id(),
                 'update_ip_address' => $request->ip()
@@ -937,6 +1298,7 @@ class NameTransferController extends Controller
 
     public function updateStep1(Request $request)
     {
+        // return $request->all();
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
             $allottmentNumber = $request->allotment_no . '/' . $request->year;
@@ -988,6 +1350,73 @@ class NameTransferController extends Controller
 
             'remarks_for_dob' => $request->remarks_for_dob,
         ];
+
+        $jointNames = $request->joint_allottee_name ?? [];
+
+        $existingIds = JointAllottee::where('allottee_id', $request->allottee_id)
+            ->pluck('id')
+            ->toArray();
+
+        $processedIds = [];
+
+        foreach ($jointNames as $index => $firstName) {
+
+            if (blank($firstName)) {
+                continue;
+            }
+
+            $jointData = [
+                'allottee_id'        => $request->allottee_id,
+
+                'prefix'             => $request->joint_allottee_prefix[$index] ?? 'Shri',
+                'first_name'         => $firstName,
+                'middle_name'        => $request->joint_allottee_middle_name[$index] ?? null,
+                'last_name'          => $request->joint_allottee_surname[$index] ?? null,
+
+                'prefix_hindi'       => $request->joint_allottee_prefix_hindi[$index] ?? 'श्री',
+                'first_name_hindi'   => $request->joint_allottee_name_hindi[$index] ?? null,
+                'middle_name_hindi'  => $request->joint_allottee_middle_name_hindi[$index] ?? null,
+                'last_name_hindi'    => $request->joint_allottee_surname_hindi[$index] ?? null,
+
+                'gender'             => $request->joint_allottee_gender[$index] ?? 'Male',
+
+                'aadhar_number'      => $request->joint_allottee_aadhar[$index] ?? null,
+                'pan_number'         => $request->joint_allottee_pan[$index] ?? null,
+
+                'other_doc_type'     => $request->joint_allottee_doc_type[$index] ?? null,
+                'other_doc_number'   => $request->joint_allottee_doc_number[$index] ?? null,
+
+                'updated_at'         => now(),
+            ];
+
+            // If you pass existing joint allottee ids in hidden input
+            $jointId = $request->joint_allottee_id[$index] ?? null;
+
+            if ($jointId) {
+                JointAllottee::where('id', $jointId)
+                    ->where('allottee_id', $request->allottee_id)
+                    ->update($jointData);
+
+                $processedIds[] = $jointId;
+            } else {
+                $jointData['created_at'] = now();
+
+                $joint = JointAllottee::create($jointData);
+
+                $processedIds[] = $joint->id;
+            }
+        }
+
+        // Delete removed rows
+        $deleteIds = array_diff($existingIds, $processedIds);
+
+        if (!empty($deleteIds)) {
+            JointAllottee::whereIn('id', $deleteIds)->delete();
+        }
+
+        if (!empty($jointAllottees)) {
+            JointAllottee::insert($jointAllottees);
+        }
 
         // check if transfer allottee already created
         $existing = Allottee::where('id', $request->allottee_id)->first();
@@ -1098,7 +1527,9 @@ class NameTransferController extends Controller
             // Step Completed
             $allottee->update([
                 'is_step_completed' => 1,
+                'sub_admin_allottee_verify' => 0
             ]);
+
             $this->trackStepEnd($request->allottee_id, 4);
             // Update RegisterAllottee
             RegisterAllottee::where('id', $allottee->register_file_id)
@@ -1326,8 +1757,8 @@ class NameTransferController extends Controller
                 'year'          => ['nullable', 'string', 'max:4'],
                 'additional_info' => ['nullable', 'string', 'max:500'],
             ]);
-            
-            if(empty($validated['document_file']) && empty($validated['remarks'])) {
+
+            if (empty($validated['document_file']) && empty($validated['remarks'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Either document file or remarks must be provided.',
@@ -1335,7 +1766,7 @@ class NameTransferController extends Controller
             }
 
             // upload path
-            if(isset($validated['uploadpath']) && empty($validated['uploadpath'])) {
+            if (isset($validated['uploadpath']) && empty($validated['uploadpath'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Upload path is required.',

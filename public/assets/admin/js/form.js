@@ -73,7 +73,23 @@ $(document).ready(function () {
     });
 
     // DataTable Initialize
-    $("#allLotsListTable").DataTable({});
+    $("#allLotsListTable").DataTable({
+        pageLength: 25,
+        lengthMenu: [
+            [25, 50, 100, 250],
+            [25, 50, 100, 250],
+        ],
+        ordering: true,
+        responsive: true,
+        language: {
+            lengthMenu: "Show _MENU_ entries",
+            search: "Search:",
+            paginate: {
+                previous: "‹",
+                next: "›",
+            },
+        },
+    });
 
     $("#resetButton").on("click", function () {
         location.reload();

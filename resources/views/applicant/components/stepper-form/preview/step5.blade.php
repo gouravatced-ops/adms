@@ -162,7 +162,7 @@
                 style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px; display:flex; align-items:center; gap:15px;">
 
                 <label for="is_free_hold" style="font-weight:600; font-size:13px; margin:0;">
-                    Is this property Free Hold?
+                    Is this property Free Lease Hold?
                 </label>
 
                 <select name="is_free_hold" id="is_free_hold" class="custom-select"

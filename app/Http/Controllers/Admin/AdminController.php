@@ -10,40 +10,278 @@ use App\Models\Scheme;
 use App\Models\Division;
 use App\Models\SubDivision;
 use App\Models\Allottee;
+use App\Models\RegisterAllottee;
+use App\Models\AllotteeMasterDocument;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
 {
     public function councilDashboard()
     {
-        $divisionCount     = Division::where('status', 1)->count();
-        $subdivisionCount  = SubDivision::where('status', 1)->count();
-        $schemeCount       = Scheme::where('is_active', 1)->count();
-        $allotteeCount     = Allottee::where('is_step_completed', 1)->count();
+        $user = auth('admin')->user();
+        $divisionId = $user->division_id;
+        $updatePasswordModal = $user->isPasswordExpired();
 
-        $recentAllotteeList = Allottee::with('division')->where('is_step_completed', 1)
-            ->latest() // cleaner than orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        $stats = $this->dashboardCounts($user->id);
 
-        // return $recentAllotteeList;
+        switch ($user->role) {
 
-        return view('admin.modules.dashboard.co-dashboard', compact(
-            'divisionCount',
-            'subdivisionCount',
-            'schemeCount',
-            'allotteeCount',
-            'recentAllotteeList'
-        ));
+            case 'council_office':
+                return view('admin.modules.dashboard.co-dashboard', array_merge($stats, [
+                    'divisionCount'    => Division::where('status', 1)->count(),
+                    'subdivisionCount' => SubDivision::where('status', 1)->count(),
+                    'schemeCount'      => Scheme::where('is_active', 1)->count(),
+                    'allotteeCount'    => Allottee::where('is_step_completed', 1)->count(),
+
+                    'recentAllotteeList' => Allottee::with('division:id,name')
+                        ->where('is_step_completed', 1)
+                        ->latest()
+                        ->limit(5)
+                        ->get(),
+
+                    'updatePasswordModal' => $updatePasswordModal
+                ]));
+
+            case 'approver':
+                return view('admin.modules.dashboard.co-dashboard', array_merge(
+                    $stats,
+                    $this->approverStats($divisionId),
+                    ['updatePasswordModal' => $updatePasswordModal]
+                ));
+
+            case 'divisional_admin':
+                return view('admin.modules.dashboard.co-dashboard', array_merge(
+                    $stats,
+                    $this->divisionalStats(),
+                    ['updatePasswordModal' => $updatePasswordModal]
+                ));
+        }
+
+        return view('errors.403');
+    }
+
+    private function approverStats($divisionId)
+    {
+        $today = now();
+
+        $subdivisionStats = SubDivision::where([
+            'division_id' => $divisionId,
+            'status' => 1
+        ])
+            ->withCount([
+
+                'allottees as total_files_count' => fn($q) =>
+                $q->where('is_step_completed', 1),
+
+                'allotteeMasterDocuments as verified_files_count' => fn($q) =>
+                $q->where('is_checked', 1),
+
+                'allotteeMasterDocuments as approved_files_count' => fn($q) =>
+                $q->where('is_approved_divisional', 1),
+            ])
+            ->get()
+            ->map(fn($item) => tap($item, function ($i) {
+
+                $i->progress_percent = $i->total_files_count > 0
+                    ? round(($i->verified_files_count / $i->total_files_count) * 100)
+                    : 0;
+            }));
+
+        // Chart Data Optimized
+        $dates = collect(range(0, 29))->mapWithKeys(fn($i) => [
+            now()->subDays($i)->format('Y-m-d') => 0
+        ])->reverse();
+
+        $raw = DB::table('allottee_master_documents as amd')
+            ->join('allottees as a', 'a.id', '=', 'amd.allottee_id')
+
+            ->selectRaw("DATE(amd.approved_at) as date, COUNT(*) as total")
+
+            ->where('a.division_id', $divisionId)
+
+            ->where('amd.is_approved_divisional', 1)
+            ->whereNotNull('amd.approved_at')
+
+            ->whereDate('amd.approved_at', '>=', now()->subDays(29))
+
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        $dates = $dates->merge($raw);
+
+        return [
+            'allDivisionFileCount' => Allottee::where([
+                'division_id' => $divisionId,
+                'is_step_completed' => 1
+            ])->count(),
+
+            'subdivisionStats' => $subdivisionStats,
+
+            'recentVerifyAllotteeList' => Allottee::with(['division:id,name', 'subdivision:id,name'])
+                ->where([
+                    'division_id' => $divisionId,
+                    'is_step_completed' => 1,
+                    'sub_admin_allottee_verify' => 1,
+                ])
+                ->latest('sub_admin_checked_date')
+                ->limit(5)
+                ->get(),
+
+            'todayApprovedCount' => Allottee::where('division_id', $divisionId)
+                ->where('divisional_approval', 1)
+                ->whereDate('divisional_approved_date', $today)
+                ->count(),
+
+            'chartData' => [
+                'labels' => $dates->keys()->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m')),
+                'data'   => $dates->values(),
+            ],
+
+            'monthRange' => now()->subDays(29)->format('F') . ' - ' . now()->format('F'),
+        ];
+    }
+
+    private function divisionalStats()
+    {
+        return [
+            'allDivisionFileCount' => Allottee::where('is_step_completed', 1)->count(),
+
+            'subdivisionStats' => Division::where('status', 1)
+                ->withCount([
+                    'allottees as total_files_count' => fn($q) => $q->where('is_step_completed', 1),
+                    'allottees as verified_files_count' => fn($q) =>
+                    $q->where('is_step_completed', 1)->where('sub_admin_allottee_verify', 1),
+                    'allottees as approved_files_count' => fn($q) =>
+                    $q->where('is_step_completed', 1)->where('divisional_approval', 1),
+                ])
+                ->get(),
+
+            'recentVerifyAllotteeList' => Allottee::with(['division:id,name', 'subdivision:id,name'])
+                ->where('is_step_completed', 1)
+                ->where('sub_admin_allottee_verify', 1)
+                ->latest('sub_admin_checked_date')
+                ->limit(5)
+                ->get(),
+        ];
+    }
+
+    private function dashboardCounts($userId)
+    {
+        $today = now()->toDateString();
+
+        return [
+            'stats' => [
+                'totalreceivingFile' =>  RegisterAllottee::where('is_active', 1)
+                    ->sum(
+                        DB::raw("
+                            COALESCE(
+                                CASE
+                                    WHEN parent_id IS NULL
+                                        THEN no_of_files + no_of_supplement
+                                    ELSE
+                                        no_of_supplement
+                                END
+                            ,0)
+                        ")
+                    ),
+
+                'totalscannedFile' => RegisterAllottee::where('is_active', 1)
+                    ->sum(DB::raw("
+                    CASE
+                        WHEN parent_id IS NULL
+                            THEN COALESCE(no_of_files,0) + COALESCE(no_of_supplement,0)
+                        ELSE
+                            COALESCE(no_of_supplement,0)
+                    END
+                ")),
+
+                'totalAllotteeFile'  => Allottee::whereNotNull('register_file_id')->count(),
+                'totalDataentryFile' => Allottee::whereNotNull('register_file_id')->where('is_step_completed', 1)->count(),
+                // 'totaltransferFile'  => Allottee::whereNull('register_file_id')
+                //     ->whereNotNull('parent_id')->count(),
+
+                'totalcheckedFile'   => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_checked', 1)->count(),
+                'totalapprovedFile'  => AllotteeMasterDocument::whereNotNull('register_allottee_id')->where('is_approved_divisional', 1)->count(),
+
+                // 'totalhandoverreadyLots' => RegistrationFile::where('status', 'handover')->count(),
+                // 'totallots'              => RegistrationFile::count(),
+
+                // Checked
+                'todayChecked' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)
+                    ->whereDate('sub_admin_checked_date', $today)
+                    ->where('is_step_completed', 1)
+                    ->count(),
+
+                'totalChecked' => Allottee::whereNotNull('register_file_id')->where('sub_admin_allottee_verify', 1)
+                    ->where('is_step_completed', 1)
+                    ->count(),
+
+                // Approved (User Based)
+                'todayApproved' => AllotteeMasterDocument::whereNotNull('allottee_id')
+                    ->where('is_approved_divisional', 1)
+                    ->where('divisional_master_approved_by', $userId)
+                    ->whereDate('approved_at', $today)
+                    ->count(),
+
+                'totalApproved' => AllotteeMasterDocument::whereNotNull('allottee_id')
+                    ->where('is_approved_divisional', 1)
+                    ->where('divisional_master_approved_by', $userId)
+                    ->count(),
+            ],
+
+            'labels' => [
+                'totalreceivingFile' => 'Total Received Files',
+                'totalscannedFile'   => 'Scanned Files',
+
+                'totalAllotteeFile'  => 'TATO Files',
+                // 'totaltransferFile'  => 'Transferred Files',
+
+                'totalDataentryFile' => 'DTED Files',
+                'totalcheckedFile'   => 'Checked Files',
+                'totalapprovedFile'  => 'Approved Files',
+
+                // 'totalhandoverreadyLots' => 'Handover Ready',
+                // 'totallots'              => 'Total Lots',
+
+                'todayChecked' => 'Today Checked',
+                'totalChecked' => 'Total Checked',
+
+                'todayApproved' => 'Today Approved',
+                'totalApproved' => 'Total Approved',
+            ],
+
+            'icons' => [
+                'totalreceivingFile' => '<i class="bx bx-file fs-2 text-primary"></i>',
+                'totalscannedFile'   => '<i class="bx bx-scan fs-2 text-warning"></i>',
+
+                'totalAllotteeFile'  => '<i class="bx bx-group fs-2 text-info"></i>',
+                // 'totaltransferFile'  => '<i class="bx bx-transfer fs-2 text-purple"></i>',
+
+                'totalDataentryFile' => '<i class="bx bx-edit fs-2 text-secondary"></i>',
+                'totalcheckedFile'   => '<i class="bx bx-check-circle fs-2 text-success"></i>',
+                'totalapprovedFile'  => '<i class="bx bx-badge-check fs-2 text-success"></i>',
+
+                // 'totalhandoverreadyLots' => '<i class="bx bx-repost fs-2 text-warning"></i>',
+
+                'todayChecked' => '<i class="bx bx-check-double fs-2 text-success"></i>',
+                'totalChecked' => '<i class="bx bx-check-shield fs-2 text-success"></i>',
+
+                'todayApproved' => '<i class="bx bx-calendar-check fs-2 text-primary"></i>',
+                'totalApproved' => '<i class="bx bx-award fs-2 text-success"></i>',
+            ]
+        ];
     }
 
     public function registarDashboard()
     {
+        $updatePasswordModal = auth('admin')->user()->isPasswordExpired();
 
-        return view('admin.modules.dashboard.rgtr-dashboard');
+        return view('admin.modules.dashboard.rgtr-dashboard', compact('updatePasswordModal'));
     }
 
     public function getMyProfile(Request $request)
@@ -62,52 +300,110 @@ class AdminController extends Controller
 
     public function updateAdminDetails(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'gender' => 'required|in:Male,Female,Other',
-            'email' => 'required|email',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204', // 200KB
-            'newPassword' => 'nullable|confirmed|min:6',
+        try {
+
+            Log::info('Update Admin Request Received', [
+                'request' => $request->all(),
+                'admin_id' => auth('admin')->id()
+            ]);
+
+            $validated = $request->validate([
+                'name'        => 'required|string|max:100',
+                'email'       => 'nullable|email',
+                'gender'      => 'nullable|string',
+                'file'        => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:204',
+                'newPassword' => 'nullable|min:6',
+                'newPassword_confirmation' => 'nullable|required_with:newPassword|same:newPassword',
+                'designation' => 'nullable|string',
+                'captcha'     => 'required|captcha'
+            ]);
+
+            Log::info('Validation Passed', $validated);
+
+            $admin = auth('admin')->user();
+            $profilePic = $admin->profile_path ?? null;
+
+            // File Upload
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $folderPath = public_path('admin_pic');
+
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0777, true);
+                    Log::info('Folder Created', ['path' => $folderPath]);
+                }
+
+                $file->move($folderPath, $fileName);
+                $profilePic = 'admin_pic/' . $fileName;
+
+                Log::info('File Uploaded', ['file' => $profilePic]);
+            }
+
+            // Update Admin
+            $adminDetails = Admin::updateOrCreate(
+                ['id' => $admin->id],
+                [
+                    'admin_name'  => $validated['name'],
+                    'gender'      => $validated['gender'] ?? null,
+                    'email_id'    => $validated['email'] ?? null,
+                    'designation' => $validated['designation'] ?? null,
+                    'profile_path' => $profilePic,
+                ]
+            );
+
+            Log::info('Admin Updated', ['admin_id' => $admin->id]);
+
+            // Password Update
+            if (!empty($validated['newPassword'])) {
+                $admin->update([
+                    'password' => Hash::make($validated['newPassword']),
+                    'password_created_at' => now(),
+                ]);
+
+                Log::info('Password Updated', ['admin_id' => $admin->id]);
+            }
+
+            return back()->with('success', 'Profile updated successfully!');
+        } catch (\Exception $e) {
+
+            Log::error('Admin Update Failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile()
+            ]);
+
+            // Debug (only in local)
+            if (config('app.debug')) {
+                return back()->with('error', $e->getMessage());
+            }
+
+            return back()->with('error', 'Something went wrong!');
+        }
+    }
+
+    public function updateDashboardPassword(Request $request)
+    {
+        $request->validate([
+            'oldPassword' => ['required', 'string', 'min:8'],
+            'newPassword' => ['required', 'string', 'min:8', 'confirmed'],
+            'captcha' => ['required', 'captcha'],
         ]);
 
         $admin = auth('admin')->user();
-        $profilePic = $admin->profile_path ?? null;
 
-        // File upload (only if exists)
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-            $folderPath = public_path('admin_pic');
-
-            // create folder if not exists
-            if (!file_exists($folderPath)) {
-                mkdir($folderPath, 0777, true);
-            }
-
-            $file->move($folderPath, $fileName);
-            $profilePic = 'admin_pic/' . $fileName;
+        if (!Hash::check($request->input('oldPassword'), $admin->password)) {
+            return redirect()->back()
+                ->withErrors(['oldPassword' => 'The old password is incorrect.'])
+                ->withInput();
         }
 
-        // Update or Create
-        $adminDetails = Admin::updateOrCreate(
-            ['id' => $admin->id],
-            [
-                'admin_name' => $validated['name'],
-                'gender' => $validated['gender'],
-                'email_id' => $validated['email'],
-                'profile_path' => $profilePic,
-            ]
-        );
+        $admin->password = Hash::make($request->input('newPassword'));
+        $admin->password_created_at = now();
+        $admin->save();
 
-        // Password update (only if provided)
-        if (!empty($validated['newPassword'])) {
-            $admin->update([
-                'password' => Hash::make($validated['newPassword'])
-            ]);
-        }
-
-        return back()->with('success', 'Profile updated successfully!');
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     public function sendChangePassOTP(Request $request)

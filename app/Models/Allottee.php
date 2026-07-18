@@ -61,39 +61,50 @@ class Allottee extends Model
         'no_of_supplement',
         'json_pages',
         'total_pages',
+        'file_remarks',
         'parent_id',
         'current_step',
         'is_trans_entry_completed',
+        'is_free_hold_completed',
         'name_transfer_status',
         'free_hold_status',
         'step_remarks',
+        'is_first_time_register',
+        'is_earlier_cancelled',
         'allottee_create_date',
         'create_ip_address',
         'update_ip_address',
         'allottee_document_path',
         'is_step_completed',
+        'sub_admin_allottee_verify',
+        'sub_admin_remarks',
+        'sub_admin_checked_date',
+        'divisional_approval',
+        'divisional_remaks',
+        'divisional_approved_date',
+        'divisional_approved_by',
         'updated_by',
         'created_by',
     ];
 
-        // Parent relationship (the parent of this allottee)
+    // Parent relationship (the parent of this allottee)
     public function parent()
     {
         return $this->belongsTo(Allottee::class, 'parent_id');
     }
-    
+
     // Children relationship (allottees that have this as parent)
     public function children()
     {
         return $this->hasMany(Allottee::class, 'parent_id');
     }
-    
+
     // Recursive children with nested relationships
     public function childrenRecursive()
     {
         return $this->children()->with('childrenRecursive');
     }
-    
+
     // Recursive parent chain
     public function parentRecursive()
     {
@@ -178,5 +189,20 @@ class Allottee extends Model
     public function jointAllottees()
     {
         return $this->hasMany(JointAllottee::class, 'allottee_id');
+    }
+
+    public function registration()
+    {
+        return $this->belongsTo(RegistrationFile::class, 'register_id');
+    }
+
+    public function masterDocuments()
+    {
+        return $this->hasMany(AllotteeMasterDocument::class, 'allottee_id', 'id')->orderBy('file_label', 'asc');
+    }
+
+    public function allotteeMasterDocuments()
+    {
+        return $this->hasMany(AllotteeMasterDocument::class, 'allottee_id');
     }
 }

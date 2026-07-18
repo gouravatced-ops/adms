@@ -8,6 +8,7 @@ use App\Models\AllotteesContactDetail;
 use App\Models\RegistrationFile;
 use App\Models\RegisterAllottee;
 use App\Models\Allottee;
+use App\Models\AllotteeMasterDocument;
 use App\Models\Division;
 use App\Models\SubDivision;
 use App\Models\StepSkip;
@@ -21,7 +22,7 @@ use App\Models\QuarterType;
 use App\Models\LotAssignment;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
-// use Illuminate\Support\Str;
+use Illuminate\Support\Str;
 // use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -81,8 +82,8 @@ class StepperFormController extends Controller
             $query = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files' => function ($q) {
-                        $q->where('allottee_status', 'scanned');
+                    'lotAssignments as total_files' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId);
                     },
 
                     'lotAssignments as full_lot_assignment_count' => function ($q) use ($userId) {
@@ -91,9 +92,19 @@ class StepperFormController extends Controller
                     },
 
                     'lotAssignments as assigned_files_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId);
+                    },
+                    'lotAssignments as completed_files' => function ($q) use ($userId) {
                         $q->where('assigned_to', $userId)
-                            ->where('assignment_type', 'partial')
-                            ->whereNotNull('allottee_id');
+                            ->where('status', 'completed');
+                    },
+                    'lotAssignments as pending_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('status', 'pending');
+                    },
+                    'lotAssignments as in_progress_count' => function ($q) use ($userId) {
+                        $q->where('assigned_to', $userId)
+                            ->where('status', 'in_progress');
                     },
                 ])
                 ->where('status', 'scanned')
@@ -125,11 +136,6 @@ class StepperFormController extends Controller
                     $item->assigned_files = $isFullLotAssigned
                         ? (int) ($item->total_files ?? 0)
                         : (int) ($item->assigned_files_count ?? 0);
-
-                    $item->remaining_files = max(
-                        0,
-                        (int) ($item->assigned_files ?? 0) - (int) ($item->completed_files ?? 0)
-                    );
 
                     $item->assignment_type_label = $isFullLotAssigned ? 'Full Lot' : 'Partial';
 
@@ -243,7 +249,7 @@ class StepperFormController extends Controller
                     'qt.quarter_code',
                     'a.is_step_completed',
                     'a.current_step',
-                    DB::raw('(COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0)) as total_files'),
+                    'ra.no_of_files as total_files',
                 ])
                 ->orderByDesc('ra.created_at');
 
@@ -274,6 +280,7 @@ class StepperFormController extends Controller
             $registerAllottee->getCollection()->transform(function ($item) use ($encodedRegisterNo, $hasFullLotAssignment) {
                 $item->encoded_register_no = $encodedRegisterNo;
                 $item->allotteeId = encrypt($item->id);
+                $item->allotteeId_encrpted_id = $item->id;
                 $item->assignment_type = $hasFullLotAssignment ? 'full_lot' : 'partial';
 
                 return $item;
@@ -334,10 +341,6 @@ class StepperFormController extends Controller
             $query = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files' => function ($q) {
-                        $q->where('allottee_status', 'scanned');
-                    },
-
                     'lotAssignments as completed_files' => function ($q) use ($userId) {
                         $q->where('assigned_to', $userId)
                             ->where('status', 'completed');
@@ -356,7 +359,7 @@ class StepperFormController extends Controller
                 ])
                 ->where('status', 'scanned')
                 ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', 'scanned');
+                    $q->where('allottee_status', 'dataentry');
                 })
                 ->whereHas('lotAssignments', function ($q) use ($userId) {
                     $q->where('assigned_to', $userId);
@@ -602,8 +605,8 @@ class StepperFormController extends Controller
                 'year'          => ['nullable', 'string', 'max:4'],
                 'additional_info' => ['nullable', 'string', 'max:500'],
             ]);
-            
-            if(empty($validated['document_file']) && empty($validated['remarks'])) {
+
+            if (empty($validated['document_file']) && empty($validated['remarks'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Either document file or remarks must be provided.',
@@ -611,7 +614,7 @@ class StepperFormController extends Controller
             }
 
             // upload path
-            if(isset($validated['uploadpath']) && empty($validated['uploadpath'])) {
+            if (isset($validated['uploadpath']) && empty($validated['uploadpath'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Upload path is required.',
@@ -779,6 +782,153 @@ class StepperFormController extends Controller
         }
     }
 
+    public function masterDocumentList(string $encryptedId, $originalId = NULL)
+    {
+        try {
+            $allotteeId = decrypt($encryptedId);
+
+            $file = Allottee::findOrFail($allotteeId);
+            $registerId = encrypt($file->register_id);
+            if ($originalId != NULL) {
+                $fromDataEntry = 1;
+            } else {
+                $fromDataEntry = 0;
+            }
+            $currentRgeisterAlloteeId = $originalId ?? $file->register_file_id;
+            $current = RegisterAllottee::where('id', $currentRgeisterAlloteeId)
+                ->where('is_active', 1)
+                ->firstOrFail();
+
+            if ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
+                $previousRecords = RegisterAllottee::where('property_number', $current->property_number)
+                    ->where('is_active', 1)
+                    ->where('created_at', '<', $current->created_at)
+                    ->orderBy('created_at', 'asc')
+                    ->get([
+                        'confirm_received',
+                        'confirm_same_allottee_name',
+                        'no_of_files',
+                        'no_of_supplement'
+                    ]);
+            } else {
+                $previousRecords = [];
+            }
+
+            $offset = 0;
+
+            foreach ($previousRecords as $row) {
+                if ($row->confirm_received === 'No' && $row->confirm_same_allottee_name === 'No') {
+                    $offset += (int)$row->no_of_files + (int)$row->no_of_supplement;
+                } elseif ($row->confirm_received === 'Yes' && $row->confirm_same_allottee_name === 'Yes') {
+                    $offset += (int)$row->no_of_supplement;
+                }
+            }
+
+            if ($current->confirm_received === 'No' && $current->confirm_same_allottee_name === 'No') {
+                $total = (int)$current->no_of_files + (int)$current->no_of_supplement;
+            } elseif ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'Yes') {
+                $total = (int)$current->no_of_supplement;
+            } elseif ($current->confirm_received === 'Yes' && $current->confirm_same_allottee_name === 'No') {
+                $total = (int)$current->no_of_files + (int)$current->no_of_supplement;
+            } else {
+                $total = 0;
+            }
+
+            $output = [];
+
+            for ($i = 1; $i <= $total; $i++) {
+                $output[] = [
+                    'allottee_id' => $file->id,
+                    'register_allottee_id' => $current->id,
+                    'property_number' => $current->property_number,
+                    'file_label' => 'File-' . ($offset + $i),
+                    'no_of_files' => $current->no_of_files,
+                    'no_of_supplement' => $current->no_of_supplement,
+                    'confirm_received' => $current->confirm_received,
+                    'confirm_same_allottee_name' => $current->confirm_same_allottee_name,
+                ];
+            }
+
+            $confirmReceived = $current->confirm_received;
+            $confirmSameAllotteeName = $current->confirm_same_allottee_name;
+
+            $documents =  $output;
+            $completedDocuments = AllotteeMasterDocument::where('allottee_id', $file->id)
+                ->orderBy('id')
+                ->get();
+            return view(
+                'applicant.components.stepper-form.master-upload',
+                compact(
+                    'file',
+                    'documents',
+                    'completedDocuments',
+                    'registerId',
+                    'fromDataEntry',
+                    'confirmReceived',
+                    'originalId',
+                    'confirmSameAllotteeName'
+                )
+            );
+        } catch (\Throwable $e) {
+            \Log::error('File Mapping Error', [
+                'message' => $e->getMessage(),
+            ]);
+            return redirect()->back()
+                ->with('error', 'Unable to get file mapping.');
+        }
+    }
+
+    public function nametransfermasterDocumentList(string $encryptedId)
+    {
+        try {
+            $allotteeId = decrypt($encryptedId);
+
+            $file = Allottee::findOrFail($allotteeId);
+            $registerId = encrypt($file->register_id);
+
+            $output = [];
+
+            for ($i = 1; $i <= 1; $i++) {
+                $output[] = [
+                    'allottee_id' => $file->id,
+                    'register_allottee_id' => NULL,
+                    'property_number' => $file->property_number,
+                    'file_label' => 'File-1',
+                    'no_of_files' => 1,
+                    'no_of_supplement' => 0,
+                    'confirm_received' => 'No',
+                    'confirm_same_allottee_name' => 'No',
+                ];
+            }
+
+            $confirmReceived = 'No';
+            $confirmSameAllotteeName = 'No';
+            $completedDocuments = AllotteeMasterDocument::where('allottee_id', $file->id)
+                ->orderBy('id')
+                ->get();
+
+            $documents =  $output;
+
+            return view(
+                'applicant.components.stepper-form.nametransfermasterupload',
+                compact(
+                    'file',
+                    'documents',
+                    'completedDocuments',
+                    'registerId',
+                    'confirmReceived',
+                    'confirmSameAllotteeName'
+                )
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Name Transfer Master Document List Error', [
+                'message' => $e->getMessage(),
+            ]);
+            return redirect()->back()
+                ->with('error', 'Unable to get name transfer master document list.');
+        }
+    }
+
     function trackStepStart($allotteeId, $stepNo)
     {
         $track = AllotteeStepDuration::where([
@@ -805,6 +955,120 @@ class StepperFormController extends Controller
                 'user_agent'  => request()->userAgent(),
                 'created_by'  => auth()->id(),
             ]);
+        }
+    }
+
+    public function masterUpload(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'allottee_id' => 'required|integer',
+                'register_allottee_id' => 'nullable|integer',
+                'file_label' => 'required|string|max:255',
+                'uploadpath' => 'required|string',
+                'confirm_received' => 'nullable|string',
+                'confirm_same_allottee_name' => 'nullable|string',
+                'document_file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,doc,docx',
+            ]);
+
+            $file = $request->file('document_file');
+
+            $label = Str::slug($validated['file_label'], '_');
+
+            $applicant = Allottee::with([
+                'division:id,division_code',
+                'subDivision:id,subdivision_code',
+                'propertyCategory:id,name',
+                'propertyType:id,name',
+                'quarterType:quarter_id,quarter_code'
+            ])->findOrFail($validated['allottee_id']);
+
+            $division    = $applicant->division->division_code ?? '';
+            $subDivision = $applicant->subDivision->subdivision_code ?? '';
+            $incomeType  = $applicant->quarterType->quarter_code ?? '';
+            $year        = $applicant->allotment_year;
+            $month       = str_pad($applicant->allotment_month, 2, '0', STR_PAD_LEFT);
+
+            $propertyNo = preg_replace('/[^A-Za-z0-9]/', '-', $applicant->property_number);
+
+            $uploadPath = trim($validated['uploadpath'], '/');
+            $directory = public_path($uploadPath);
+
+            File::ensureDirectoryExists($directory, 0755, true);
+            $random = rand(1000, 9999);
+
+            $fileName = implode('', [
+                $division,
+                $subDivision,
+                $incomeType,
+                $year,
+                $month
+            ]) . "-{$propertyNo}_{$label}_" . $random . '.' . $file->getClientOriginalExtension();
+
+            $file->move($directory, $fileName);
+
+            $filePath = $uploadPath . '/' . $fileName;
+
+            $existing = AllotteeMasterDocument::where([
+                'allottee_id' => $validated['allottee_id'],
+                'register_allottee_id' => $validated['register_allottee_id'],
+                'file_label' => $validated['file_label'],
+            ])->first();
+
+            if ($existing && $existing->file_path) {
+                $oldFullPath = public_path($existing->file_path);
+                if (File::exists($oldFullPath)) {
+                    File::delete($oldFullPath);
+                }
+            }
+
+            $doc = AllotteeMasterDocument::updateOrCreate(
+                [
+                    'allottee_id' => $validated['allottee_id'],
+                    'register_allottee_id' => $validated['register_allottee_id'],
+                    'file_label' => $validated['file_label'],
+                ],
+                [
+                    'property_number' => $applicant->property_number,
+                    'confirm_received' => $validated['confirm_received'] ?? 'No',
+                    'confirm_same_allottee_name' => $validated['confirm_same_allottee_name'] ?? 'No',
+                    'file_path' => $filePath,
+                    'file_name' => $fileName,
+                    'uploaded_at' => now(),
+                    'read_file' => 0,
+                ]
+            );
+
+            if (!empty($validated['register_allottee_id'])) {
+
+                $allotteeId = $validated['register_allottee_id'];
+
+                RegisterAllottee::whereKey($allotteeId)->update([
+                    'allottee_status' => 'dataentry',
+                    'grand_parent_id' => $applicant->register_file_id,
+                ]);
+
+                LotAssignment::where('allottee_id', $allotteeId)
+                    ->update([
+                        'status' => 'completed',
+                    ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Uploaded successfully',
+                'data' => $doc
+            ]);
+        } catch (\Throwable $e) {
+
+            \Log::error('Master Upload Error', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Upload failed'
+            ], 500);
         }
     }
 
@@ -835,11 +1099,38 @@ class StepperFormController extends Controller
         } catch (\Exception $e) {
             abort(404, 'Invalid request.');
         }
-        $applicant = Allottee::with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
-            ->where('register_file_id', $id)
-            ->first();
-
         $registerId = RegisterAllottee::whereKey($id)->value('register_id');
+        $originalId = $id;
+        $mainparentId = RegisterAllottee::whereKey($id)->value('parent_id');
+        $finalId = $id;
+
+        while (true) {
+            $parentId = RegisterAllottee::whereKey($finalId)->value('parent_id');
+
+            if (is_null($parentId)) {
+                break; // reached top parent
+            }
+
+            $finalId = $parentId;
+        }
+
+        // Fetch applicant using finalId
+        $applicant = Allottee::with([
+            'division',
+            'subDivision',
+            'propertyCategory',
+            'propertyType',
+            'quarterType'
+        ])->where('register_file_id', $finalId)->first();
+
+
+        // If parent id exists dataentry already completed and step is completed then move to master document list
+        if ($applicant && $applicant->is_step_completed == 1 && $mainparentId !== null) {
+            // Encrypt finalId
+            $encryptedId = encrypt($applicant->id);
+            $originalId = $originalId;
+            return $this->masterDocumentList($encryptedId, $originalId);
+        }
 
         if (!$applicant) {
             $applicant = RegisterAllottee::with([
@@ -850,7 +1141,7 @@ class StepperFormController extends Controller
                 'quarterType'
             ])
                 ->where([
-                    ['id', $id],
+                    ['id', $finalId],
                     ['allottee_status', 'scanned'],
                     ['is_active', 1],
                 ])
@@ -858,7 +1149,6 @@ class StepperFormController extends Controller
             $applicant->register_file_id = $applicant->id;
             $this->trackStepStart($applicant->id, 1);
         }
-
 
         $getSchemeList = getSchemeList(
             $applicant->division_id,
@@ -1186,8 +1476,8 @@ class StepperFormController extends Controller
         $applicant->date_of_birth_day = $request->date_of_birth_day;
         $applicant->date_of_birth_month = $request->date_of_birth_month;
         $applicant->date_of_birth_year = $request->date_of_birth_year;
-        $applicant->date_of_birth_year = $request->date_of_birth_year;
-        $applicant->remarks_for_dob = $registerAllottee->remarks_for_dob;
+        $applicant->remarks_for_dob = $request->remarks_for_dob;
+        $applicant->file_remarks = $registerAllottee->remarks;
         $applicant->no_of_files = $registerAllottee->no_of_files;
         $applicant->no_of_supplement = $registerAllottee->no_of_supplement;
         $applicant->json_pages = $registerAllottee->json_pages;
@@ -1437,7 +1727,10 @@ class StepperFormController extends Controller
 
             // Step Completed
             $allottee->is_step_completed = 1;
+            $allottee->sub_admin_allottee_verify = 0;
             $allottee->step_remarks = $request->remarks;
+            $allottee->is_first_time_register = $request->is_first_time_register ?? 0;
+            $allottee->is_earlier_cancelled = $request->is_earlier_cancelled ?? 0;
             $allottee->save();
 
             $this->trackStepEnd($request->applicant_id, 6);

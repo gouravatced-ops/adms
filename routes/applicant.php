@@ -113,6 +113,7 @@ Route::middleware('auth:web')->group(function () {
 
     // Automatic file receiving
     Route::post('/filereceving/check-property-number', [FileRecevingController::class, 'checkPropertyNumber'])->name('admin.automatic.filereceving.check-property-number');
+    Route::post('/filereceving/check-property-number-for-receiving', [FileRecevingController::class, 'checkPropertyNumberForRecivingFileAdd'])->name('admin.automatic.filereceving.check-property-number-for-receiving');
 
     // filinlingExport
     Route::get('/filereceving/export/{registerId}', [FileRecevingController::class, 'filesExports'])->name('admin.filereceving.export');
@@ -151,7 +152,10 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/documents/configs', [StepperFormController::class, 'getDocumentConfigs'])->name('applicant.document.basic');
         Route::get('/documents/list/{allotteeId}', [StepperFormController::class, 'getDocumentsList'])->name('applicant.document.list');
         Route::get('/basic/documents/{encodedId}', [StepperFormController::class, 'documentList'])->name('documents.upload');
+        Route::get('/master/documents/{encodedId}', [StepperFormController::class, 'masterDocumentList'])->name('master.file');
+        Route::get('/nametransfer/master/documents/{encodedId}', [StepperFormController::class, 'nametransfermasterDocumentList'])->name('nametransfer.master.file');
         Route::post('/basic/documents/store', [StepperFormController::class, 'uploadDocument'])->name('basicdocuments.store');
+        Route::post('/master/documents/store', [StepperFormController::class, 'masterUpload'])->name('masterdocuments.store');
     });
 
     // data entry 
@@ -190,6 +194,9 @@ Route::middleware('auth:web')->group(function () {
         Route::get('/documents/list/{allotteeId}', [NameTransferController::class, 'getDocumentsList'])->name('applicant.document.list');
         Route::get('/name-transfer/documents/{encodedId}', [NameTransferController::class, 'documentList'])->name('documents.upload');
         Route::post('/name-transfer/documents/store', [NameTransferController::class, 'uploadDocument'])->name('nameTransferdocuments.storefile');
+        Route::get('/incomplete/start/{encodedId}', [NameTransferController::class, 'inCompleteindexStart'])->name('incomplete.apply.index');
+        Route::get('/incomplete/files/list', [NameTransferController::class, 'inCompletedindex'])->name('incomplete.name.transfer.files');
+        Route::get('/incomplete/apply/step/{step}/{applicantId}', [NameTransferController::class, 'incompletegetStep'])->name('incomplete.apply.step');
     });
 
     // Add to your routes file

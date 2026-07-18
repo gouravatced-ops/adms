@@ -64,8 +64,8 @@
                                     $fileCount = $item->no_of_files ?? 1;
 
                                     // Format property details
-                                    $propertyType = $item->property_type->name ?? 'Plot';
-                                    $quarterInfo = $item->quarter_type->quarter_code ?? 'MIG';
+                                    $propertyType = $item->propertyType->name ?? 'N/A';
+                                    $quarterInfo = $item->quarterType->quarter_code ?? 'N/A';
 
                                     // Format allottee name
                                     $allotteeName = trim(
@@ -83,29 +83,28 @@
                                     <td>{{ $key + 1 }}</td>
                                     <td>
                                         <div class="fw-semibold">{{ $allotteeName ?: 'N/A' }}</div>
-                                        <small class="text-muted d-block">Property No:
-                                            {{ $item->property_number ?? 'C-52' }}</small>
-                                        <small class="text-muted d-block">No. of Files: {{ $fileCount }}</small>
+                                        <small class="text-dark d-block">Property No:
+                                            {{ $item->property_number ?? 'N/A' }}</small>
+                                        <small class="text-dark d-block">No. of Files: {{ $fileCount }}</small>
                                     </td>
                                     <td>
-                                        <div>{{ $item->division->name ?? 'Ranchi Division' }}</div>
-                                        <small class="text-muted d-block">Sub Division:
-                                            {{ $item->sub_division->name ?? 'Harnu-Ranchi' }}</small>
+                                        <div>{{ $item->division->name ?? 'N/A' }}</div>
+                                        <small class="text-dark d-block">Sub Division:
+                                            {{ $item->subDivision->name ?? 'N/A' }}</small>
                                     </td>
                                     <td>
-                                        <div>{{ $item->property_category->name ?? 'Residential' }} – Plot</div>
-                                        <small class="text-muted d-block">Quarter: {{ $quarterInfo }}</small>
+                                        <div>{{ $item->propertyCategory->name ?? 'N/A' }} – {{ $propertyType }}</div>
+                                        <small class="text-dark d-block">Quarter: {{ $quarterInfo }}</small>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge bg-warning text-dark">{{ $item->remarks ?? 'Partial Fresh and Old Pages' }}</span>
+                                        <span class="badge bg-warning text-dark">{{ $item->file_remarks ?? 'N/A' }}</span>
                                     </td>
                                     <td>
                                         {{ formatDateTime($item->updated_at ?? now()) }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.receiving.file.fetch', $item->primary_id_encrpted) }}" class="btn btn-primary text-white me-2"
-                                            title="Edit {{ $allotteeName }} File">
+                                        <a href="{{ route('admin.receiving.file.fetch', $item->primary_id_encrpted) }}"
+                                            class="btn btn-primary text-white me-2" title="Edit {{ $allotteeName }} File">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round">
@@ -119,7 +118,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">
+                                    <td colspan="8" class="text-center text-dark">
                                         No Lots Found.
                                     </td>
                                 </tr>

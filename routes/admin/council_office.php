@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\SchemeController;
 use App\Http\Controllers\Admin\LotsController;
 use App\Http\Controllers\Admin\SchemeBlockController;
 use App\Http\Controllers\Admin\FileManagementController;
+use App\Http\Controllers\Admin\ApproverController;
+use App\Http\Controllers\Admin\IndBnkBillingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', [AdminController::class, 'councilDashboard'])->name('council_office.dashboard');
@@ -45,17 +47,27 @@ Route::get('/quarter-types', [QuarterTypeController::class, 'index'])->name('sub
 // Scheme Type
 Route::get('/schemes', [SchemeController::class, 'index'])->name('sub-admin.schemes.index');
 
-// Assigned Lots 
+// Assigned Lots
 Route::prefix('lots')->name('admin.lots.')->group(function () {
     Route::get('/list', [LotsController::class, 'registerLotsList'])->name('aasign.index');
     Route::get('file/list/{encodedId}/{page}', [LotsController::class, 'registerLotsFileList'])
         ->name('assign.file.index');
     Route::get('/assign/dataentry/list/{encodedId}', [LotsController::class, 'assignedUserList'])->name('assign.userlist');
+    Route::get('/assign/files/status/{encodedId}', [LotsController::class, 'assignedFilesStatus'])->name('assign.files.status');
     Route::post('/lots/assign', [LotsController::class, 'assignStore'])->name('assign.store');
     Route::post('/lots/assign/partial', [LotsController::class, 'assignPartialFiles'])->name('assign.partial');
 });
 
+// checked Files
+Route::get('checked/lots/list', [FileManagementController::class, 'CheckedLotsList'])->name('admin.checked.lots.index');
+Route::get('/checked/file/list/{encodedId}/{page}', [FileManagementController::class, 'checkedLotsFileList'])->name('admin.checked.files.index');
+Route::get('/revert/file/list/1', [FileManagementController::class, 'revertLotsFileList'])->name('admin.revert.lots.files.index');
+
+// manage Lots
 Route::get('manage/lots/list', [FileManagementController::class, 'LotsList'])->name('admin.manage.lots.index');
+Route::get('manage/lots/list/file/index/{encodedId}/{page}', [FileManagementController::class, 'LotsFilesList'])->name('admin.manage.lots.file.index');
+Route::post('manage/lots/list/file/delete/{encodedId}', [FileManagementController::class, 'deleteLotsFiles'])->name('admin.lots.file.delete');
+Route::get('manage/lots/list/file/deleted/{encodedId}/{page}', [FileManagementController::class, 'deletedLotsFilesList'])->name('admin.deleted.lots.file.index');
 Route::get('/receiving/lots/list', [FileManagementController::class, 'receivingLotsList'])->name('admin.receiving.lots.index');
 Route::get('/receiving/file/list/{encodedId}/{page}', [FileManagementController::class, 'receivingLotsFileList'])->name('admin.receiving.files.index');
 Route::get('/receiving/file/exports/{registerId}', [FileManagementController::class, 'receivingfilesExports'])->name('admin.receiving.files.exports');
@@ -65,6 +77,51 @@ Route::get('/scanning/lots/list', [FileManagementController::class, 'scannedLots
 Route::get('/scanning/file/list/{encodedId}/{page}', [FileManagementController::class, 'scanningLotsFileList'])->name('admin.scanning.files.index');
 Route::get('/scanning/file/fetch/{encryptedId}', [FileManagementController::class, 'scanningfileFetch'])->name('admin.scanning.file.fetch');
 Route::put('/scanning/file/update/{encryptedId}', [FileManagementController::class, 'scanningfileUpdate'])->name('admin.scanning.file.update');
+Route::get('/dataentry/lots/list', [FileManagementController::class, 'dataentryLotsList'])->name('admin.dataentry.lots.index');
+Route::get('/dataentry/file/list/{encodedId}/{page}', [FileManagementController::class, 'dataentryLotsFileList'])->name('admin.dataentry.files.index');
+Route::get('/preview/file/{encryptedId}', [FileManagementController::class, 'filePreview'])->name('admin.file.preview');
+Route::post('/documents/{id}/mark-read', [FileManagementController::class, 'markAsRead'])->name('admin.documents.mark-read');
+Route::post('/masterdocuments/{id}/mark-read', [FileManagementController::class, 'markMasterDocumentAsRead'])->name('admin.masterdocuments.mark-read');
+Route::post('/approve/file/{encryptedId}', [FileManagementController::class, 'approveDataEntry'])->name('admin.lots.dataentry.file.approve');
+Route::post('/verify/approve/file/lots/{registerId}', [FileManagementController::class, 'approveDataEntryLots'])->name('admin.lots.dataentry.lots.approve');
+Route::post('/approve/documentmaster/{encryptedId}', [FileManagementController::class, 'approveMasterDocument'])->name('admin.lots.dataentry.file.approveMasterDocument');
+
+// suadmin handover
+Route::get('readyfor/handover/lot/files', [FileManagementController::class, 'readyforhandover'])->name('admin.handover.lots.index');
+Route::get('/handover/files/{encodedId}/{page}', [FileManagementController::class, 'readyforhandoverindexfiles'])->name('admin.handover.files.index');
+Route::get('/handover/file/exports/{registerId}', [FileManagementController::class, 'handoverfilesExports'])->name('admin.handover.files.exports');
+
+
+// approver lists
+Route::get('approver/pending/lots/list', [ApproverController::class, 'approverPendingLots'])->name('approver.pending-lots');
+Route::post('/pending/files/search', [ApproverController::class, 'searchPendingFiles'])->name('admin.pending.files.search');
+Route::get('/pending/approver/file/list/{encodedId}/{page}', [ApproverController::class, 'approverPendingFiles'])->name('admin.pending.files.index');
+Route::get('approved/lots/list', [ApproverController::class, 'approverApprovedLots'])->name('approver.approved-lots');
+Route::get('/approved/file/list/{encodedId}/{page}', [ApproverController::class, 'approverApprovedLotFiles'])->name('admin.approved.files.index');
+
+// hanover lots
+Route::get('handover/lot/files', [ApproverController::class, 'handoverLotsFiles'])->name('approver.handover-lots');
+
+// Admin approver lists
+Route::get('division/pending/lots/list', [ApproverController::class, 'approverPendingAllLots'])->name('approver.admin.pending-lots');
+Route::get('/division/approved/lots/list', [ApproverController::class, 'approverApprovedAllLots'])->name('approver.admin.approved-lots');
+Route::post('/division/file/approver', [FileManagementController::class, 'approveSelectedFile'])->name('admin.selected.files.approved');
+
+// Admin hanover lots
+Route::get('division/handover/lot/files', [ApproverController::class, 'handoverAllLotsFiles'])->name('approver.admin.handover-lots');
+
+// fetch and update allotee
+Route::get('/edit/allottee/setp1/{encryptedId}', [FileManagementController::class, 'fetchallottedetails'])->name('admin.fetch.step1');
+
+// billing of allottee
+Route::get('/indbnk/billing/list', [IndBnkBillingController::class, 'billingList'])->name('admin.indbnk.billing.index');
+Route::post('/indbnk/billing/generate', [IndBnkBillingController::class, 'generateBilling'])->name('admin.indbnk.generate.bill');
+Route::delete('/indbnk/billing/delete/{encryptedId}', [IndBnkBillingController::class, 'deleteBilling'])->name('admin.indbnk.generate.delete');
+
+// Uploads Master PDF
+Route::get('master/files/uploads', [FileManagementController::class, 'masterFileReUploadsPendingList'])->name('admin.master.pdffile.reupload.index');
+Route::get('master/files/uploads/completed', [FileManagementController::class, 'masterFileReUploadsCompletedList'])->name('admin.master.pdffile.completed.index');
+Route::post('master/files/reuploads/save', [FileManagementController::class, 'reUploadMasterFile'])->name('admin.master.file.reupload');
 
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');

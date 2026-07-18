@@ -124,7 +124,7 @@
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.getElementById('loader').classList.add('hidden');
-            }, 1500);
+            }, 400);
         });
 
         // ============= THEME TOGGLE =============

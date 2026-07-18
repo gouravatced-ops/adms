@@ -47,6 +47,24 @@
         }
     </style>
     <div class="glass-form">
+        <!-- Top Navigation Header -->
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{{ route('admin.login') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" style="font-weight: 500;">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 11 4.16-.26 8-5.45 8-11V5l-8-3z"/>
+                    <path d="M9 12l2 2 4-4"/>
+                </svg> Admin Login
+            </a>
+        </div>
+
         <!-- Administration Header with Logo and Title -->
         <div class="administration-header">
             <!-- Left Side: App Title -->
