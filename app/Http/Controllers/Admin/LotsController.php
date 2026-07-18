@@ -61,7 +61,9 @@ class LotsController extends Controller
             $registrations = RegistrationFile::query()
                 ->with(['scannedBy:id,name'])
                 ->withCount([
-                    'allottees as total_files',
+                    'allottees as total_files' => function ($q) {
+                        $q->where('register_allottees.is_active', 1);
+                    },
                     'lotAssignments as total_assigned_files' => function ($q) {
                         $q->whereNotNull('allottee_id');
                     },

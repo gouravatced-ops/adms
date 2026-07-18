@@ -25,6 +25,7 @@ class ScannedController extends Controller
                 ->where('created_by', auth()->id())
                 ->whereHas('allottees', function ($q) {
                     // At least one allottee NOT scanned
+                    $q->where('is_active', 1);
                     $q->where('allottee_status', '!=', 'scanned');
                     $q->where('allottee_status', '!=', 'dataentry');
                     $q->where('allottee_status', '!=', 'handover');
