@@ -193,7 +193,7 @@ class Allottee extends Model
 
     public function registration()
     {
-        return $this->belongsTo(RegistrationFile::class, 'register_id');
+        return $this->belongsTo(RegistrationFile::class, 'register_id', 'register_no');
     }
 
     public function masterDocuments()

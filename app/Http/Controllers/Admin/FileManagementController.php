@@ -940,6 +940,84 @@ class FileManagementController extends Controller
         }
     }
 
+    public function missingMasterLotsList(Request $request)
+    {
+        try {
+            $registrations = RegistrationFile::query()
+                ->with(['creator:id,name'])
+                ->withCount([
+                    'registerAllotteeDetails as total_register_files',
+                    'registerAllottee as total_missing_master' => function ($q) {
+                        $q->doesntHave('masterDocuments');
+                    },
+                ])
+                ->whereHas('registerAllottee', function ($q) {
+                    $q->doesntHave('masterDocuments');
+                })
+                ->latest('created_at')
+                ->get()
+                ->map(function ($item) {
+                    $item->encoded_register_no = base64_encode($item->register_no);
+                    $item->created_named_by    = $item->creator?->name ?? 'System';
+                    $item->current_stage       = 'Missing Master';
+                    $item->badge_color         = 'danger';
+                    return $item;
+                });
+
+            return view('admin.components.filereceiving.missingmasterindex', compact('registrations'));
+        } catch (\Throwable $e) {
+            Log::error('Missing Master Lots list failed', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+            return back()->with('error', 'Failed to load lots list.');
+        }
+    }
+
+    public function missingMasterFileList($encodedId, $page)
+    {
+        try {
+            $registerNo = base64_decode($encodedId);
+
+            $baseRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+            ];
+
+            $files = Allottee::query()
+                ->with($baseRelations)
+                ->where('register_id', $registerNo)
+                ->doesntHave('masterDocuments')
+                ->paginate(50)
+                ->through(function ($item) {
+                    $item->allotteeId = encrypt($item->id);
+                    return $item;
+                });
+
+            $registers = RegistrationFile::where('register_no', $registerNo)->firstOrFail();
+            $allVerified = 0;
+
+            return view('admin.components.filereceiving.missingmasterfileindex', [
+                'files'      => $files,
+                'registerId' => $registers->id,
+                'pageNo'     => $page,
+                'Lots'       => $registers->lot_no,
+                'registerNo' => $registerNo,
+                'allVerified' => $allVerified
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Missing Master File list failed', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->with('error', 'Failed to load file list.');
+        }
+    }
+
+
     public function filePreview($encryptedId)
     {
         try {

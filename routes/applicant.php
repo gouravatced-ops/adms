@@ -207,4 +207,8 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/allottee/lease-free-hold/completed/list', [LeaseFreeHoldController::class, 'completedIndex'])->name('lease.allottee.completeIndex');
     Route::get('/lease-free-hold/documents/{encodedId}', [LeaseFreeHoldController::class, 'documentUpload'])->name('lease.documents.upload');
     Route::post('/lease-free-hold/documents/store', [LeaseFreeHoldController::class, 'uploadDocument'])->name('lease.documents.store');
+
+    // Scanner Property Search
+    Route::get('/scanner/property/search', [App\Http\Controllers\Applicant\ScannerPropertySearchController::class, 'index'])->name('scanner.property.search');
+    Route::post('/scanner/property/search', [App\Http\Controllers\Applicant\ScannerPropertySearchController::class, 'search'])->name('scanner.property.search.submit');
 });

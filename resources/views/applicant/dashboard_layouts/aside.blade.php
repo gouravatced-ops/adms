@@ -16,6 +16,13 @@
                     <span class="ml-3">Dashboard</span>
                 </a>
                 @if (Auth::user()->role === 'scanner')
+                    <!-- Property Search -->
+                    <a href="{{ route('scanner.property.search') }}"
+                        class="sidebar-item {{ request()->routeIs('scanner.property.search') ? 'active' : '' }} flex items-center">
+                        <i class="fas fa-search"></i>
+                        <span class="ml-3">Property Search</span>
+                    </a>
+
                     <!-- File Section -->
                     <div>
                         <a href="#"

@@ -7,6 +7,14 @@
             </a>
         </li>
 
+        {{-- Property Search --}}
+        <li class="menu-item {{ request()->routeIs('admin.property.search') ? 'active' : '' }}">
+            <a href="{{ route('admin.property.search') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-search"></i>
+                <div data-i18n="Property Search">Property Search</div>
+            </a>
+        </li>
+
         {{-- File Receieved --}}
         <li class="menu-item {{ request()->routeIs('admin.file.receiving') ? 'active' : '' }}">
             <a href="{{ route('admin.file.receiving') }}" class="menu-link">
@@ -229,6 +237,14 @@
             </a>
         </li>
 
+        {{-- Property Search --}}
+        <li class="menu-item {{ request()->routeIs('admin.property.search') ? 'active' : '' }}">
+            <a href="{{ route('admin.property.search') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-search"></i>
+                <div>Property Search</div>
+            </a>
+        </li>
+
         {{-- File Receiving --}}
         <li class="menu-item {{ request()->routeIs('admin.manage.lots.index') ? 'active' : '' }}">
             <a href="{{ route('admin.manage.lots.index') }}" class="menu-link">
@@ -250,6 +266,14 @@
             <a href="{{ route('admin.revert.lots.files.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-undo"></i>
                 <div>All Revert File</div>
+            </a>
+        </li>
+
+        {{-- Missing Master Files --}}
+        <li class="menu-item {{ request()->routeIs('admin.master.missing.lots', 'admin.master.missing.files') ? 'active' : '' }}">
+            <a href="{{ route('admin.master.missing.lots') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-file-blank"></i>
+                <div>Missing Master Files</div>
             </a>
         </li>
 
@@ -277,7 +301,6 @@
                     </a>
                 </li>
 
-                {{-- File Dataentry  --}}
                 <li class="menu-item {{ request()->routeIs('admin.dataentry.lots.index') ? 'active' : '' }}">
                     <a href="{{ route('admin.dataentry.lots.index') }}" class="menu-link">
                         <span class="menu-icon"

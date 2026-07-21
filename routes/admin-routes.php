@@ -61,6 +61,11 @@ Route::prefix('admin')->group(function () {
         Route::get('file/receiving/list', [LotsController::class, 'receivingIndex'])->name('admin.file.receiving');
         Route::get('file/dataentry/lots/list', [LotsController::class, 'registerLotsList'])->name('admin.file.lots.dataentry');
 
+        // Admin Property Search
+        Route::get('/property-search', [App\Http\Controllers\Admin\AdminPropertySearchController::class, 'index'])->name('admin.property.search');
+        Route::post('/property-search', [App\Http\Controllers\Admin\AdminPropertySearchController::class, 'search'])->name('admin.property.search.submit');
+        Route::get('/property-search/autocomplete', [App\Http\Controllers\Admin\AdminPropertySearchController::class, 'autocomplete'])->name('admin.property.search.autocomplete');
+
 
         Route::get('/profile/security', function () {
             return view('admin.modules.profile.change-password');

@@ -123,6 +123,10 @@ Route::get('master/files/uploads', [FileManagementController::class, 'masterFile
 Route::get('master/files/uploads/completed', [FileManagementController::class, 'masterFileReUploadsCompletedList'])->name('admin.master.pdffile.completed.index');
 Route::post('master/files/reuploads/save', [FileManagementController::class, 'reUploadMasterFile'])->name('admin.master.file.reupload');
 
+// Missing Master Files Module
+Route::get('/master/missing/lots', [FileManagementController::class, 'missingMasterLotsList'])->name('admin.master.missing.lots');
+Route::get('/master/missing/file/list/{encodedId}/{page}', [FileManagementController::class, 'missingMasterFileList'])->name('admin.master.missing.files');
+
 
 Route::get('/view/pending-registration', [AdminRegistrationController::class, 'showPendingRegistrationForm'])->name('view.pending-registration');
 
