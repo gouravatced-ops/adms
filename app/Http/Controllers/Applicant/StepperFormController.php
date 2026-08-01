@@ -1281,7 +1281,20 @@ class StepperFormController extends Controller
                     'allottee_documents.file_path'
                 ]);
             $this->trackStepStart($applicantId, $step);
-            return view($view, compact('applicant', 'completedDocuments'));
+
+            $completedIds = $completedDocuments->pluck('id');
+
+            $documents = DocumentMaster::where('document_category', 'basic')
+                ->where('status', 1)
+                ->whereNotIn('id', $completedIds)
+                ->orderBy('sort_order')
+                ->get([
+                    'id',
+                    'document_name as name',
+                    'document_key as key'
+                ]);
+
+            return view($view, compact('applicant', 'completedDocuments', 'documents'));
         }
 
         // STEP 6

@@ -7,19 +7,19 @@
     <style>
         @font-face {
             font-family: 'bookman';
-            src: url('{{ public_path('assets/fontspdf/bookman.ttf') }}') format('truetype');
+            src: url('{{ public_path(' assets/fontspdf/bookman.ttf') }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'NotoSansDevanagari';
-            src: url('{{ public_path('assets/fontspdf/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+            src: url('{{ public_path(' assets/fontspdf/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
         }
 
         @font-face {
             font-family: 'KrutiDev';
-            src: url('{{ public_path('assets/fontspdf/KrutiDev010.ttf') }}') format('truetype');
+            src: url('{{ public_path(' assets/fontspdf/KrutiDev010.ttf') }}') format('truetype');
         }
 
         * {
@@ -29,25 +29,16 @@
         }
 
         body {
-            font-family: 'NotoSansDevanagari', 'DejaVu Sans', sans-serif;
-            font-size: 12px;
+            font-family: 'NotoSansDevanagari', 'DejaVu Sans', Arial, sans-serif;
+            font-size: 9px;
             color: #000;
             line-height: 1.4;
             padding: 15px;
         }
 
-        @page {
-            margin-top: 25mm;
-            margin-right: 10mm;
-            margin-bottom: 25mm;
-            margin-left: 10mm;
-        }
-
-
         .page-wrapper {
             position: relative;
             min-height: 100vh;
-            margin-left: 20px;
         }
 
         /* Watermark */
@@ -102,7 +93,7 @@
             text-align: right;
         }
 
-        /* Make ALL logos same size */
+        /* 🔹 Make ALL logos same size */
         .logo-left img,
         .logo-right img {
             height: 35px;
@@ -132,14 +123,14 @@
 
         /* Address */
         .org-address {
-            font-size: 12px;
+            font-size: 10px;
             line-height: 1.3;
             margin-bottom: 3px;
         }
 
         /* Project Line */
         .org-project {
-            font-size: 12px;
+            font-size: 10px;
             font-style: italic;
             font-weight: bold;
         }
@@ -147,7 +138,7 @@
         /* Title Section */
         .document-title {
             text-align: center;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;
             color: #000000;
@@ -163,7 +154,7 @@
 
 
         .project-name {
-            font-size: 12px;
+            font-size: 10px;
             margin-top: 5px;
             color: #222222;
             font-weight: bold;
@@ -194,7 +185,7 @@
         .receiving-time {
             display: table-cell;
             width: 50%;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .receiving-time {
@@ -207,14 +198,14 @@
         }
 
 
-        /* ========== DATA TABLE - ULTRA COMPACT PADDING & MARGIN ========== */
+        /* ========== DATA TABLE - COMPACT PADDING & MARGIN ========== */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 0;
-            /* no margin */
+            margin: 4px 0 0 0;
+            /* removed left margin completely */
             font-size: 12px;
-            /* smaller font */
+            /* slight reduction for cleaner fit */
             table-layout: fixed;
         }
 
@@ -222,21 +213,18 @@
             color: #000000;
             text-align: center;
             font-weight: bold;
-            border: 0.5px solid #888;
+            border: 1px solid #888;
             font-size: 12px;
-            padding: 1px 2px;
-            /* minimal padding */
+            padding: 3px 2px;
             background-color: #f7f7f7;
         }
 
         .data-table td {
-            border: 0.5px solid #888;
-            padding: 0px 2px;
-            /* zero top/bottom padding */
+            border: 1px solid #888;
+            padding: 2px 3px;
+            /* minimal padding - shrink */
             vertical-align: middle;
             word-break: break-word;
-            font-size: 12px;
-            line-height: 1.2;
         }
 
         /* Force avoid page break inside any table row - critical fix */
@@ -252,8 +240,7 @@
         .no-records {
             font-style: italic;
             color: #666;
-            padding: 4px !important;
-            text-align: center;
+            padding: 20px !important;
         }
 
         .footer {
@@ -297,7 +284,7 @@
         }
 
         .sub-text {
-            font-size: 12px;
+            font-size: 10px;
             margin-top: 2px;
         }
 
@@ -328,12 +315,32 @@
 </head>
 
 <body>
-    @foreach ($copies as $copyIndex => $copyType)
-        <div class="page-wrapper {{ $copyIndex > 0 ? 'page-break' : '' }}">
+    @php
+    // ============================================================
+    // OPTIMIZED PAGINATION LOGIC: SPLIT ALLOTTEES INTO CHUNKS OF 12
+    // Ensures NO page break inside any table row
+    // ============================================================
+    $chunkSize = 12;
+    // if $allottees is a collection or array, ensure we can chunk properly
+    $allotteesArray = is_array($allottees) ? $allottees : ($allottees ?? []);
+    $totalAllottees = count($allotteesArray);
+    $chunks = [];
+    for ($i = 0; $i < $totalAllottees; $i +=$chunkSize) {
+        $chunks[]=array_slice($allotteesArray, $i, $chunkSize);
+        }
+        // if no allottees, still one empty chunk to render structure
+        if (empty($chunks)) {
+        $chunks=[[]];
+        }
+        @endphp
+        @foreach ($copies as $copyIndex=> $copyType)
+        @foreach ($chunks as $chunkIndex => $chunk)
+        <div class="page-wrapper {{ ($copyIndex > 0 || $chunkIndex > 0) ? 'page-break' : '' }}">
 
             <!-- Watermark -->
             <div class="watermark">{{ $copyType }}</div>
 
+            @if ($chunkIndex == 0)
             <!-- Header Section -->
             <div class="header">
                 <div class="header-content">
@@ -388,6 +395,12 @@
                     </div>
                 </div>
             </div>
+            @else
+            <!-- Spacer for subsequent pages -->
+            <div class="copy-info" style="margin-bottom: 10px; border: none; background: transparent; padding: 0;">
+                <div class="copy-type" style="text-align: right; font-size: 10px; text-decoration: none;">{{ $copyType }} (Page {{ $chunkIndex + 1 }})</div>
+            </div>
+            @endif
 
             <!-- Data Table -->
             <table class="data-table">
@@ -404,36 +417,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($allottees as $index => $allottee)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
-                            <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
-                            <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
-                            <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
-                            <td>
-                                {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
-                            </td>
-                        </tr>
+                    @forelse($chunk as $index => $allottee)
+                    <tr>
+                        <td class="text-center">{{ ($chunkIndex * $chunkSize) + $index + 1 }}</td>
+                        <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
+                        <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
+                        <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
+                        <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
+                        <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
+                        <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
+                        <td>
+                            {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="9" class="text-center no-records">No records found</td>
-                        </tr>
+                    <tr>
+                        <td colspan="8" class="text-center no-records">No records found</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
 
-
+            @if ($chunkIndex == count($chunks) - 1)
             <!-- Footer Signatures -->
             <div class="footer">
                 <p style="font-family:'KrutiDev'; font-size:16px; border-bottom: 1.5px solid #000;margin-bottom:40px;">
                     eSa iqf"V djrk gw¡ fd esjs }kjk bl lwph dh lHkh QkbZyksa dk LdS.M <span
                         style="
-                                    font-size:12px;
-                                    font-family: Arial, sans-serif;
-                                ">
+                                            font-size:12px;
+                                            font-family: Arial, sans-serif;
+                                        ">
                         PDF
                     </span> ,oa lEcfU/kr
                     MkVk ,UVªh dks lR;kfir dj fy;k x;k gS ,oa mijksDr QkbZysa lqjf{kr :i ls dk;kZy; dks
@@ -479,8 +492,17 @@
                     REG ID. {{ $registerNo }} | Generated on {{ date('d/m/Y H:i:s') }}
                 </div>
             </div>
+            @else
+            <!-- Page Info for non-last pages -->
+            <div class="footer" style="border-top: none;">
+                <div class="page-info">
+                    REG ID. {{ $registerNo }} | Generated on {{ date('d/m/Y H:i:s') }} | Page {{ $chunkIndex + 1 }}
+                </div>
+            </div>
+            @endif
         </div>
-    @endforeach
+        @endforeach
+        @endforeach
 </body>
 
 </html>

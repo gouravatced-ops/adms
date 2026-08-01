@@ -117,6 +117,28 @@ const Step5Handler = (function() {
     function init() {
         console.log("Step 5 Handler Initialized - With Name Transfer");
 
+        // Parse JSON data from the DOM because script tags don't execute when injected via innerHTML
+        const dataElement = document.getElementById('step5_documents_data');
+        if (dataElement) {
+            try {
+                const data = JSON.parse(dataElement.textContent);
+                window.documentBasicList = data.documentTransferList;
+                window.completedDocumentsList = data.completedDocumentsList;
+                
+                // Update internal states
+                DOCUMENT_CONFIGS.basic = window.documentBasicList || [];
+                state.documentConfigs.basic = window.documentBasicList || [];
+                
+                // Completed documents array doesn't automatically sync, so update its contents
+                COMPLETED_DOCUMENTS.length = 0;
+                if (window.completedDocumentsList) {
+                    COMPLETED_DOCUMENTS.push(...window.completedDocumentsList);
+                }
+            } catch (e) {
+                console.error("Failed to parse step 5 documents data", e);
+            }
+        }
+
         cacheElements();
         state.applicantId = elements.applicantId?.value || "";
 

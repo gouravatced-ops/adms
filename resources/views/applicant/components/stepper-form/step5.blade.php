@@ -148,6 +148,13 @@
         </div>
 
         <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+            
+            <script type="application/json" id="step5_documents_data">
+                {
+                    "documentTransferList": @json($documents ?? []),
+                    "completedDocumentsList": @json($completedDocuments ?? [])
+                }
+            </script>
 
             {{-- Name Transfer Question --}}
             <div id="nameTransferSection"
