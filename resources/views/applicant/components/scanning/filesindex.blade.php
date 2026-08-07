@@ -207,7 +207,7 @@
                                                         max="999">
                                                 @endfor
                                                 <button type="submit" class="btn btn-success save-btn"
-                                                    style="background:#358202; color:white;">
+                                                    style="background:#358202; color:white;" disabled>
                                                     <span class="btn-text">Save</span>
                                                     <span class="btn-loader"></span>
                                                 </button>
@@ -249,7 +249,9 @@
             if (e.target.classList.contains("page-input")) {
 
                 let row = e.target.closest("tr").previousElementSibling;
-                let inputs = e.target.closest("tr").querySelectorAll(".page-input");
+                let form = e.target.closest("form");
+                let inputs = form.querySelectorAll(".page-input");
+                let saveBtn = form.querySelector(".save-btn");
 
                 let total = 0;
 
@@ -258,6 +260,12 @@
                 });
 
                 row.querySelector(".pages-counter").textContent = total;
+                
+                if (total > 0) {
+                    saveBtn.removeAttribute("disabled");
+                } else {
+                    saveBtn.setAttribute("disabled", "disabled");
+                }
             }
 
         });

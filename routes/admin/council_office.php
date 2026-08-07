@@ -65,6 +65,7 @@ Route::get('/revert/file/list/1', [FileManagementController::class, 'revertLotsF
 
 // manage Lots
 Route::get('manage/lots/list', [FileManagementController::class, 'LotsList'])->name('admin.manage.lots.index');
+Route::post('manage/lots/update', [FileManagementController::class, 'updateLot'])->name('admin.manage.lots.update');
 Route::get('manage/lots/list/file/index/{encodedId}/{page}', [FileManagementController::class, 'LotsFilesList'])->name('admin.manage.lots.file.index');
 Route::post('manage/lots/list/file/delete/{encodedId}', [FileManagementController::class, 'deleteLotsFiles'])->name('admin.lots.file.delete');
 Route::get('manage/lots/list/file/deleted/{encodedId}/{page}', [FileManagementController::class, 'deletedLotsFilesList'])->name('admin.deleted.lots.file.index');

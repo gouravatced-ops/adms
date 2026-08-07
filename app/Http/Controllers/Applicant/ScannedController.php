@@ -195,10 +195,10 @@ class ScannedController extends Controller
                     'pt.name as pname',
                     'qt.quarter_code as quarter_code',
                     DB::raw("
-                        CASE 
-                            WHEN ra.parent_id IS NOT NULL 
+                        CASE
+                            WHEN ra.parent_id IS NOT NULL
                                 THEN COALESCE(ra.no_of_supplement,0)
-                            ELSE 
+                            ELSE
                                 (COALESCE(ra.no_of_files,0) + COALESCE(ra.no_of_supplement,0))
                         END as total_files
                     "),
@@ -411,6 +411,10 @@ class ScannedController extends Controller
 
             // Total pages calculate
             $totalPages = $pages->sum();
+
+            if ($totalPages <= 0) {
+                return redirect()->back()->with('error', 'Please enter a value greater than 0.');
+            }
 
             // JSON format store
             $jsonPages = $pages->map(function ($page, $index) {

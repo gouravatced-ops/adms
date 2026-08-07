@@ -2,14 +2,24 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Files Receiving - COMPUTER Ed.</title>
     <style>
         @font-face {
             font-family: 'bookman';
-            src: url('{{ public_path('assets/fontspdf/bookman.ttf') }}') format('truetype');
+            src: url('{{ public_path(' assets/fontspdf/bookman.ttf') }}') format('truetype');
             font-weight: normal;
             font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'NotoSansDevanagari';
+            src: url('{{ public_path(' assets/fontspdf/NotoSansDevanagari-Regular.ttf') }}') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'KrutiDev';
+            src: url('{{ public_path(' assets/fontspdf/KrutiDev010.ttf') }}') format('truetype');
         }
 
         * {
@@ -19,7 +29,7 @@
         }
 
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'NotoSansDevanagari', 'DejaVu Sans', Arial, sans-serif;
             font-size: 9px;
             color: #000;
             line-height: 1.4;
@@ -187,7 +197,7 @@
             color: #000;
         }
 
-        
+
         /* ========== DATA TABLE - COMPACT PADDING & MARGIN ========== */
         .data-table {
             width: 100%;
@@ -305,30 +315,30 @@
 </head>
 
 <body>
-        @php
-        // ============================================================
-        // OPTIMIZED PAGINATION LOGIC: SPLIT ALLOTTEES INTO CHUNKS OF 15
-        // Ensures NO page break inside any table row (blade 15 records per page)
-        // ============================================================
-        $chunkSize = 15;
-        // if $allottees is a collection or array, ensure we can chunk properly
-        $allotteesArray = is_array($allottees) ? $allottees : ($allottees ?? []);
-        $totalAllottees = count($allotteesArray);
-        $chunks = [];
-        for ($i = 0; $i < $totalAllottees; $i += $chunkSize) {
-            $chunks[] = array_slice($allotteesArray, $i, $chunkSize);
-        }
-        // if no allottees, still one empty chunk to render structure
-        if (empty($chunks)) {
-            $chunks = [[]];
-        }
-    @endphp
-    @foreach ($copies as $copyIndex => $copyType)
-        <div class="page-wrapper {{ $copyIndex > 0 ? 'page-break' : '' }}">
+    @php
+    // ============================================================
+    // OPTIMIZED PAGINATION LOGIC: SPLIT ALLOTTEES INTO CHUNKS OF 12
+    // Ensures NO page break inside any table row
+    // ============================================================
+    $chunkSize = isset($limit) ? $limit : 12;
+    // if $allottees is a collection or array, ensure we can chunk properly
+    $allotteesArray = is_array($allottees) ? $allottees : ($allottees ?? []);
+    $totalAllottees = count($allotteesArray);
+    $chunks = array_chunk($allotteesArray, $chunkSize);
+
+    // if no allottees, still one empty chunk to render structure
+    if (empty($chunks)) {
+        $chunks=[[]];
+    }
+        @endphp
+        @foreach ($copies as $copyIndex=> $copyType)
+        @foreach ($chunks as $chunkIndex => $chunk)
+        <div class="page-wrapper">
 
             <!-- Watermark -->
             <div class="watermark">{{ $copyType }}</div>
 
+            @if ($chunkIndex == 0)
             <!-- Header Section -->
             <div class="header">
                 <div class="header-content">
@@ -383,6 +393,12 @@
                     </div>
                 </div>
             </div>
+            @else
+            <!-- Spacer for subsequent pages -->
+            <div class="copy-info" style="margin-bottom: 10px; border: none; background: transparent; padding: 0;">
+                <div class="copy-type" style="text-align: right; font-size: 10px; text-decoration: none;">{{ $copyType }} (Page {{ $chunkIndex + 1 }})</div>
+            </div>
+            @endif
 
             <!-- Data Table -->
             <table class="data-table">
@@ -399,30 +415,31 @@
                         <th style="width: 10%;">Physical File</th>
                     </tr>
                 </thead>
-               <tbody>
-                    @forelse($allottees as $index => $allottee)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
-                            <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
-                            <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
-                            <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
-                            <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
-                            <td>
-                                {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
-                            </td>
-                            <!-- <td>{{ $allottee['file_label'] ?? $allottee->file_label ?? 'N/A' }}</td> -->
-                             <td>File 1</td>
-                        </tr>
+                <tbody>
+                    @forelse($chunk as $index => $allottee)
+                    <tr>
+                        <td class="text-center">{{ ($chunkIndex * $chunkSize) + $index + 1 }}</td>
+                        <td>{{ $allottee['division'] ?? $allottee->division ?? 'N/A' }}</td>
+                        <td>{{ $allottee['subdivision'] ?? $allottee->subdivision ?? 'N/A' }}</td>
+                        <td>{{ $allottee['category'] ?? $allottee->category ?? 'N/A' }}</td>
+                        <td>{{ $allottee['type'] ?? $allottee->type ?? 'N/A' }}</td>
+                        <td class="text-center">{{ $allottee['quarter_code'] ?? $allottee->quarter_code ?? 'N/A' }}</td>
+                        <td class="text-center">{{ $allottee['property_number'] ?? $allottee->property_number ?? 'N/A' }}</td>
+                        <td>
+                            {{ $allottee['full_name'] ?? ($allottee->full_name ?? '') }}
+                        </td>
+                        <!-- <td>{{ $allottee['file_label'] ?? $allottee->file_label ?? 'N/A' }}</td> -->
+                        <td>File 1</td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="9" class="text-center no-records">No records found</td>
-                        </tr>
+                    <tr>
+                        <td colspan="9" class="text-center no-records">No records found</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
 
+            @if ($chunkIndex == count($chunks) - 1)
             <!-- Footer Signatures -->
             <div class="footer">
                 <br><br><br><br>
@@ -466,8 +483,21 @@
                     REG ID. {{ $registerNo }} | Generated on {{ date('d/m/Y H:i:s') }}
                 </div>
             </div>
+            @else
+            <!-- Page Info for non-last pages -->
+            <div class="footer" style="border-top: none;">
+                <div class="page-info">
+                    REG ID. {{ $registerNo }} | Generated on {{ date('d/m/Y H:i:s') }} | Page {{ $chunkIndex + 1 }}
+                </div>
+            </div>
+            @endif
         </div>
-    @endforeach
+        
+        @if (!($copyIndex == count($copies) - 1 && $chunkIndex == count($chunks) - 1))
+            <div style="page-break-after: always;"></div>
+        @endif
+        @endforeach
+        @endforeach
 </body>
 
 </html>

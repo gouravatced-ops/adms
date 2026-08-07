@@ -320,22 +320,20 @@
     // OPTIMIZED PAGINATION LOGIC: SPLIT ALLOTTEES INTO CHUNKS OF 12
     // Ensures NO page break inside any table row
     // ============================================================
-    $chunkSize = 12;
+    $chunkSize = isset($limit) ? $limit : 12;
     // if $allottees is a collection or array, ensure we can chunk properly
     $allotteesArray = is_array($allottees) ? $allottees : ($allottees ?? []);
     $totalAllottees = count($allotteesArray);
-    $chunks = [];
-    for ($i = 0; $i < $totalAllottees; $i +=$chunkSize) {
-        $chunks[]=array_slice($allotteesArray, $i, $chunkSize);
-        }
-        // if no allottees, still one empty chunk to render structure
-        if (empty($chunks)) {
+    $chunks = array_chunk($allotteesArray, $chunkSize);
+
+    // if no allottees, still one empty chunk to render structure
+    if (empty($chunks)) {
         $chunks=[[]];
-        }
+    }
         @endphp
         @foreach ($copies as $copyIndex=> $copyType)
         @foreach ($chunks as $chunkIndex => $chunk)
-        <div class="page-wrapper {{ ($copyIndex > 0 || $chunkIndex > 0) ? 'page-break' : '' }}">
+        <div class="page-wrapper">
 
             <!-- Watermark -->
             <div class="watermark">{{ $copyType }}</div>
@@ -501,6 +499,10 @@
             </div>
             @endif
         </div>
+        
+        @if (!($copyIndex == count($copies) - 1 && $chunkIndex == count($chunks) - 1))
+            <div style="page-break-after: always;"></div>
+        @endif
         @endforeach
         @endforeach
 </body>

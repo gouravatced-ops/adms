@@ -108,6 +108,33 @@ class FileManagementController extends Controller
         }
     }
 
+    public function updateLot(Request $request)
+    {
+        try {
+            $register_no = base64_decode($request->encoded_id);
+            $lot = RegistrationFile::where('register_no', $register_no)->firstOrFail();
+
+            $request->validate([
+                'allowed_files' => 'required|numeric|min:0',
+                'status' => 'required|string|max:50',
+            ]);
+
+            $lot->allowed_files = $request->allowed_files;
+            $lot->status = $request->status;
+            $lot->save();
+
+            return back()->with('success', 'Lot updated successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Lot update failed', [
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
+                'file'  => $e->getFile(),
+            ]);
+
+            return back()->with('error', 'Failed to update lot.');
+        }
+    }
+
     public function LotsFilesList($encodedId, $page)
     {
         try {
@@ -314,7 +341,6 @@ class FileManagementController extends Controller
                 ->with(['division', 'subDivision', 'propertyCategory', 'propertyType', 'quarterType'])
                 ->where('id', $id)
                 ->where('is_active', 1)
-                ->where('allottee_status', 'received')
                 ->firstOrFail();
             $file->encoded_register_no = base64_encode($file->register_id);
             $encryptedId;
@@ -334,7 +360,7 @@ class FileManagementController extends Controller
     {
         try {
             $id = decrypt($encryptedId);
-            $file = RegisterAllottee::where('id', $id)->where('allottee_status', 'received')->firstOrFail();
+            $file = RegisterAllottee::where('id', $id)->firstOrFail();
 
             $file->update([
                 'prefix' => $request->prefix,
@@ -351,6 +377,15 @@ class FileManagementController extends Controller
                 'remarks' => $request->remarks,
             ]);
 
+            if ($file->allottee) {
+                $file->allottee->update([
+                    'prefix' => $request->prefix,
+                    'allottee_name' => $request->allottee_name,
+                    'allottee_middle_name' => $request->allottee_middle_name,
+                    'allottee_surname' => $request->allottee_surname,
+                ]);
+            }
+
             return redirect()->route('admin.receiving.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                 ->with('success', 'File updated successfully.');
         } catch (\Throwable $e) {
@@ -362,10 +397,12 @@ class FileManagementController extends Controller
         }
     }
 
-    public function receivingfilesExports($registerId)
+    public function receivingfilesExports(Request $request, $registerId)
     {
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
+        
+        $limit = $request->query('limit', 12);
 
         $registerNo = base64_decode($registerId, true);
         if (!$registerNo) {
@@ -380,7 +417,7 @@ class FileManagementController extends Controller
 
 
         $allRecords = RegisterAllottee::query()
-            ->whereIn('is_active', [0,1])
+            ->whereIn('is_active', [0, 1])
             ->orderBy('created_at', 'asc')
             ->select([
                 'id',
@@ -395,7 +432,7 @@ class FileManagementController extends Controller
 
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
-            ->whereIn('ra.is_active', [0,1])
+            ->whereIn('ra.is_active', [0, 1])
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
@@ -506,6 +543,7 @@ class FileManagementController extends Controller
                 'OFFICE COPY - JHARKHAND STATE HOUSING BOARD',
                 'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH',
             ],
+            'limit' => $limit,
         ];
 
         // return $data;
@@ -1386,12 +1424,14 @@ class FileManagementController extends Controller
         }
     }
 
-    public function handoverfilesExports($registerId)
+    public function handoverfilesExports(Request $request, $registerId)
     {
 
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
         set_time_limit(300);
+        
+        $limit = $request->query('limit', 12);
 
         $registerNo = base64_decode($registerId, true);
 
@@ -1405,7 +1445,7 @@ class FileManagementController extends Controller
         $lotcreateDate = Carbon::parse($register->handover_at)->format('d/m/Y');
         $lotTime = Carbon::parse($register->handover_at)->format('h:i A');
         $allRecords = RegisterAllottee::query()
-            ->whereIn('is_active', [0,1])
+            ->whereIn('is_active', [0, 1])
             ->orderBy('created_at', 'asc')
             ->select([
                 'id',
@@ -1420,7 +1460,7 @@ class FileManagementController extends Controller
 
         $allottees = RegisterAllottee::query()
             ->from('register_allottees as ra')
-            ->whereIn('ra.is_active', [0,1])
+            ->whereIn('ra.is_active', [0, 1])
             ->leftJoin('divisions as d', 'd.id', '=', 'ra.division_id')
             ->leftJoin('sub_divisions as sd', 'sd.id', '=', 'ra.sub_division_id')
             ->leftJoin('property_category as pc', 'pc.id', '=', 'ra.pcategory_id')
@@ -1531,6 +1571,7 @@ class FileManagementController extends Controller
                 'OFFICE COPY - JHARKHAND STATE HOUSING BOARD',
                 'OFFICE COPY - INDIAN BANK HARMU COLONY RANCHI BRANCH',
             ],
+            'limit' => $limit,
         ];
 
         $pdf = Pdf::loadView('exports.handover-allottees', $data)
