@@ -175,9 +175,9 @@
     }
 </style>
 @php
-    $states = getStates();
-    $subdivision = getSubDivisionById($applicant->subdivision_id) ?? '';
-    #return getDebugIndex($applicant);
+$states = getStates();
+$subdivision = getSubDivisionById($applicant->subdivision_id) ?? '';
+#return getDebugIndex($applicant);
 @endphp
 <form id="step3Form" method="POST">
     @csrf
@@ -324,10 +324,10 @@
                                 foreach ($months as $num => $month):
                                 ?>
 
-                                <option value="<?= str_pad($num, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->payment_start_month == $num ? 'selected' : '' }}>
-                                    <?= $month['hi'] ?> / <?= $month['en'] ?>
-                                </option>
+                                    <option value="<?= str_pad($num, 2, '0', STR_PAD_LEFT) ?>"
+                                        {{ $applicant->payment_start_month == $num ? 'selected' : '' }}>
+                                        <?= $month['hi'] ?> / <?= $month['en'] ?>
+                                    </option>
 
                                 <?php endforeach; ?>
 
@@ -337,12 +337,12 @@
                             <select name="payment_start_year" id="payment_start_year"
                                 class="custom-select small-select custom-input">
                                 <option value="">-- वर्ष / Year --</option>
-                                <?php 
-                                    $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960' ; $y--): 
+                                <?php
+                                $currentYear = date('Y');
+                                for ($y = $currentYear; $y >= '1960'; $y--):
                                 ?>
-                                <option value="<?= $y ?>" {{ $applicant->payment_start_year == $y ? 'selected' : '' }}>
-                                    <?= $y ?></option>
+                                    <option value="<?= $y ?>" {{ $applicant->payment_start_year == $y ? 'selected' : '' }}>
+                                        <?= $y ?></option>
                                 <?php endfor; ?>
                             </select>
                         </td>
@@ -437,10 +437,10 @@
                             <select name="allot_day" class="custom-select small-select">
                                 <option value="">दिन / Day</option>
                                 <?php for ($d = 1; $d <= 31; $d++): ?>
-                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->allot_day == $d ? 'selected' : '' }}>
-                                    <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
-                                </option>
+                                    <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>"
+                                        {{ $applicant->allot_day == $d ? 'selected' : '' }}>
+                                        <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
+                                    </option>
                                 <?php endfor; ?>
                             </select>
                             /
@@ -448,22 +448,22 @@
                             <select name="allot_month" class="custom-select small-select">
                                 <option value="">माह / Month</option>
                                 <?php for ($m = 1; $m <= 12; $m++): ?>
-                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->allot_month == $m ? 'selected' : '' }}>
-                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
-                                </option>
+                                    <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
+                                        {{ $applicant->allot_month == $m ? 'selected' : '' }}>
+                                        <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                                    </option>
                                 <?php endfor; ?>
                             </select>
                             /
                             <!-- Year -->
                             <select name="allot_year" class="custom-select small-select">
                                 <option value="">वर्ष / Year</option>
-                                <?php 
-                                    $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960'; $y--): 
+                                <?php
+                                $currentYear = date('Y');
+                                for ($y = $currentYear; $y >= $applicant->allot_year ?? '1960'; $y--):
                                 ?>
-                                <option value="<?= $y ?>" {{ $applicant->allot_year == $y ? 'selected' : '' }}>
-                                    <?= $y ?></option>
+                                    <option value="<?= $y ?>" {{ $applicant->allot_year == $y ? 'selected' : '' }}>
+                                        <?= $y ?></option>
                                 <?php endfor; ?>
                             </select>
                         </td>
@@ -540,15 +540,16 @@
                             <select name="state" class="custom-select state-select" data-target="district-eng">
                                 <option value="">-- राज्य चुनें --</option>
                                 @foreach ($states as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ isset($applicant) && $applicant->state == $item->id ? 'selected' : '' }}>
-                                        {{ $item->name_en }}</option>
+                                <option value="{{ $item->id }}"
+                                    {{ isset($applicant) && $applicant->state == $item->id ? 'selected' : '' }}>
+                                    {{ $item->name_en }}
+                                </option>
                                 @endforeach
                             </select>
                         </td>
                     </tr>
                     @php
-                        $districts = getDistrict($applicant->state);
+                    $districts = getDistrict($applicant->state);
                     @endphp
                     <tr>
                         <td class="sl"></td>
@@ -557,12 +558,12 @@
                             <select name="district" class="custom-select fetch-district" id="district-eng">
                                 <option value="">-- जिला चुनें --</option>
                                 @if (!empty($districts))
-                                    @foreach ($districts as $dist)
-                                        <option value="{{ $dist->id }}"
-                                            {{ isset($applicant) && $applicant->district == $dist->id ? 'selected' : '' }}>
-                                            {{ $dist->name_en }}
-                                        </option>
-                                    @endforeach
+                                @foreach ($districts as $dist)
+                                <option value="{{ $dist->id }}"
+                                    {{ isset($applicant) && $applicant->district == $dist->id ? 'selected' : '' }}>
+                                    {{ $dist->name_en }}
+                                </option>
+                                @endforeach
                                 @endif
                             </select>
                         </td>
@@ -673,10 +674,10 @@
                             <select name="last_day" id="last_day" class="custom-select small-select">
                                 <option value="">दिन / Day</option>
                                 <?php for ($d = 1; $d <= 31; $d++): ?>
-                                <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->last_day == $d ? 'selected' : '' }}>
-                                    <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
-                                </option>
+                                    <option value="<?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>"
+                                        {{ $applicant->last_day == $d ? 'selected' : '' }}>
+                                        <?= str_pad($d, 2, '0', STR_PAD_LEFT) ?>
+                                    </option>
                                 <?php endfor; ?>
                             </select>
                             /
@@ -684,22 +685,22 @@
                             <select name="last_month" id="last_month" class="custom-select small-select">
                                 <option value="">माह / Month</option>
                                 <?php for ($m = 1; $m <= 12; $m++): ?>
-                                <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
-                                    {{ $applicant->last_month == $m ? 'selected' : '' }}>
-                                    <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
-                                </option>
+                                    <option value="<?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>"
+                                        {{ $applicant->last_month == $m ? 'selected' : '' }}>
+                                        <?= str_pad($m, 2, '0', STR_PAD_LEFT) ?>
+                                    </option>
                                 <?php endfor; ?>
                             </select>
                             /
                             <!-- Year -->
                             <select name="last_year" id="last_year" class="custom-select small-select">
                                 <option value="">वर्ष / Year</option>
-                                <?php 
-                                    $currentYear = date('Y');
-                                    for ($y = $currentYear; $y >= 1960; $y--): 
+                                <?php
+                                $currentYear = date('Y');
+                                for ($y = $currentYear; $y >= 1960; $y--):
                                 ?>
-                                <option value="<?= $y ?>" {{ $applicant->last_year == $y ? 'selected' : '' }}>
-                                    <?= $y ?></option>
+                                    <option value="<?= $y ?>" {{ $applicant->last_year == $y ? 'selected' : '' }}>
+                                        <?= $y ?></option>
                                 <?php endfor; ?>
                             </select>
 
