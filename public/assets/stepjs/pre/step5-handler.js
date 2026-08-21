@@ -933,6 +933,14 @@ const Step5Handler = (function() {
             } catch (e) {
                 console.error("Error restoring EMI data:", e);
             }
+        } else {
+            // If EMI status is not saved, check if Allotment Letter (id: 2) is already completed
+            const isAllotmentLetterCompleted = COMPLETED_DOCUMENTS.some(doc => doc.id == 2 || doc.document_id == 2);
+            if (isAllotmentLetterCompleted) {
+                setTimeout(() => {
+                    displayEmiForm();
+                }, 200);
+            }
         }
     }
 

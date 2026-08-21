@@ -1,6 +1,6 @@
 {{-- resources/views/applicant/components/stepper-form/step2.blade.php --}}
 @php
-    #return getDebugIndex($applicant);
+#return getDebugIndex($applicant);
 @endphp
 <form id="step4Form" method="POST">
     @csrf
@@ -30,10 +30,10 @@
                     @php $prefixes = ['Shri', 'Smt.', 'Miss']; @endphp
                     <select name="nominee_prefix" class="prefix-select">
                         @foreach ($prefixes as $prefix)
-                            <option value="{{ $prefix }}"
-                                {{ ($applicant->nominee_prefix ?? '') === $prefix ? 'selected' : '' }}>
-                                {{ $prefix }}
-                            </option>
+                        <option value="{{ $prefix }}"
+                            {{ ($applicant->nominee_prefix ?? '') === $prefix ? 'selected' : '' }}>
+                            {{ $prefix }}
+                        </option>
                         @endforeach
                     </select>
                     <input type="text" name="nominee_name" class="custom-input only-alphabet"
@@ -97,10 +97,10 @@
                             @php $prefixes = ['Shri', 'Smt.', 'Miss']; @endphp
                             <select name="family_name_prefix" class="prefix-select">
                                 @foreach ($prefixes as $prefix)
-                                    <option value="{{ $prefix }}"
-                                        {{ ($applicant->family_name_prefix ?? '') === $prefix ? 'selected' : '' }}>
-                                        {{ $prefix }}
-                                    </option>
+                                <option value="{{ $prefix }}"
+                                    {{ ($applicant->family_name_prefix ?? '') === $prefix ? 'selected' : '' }}>
+                                    {{ $prefix }}
+                                </option>
                                 @endforeach
                             </select>
                             <input type="text" name="family_name" class="custom-input only-alphabet"
@@ -182,7 +182,7 @@
             <div class="field">
                 <label class="field-label">Account Number</label>
                 <input type="text" name="bank_account_no" class="custom-input only-number"
-                    value="{{ $applicant->bank_account_no ?? '' }}" maxlength="12"
+                    value="{{ $applicant->bank_account_no ?? '' }}" maxlength="15"
                     placeholder="Enter account number" style="letter-spacing:0.04em">
             </div>
 
