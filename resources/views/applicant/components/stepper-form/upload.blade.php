@@ -949,17 +949,17 @@
                                 <input type="hidden" name="allottee_id" value="${applicantId}">
                                 <input type="hidden" name="document_id" value="${docId}">
                                 <input type="hidden" name="uploadpath" value="${uploadPath}">
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Document Name</label>
                                     <input type="text" class="compact-input" value="${escapeHtml(docName)}" disabled style="background: #f5f5f5;">
                                 </div>
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Document No.</label>
                                     <input type="text" name="doc_no" class="compact-input" value="${escapeHtml(existingDocNo)}" placeholder="Document Number">
                                 </div>
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Date</label>
                                     <div class="date-group">
@@ -977,12 +977,12 @@
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Additional Information</label>
                                     <textarea name="additional_info" class="compact-input" rows="2" placeholder="Additional Information">${escapeHtml(existingAdditionalInfo)}</textarea>
                                 </div>
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Remarks</label>
                                     <textarea
@@ -992,7 +992,7 @@
                                         placeholder="Enter remarks"
                                     >${escapeHtml(existingRemarks || 'Re-Upload')}</textarea>
                                 </div>
-                                
+
                                 <div style="margin-bottom: 12px;">
                                     <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">
                                         Select New File <span style="color: #dc3545;">*</span>
@@ -1000,7 +1000,7 @@
                                     <input type="file" name="document_file" class="file-input" accept=".pdf,.jpg,.jpeg,.png">
                                     <span class="field-hint">Max 10MB - Select a file to replace the existing one</span>
                                 </div>
-                                
+
                                 <div id="reuploadFilePreview" style="display: none; margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;"></div>
                             </form>
                         </div>
@@ -1160,19 +1160,19 @@
                             <span style="font-size: 14px; color: #6c757d;">Document ${slNo} of ${state.totalDocument}</span>
                             <div style="font-size: 14px; font-weight: 600; margin-top: 4px;">${escapeHtml(doc.name)}</div>
                         </div>
-                        
+
                         <form id="uploadForm_${doc.id}" enctype="multipart/form-data">
                             <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
                             <input type="hidden" name="allottee_id" value="${state.applicantId}">
                             <input type="hidden" name="document_id" value="${doc.id}">
                             <input type="hidden" name="uploadpath" value="${state.uploadPath}">
-                            
+
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px;">
                                 <div>
                                     <label style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">Document No.</label>
                                     <input type="text" name="doc_no" class="compact-input" placeholder="Optional">
                                 </div>
-                                
+
                                 <div>
                                     <label style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">Date</label>
                                     <div class="date-group">
@@ -1190,12 +1190,12 @@
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div>
                                     <label style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">Additional Info</label>
                                     <textarea name="additional_info" class="compact-input" rows="1" placeholder="Optional"></textarea>
                                 </div>
-                                
+
                                 <div>
                                     <label style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">
                                         File <span class="optional-badge">(Required if no remarks)</span>
@@ -1204,14 +1204,14 @@
                                     <span class="field-hint">Max 10MB</span>
                                 </div>
                             </div>
-                            
+
                             <div style="margin-bottom: 15px;">
                                 <label style="font-size: 14px; font-weight: 600; margin-bottom: 4px; display: block;">
                                     Remarks <span class="optional-badge">(Required if no file)</span>
                                 </label>
                                 <textarea name="remarks" class="compact-input" rows="2" placeholder="Remarks (required if file not uploaded)"></textarea>
                             </div>
-                            
+
                             <div style="text-align: right; padding-top: 10px; border-top: 1px solid #e0e0e0;">
                                 <button type="button" class="btn-submit" onclick="showUploadPreview(${doc.id})">
                                     <i class="fas fa-eye"></i> Preview & Upload
@@ -1397,10 +1397,10 @@
                     <td><input type="text" class="compact-input" value="${escapeHtml(dateStr)}" disabled></td>
                     <td><textarea class="compact-input" rows="1" disabled>${escapeHtml(doc.additional_info)}</textarea></td>
                     <td>
-                        ${doc.has_file && doc.file_path ? 
+                        ${doc.has_file && doc.file_path ?
                             `<button type="button" class="btn-preview-sm" onclick="previewCompletedDocument('${doc.file_path}', '${escapeHtml(doc.name)}', '${escapeHtml(doc.doc_no)}', '${escapeHtml(dateStr)}', '${escapeHtml(doc.additional_info)}', '${escapeHtml(doc.remarks)}', '${uploadTime}')">
                                     <i class="fas fa-eye"></i> View
-                                </button>` : 
+                                </button>` :
                             '<span class="text-muted">No file</span>'
                         }
                     </td>
