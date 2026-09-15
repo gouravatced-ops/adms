@@ -796,6 +796,37 @@
                 </h4>
                 <div id="pendingDocumentsContainer"></div>
             </div>
+
+            {{-- Name Transfer Question --}}
+            <div id="nameTransferSection"
+                style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px; display:flex; align-items:center; gap:15px;">
+
+                <label style="font-weight:600; font-size:13px; margin:0;">
+                    Is this a Name Transfer case?
+                </label>
+
+                <select id="nameTransfer" class="custom-select"
+                    style="width:150px; padding:5px; border:1px solid #ddd; border-radius:4px;" onchange="updateApplicantField('name_transfer_status', this.value)">
+                    <option value="no" {{ $file->name_transfer_status == 'no' ? 'selected' : '' }}>No</option>
+                    <option value="yes" {{ $file->name_transfer_status == 'yes' ? 'selected' : '' }}>Yes</option>
+                </select>
+
+            </div>
+
+            {{-- Free Hold Property Question --}}
+            <div id="freeHoldSection"
+                style="margin:15px 0; padding:12px; background:#f9f9f9; border-radius:4px; display:flex; align-items:center; gap:15px;">
+
+                <label for="is_free_hold" style="font-weight:600; font-size:13px; margin:0;">
+                    Is this property Free Lease Hold?
+                </label>
+
+                <select name="is_free_hold" id="is_free_hold" class="custom-select"
+                    style="width:150px; padding:5px; border:1px solid #ddd; border-radius:4px;" onchange="updateApplicantField('free_hold_status', this.value)">
+                    <option value="no" {{ $file->free_hold_status == 'no' ? 'selected' : '' }}>No</option>
+                    <option value="yes" {{ $file->free_hold_status == 'yes' ? 'selected' : '' }}>Yes</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -1457,6 +1488,34 @@
                 loadNextDocument
             };
         })();
+
+        function updateApplicantField(field, value) {
+            const applicantId = document.getElementById('applicantId').value;
+            fetch('{{ route('applicant.update.field') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    allottee_id: applicantId,
+                    field: field,
+                    value: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    showAlert('Status updated successfully', 'success');
+                } else {
+                    showAlert('Failed to update status', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('An error occurred', 'error');
+            });
+        }
 
         // Global functions for the handler
         window.showUploadPreview = function(docId) {

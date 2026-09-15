@@ -146,6 +146,7 @@ Route::middleware('auth:web')->group(function () {
         Route::post('/apply/step6/save', [StepperFormController::class, 'saveStep6'])->name('apply.step6.save');
         Route::post('/apply/step7/save', [StepperFormController::class, 'saveStep7'])->name('apply.step7.save');
         Route::post('/documents/store', [StepperFormController::class, 'store'])->name('documents.store');
+        Route::post('/update-field', [StepperFormController::class, 'updateField'])->name('update.field');
         Route::post('/save-allottee-details', [StepperFormController::class, 'saveAllotteeDetails'])->name('save.new.store');
         Route::post('/save-emi-ledger', [StepperFormController::class, 'saveEmiLedger'])->name('applicant.save.emi.details');
         Route::post('/skip-step', [StepperFormController::class, 'skipStep'])->name('applicant.skip.step');

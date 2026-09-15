@@ -2007,4 +2007,29 @@ class StepperFormController extends Controller
             ]
         ]);
     }
+
+    public function updateField(Request $request)
+    {
+        try {
+            $allotteeId = $request->input('allottee_id');
+            $field = $request->input('field');
+            $value = $request->input('value');
+
+            if (!in_array($field, ['name_transfer_status', 'free_hold_status'])) {
+                return response()->json(['success' => false, 'message' => 'Invalid field']);
+            }
+
+            $allottee = \App\Models\Allottee::findOrFail($allotteeId);
+            $allottee->$field = $value;
+            $allottee->save();
+
+            return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
