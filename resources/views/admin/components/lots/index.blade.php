@@ -11,7 +11,7 @@
         </h6>
 
         <div class="card mb-4">
-            <h5 class="card-header text-white bg-info">Lots for Assigne</h5>
+            <h5 class="card-header text-white bg-info">Lots for Assign</h5>
 
             <div class="card-body mt-2">
 

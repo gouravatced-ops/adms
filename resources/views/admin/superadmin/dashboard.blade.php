@@ -241,7 +241,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center bg-primary">
-                    <h5 class="card-title mb-0 text-white">Recent Added Allotty</h5>
+                    <h5 class="card-title mb-0 text-white">Recent Added Allottees</h5>
                     <a href="" class="btn btn-sm btn-danger">
                         View All
                     </a>
