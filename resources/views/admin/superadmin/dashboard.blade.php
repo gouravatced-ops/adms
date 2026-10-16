@@ -179,7 +179,7 @@
                             </div>
 
                             <div>
-                                <div class="fw-semibold">Total Allotty</div>
+                                <div class="fw-semibold">Total Allottees</div>
                                 <span class="badge bg-primary text-primary-fg">
                                     {{ $allotteeCount }}
                                 </span>
@@ -252,7 +252,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Allotty Name</th>
+                                <th>Allottee Name</th>
                                 <th>Division</th>
                                 <th>Created On</th>
                                 <th>Status</th>

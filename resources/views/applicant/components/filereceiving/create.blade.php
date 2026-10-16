@@ -2385,8 +2385,16 @@
                 Array.from(quarterSelect.options).forEach(option => {
                     const text = option.text.toLowerCase();
                     if (!option.value) return;
-                    option.hidden = isPlot ? (!text.includes('mig') && !text.includes('hig')) : false;
-                    if (option.hidden && option.selected) option.selected = false;
+
+                    option.hidden = isPlot
+                        ? (!text.includes('mig') &&
+                        !text.includes('hig') &&
+                        !text.includes('lig'))
+                        : false;
+
+                    if (option.hidden && option.selected) {
+                        option.selected = false;
+                    }
                 });
 
                 quarterSelect.required = true;

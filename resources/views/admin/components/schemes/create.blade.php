@@ -728,7 +728,7 @@
 
                     if (text.includes('plot')) {
                         // Plot select hone par sirf MIG aur HIG show
-                        if (optionText.includes('mig') || optionText.includes('hig')) {
+                        if (optionText.includes('mig') || optionText.includes('hig') || optionText.includes('lig')) {
                             option.hidden = false;
                         } else {
                             option.hidden = true;
