@@ -494,20 +494,16 @@
                 // Loop through all quarter options
                 Array.from(quarterSelect.options).forEach(option => {
                     const text = option.text.toLowerCase();
+                    if (!option.value) return;
 
-                    if (!option.value) return; // skip "Select type"
+                    option.hidden = isPlot
+                        ? (!text.includes('mig') &&
+                        !text.includes('hig') &&
+                        !text.includes('lig'))
+                        : false;
 
-                    if (isPlot) {
-                        // Show only MIG & HIG
-                        if (text.includes('mig') || text.includes('hig')) {
-                            option.hidden = false;
-                        } else {
-                            option.hidden = true;
-                            if (option.selected) option.selected = false;
-                        }
-                    } else {
-                        // Show all options
-                        option.hidden = false;
+                    if (option.hidden && option.selected) {
+                        option.selected = false;
                     }
                 });
 
