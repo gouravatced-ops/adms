@@ -28,6 +28,8 @@ class RegisterAllottee extends Model
         'remarks',
         'no_of_files',
         'no_of_supplement',
+        'total_pages',
+        'json_pages',
         'parent_id',
         'grand_parent_id',
         'is_bill_generated',
@@ -77,7 +79,12 @@ class RegisterAllottee extends Model
 
     public function registration()
     {
-        return $this->belongsTo(RegistrationFile::class, 'register_id');
+        return $this->belongsTo(RegistrationFile::class, 'register_id', 'register_no');
+    }
+
+    public function masterDocuments()
+    {
+        return $this->hasMany(AllotteeMasterDocument::class, 'register_allottee_id', 'id')->orderBy('file_label', 'asc');
     }
 
     public function lotAssignments()

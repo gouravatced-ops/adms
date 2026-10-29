@@ -395,9 +395,9 @@
                                 <strong>Property No: </strong>${highlightedProperty}
                             </small>
                             <div class="row" style="gap: 10px; margin-top:3px;">
-                                ${file.name_transfer_status === 'yes' ? 
+                                ${file.name_transfer_status === 'yes' ?
                                     '<span class="custom-badge badge-not-started">Property Transfer</span>' : ''}
-                                ${file.is_emi_active === 'true' ? 
+                                ${file.is_emi_active === 'true' ?
                                     '<span class="custom-badge badge-info">EMI Active</span>' : ''}
                             </div>
                         </div>
@@ -438,9 +438,9 @@
                     <td class="py-2">
                         <div class="flex gap-2">
                             <!-- View -->
-                            <a href="/applicant/apply/${btoa(file.id)}" 
-                            class="action-btn action-btn-info" 
-                            title="Data Entry for this file">
+                            <a href="/nametransfer/start/${file.encrypted_id || ''}"
+                            class="action-btn action-btn-info"
+                            title="Assign New Allottee">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="3" width="14" height="18" rx="2"></rect>
                                     <path d="M6 7h8"></path>

@@ -36,9 +36,9 @@ class FileRecevingController extends Controller
 
             $query = RegistrationFile::with('creator')
                 ->where('created_by', auth()->id())
-                ->whereHas('allottees', function ($q) {
-                    $q->where('allottee_status', '=', 'received');
-                })
+                // ->whereHas('allottees', function ($q) {
+                //     $q->where('allottee_status', '=', 'received');
+                // })
                 ->orderBy('created_at', 'desc');
 
             if (!empty($search)) {

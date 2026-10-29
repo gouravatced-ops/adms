@@ -1247,8 +1247,14 @@
                             applicantInput = document.createElement('input');
                             applicantInput.type = 'hidden';
                             applicantInput.name = 'applicant_id';
-                            applicantInput.value = this.config.applicantId;
                             form.appendChild(applicantInput);
+                        }
+                        applicantInput.value = this.config.applicantId;
+
+                        // Also keep allottee_id synced with current child applicantId in update mode
+                        let allotteeInput = form.querySelector('input[name="allottee_id"]');
+                        if (allotteeInput) {
+                            allotteeInput.value = this.config.applicantId;
                         }
 
                         // Also add action field for reference
@@ -1257,9 +1263,9 @@
                             actionInput = document.createElement('input');
                             actionInput.type = 'hidden';
                             actionInput.name = 'action';
-                            actionInput.value = this.config.action;
                             form.appendChild(actionInput);
                         }
+                        actionInput.value = this.config.action;
                     }
                 }
             },
@@ -1315,22 +1321,13 @@
                 const lbl = document.getElementById('btnLabel');
 
                 if (prev) {
-                    // Hide on step 1
                     if (step === 1) {
                         prev.style.display = 'none';
                     } else {
                         prev.style.display = 'inline-flex';
-
-                        // Disable ONLY when coming back to step 2 (i.e. step 1 locked)
-                        if (step === 2) {
-                            prev.disabled = true;
-                            prev.style.pointerEvents = 'none';
-                            prev.style.opacity = '0.5';
-                        } else {
-                            prev.disabled = false;
-                            prev.style.pointerEvents = 'auto';
-                            prev.style.opacity = '1';
-                        }
+                        prev.disabled = false;
+                        prev.style.pointerEvents = 'auto';
+                        prev.style.opacity = '1';
                     }
                 }
 
@@ -1477,15 +1474,18 @@
 
                 // Always include applicant_id if it exists
                 if (this.config.applicantId) {
-                    formData.append('applicant_id', this.config.applicantId);
+                    formData.set('applicant_id', this.config.applicantId);
+                    if (this.config.isUpdate) {
+                        formData.set('allottee_id', this.config.applicantId);
+                    }
                 }
 
                 // Add action field
-                formData.append('action', this.config.action);
+                formData.set('action', this.config.action);
 
                 // Add is_update flag based on action
                 if (this.config.isUpdate) {
-                    formData.append('is_update', 'true');
+                    formData.set('is_update', 'true');
                 }
 
                 // Get the appropriate endpoint based on step
@@ -1512,12 +1512,22 @@
                             // Update applicant ID if returned from server
                             if (data.applicant_id) {
                                 this.config.applicantId = data.applicant_id;
+                                this.config.action = 'update';
+                                this.config.isUpdate = true;
                             }
 
                             // Update action if returned from server
                             if (data.action) {
                                 this.config.action = data.action;
                                 this.config.isUpdate = data.action === 'update';
+                            }
+
+                            // Replace browser URL with incomplete transfer URL so Reload / Back button never re-triggers create
+                            if (data.redirect_url && window.history && window.history.replaceState) {
+                                window.history.replaceState({
+                                    applicantId: this.config.applicantId,
+                                    step: data.next_step || (this.config.currentStep + 1)
+                                }, '', data.redirect_url);
                             }
 
                             // Add update identifier after successful save if needed
@@ -1561,11 +1571,6 @@
             },
 
             prevStep: function() {
-                if (this.config.currentStep === 2) {
-                    this.showAlert('You cannot go back to Step 1 once completed.', 'error');
-                    return;
-                }
-
                 if (this.config.currentStep > 1) {
                     this.loadStep(this.config.currentStep - 1);
                 }
@@ -1614,6 +1619,13 @@
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', () => {
             StepManager.init();
+        });
+
+        // Reload if restored from browser back-forward cache (bfcache) to prevent duplicate Step 1 creation
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                window.location.reload();
+            }
         });
     </script>
 

@@ -110,6 +110,10 @@ class NameTransferController extends Controller
 
             // Paginate with query string preservation
             $transferAllottee = $query->paginate($perPage)->withQueryString();
+            $transferAllottee->getCollection()->transform(function ($item) {
+                $item->encrypted_id = encrypt($item->id);
+                return $item;
+            });
 
             // AJAX Response
             if ($request->ajax()) {
@@ -206,6 +210,10 @@ class NameTransferController extends Controller
 
             // Paginate with query string preservation
             $transferAllottee = $query->paginate($perPage)->withQueryString();
+            $transferAllottee->getCollection()->transform(function ($item) {
+                $item->encrypted_id = encrypt($item->id);
+                return $item;
+            });
 
             // AJAX Response
             if ($request->ajax()) {
@@ -706,6 +714,7 @@ class NameTransferController extends Controller
         // Parent allottee
         $existingapplicant = Allottee::select([
             'id',
+            'parent_id',
             'register_id',
             'register_file_id',
             'division_id',
@@ -733,14 +742,18 @@ class NameTransferController extends Controller
         $currentStep = 1;
         $action = 'create';
 
-        if ($existingapplicant->is_trans_entry_completed == 1) {
-            $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
-                ->latest('id')
-                ->first();
+        // If this record itself is an incomplete child transfer (not yet completed), redirect to incomplete edit flow
+        if (!empty($existingapplicant->parent_id) && ($existingapplicant->is_step_completed == 0 && $existingapplicant->current_step < 4)) {
+            return redirect()->route('nametransfer.incomplete.apply.index', encrypt($existingapplicant->id));
+        }
 
-            if ($childApplicant) {
-                return redirect()->route('nametransfer.incomplete.apply.index', encrypt($childApplicant->id));
-            }
+        // If parent already has a transfer entry started/completed, redirect to its child transfer record
+        $childApplicant = Allottee::where('parent_id', $existingapplicant->id)
+            ->latest('id')
+            ->first();
+
+        if ($childApplicant && ($existingapplicant->is_trans_entry_completed == 1 || $childApplicant->is_step_completed == 0 || $childApplicant->current_step < 4)) {
+            return redirect()->route('nametransfer.incomplete.apply.index', encrypt($childApplicant->id));
         }
 
         $applicant->current_step = $currentStep;
@@ -755,23 +768,11 @@ class NameTransferController extends Controller
 
         $this->trackStepStart($applicant->id, 1);
 
-        $completedDocuments = AllotteeDocument::where('allottee_id', $applicant->id)
-            ->join('document_master', 'document_master.id', '=', 'allottee_documents.document_id')
-            ->get([
-                'allottee_documents.*',
-                'document_master.id',
-                'document_master.document_name as name',
-                'document_master.document_key as key',
-                'allottee_documents.file_name',
-                'allottee_documents.file_path',
-            ]);
-
-        $completedIds = $completedDocuments->pluck('id');
-
+        // New transfer starts with 0 completed documents for the new child allottee
+        $completedDocuments = collect();
 
         $documents = DocumentMaster::where('document_category', 'nameTransfer')
             ->where('status', 1)
-            ->whereNotIn('id', $completedIds)
             ->orderBy('sort_order')
             ->get([
                 'id',
@@ -1082,7 +1083,7 @@ class NameTransferController extends Controller
             $applicant->property_type_id,
             $applicant->quarter_id
         );
-        // return $applicant;
+        $applicant->joint_allottees_data = JointAllottee::where('allottee_id', $applicant->id)->get();
 
         return view($view, compact('applicant', 'getSchemeList'));
     }
@@ -1132,6 +1133,35 @@ class NameTransferController extends Controller
 
     public function saveStep1(Request $request)
     {
+        // Guard against duplicate creation on Back button, Step 1 re-submission, or page reload
+        $targetAllotteeId = $request->allottee_id ?: $request->applicant_id;
+        if ($targetAllotteeId) {
+            $targetAllottee = Allottee::find($targetAllotteeId);
+
+            // Case 1: Submitted allottee_id is already an in-progress child transfer record (or update mode is active)
+            if (
+                $targetAllottee &&
+                !empty($targetAllottee->parent_id) &&
+                ($targetAllottee->is_step_completed == 0 || $request->input('is_update') === 'true' || $request->input('action') === 'update')
+            ) {
+                $request->merge(['allottee_id' => $targetAllottee->id]);
+                return $this->updateStep1($request);
+            }
+
+            // Case 2: Submitted allottee_id is the parent allottee, and a child transfer record already exists for it
+            $existingChild = Allottee::where('parent_id', $targetAllotteeId)
+                ->latest('id')
+                ->first();
+
+            if (
+                $existingChild &&
+                (($targetAllottee && $targetAllottee->is_trans_entry_completed == 1) || $existingChild->is_step_completed == 0 || $existingChild->current_step < 4)
+            ) {
+                $request->merge(['allottee_id' => $existingChild->id]);
+                return $this->updateStep1($request);
+            }
+        }
+
         // common fields
         if (isset($request->allotment_no) && isset($request->year)) {
             $allottmentNumber = $request->allotment_no . '/' . $request->year;
@@ -1304,6 +1334,8 @@ class NameTransferController extends Controller
             'success' => true,
             'message' => 'Allottee Details saved successfully',
             'applicant_id' => $applicant->id,
+            'action' => 'update',
+            'redirect_url' => route('nametransfer.incomplete.apply.index', encrypt($applicant->id)),
             'next_step' => 2
         ]);
     }
@@ -1444,6 +1476,8 @@ class NameTransferController extends Controller
                 'success' => true,
                 'message' => 'Allottee Details Updated successfully',
                 'applicant_id' => $existing->id,
+                'action' => 'update',
+                'redirect_url' => route('nametransfer.incomplete.apply.index', encrypt($existing->id)),
                 'next_step' => 2
             ]);
         } else {

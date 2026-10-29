@@ -177,14 +177,17 @@
     }
 </style>
 @php
-    #return getDebugIndex($applicant);
-    // Decode existing joint allottees if any (for edit mode)
-    $existingJointAllottees = [];
-    if (isset($applicant->joint_allottees_data) && is_string($applicant->joint_allottees_data)) {
-        $existingJointAllottees = json_decode($applicant->joint_allottees_data, true) ?: [];
-    } elseif (isset($applicant->joint_allottees) && count($applicant->joint_allottees) > 0) {
-        // If using relationship
-        $existingJointAllottees = $applicant->jointAllottees->toArray() ?? [];
+    // Handle both relation object and JSON string
+    $existingJointAllottees = collect();
+
+    if (!empty($applicant->joint_allottees_data)) {
+        if ($applicant->joint_allottees_data instanceof \Illuminate\Support\Collection) {
+            $existingJointAllottees = $applicant->joint_allottees_data;
+        } elseif (is_string($applicant->joint_allottees_data)) {
+            $existingJointAllottees = collect(json_decode($applicant->joint_allottees_data, true) ?? []);
+        }
+    } elseif (!empty($applicant->jointAllottees)) {
+        $existingJointAllottees = collect($applicant->jointAllottees);
     }
 @endphp
 <form id="step1Form" method="POST">
@@ -581,6 +584,7 @@
             @if (count($existingJointAllottees) > 0)
                 @foreach ($existingJointAllottees as $index => $joint)
                     <div class="joint-member-card" data-joint-index="{{ $index }}">
+                        <input type="hidden" name="joint_allottee_id[]" value="{{ $joint['id'] ?? '' }}">
                         <div class="joint-member-title">
                             <span>Joint Allottee #<span class="joint-number">{{ $index + 1 }}</span></span>
                             <button type="button" class="btn-remove-joint"

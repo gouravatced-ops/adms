@@ -106,14 +106,42 @@
         display: none;
     }
     .autocomplete-item {
-        padding: 0.5rem 0.75rem;
+        padding: 0.55rem 0.75rem;
         cursor: pointer;
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .autocomplete-item:last-child {
+        border-bottom: none;
     }
     .autocomplete-item:hover {
         background: #f1f5f9;
         color: #2563eb;
+    }
+    .stage-pill {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .stage-data-entry {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+    .stage-scanned {
+        background: #fef3c7;
+        color: #b45309;
+    }
+    .stage-received {
+        background: #e0e7ff;
+        color: #4338ca;
     }
 
     /* Alert */
@@ -339,15 +367,17 @@
             </button>
         </div>
         
-        <form action="{{ route('admin.property.search.submit') }}" method="POST">
+        <form action="{{ route('admin.property.search.submit') }}" method="POST" id="adminPropertySearchForm">
             @csrf
+            <input type="hidden" name="division_id" id="selected_division_id" value="{{ $selectedDivisionId ?? '' }}">
+            <input type="hidden" name="sub_division_id" id="selected_sub_division_id" value="{{ $selectedSubDivisionId ?? '' }}">
             <div class="search-group">
                 <div class="input-wrapper">
                     <label for="property_number" class="search-label">Property Number</label>
                     <input type="text" name="property_number" id="property_number" 
                            value="{{ $propertyNumber ?? '' }}"
                            class="search-input" 
-                           placeholder="Enter Property Number (e.g. C-40)" required autocomplete="off">
+                           placeholder="Enter Property Number (e.g. L-46)" required autocomplete="off">
                     <ul id="autocomplete-results" class="autocomplete-list"></ul>
                 </div>
                 <button type="submit" class="btn-search">
@@ -357,130 +387,187 @@
         </form>
     </div>
     
-    @if(isset($allottees))
-        @if($allottees->isEmpty())
+    @php
+        $hasAllottees = isset($allottees) && $allottees->isNotEmpty();
+        $hasRegisterAllottees = isset($registerAllottees) && $registerAllottees->isNotEmpty();
+    @endphp
+    @if(isset($allottees) || isset($registerAllottees))
+        @if(!$hasAllottees && !$hasRegisterAllottees)
             <div class="alert-warning">
                 <i class="fas fa-exclamation-triangle" style="margin-right: 10px;"></i>
                 No records found for property number: <strong>&nbsp;{{ $propertyNumber }}</strong>
             </div>
         @else
             <div>
-                @foreach($allottees as $index => $item)
-                    @php
-                        $allotteeName = trim(($item->prefix ?? '') . ' ' . ($item->allottee_name ?? '') . ' ' . ($item->allottee_middle_name ?? '') . ' ' . ($item->allottee_surname ?? ''));
-                        $isNameTransfer = strtolower($item->name_transfer_status ?? '') === 'yes';
-                        $isFreeHold = strtolower($item->free_hold_status ?? '') === 'yes';
-                        $isCurrentAllottee = ($index === 0);
-                    @endphp
-                    
-                    <div class="premium-card">
-                        <div class="result-header">
-                            <div>
-                                <h3 class="allottee-name">
-                                    {{ $allotteeName ?: 'Unknown Allottee' }}
-                                    @if($isCurrentAllottee)
-                                        <span class="current-badge">Current Allottee</span>
-                                    @endif
-                                </h3>
-                                <p class="property-meta">
-                                    Property No: <strong>{{ $item->property_number }}</strong> &nbsp;|&nbsp; 
-                                    Lot No: <strong>{{ $item->registration->lot_no ?? 'N/A' }}</strong> &nbsp;|&nbsp; 
-                                    File Reg No: <strong>{{ $item->registration->register_no ?? 'N/A' }}</strong> &nbsp;|&nbsp;
-                                    Division: {{ $item->division->name ?? 'N/A' }} &nbsp;|&nbsp; 
-                                    Sub Division: {{ $item->subDivision->name ?? 'N/A' }}
-                                </p>
-                            </div>
-                        </div>
+                @if($hasAllottees)
+                    @foreach($allottees as $index => $item)
+                        @php
+                            $allotteeName = trim(($item->prefix ?? '') . ' ' . ($item->allottee_name ?? '') . ' ' . ($item->allottee_middle_name ?? '') . ' ' . ($item->allottee_surname ?? ''));
+                            $isNameTransfer = strtolower($item->name_transfer_status ?? '') === 'yes';
+                            $isFreeHold = strtolower($item->free_hold_status ?? '') === 'yes';
+                            $isCurrentAllottee = ($index === 0);
+                        @endphp
                         
-                        <div class="grid-container">
-                            <!-- Data Entry Details -->
-                            <div class="detail-box">
-                                <h4><i class="fas fa-list-alt" style="margin-right:4px;"></i> Data Entry</h4>
-                                <ul class="detail-list">
-                                    <li><strong>Category:</strong> <span>{{ $item->propertyCategory->name ?? 'N/A' }}</span></li>
-                                    <li><strong>Type:</strong> <span>{{ $item->propertyType->name ?? 'N/A' }}</span></li>
-                                    <li><strong>Quarter:</strong> <span>{{ $item->quarterType->quarter_code ?? 'N/A' }}</span></li>
-                                    <li><strong>Stage:</strong> <span>Step {{ $item->current_step ?? 0 }}</span></li>
-                                    <li><strong>Status:</strong> 
-                                        @if($item->is_step_completed)
-                                            <span class="status-badge status-completed">Completed</span>
-                                        @else
-                                            <span class="status-badge status-incomplete">Incomplete</span>
+                        <div class="premium-card">
+                            <div class="result-header">
+                                <div>
+                                    <h3 class="allottee-name">
+                                        {{ $allotteeName ?: 'Unknown Allottee' }}
+                                        @if($isCurrentAllottee)
+                                            <span class="current-badge">Current Allottee</span>
                                         @endif
-                                    </li>
-                                </ul>
+                                        <span class="stage-pill stage-data-entry">Data Entry</span>
+                                    </h3>
+                                    <p class="property-meta">
+                                        Property No: <strong>{{ $item->property_number }}</strong> &nbsp;|&nbsp; 
+                                        Lot No: <strong>{{ $item->registration->lot_no ?? 'N/A' }}</strong> &nbsp;|&nbsp; 
+                                        File Reg No: <strong>{{ $item->registration->register_no ?? 'N/A' }}</strong> &nbsp;|&nbsp;
+                                        Division: <strong>{{ $item->division->name ?? 'N/A' }}</strong> &nbsp;|&nbsp; 
+                                        Sub Division: <strong>{{ $item->subDivision->name ?? 'N/A' }}</strong>
+                                    </p>
+                                </div>
                             </div>
                             
-                            <!-- Document List -->
-                            <div class="detail-box">
-                                <h4>
-                                    <i class="fas fa-file-pdf" style="margin-right:4px;"></i> 
-                                    Documents (Total: {{ $item->documentData ? $item->documentData->count() : 0 }})
-                                </h4>
-                                @if($item->documentData && $item->documentData->isNotEmpty())
-                                    <ul class="doc-ul">
-                                        @foreach($item->documentData as $doc)
-                                            <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e2e8f0; padding: 4px 0;">
-                                                <span>Document {{ $loop->iteration }}</span>
-                                                @if($doc->file_path)
-                                                    <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge-success" style="text-decoration: none; font-size: 0.65rem;">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </a>
-                                                @else
-                                                    <span style="font-size: 0.65rem; color: #94a3b8;">N/A</span>
-                                                @endif
-                                            </li>
-                                        @endforeach
+                            <div class="grid-container">
+                                <!-- Data Entry Details -->
+                                <div class="detail-box">
+                                    <h4><i class="fas fa-list-alt" style="margin-right:4px;"></i> Data Entry</h4>
+                                    <ul class="detail-list">
+                                        <li><strong>Category:</strong> <span>{{ $item->propertyCategory->name ?? 'N/A' }}</span></li>
+                                        <li><strong>Type:</strong> <span>{{ $item->propertyType->name ?? 'N/A' }}</span></li>
+                                        <li><strong>Quarter:</strong> <span>{{ $item->quarterType->quarter_code ?? 'N/A' }}</span></li>
+                                        <li><strong>Stage:</strong> <span>Step {{ $item->current_step ?? 0 }}</span></li>
+                                        <li><strong>Status:</strong> 
+                                            @if($item->is_step_completed)
+                                                <span class="status-badge status-completed">Completed</span>
+                                            @else
+                                                <span class="status-badge status-incomplete">Incomplete</span>
+                                            @endif
+                                        </li>
                                     </ul>
-                                @else
-                                    <p style="color: #94a3b8; font-style: italic; margin: 0; font-size: 0.8rem;">No documents</p>
+                                </div>
+                                
+                                <!-- Document List -->
+                                <div class="detail-box">
+                                    <h4>
+                                        <i class="fas fa-file-pdf" style="margin-right:4px;"></i> 
+                                        Documents (Total: {{ $item->documentData ? $item->documentData->count() : 0 }})
+                                    </h4>
+                                    @if($item->documentData && $item->documentData->isNotEmpty())
+                                        <ul class="doc-ul">
+                                            @foreach($item->documentData as $doc)
+                                                <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e2e8f0; padding: 4px 0;">
+                                                    <span>Document {{ $loop->iteration }}</span>
+                                                    @if($doc->file_path)
+                                                        <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge-success" style="text-decoration: none; font-size: 0.65rem;">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                    @else
+                                                        <span style="font-size: 0.65rem; color: #94a3b8;">N/A</span>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p style="color: #94a3b8; font-style: italic; margin: 0; font-size: 0.8rem;">No documents</p>
+                                    @endif
+                                </div>
+
+                                <!-- EMI Status -->
+                                @if($item->accountLedger)
+                                <div class="detail-box box-emi">
+                                    <h4><i class="fas fa-money-bill-wave" style="margin-right:4px;"></i> EMI Ledger</h4>
+                                    <ul class="detail-list">
+                                        <li><strong>Total EMI Count:</strong> <span>{{ $item->accountLedger->total_emi_count ?? '0' }}</span></li>
+                                        <li><strong>Total Amount:</strong> <span>₹{{ number_format((float)($item->accountLedger->total_amount ?? 0), 2) }}</span></li>
+                                        <li><strong>Total Paid:</strong> <span class="status-completed">₹{{ number_format((float)($item->accountLedger->total_paid ?? 0), 2) }}</span></li>
+                                        <li><strong>Current Balance:</strong> <span>₹{{ number_format((float)($item->accountLedger->current_balance ?? 0), 2) }}</span></li>
+                                        <li><strong>Remaining EMI:</strong> <span>{{ $item->accountLedger->remaining_emi ?? '0' }}</span></li>
+                                    </ul>
+                                </div>
+                                @endif
+
+                                <!-- Name Transfer Section -->
+                                @if($isNameTransfer)
+                                    <div class="detail-box box-transfer">
+                                        <h4><i class="fas fa-exchange-alt" style="margin-right:4px;"></i> Name Transfer</h4>
+                                        <ul class="detail-list mt-2">
+                                            <li><strong>Data Entry:</strong> 
+                                                <span class="{{ $item->is_trans_entry_completed ? 'status-completed' : 'status-incomplete' }} status-badge">
+                                                    {{ $item->is_trans_entry_completed ? 'Completed' : 'Pending' }}
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                <!-- Free Hold Section -->
+                                @if($isFreeHold)
+                                    <div class="detail-box box-freehold">
+                                        <h4><i class="fas fa-home" style="margin-right:4px;"></i> Free Hold</h4>
+                                        <ul class="detail-list mt-2">
+                                            <li><strong>Data Entry:</strong> 
+                                                <span class="{{ $item->is_free_hold_completed ? 'status-completed' : 'status-incomplete' }} status-badge">
+                                                    {{ $item->is_free_hold_completed ? 'Completed' : 'Pending' }}
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 @endif
                             </div>
-
-                            <!-- EMI Status -->
-                            @if($item->accountLedger)
-                            <div class="detail-box box-emi">
-                                <h4><i class="fas fa-money-bill-wave" style="margin-right:4px;"></i> EMI Ledger</h4>
-                                <ul class="detail-list">
-                                    <li><strong>Total EMI Count:</strong> <span>{{ $item->accountLedger->total_emi_count ?? '0' }}</span></li>
-                                    <li><strong>Total Amount:</strong> <span>,1{{ number_format((float)($item->accountLedger->total_amount ?? 0), 2) }}</span></li>
-                                    <li><strong>Total Paid:</strong> <span class="status-completed">,1{{ number_format((float)($item->accountLedger->total_paid ?? 0), 2) }}</span></li>
-                                    <li><strong>Current Balance:</strong> <span>,1{{ number_format((float)($item->accountLedger->current_balance ?? 0), 2) }}</span></li>
-                                    <li><strong>Remaining EMI:</strong> <span>{{ $item->accountLedger->remaining_emi ?? '0' }}</span></li>
-                                </ul>
-                            </div>
-                            @endif
-
-                            <!-- Name Transfer Section -->
-                            @if($isNameTransfer)
-                                <div class="detail-box box-transfer">
-                                    <h4><i class="fas fa-exchange-alt" style="margin-right:4px;"></i> Name Transfer</h4>
-                                    <ul class="detail-list mt-2">
-                                        <li><strong>Data Entry:</strong> 
-                                            <span class="{{ $item->is_trans_entry_completed ? 'status-completed' : 'status-incomplete' }} status-badge">
-                                                {{ $item->is_trans_entry_completed ? 'Completed' : 'Pending' }}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            @endif
-
-                            <!-- Free Hold Section -->
-                            @if($isFreeHold)
-                                <div class="detail-box box-freehold">
-                                    <h4><i class="fas fa-home" style="margin-right:4px;"></i> Free Hold</h4>
-                                    <ul class="detail-list mt-2">
-                                        <li><strong>Data Entry:</strong> 
-                                            <span class="{{ $item->is_free_hold_completed ? 'status-completed' : 'status-incomplete' }} status-badge">
-                                                {{ $item->is_free_hold_completed ? 'Completed' : 'Pending' }}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            @endif
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                @endif
+
+                @if($hasRegisterAllottees)
+                    @foreach($registerAllottees as $regItem)
+                        @php
+                            $regAllotteeName = trim(($regItem->prefix ?? '') . ' ' . ($regItem->allottee_name ?? '') . ' ' . ($regItem->allottee_middle_name ?? '') . ' ' . ($regItem->allottee_surname ?? ''));
+                            $regStatus = strtolower($regItem->allottee_status ?? 'received');
+                            $regPillClass = $regStatus === 'scanned' ? 'stage-scanned' : 'stage-received';
+                        @endphp
+
+                        <div class="premium-card">
+                            <div class="result-header">
+                                <div>
+                                    <h3 class="allottee-name">
+                                        {{ $regAllotteeName ?: 'Unknown Allottee' }}
+                                        <span class="stage-pill {{ $regPillClass }}">{{ ucfirst($regStatus) }}</span>
+                                    </h3>
+                                    <p class="property-meta">
+                                        Property No: <strong>{{ $regItem->property_number }}</strong> &nbsp;|&nbsp; 
+                                        Lot No: <strong>{{ $regItem->registration->lot_no ?? 'N/A' }}</strong> &nbsp;|&nbsp; 
+                                        File Reg No: <strong>{{ $regItem->register_id ?? 'N/A' }}</strong> &nbsp;|&nbsp;
+                                        Division: <strong>{{ $regItem->division->name ?? 'N/A' }}</strong> &nbsp;|&nbsp; 
+                                        Sub Division: <strong>{{ $regItem->subDivision->name ?? 'N/A' }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid-container">
+                                <div class="detail-box">
+                                    <h4><i class="fas fa-folder-open" style="margin-right:4px;"></i> File Receiving / Scanning Details</h4>
+                                    <ul class="detail-list">
+                                        <li><strong>Category:</strong> <span>{{ $regItem->propertyCategory->name ?? 'N/A' }}</span></li>
+                                        <li><strong>Type:</strong> <span>{{ $regItem->propertyType->name ?? 'N/A' }}</span></li>
+                                        <li><strong>Quarter:</strong> <span>{{ $regItem->quarterType->quarter_code ?? 'N/A' }}</span></li>
+                                        <li><strong>Current Stage:</strong> <span class="status-badge {{ $regStatus === 'scanned' ? 'status-completed' : 'status-incomplete' }}">{{ ucfirst($regStatus) }} (Data Entry Pending)</span></li>
+                                    </ul>
+                                </div>
+
+                                <div class="detail-box">
+                                    <h4><i class="fas fa-copy" style="margin-right:4px;"></i> Files & Pages Info</h4>
+                                    <ul class="detail-list">
+                                        <li><strong>No. of Files:</strong> <span>{{ $regItem->no_of_files ?? 1 }}</span></li>
+                                        <li><strong>Supplement Files:</strong> <span>{{ $regItem->no_of_supplement ?? 0 }}</span></li>
+                                        <li><strong>Total Pages:</strong> <span>{{ $regItem->total_pages ?? 0 }}</span></li>
+                                        <li><strong>Remarks:</strong> <span>{{ $regItem->remarks ?? 'N/A' }}</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
             </div>
         @endif
     @endif
@@ -495,11 +582,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Autocomplete Logic
     const searchInput = document.getElementById('property_number');
+    const divisionInput = document.getElementById('selected_division_id');
+    const subDivisionInput = document.getElementById('selected_sub_division_id');
     const autocompleteList = document.getElementById('autocomplete-results');
+    const searchForm = document.getElementById('adminPropertySearchForm');
     let debounceTimer;
 
     searchInput.addEventListener('input', function() {
         clearTimeout(debounceTimer);
+        divisionInput.value = '';
+        subDivisionInput.value = '';
+
         const query = this.value.trim();
 
         if (query.length < 1) {
@@ -512,16 +605,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     autocompleteList.innerHTML = '';
-                    if (data.length > 0) {
+                    if (Array.isArray(data) && data.length > 0) {
                         data.forEach(item => {
                             const li = document.createElement('li');
-                            li.textContent = item;
                             li.className = 'autocomplete-item';
+
+                            const statusLower = (item.status || '').toLowerCase();
+                            let badgeClass = 'stage-received';
+                            if (statusLower === 'data entry') {
+                                badgeClass = 'stage-data-entry';
+                            } else if (statusLower === 'scanned') {
+                                badgeClass = 'stage-scanned';
+                            }
+
+                            li.innerHTML = `
+                                <span>
+                                    <strong>${item.property_number}</strong> | ${item.division_name} | Sub Division : ${item.sub_division_name}
+                                </span>
+                                <span class="stage-pill ${badgeClass}">${item.status}</span>
+                            `;
+
                             li.addEventListener('click', function() {
-                                searchInput.value = this.textContent;
+                                searchInput.value = item.property_number;
+                                divisionInput.value = item.division_id || '';
+                                subDivisionInput.value = item.sub_division_id || '';
                                 autocompleteList.style.display = 'none';
-                                searchInput.closest('form').submit();
+                                searchForm.submit();
                             });
+
                             autocompleteList.appendChild(li);
                         });
                         autocompleteList.style.display = 'block';
@@ -529,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         autocompleteList.style.display = 'none';
                     }
                 });
-        }, 300);
+        }, 250);
     });
 
     // Hide autocomplete on click outside

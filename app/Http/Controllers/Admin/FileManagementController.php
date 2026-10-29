@@ -169,7 +169,8 @@ class FileManagementController extends Controller
             $registerId = $registers->id;
             $Lots = $registers->lot_no;
             $registerNo  = $Id;
-            return view('admin.components.filereceiving.lotfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo'));
+            $userAuth = auth()->user();
+            return view('admin.components.filereceiving.lotfileindex', compact('files', 'registerId', 'pageNo', 'Lots', 'registerNo', 'userAuth'));
         } catch (\Throwable $e) {
 
             Log::error('File list failed', [
@@ -345,8 +346,9 @@ class FileManagementController extends Controller
             $file->encoded_register_no = base64_encode($file->register_id);
             $encryptedId;
             $fullName = $file->allottee_name . ' ' . $file->allottee_middle_name . ' ' . $file->allottee_surname;
+            $statusStage = $file->allottee_status;
             $divisions = Division::where('status', 1)->where('id', $file->division_id)->orderBy('name', 'asc')->get();
-            return view('admin.components.filereceiving.editfile', compact('file', 'divisions', 'fullName', 'encryptedId'));
+            return view('admin.components.filereceiving.editfile', compact('file', 'divisions', 'fullName', 'statusStage', 'encryptedId'));
         } catch (\Throwable $e) {
             Log::error('File fetch failed', [
                 'error' => $e->getMessage()
@@ -362,7 +364,7 @@ class FileManagementController extends Controller
             $id = decrypt($encryptedId);
             $file = RegisterAllottee::where('id', $id)->firstOrFail();
 
-            $file->update([
+            $updateData = [
                 'prefix' => $request->prefix,
                 'allottee_name' => $request->allottee_name,
                 'allottee_middle_name' => $request->allottee_middle_name,
@@ -371,22 +373,68 @@ class FileManagementController extends Controller
                 'sub_division_id' => $request->sub_division_id,
                 'pcategory_id' => $request->pcategory_id,
                 'p_type_id' => $request->p_type_id,
-                'quarter_type_id' => $request->quarter_type_id,
+                'quarter_type' => $request->quarter_type ?? $request->quarter_type_id,
+                'property_number' => $request->property_number ?? $file->property_number,
                 'no_of_files' => $request->no_of_files,
                 'no_of_supplement' => $request->no_of_supplement,
                 'remarks' => $request->remarks,
-            ]);
+            ];
 
-            if ($file->allottee) {
-                $file->allottee->update([
-                    'prefix' => $request->prefix,
-                    'allottee_name' => $request->allottee_name,
-                    'allottee_middle_name' => $request->allottee_middle_name,
-                    'allottee_surname' => $request->allottee_surname,
-                ]);
+            $allotteeUpdateData = [
+                'prefix' => $request->prefix,
+                'allottee_name' => $request->allottee_name,
+                'allottee_middle_name' => $request->allottee_middle_name,
+                'allottee_surname' => $request->allottee_surname,
+                'division_id' => $request->division_id,
+                'subdivision_id' => $request->sub_division_id,
+                'pcategory_id' => $request->pcategory_id,
+                'property_type_id' => $request->p_type_id,
+                'quarter_id' => $request->quarter_type ?? $request->quarter_type_id,
+                'property_number' => $request->property_number ?? $file->property_number,
+                'no_of_files' => $request->no_of_files,
+                'no_of_supplement' => $request->no_of_supplement,
+                'file_remarks' => $request->remarks,
+            ];
+
+            if ($file->allottee_status == 'scanned') {
+                $jsonPagesArray = [];
+                $totalPages = 0;
+
+                if ($request->has('file_pages') && is_array($request->file_pages)) {
+                    foreach (array_values($request->file_pages) as $idx => $pageRow) {
+                        $pages = (int) ($pageRow['pages'] ?? 0);
+                        $fileName = $pageRow['file_name'] ?? ('File-' . ($idx + 1));
+                        $jsonPagesArray[] = [
+                            'file_name' => $fileName,
+                            'pages' => $pages,
+                        ];
+                        $totalPages += $pages;
+                    }
+                } elseif ($request->filled('json_pages')) {
+                    $decoded = json_decode($request->json_pages, true);
+                    if (is_array($decoded)) {
+                        $jsonPagesArray = $decoded;
+                        $totalPages = array_sum(array_map(fn($r) => (int) ($r['pages'] ?? 0), $decoded));
+                    }
+                }
+
+                $jsonPagesString = !empty($jsonPagesArray) ? json_encode($jsonPagesArray) : $file->json_pages;
+                $finalTotalPages = !empty($jsonPagesArray) ? $totalPages : ($request->total_pages ?? $file->total_pages);
+
+                $updateData['total_pages'] = $finalTotalPages;
+                $updateData['json_pages'] = $jsonPagesString;
+
+                $allotteeUpdateData['total_pages'] = $finalTotalPages;
+                $allotteeUpdateData['json_pages'] = $jsonPagesString;
             }
 
-            return redirect()->route('admin.receiving.files.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
+            $file->update($updateData);
+
+            if ($file->allottee) {
+                $file->allottee->update($allotteeUpdateData);
+            }
+
+            return redirect()->route('admin.manage.lots.file.index', ['encodedId' => base64_encode($file->register_id), 'page' => 1])
                 ->with('success', 'File updated successfully.');
         } catch (\Throwable $e) {
             Log::error('File update failed', [
@@ -397,11 +445,332 @@ class FileManagementController extends Controller
         }
     }
 
+    public function dataentryfileFetch($encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+
+            $allotteeRelations = [
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'propertySubType',
+                'quarterType',
+                'documentData.document',
+                'masterDocuments',
+            ];
+
+            $file = RegisterAllottee::with([
+                'division',
+                'subDivision',
+                'propertyCategory',
+                'propertyType',
+                'quarterType',
+                'masterDocuments',
+                'allottee',
+            ])
+                ->where('id', $id)
+                ->where('is_active', 1)
+                ->firstOrFail();
+
+            // Primary allottee connected via register_file_id = register_allottees.id
+            $allottee = Allottee::with($allotteeRelations)
+                ->where('register_file_id', $file->id)
+                ->first();
+
+            if (!$allottee && !empty($file->parent_id)) {
+                $allottee = Allottee::with($allotteeRelations)
+                    ->where('register_file_id', $file->parent_id)
+                    ->first();
+            }
+
+            if (!$allottee) {
+                return back()->with('error', 'Data entry record not found for this file.');
+            }
+
+            // Build full chain: 1st Allottee (where register_file_id = $file->id)
+            // + any Name Transfer / subsequent allottees (where register_file_id is NULL and parent_id links to previous allottee.id)
+            $allotteeChain = collect([$allottee]);
+            $currentParentIds = [$allottee->id];
+            $visitedIds = [$allottee->id];
+
+            while (!empty($currentParentIds)) {
+                $children = Allottee::with($allotteeRelations)
+                    ->whereIn('parent_id', $currentParentIds)
+                    ->whereNotIn('id', $visitedIds)
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                if ($children->isEmpty()) {
+                    break;
+                }
+
+                foreach ($children as $child) {
+                    $allotteeChain->push($child);
+                    $visitedIds[] = $child->id;
+                }
+
+                $currentParentIds = $children->pluck('id')->all();
+            }
+
+            $divisions = Division::where('status', 1)->orderBy('name', 'asc')->get();
+
+            return view('admin.components.filereceiving.editdataentryfile', compact(
+                'file',
+                'allottee',
+                'allotteeChain',
+                'divisions',
+                'encryptedId'
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Failed to fetch dataentry file', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->with('error', 'Invalid file request.');
+        }
+    }
+
+    public function dataentryfileUpdate(Request $request, $encryptedId)
+    {
+        try {
+            $id = decrypt($encryptedId);
+
+            $file = RegisterAllottee::with('allottee')->findOrFail($id);
+            $allottee = $file->allottee ?? Allottee::where('register_file_id', $file->id)->first();
+
+            if (!$allottee && !empty($file->parent_id)) {
+                $allottee = Allottee::where('register_file_id', $file->parent_id)->first();
+            }
+
+            if (!$allottee) {
+                return back()->with('error', 'Data entry record not found for this file.');
+            }
+
+            $validated = $request->validate([
+                'division_id' => 'required|integer',
+                'sub_division_id' => 'required|integer',
+                'pcategory_id' => 'required|integer',
+                'p_type_id' => 'required|integer',
+                'property_subtype_id' => 'nullable|integer',
+                'quarter_type' => 'required|integer',
+                'property_number' => 'required|string|max:150',
+                'allottees' => 'required|array',
+                'allottees.*.prefix' => 'required|string|max:20',
+                'allottees.*.allottee_name' => 'required|string|max:150',
+                'allottees.*.allottee_middle_name' => 'nullable|string|max:150',
+                'allottees.*.allottee_surname' => 'nullable|string|max:150',
+                'allottees.*.allottee_prefix_hindi' => 'nullable|string|max:50',
+                'allottees.*.allottee_name_hindi' => 'nullable|string|max:150',
+                'allottees.*.allottee_middle_hindi' => 'nullable|string|max:150',
+                'allottees.*.allottee_surname_hindi' => 'nullable|string|max:150',
+            ]);
+
+            // Collect full chain of allottees (1st allottee + Name Transfer allottees via parent_id)
+            $allotteeChain = collect([$allottee]);
+            $currentParentIds = [$allottee->id];
+            $visitedIds = [$allottee->id];
+
+            while (!empty($currentParentIds)) {
+                $children = Allottee::whereIn('parent_id', $currentParentIds)
+                    ->whereNotIn('id', $visitedIds)
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                if ($children->isEmpty()) {
+                    break;
+                }
+
+                foreach ($children as $child) {
+                    $allotteeChain->push($child);
+                    $visitedIds[] = $child->id;
+                }
+
+                $currentParentIds = $children->pluck('id')->all();
+            }
+
+            $newDivisionCode = Division::where('id', $validated['division_id'])->value('division_code') ?? '';
+            $newSubDivisionCode = \App\Models\SubDivision::where('id', $validated['sub_division_id'])->value('subdivision_code') ?? '';
+            $newCategoryName = \App\Models\PropertyCategory::where('id', $validated['pcategory_id'])->value('name') ?? '';
+            $newTypeName = \App\Models\PropertyType::where('id', $validated['p_type_id'])->value('name') ?? '';
+            $quarterCode = \App\Models\QuarterType::where('quarter_id', $validated['quarter_type'])->value('quarter_code') ?? '';
+            $cleanPropertyNo = preg_replace('/[^A-Za-z0-9]/', '-', $validated['property_number']);
+
+            DB::beginTransaction();
+
+            // Update each allottee in the chain (Primary + Name Transfer children)
+            foreach ($allotteeChain as $chainItem) {
+                $itemInput = $validated['allottees'][$chainItem->id] ?? null;
+
+                $firstName = is_array($itemInput) ? $itemInput['allottee_name'] : $chainItem->allottee_name;
+                $middleName = is_array($itemInput) ? ($itemInput['allottee_middle_name'] ?? null) : $chainItem->allottee_middle_name;
+                $surname = is_array($itemInput) ? ($itemInput['allottee_surname'] ?? null) : $chainItem->allottee_surname;
+
+                $updatePayload = [
+                    'division_id' => $validated['division_id'],
+                    'subdivision_id' => $validated['sub_division_id'],
+                    'pcategory_id' => $validated['pcategory_id'],
+                    'property_type_id' => $validated['p_type_id'],
+                    'property_subtype_id' => $validated['property_subtype_id'] ?? $chainItem->property_subtype_id,
+                    'quarter_id' => $validated['quarter_type'],
+                    'quarter_income_code' => $quarterCode ?: $chainItem->quarter_income_code,
+                    'property_number' => $validated['property_number'],
+                    'updated_by' => $this->id,
+                    'update_ip_address' => $request->ip(),
+                ];
+
+                if (is_array($itemInput)) {
+                    $updatePayload['prefix'] = $itemInput['prefix'];
+                    $updatePayload['allottee_name'] = $firstName;
+                    $updatePayload['allottee_middle_name'] = $middleName;
+                    $updatePayload['allottee_surname'] = $surname;
+                    $updatePayload['allottee_prefix_hindi'] = $itemInput['allottee_prefix_hindi'] ?? null;
+                    $updatePayload['allottee_name_hindi'] = $itemInput['allottee_name_hindi'] ?? null;
+                    $updatePayload['allottee_middle_hindi'] = $itemInput['allottee_middle_hindi'] ?? null;
+                    $updatePayload['allottee_surname_hindi'] = $itemInput['allottee_surname_hindi'] ?? null;
+                }
+
+                // Shift uploaded files to new document path if division/subdivision/property/name changed (keep old folder intact)
+                $oldUploadPath = trim((string) $chainItem->allottee_document_path, '/\\');
+                if (!empty($oldUploadPath)) {
+                    $year = $chainItem->allotment_year;
+                    $month = !empty($chainItem->allotment_month)
+                        ? str_pad($chainItem->allotment_month, 2, '0', STR_PAD_LEFT)
+                        : '';
+                    $allotteeNameFolder = implode('', array_filter([
+                        $firstName,
+                        $middleName,
+                        $surname,
+                    ]));
+
+                    $folderParts = [
+                        'documents',
+                        $newDivisionCode,
+                        $newSubDivisionCode,
+                        $newCategoryName,
+                        $year,
+                        $month,
+                        $newTypeName,
+                        $quarterCode,
+                        $cleanPropertyNo,
+                        $allotteeNameFolder,
+                    ];
+
+                    $newUploadPath = implode('/', array_filter($folderParts));
+
+                    if (!empty($newUploadPath) && $newUploadPath !== $oldUploadPath) {
+                        $oldDir = public_path($oldUploadPath);
+                        $newDir = public_path($newUploadPath);
+
+                        File::ensureDirectoryExists($newDir, 0755, true);
+
+                        // 1. Move all physical files inside old folder to new folder (do NOT delete old folder)
+                        if (File::isDirectory($oldDir)) {
+                            foreach (File::files($oldDir) as $fileObj) {
+                                $targetPath = $newDir . DIRECTORY_SEPARATOR . $fileObj->getFilename();
+                                if ($fileObj->getPathname() !== $targetPath && File::exists($fileObj->getPathname())) {
+                                    File::move($fileObj->getPathname(), $targetPath);
+                                }
+                            }
+                        }
+
+                        // 2. Update AllotteeDocument file_path (and move file if located outside oldDir)
+                        $allotteeDocs = AllotteeDocument::where('allottee_id', $chainItem->id)
+                            ->whereNotNull('file_path')
+                            ->where('file_path', '!=', '')
+                            ->get();
+
+                        foreach ($allotteeDocs as $doc) {
+                            $docFileName = $doc->file_name ?: basename($doc->file_path);
+                            $oldFileFullPath = public_path($doc->file_path);
+                            $newFileFullPath = $newDir . DIRECTORY_SEPARATOR . $docFileName;
+
+                            if (File::exists($oldFileFullPath) && $oldFileFullPath !== $newFileFullPath) {
+                                File::move($oldFileFullPath, $newFileFullPath);
+                            }
+
+                            $doc->update([
+                                'file_path' => $newUploadPath . '/' . $docFileName,
+                            ]);
+                        }
+
+                        // 3. Update AllotteeMasterDocument file_path (and move file if located outside oldDir)
+                        $masterDocs = AllotteeMasterDocument::where('allottee_id', $chainItem->id)
+                            ->whereNotNull('file_path')
+                            ->where('file_path', '!=', '')
+                            ->get();
+
+                        foreach ($masterDocs as $mDoc) {
+                            $mFileName = $mDoc->file_name ?: basename($mDoc->file_path);
+                            $oldMasterFullPath = public_path($mDoc->file_path);
+                            $newMasterFullPath = $newDir . DIRECTORY_SEPARATOR . $mFileName;
+
+                            if (File::exists($oldMasterFullPath) && $oldMasterFullPath !== $newMasterFullPath) {
+                                File::move($oldMasterFullPath, $newMasterFullPath);
+                            }
+
+                            $mDoc->update([
+                                'file_path' => $newUploadPath . '/' . $mFileName,
+                                'property_number' => $validated['property_number'],
+                            ]);
+                        }
+
+                        $updatePayload['allottee_document_path'] = $newUploadPath;
+                    } else {
+                        AllotteeMasterDocument::where('allottee_id', $chainItem->id)->update([
+                            'property_number' => $validated['property_number'],
+                        ]);
+                    }
+                } else {
+                    AllotteeMasterDocument::where('allottee_id', $chainItem->id)->update([
+                        'property_number' => $validated['property_number'],
+                    ]);
+                }
+
+                $chainItem->update($updatePayload);
+            }
+
+            // Sync Property Details + 1st (Primary) Allottee English Name to RegisterAllottee
+            $primaryInput = $validated['allottees'][$allottee->id] ?? [];
+            $file->update([
+                'division_id' => $validated['division_id'],
+                'sub_division_id' => $validated['sub_division_id'],
+                'pcategory_id' => $validated['pcategory_id'],
+                'p_type_id' => $validated['p_type_id'],
+                'quarter_type' => $validated['quarter_type'],
+                'property_number' => $validated['property_number'],
+                'prefix' => $primaryInput['prefix'] ?? $file->prefix,
+                'allottee_name' => $primaryInput['allottee_name'] ?? $file->allottee_name,
+                'allottee_middle_name' => $primaryInput['allottee_middle_name'] ?? null,
+                'allottee_surname' => $primaryInput['allottee_surname'] ?? null,
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.manage.lots.file.index', [
+                    'encodedId' => base64_encode($file->register_id),
+                    'page' => 1
+                ])
+                ->with('success', 'Data Entry Property & Allottee Details updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('Failed to update dataentry allottee file', [
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->withInput()->with('error', 'Failed to update data entry file.');
+        }
+    }
+
     public function receivingfilesExports(Request $request, $registerId)
     {
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
-        
+
         $limit = $request->query('limit', 12);
 
         $registerNo = base64_decode($registerId, true);
@@ -1430,7 +1799,7 @@ class FileManagementController extends Controller
         ini_set('max_execution_time', 300);
         ini_set('memory_limit', '512M');
         set_time_limit(300);
-        
+
         $limit = $request->query('limit', 12);
 
         $registerNo = base64_decode($registerId, true);

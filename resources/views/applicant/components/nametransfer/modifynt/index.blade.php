@@ -1227,8 +1227,14 @@
                             applicantInput = document.createElement('input');
                             applicantInput.type = 'hidden';
                             applicantInput.name = 'applicant_id';
-                            applicantInput.value = this.config.applicantId;
                             form.appendChild(applicantInput);
+                        }
+                        applicantInput.value = this.config.applicantId;
+
+                        // Also keep allottee_id synced
+                        let allotteeInput = form.querySelector('input[name="allottee_id"]');
+                        if (allotteeInput) {
+                            allotteeInput.value = this.config.applicantId;
                         }
                     }
                 }
@@ -1408,7 +1414,10 @@
                 const formData = new FormData(form);
 
                 if (this.config.applicantId) {
-                    formData.append('applicant_id', this.config.applicantId);
+                    formData.set('applicant_id', this.config.applicantId);
+                    formData.set('allottee_id', this.config.applicantId);
+                    formData.set('is_update', 'true');
+                    formData.set('action', 'update');
                 }
 
                 const endpoint = this.getStepEndpoint(this.config.currentStep);
@@ -1521,6 +1530,13 @@
         // Initialize on DOM ready
         document.addEventListener('DOMContentLoaded', () => {
             StepManager.init();
+        });
+
+        // Reload if restored from browser back-forward cache (bfcache)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                window.location.reload();
+            }
         });
     </script>
 

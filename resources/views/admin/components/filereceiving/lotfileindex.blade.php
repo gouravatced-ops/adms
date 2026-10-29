@@ -111,18 +111,18 @@
                                         {{ formatDateTime($item->updated_at ?? now()) }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.receiving.file.fetch', $item->primary_id_encrpted) }}"
-                                            class="btn btn-primary text-white me-2" title="Edit {{ $allotteeName }} File">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                                <path d="M14 2v6h6" />
-                                                <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
-                                                <path d="M13 12l3 3" />
-                                            </svg>
-                                        </a>
                                         @if ($item->allottee_status == 'received' || $item->allottee_status == 'scanned')
+                                            <a href="{{ route('admin.receiving.file.fetch', $item->primary_id_encrpted) }}"
+                                                class="btn btn-primary text-white me-2" title="Edit {{ $allotteeName }} File">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                    <path d="M14 2v6h6" />
+                                                    <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
+                                                    <path d="M13 12l3 3" />
+                                                </svg>
+                                            </a>
                                             <form action="{{ route('admin.lots.file.delete', $item->primary_id_encrpted) }}" method="POST" class="d-inline" id="deleteForm-{{ $item->primary_id_encrpted }}">
                                                 @csrf
                                                 <input type="hidden" name="delete_reason" id="delete_reason-{{ $item->primary_id_encrpted }}">
@@ -143,7 +143,19 @@
                                                     </svg>
                                                 </button>
                                             </form>
-                                        @endif
+                                            @elseif ($item->allottee_status == 'dataentry' && $userAuth->role == "council_office")
+                                                <!-- <a href="{{ route('admin.dataentry.file.fetch', $item->primary_id_encrpted) }}"
+                                                    class="btn btn-info text-white me-2" title="Edit Data Entry {{ $allotteeName }} File">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                        <path d="M14 2v6h6" />
+                                                        <path d="M16 13l-5.5 5.5L8 19l.5-2.5L14 11z" />
+                                                        <path d="M13 12l3 3" />
+                                                    </svg>
+                                                </a> -->
+                                            @endif
                                     </td>
                                 </tr>
                             @empty

@@ -2,13 +2,35 @@
 
 @section('admin-content')
     <div class="container-xxl flex-grow-1">
+
+        @php
+            $statusStage = $statusStage ?? 'N/A';
+
+            $statusClasses = [
+                'received' => 'bg-primary',
+                'scanned'  => 'bg-warning text-dark',
+                'handover' => 'bg-success',
+                'dataentry' => 'bg-info',
+            ];
+        @endphp
+
         <h6 class="py-3 mb-2">
-            <span class="invert-text-white">Dashboard / Edit File : {{ $fullName }}</span>
+            <span class="invert-text-white">
+                Dashboard / Edit File: {{ $fullName }} /
+
+                <span @class([
+                    'badge',
+                    $statusClasses[$statusStage] ?? 'bg-secondary',
+                ])>
+                    {{ ucfirst($statusStage) }}
+                </span>
+            </span>
         </h6>
+
 
         <div class="card mb-4">
             <h5 class="card-header text-white bg-info">
-                <i class="bx bx-pencil me-2"></i>Edit Reciving Allottee File
+                <i class="bx bx-pencil me-2"></i>Edit Allottee File
             </h5>
             <div class="card-body mt-2">
                 @if (session('error'))
@@ -167,13 +189,13 @@
                         </label>
                         <select name="no_of_files" required="" class="form-select">
                             <option value="1" {{ $file->no_of_files == 1 ? 'selected' : '' }}>1</option>
-                            <option value="2" {{ $file->no_of_files == 2 ? 'selected' : '' }}>2</option>
+                            <!-- <option value="2" {{ $file->no_of_files == 2 ? 'selected' : '' }}>2</option>
                             <option value="3" {{ $file->no_of_files == 3 ? 'selected' : '' }}>3</option>
                             <option value="4" {{ $file->no_of_files == 4 ? 'selected' : '' }}>4</option>
                             <option value="5" {{ $file->no_of_files == 5 ? 'selected' : '' }}>5</option>
                             <option value="6" {{ $file->no_of_files == 6 ? 'selected' : '' }}>6</option>
                             <option value="7" {{ $file->no_of_files == 7 ? 'selected' : '' }}>7</option>
-                            <option value="8" {{ $file->no_of_files == 8 ? 'selected' : '' }}>8</option>
+                            <option value="8" {{ $file->no_of_files == 8 ? 'selected' : '' }}>8</option> -->
                         </select>
                     </div>
 
@@ -182,7 +204,8 @@
                         <label for="no_of_supplement" class="form-label">
                             Additional Supplement Files
                         </label>
-                        <select name="no_of_supplement" class="form-select">
+                        <select name="no_of_supplement" id="no_of_supplement" class="form-select">
+                            <option value="0" {{ $file->no_of_supplement == 0 ? 'selected' : '' }}>0</option>
                             <option value="1" {{ $file->no_of_supplement == 1 ? 'selected' : '' }}>1</option>
                             <option value="2" {{ $file->no_of_supplement == 2 ? 'selected' : '' }}>2</option>
                             <option value="3" {{ $file->no_of_supplement == 3 ? 'selected' : '' }}>3</option>
@@ -206,13 +229,75 @@
                         </select>
                     </div>
 
+                    @php
+                        $pagesData = $file->json_pages ? json_decode($file->json_pages, true) : [];
+                        if (!is_array($pagesData)) {
+                            $pagesData = [];
+                        }
+                        $totalFilesCount = 1 + (int) ($file->no_of_supplement ?? 0);
+                    @endphp
+
+                    @if($statusStage == 'scanned')
+                        <hr>
+                        <br>
+                        <span><strong>No. of Files : </strong><span id="display_no_of_files">{{ $file->no_of_files ?? 1 }}</span></span>
+                        <span><strong>Additional Supplement Files : </strong><span id="display_no_of_supplement">{{ $file->no_of_supplement ?? 0 }}</span></span>
+                        <span><strong>Total Pages : </strong><span id="display_total_pages">{{ $file->total_pages ?? 0 }}</span></span>
+
+                        <!-- Create Box of files pages -->
+                        {{-- [json_pages] => [{"file_name":"File-1","pages":242},{"file_name":"File-2","pages":71}] --}}
+                        <input type="hidden" name="total_pages" id="total_pages_input" value="{{ $file->total_pages ?? 0 }}">
+                        <input type="hidden" name="json_pages" id="json_pages_input" value="{{ $file->json_pages }}">
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-primary">Files & Pages Details</label>
+                            <div class="card mb-3">
+                                <div class="card-body p-0">
+                                    <table class="table table-bordered mb-0" id="filesPagesTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50%;">File Name</th>
+                                                <th style="width: 50%;">Number of Pages</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="filesPagesTbody">
+                                            @for ($i = 0; $i < $totalFilesCount; $i++)
+                                                @php
+                                                    $fileName = $pagesData[$i]['file_name'] ?? 'File-' . ($i + 1);
+                                                    $pageCount = $pagesData[$i]['pages'] ?? 0;
+                                                    $fileLabel = $i === 0 ? $fileName . ' (Main File)' : $fileName . ' (Supplement ' . $i . ')';
+                                                @endphp
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <span class="fw-semibold">{{ $fileLabel }}</span>
+                                                        <input type="hidden" name="file_pages[{{ $i }}][file_name]" class="file-name-input" value="{{ $fileName }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number"
+                                                            name="file_pages[{{ $i }}][pages]"
+                                                            class="form-control page-count-input"
+                                                            min="1"
+                                                            value="{{ $pageCount }}"
+                                                            placeholder="Enter pages for {{ $fileName }}"
+                                                            required>
+                                                    </td>
+                                                </tr>
+                                            @endfor
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    @endif
+
                     <!-- ACTION BUTTONS -->
                     <div class="col-12 d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i> Update File
                         </button>
 
-                        <a href="{{ route('admin.receiving.files.index', ['encodedId' => $file->encoded_register_no, 'page' => 1]) }}" class="btn btn-outline-danger ms-auto">
+                        <a href="{{ route('admin.manage.lots.file.index', ['encodedId' => $file->encoded_register_no, 'page' => 1]) }}" class="btn btn-outline-danger ms-auto">
                             <i class="bx bx-x me-1"></i> Cancel
                         </a>
                     </div>
@@ -326,19 +411,19 @@
                     const optionText = option.text.toLowerCase();
 
                     if (text.includes('plot')) {
-                        // Plot select hone par sirf MIG aur HIG show
-                        if (optionText.includes('mig') || optionText.includes('hig')) {
+                        // Plot select MIG or LIG or HIG show
+                        if (optionText.includes('mig') || optionText.includes('hig') || optionText.includes('lig')) {
                             option.hidden = false;
                         } else {
                             option.hidden = true;
                         }
                     } else {
-                        // Plot nahi hai to sab option show
+                        // Plot option show
                         option.hidden = false;
                     }
                 });
 
-                // Agar current selected option hidden ho gaya to reset
+                // current selected option hidden
                 if (quarterSelect.selectedOptions.length &&
                     quarterSelect.selectedOptions[0].hidden) {
                     quarterSelect.value = '';
@@ -347,8 +432,104 @@
 
             propertyType.addEventListener('change', filterQuarterOptions);
 
-            // Page load pe bhi check kare
+            // Page load
             filterQuarterOptions();
+
+            // Dynamic Supplement Files & Pages handler (only when scanned / table exists)
+            const supplementSelect = document.getElementById('no_of_supplement');
+            const tbody = document.getElementById('filesPagesTbody');
+            const displaySupplement = document.getElementById('display_no_of_supplement');
+            const displayTotalPages = document.getElementById('display_total_pages');
+            const totalPagesInput = document.getElementById('total_pages_input');
+            const jsonPagesInput = document.getElementById('json_pages_input');
+
+            if (tbody && supplementSelect) {
+                // Store initial/edited pages by index so switching back and forth doesn't lose values
+                const savedPages = {};
+                const initialPagesData = @json($pagesData ?? []);
+                if (Array.isArray(initialPagesData)) {
+                    initialPagesData.forEach((item, idx) => {
+                        savedPages[idx] = parseInt(item.pages, 10) || 0;
+                    });
+                }
+
+                function syncTotalsAndJson() {
+                    let totalPages = 0;
+                    const jsonArray = [];
+                    const rows = tbody.querySelectorAll('tr');
+
+                    rows.forEach((row, index) => {
+                        const fileName = `File-${index + 1}`;
+                        const pageInput = row.querySelector('.page-count-input');
+                        const pages = parseInt(pageInput.value, 10) || 0;
+                        savedPages[index] = pages;
+                        totalPages += pages;
+
+                        jsonArray.push({
+                            file_name: fileName,
+                            pages: pages
+                        });
+                    });
+
+                    displayTotalPages.textContent = totalPages;
+                    totalPagesInput.value = totalPages;
+                    jsonPagesInput.value = JSON.stringify(jsonArray);
+                }
+
+                function renderFileRows() {
+                    const supplementCount = parseInt(supplementSelect.value, 10) || 0;
+                    const totalRows = 1 + supplementCount; // 1 Main File + N Supplements
+
+                    displaySupplement.textContent = supplementCount;
+
+                    // Save current input values before re-rendering
+                    tbody.querySelectorAll('tr').forEach((row, idx) => {
+                        const input = row.querySelector('.page-count-input');
+                        if (input) {
+                            savedPages[idx] = parseInt(input.value, 10) || 0;
+                        }
+                    });
+
+                    tbody.innerHTML = '';
+
+                    for (let i = 0; i < totalRows; i++) {
+                        const fileName = `File-${i + 1}`;
+                        const fileLabel = i === 0 ? `${fileName} (Main File)` : `${fileName} (Supplement ${i})`;
+                        const pageVal = savedPages[i] !== undefined ? savedPages[i] : '';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="align-middle">
+                                <span class="fw-semibold">${fileLabel}</span>
+                                <input type="hidden" name="file_pages[${i}][file_name]" class="file-name-input" value="${fileName}">
+                            </td>
+                            <td>
+                                <input type="number"
+                                    name="file_pages[${i}][pages]"
+                                    class="form-control page-count-input"
+                                    min="1"
+                                    value="${pageVal}"
+                                    placeholder="Enter pages for ${fileName}"
+                                    required>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+
+                    syncTotalsAndJson();
+                }
+
+                supplementSelect.addEventListener('change', renderFileRows);
+
+                tbody.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('page-count-input')) {
+                        syncTotalsAndJson();
+                    }
+                });
+
+                // Initial sync on page load
+                syncTotalsAndJson();
+            }
         });
     </script>
 @endsection

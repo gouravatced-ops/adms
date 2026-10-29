@@ -212,4 +212,5 @@ Route::middleware('auth:web')->group(function () {
     // Scanner Property Search
     Route::get('/scanner/property/search', [App\Http\Controllers\Applicant\ScannerPropertySearchController::class, 'index'])->name('scanner.property.search');
     Route::post('/scanner/property/search', [App\Http\Controllers\Applicant\ScannerPropertySearchController::class, 'search'])->name('scanner.property.search.submit');
+    Route::get('/scanner/property/search/autocomplete', [App\Http\Controllers\Applicant\ScannerPropertySearchController::class, 'autocomplete'])->name('scanner.property.search.autocomplete');
 });

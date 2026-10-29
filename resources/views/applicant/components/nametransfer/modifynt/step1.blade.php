@@ -588,6 +588,7 @@
             @if (count($existingJointAllottees) > 0)
                 @foreach ($existingJointAllottees as $index => $joint)
                     <div class="joint-member-card" data-joint-index="{{ $index }}">
+                        <input type="hidden" name="joint_allottee_id[]" value="{{ $joint['id'] ?? '' }}">
                         <div class="joint-member-title">
                             <span>Joint Allottee #<span class="joint-number">{{ $index + 1 }}</span></span>
                             <button type="button" class="btn-remove-joint"

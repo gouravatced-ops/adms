@@ -58,6 +58,7 @@ const Step3Handler = (function () {
     const state = {
         manager: null,
         completedNameTransferDocs: [],
+        serverCompletedCount: 0,
         applicantId: null,
         documentConfigs: { nameTransfer: [] },
         isLoading: false
@@ -76,24 +77,26 @@ const Step3Handler = (function () {
         if (dataElement) {
             try {
                 const data = JSON.parse(dataElement.textContent);
-                window.documentTransferList = data.documentTransferList;
-                window.completedDocumentsList = data.completedDocumentsList;
+                window.documentTransferList = data.documentTransferList || [];
+                window.completedDocumentsList = data.completedDocumentsList || [];
             } catch (e) {
                 console.error("Failed to parse step 3 documents data", e);
             }
         }
 
-        // Dynamically load from window to ensure we get the latest
+        const serverCompletedDocs = Array.isArray(window.completedDocumentsList) ? window.completedDocumentsList : [];
+        const serverCompletedIds = serverCompletedDocs.map(doc => Number(doc.document_id || doc.id));
+        const rawTransferDocs = Array.isArray(window.documentTransferList) ? window.documentTransferList : [];
+
+        // Dynamically load remaining uncompleted documents for the upload table
         state.documentConfigs = {
-            nameTransfer: window.documentTransferList || []
+            nameTransfer: rawTransferDocs.filter(doc => !serverCompletedIds.includes(Number(doc.id)))
         };
-        const COMPLETED_DOCUMENTS = window.completedDocumentsList || [];
+        state.serverCompletedCount = serverCompletedDocs.length;
+        state.completedNameTransferDocs = [];
 
         cacheElements();
         state.applicantId = elements.applicantId?.value || "";
-
-        // Load completed documents
-        loadCompletedDocuments(COMPLETED_DOCUMENTS);
 
         bindEvents();
         initializeUI();
@@ -111,7 +114,8 @@ const Step3Handler = (function () {
     }
 
     function bindEvents() {
-        // Use event delegation for dynamic elements
+        // Use event delegation for dynamic elements (remove first to avoid duplicates)
+        document.removeEventListener("click", handleDocumentClick);
         document.addEventListener("click", handleDocumentClick);
     }
 
@@ -553,23 +557,24 @@ const Step3Handler = (function () {
         const documents = state.documentConfigs.nameTransfer;
         const completedDocs = state.completedNameTransferDocs;
         const nextIndex = completedDocs.length;
+        const slOffset = state.serverCompletedCount || 0;
 
         elements.documentRows.innerHTML = "";
 
-        // Render completed rows
+        // Render completed rows from current session
         completedDocs.forEach((completedDoc, index) => {
-            const originalDoc = documents.find((d) => d.id === completedDoc.id);
+            const originalDoc = documents.find((d) => Number(d.id) === Number(completedDoc.id));
             if (originalDoc) {
                 elements.documentRows.insertAdjacentHTML(
                     "beforeend",
-                    createDocumentRow(originalDoc, index + 1, true, completedDoc),
+                    createDocumentRow(originalDoc, slOffset + index + 1, true, completedDoc),
                 );
             }
         });
 
         // Render next incomplete document if any
         if (nextIndex < documents.length) {
-            renderNextDocumentRow(documents[nextIndex], nextIndex + 1);
+            renderNextDocumentRow(documents[nextIndex], slOffset + nextIndex + 1);
         }
     }
 
@@ -607,8 +612,9 @@ const Step3Handler = (function () {
     // ==================== PROGRESS TRACKING ====================
 
     function updateProgress() {
-        const totalDocs = state.documentConfigs.nameTransfer.length;
-        const completedCount = state.completedNameTransferDocs.length;
+        const serverCompleted = state.serverCompletedCount || 0;
+        const totalDocs = serverCompleted + state.documentConfigs.nameTransfer.length;
+        const completedCount = serverCompleted + state.completedNameTransferDocs.length;
 
         if (elements.progressCount) {
             elements.progressCount.textContent = `${completedCount}/${totalDocs}`;

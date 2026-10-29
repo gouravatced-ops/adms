@@ -121,7 +121,7 @@
                             value="{{ $file->property_number }}" placeholder="Enter Property Number" disabled>
                     </div>
 
-                                        
+
                     {{-- Remarks --}}
                     <div class="col-md-3">
                         <label for="remarks" class="form-label">
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                     @endif
-                    
+
 
                     <!-- ACTION BUTTONS -->
                     <div class="col-12 d-flex gap-2 mt-4">
@@ -334,19 +334,19 @@
                     const optionText = option.text.toLowerCase();
 
                     if (text.includes('plot')) {
-                        // Plot select hone par sirf MIG aur HIG show
-                        if (optionText.includes('mig') || optionText.includes('hig')) {
+                        // Plot select MIG or LIG or HIG show
+                        if (optionText.includes('mig') || optionText.includes('hig') || optionText.includes('lig')) {
                             option.hidden = false;
                         } else {
                             option.hidden = true;
                         }
                     } else {
-                        // Plot nahi hai to sab option show
+                        // Plot option show
                         option.hidden = false;
                     }
                 });
 
-                // Agar current selected option hidden ho gaya to reset
+                // Current selected option hidden
                 if (quarterSelect.selectedOptions.length &&
                     quarterSelect.selectedOptions[0].hidden) {
                     quarterSelect.value = '';
@@ -355,7 +355,7 @@
 
             propertyType.addEventListener('change', filterQuarterOptions);
 
-            // Page load pe bhi check kare
+            // Page
             filterQuarterOptions();
         });
     </script>
